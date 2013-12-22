@@ -50,8 +50,8 @@ import java.util.Vector;
  * NB: For binary images, background is always considered to be 0, independently
  * of Prefs.blackBackground.
  *
- * @author Tiago Ferreira v2.0 Feb 2012, v3.0 Oct 2012, v3.1 June 2013
- * @author Tom Maddock v1.0, Oct 2005
+ * @author Tiago Ferreira v2-v3, Feb 2012-June 2013
+ * @author Tom Maddock v1, Oct 2005
  */
 public class Sholl_Analysis implements PlugIn, DialogListener {
 
@@ -435,7 +435,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
             rt.addValue("Inters.", valuesN[i][1]);
             rt.addValue("Norm Inters. ("+ normalizerString +")", valuesNS[i][1]);
             rt.addValue("log(Radius)", valuesLOG[i][0]);
-            rt.addValue("log(Norm Inters.)", valuesLOG[i][0]);
+            rt.addValue("log(Norm Inters.)", valuesLOG[i][1]);
 
             if (fvaluesN!=null) {
                 rt.addValue("Linear Sholl: Polynomial fx (X)", valuesN[i][0]);
@@ -612,6 +612,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.addValue("Critical radius", cr);
 			rt.addValue("Mean value", mv);
 			rt.addValue("Ramification index (CV)", rif);
+			final double[] moments = getMoments(fy);
+			rt.addValue("Skewness (fitted)", moments[2]);
+			rt.addValue("Kurtosis (fitted)", moments[3]);
 			rt.addValue("Polyn. degree", parameters.length-2);
 			rt.addValue("Polyn. R^2", cf.getRSquared());
 
@@ -1655,7 +1658,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
     }
 
-     /** Retrieves the median of an array */
+    /** Retrieves the median of an array */
     private static double getMedian(final double[] array) {
 
         final int size = array.length;
@@ -1720,11 +1723,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Enclosing radius cutoff", enclosingCutOff);
 		rt.addValue("I branches (User)", (inferPrimary || primaryBranches==0) ? Double.NaN : primaryBranches);
 		rt.addValue("I branches (Inferred)", (inferPrimary || primaryBranches==0) ? y[0] : Double.NaN);
-
 		rt.addValue("Intersecting radii", size);
 		rt.addValue("Sum inters.", sumY);
-		rt.addValue("Mean inters.", sumY/size);
+
+		// Calculate  skewness and kurtosis of sampled data (linear Sholl);
+		final double[] moments = getMoments(y);
+		rt.addValue("Mean inters.", moments[0]);
 		rt.addValue("Median inters.", getMedian(y));
+		rt.addValue("Skewness (sampled)", moments[2]);
+		rt.addValue("Kurtosis (sampled)", moments[3]);
 		rt.addValue("Max inters.", maxIntersect);
 		rt.addValue("Max inters. radius", maxR);
 		rt.addValue("Ramification index (sampled)", ri);
@@ -1735,7 +1742,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Centroid inters.", centroid[1]);
 
 		rt.addValue("Enclosing radius", enclosingR);
-
 		//rt.addValue("Enclosed field", field);
 		rt.show(SHOLLTABLE);
 		return rt;
@@ -2052,29 +2058,29 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
             filename = filename.substring(0, index);
         return filename;
     }
-    
+
     /**
-     * Returns the skewness and kurtosis values for an array of univariate data. 
-     * Skewness: Negative values indicate data that is skewed left (left tail is longer than
-     *           right tail); positive values indicate data skewed right (longer right tail),
-     *           defined according to http://en.wikipedia.org/wiki/Skewness#Sample_skewness
-     * Kurtosis: Positive values indicate "peaked" distributions; a negative value indicates a
-     *           "flat" distribution. A normal distribution has a kurtosis of 0. Here, defined
-     *           according to http://en.wikipedia.org/wiki/Kurtosis#Sample_kurtosis
+     * Returns the mean, variance, skewness and kurtosis of an array of univariate data.
+     * Code from ij.process.ByteStatistics
      */
-    private final double[] getSkewnessKurtosis(final double values[], final double mean) {
-    	final int npoints = values.length;
-    	double numS = 0;
-    	double numK = 0;
-    	double denm = 0;
-    	for (int i=0; i<npoints; i++) {
-    		denm += (values[i]-mean) * (values[i]-mean);
-    		numS += denm * (values[i]-mean);
-    		numK += numS * (values[i]-mean);
-    	}
-    	final double skewness = (1/npoints * numS) / Math.pow((1/npoints * denm), 3.0/2.0);
-    	final double kurtosis = ((1/npoints * numK) / Math.pow((1/npoints * denm), 2)) - 3;
-    	return new double[] { skewness, kurtosis };
+    private final static double[] getMoments(final double values[]) {
+		final int npoints = values.length;
+		double v, v2, sum1=0.0, sum2=0.0, sum3=0.0, sum4=0.0;
+		for (int i=0; i<npoints; i++) {
+			v = values[i];
+			v2 = v*v;
+			sum1 += v;
+			sum2 += v2;
+			sum3 += v*v2;
+			sum4 += v2*v2;
+		}
+		final double mean = sum1/npoints;
+	    final double mean2 = mean*mean;
+	    final double variance = sum2/npoints - mean2;
+	    final double std = Math.sqrt(variance);
+	    final double skewness = ((sum3 - 3.0*mean*sum2)/npoints + 2.0*mean*mean2)/(variance*std);
+	    final double kurtosis = (((sum4 - 4.0*mean*sum3 + 6.0*mean2*sum2)/npoints - 3.0*mean2*mean2)/(variance*variance)-3.0);
+    	return new double[] { mean, variance, skewness, kurtosis };
     }
 
 }

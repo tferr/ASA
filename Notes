@@ -12,7 +12,11 @@ RELEASE NOTES
    (Unfortunately, the numbering scheme is somewhat arbitrary and not that meaningful.
     However, large increments usually indicate changes in the user interface).
 
-Version 3.2 (August 2013) [latest]
+Version 3.3 (December 2013) [latest]
+    - Calculates skewness and kurtosis for both sampled and fitted data
+    - Fixed v3.1 bug in which values from log-log plot were not listed in table
+
+Version 3.2 (August 2013)
     - Enclosing radius is defined as the widest distance associated with a specified
       cutoff value of intersection counts. At the default cutoff (1), it is the largest
       of intersecting radii.
