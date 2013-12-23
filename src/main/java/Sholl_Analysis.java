@@ -101,7 +101,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
     private static double endRadius   = 100.0;
     private static double stepRadius  = 1;
     private static double incStep     = 0;
-    private static int polyChoice     = 3;
+    private static int polyChoice     = 5;
     private static boolean verbose;
     private static boolean mask;
     public static int maskBackground = 228;
@@ -433,21 +433,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
             rt.incrementCounter();
             rt.addValue("Radius", valuesN[i][0]);
             rt.addValue("Inters.", valuesN[i][1]);
-            rt.addValue("Norm Inters. ("+ normalizerString +")", valuesNS[i][1]);
-            rt.addValue("log(Radius)", valuesLOG[i][0]);
-            rt.addValue("log(Norm Inters.)", valuesLOG[i][1]);
-
             if (fvaluesN!=null) {
-                rt.addValue("Linear Sholl: Polynomial fx (X)", valuesN[i][0]);
-                rt.addValue("Linear Sholl: Polynomial fx (Y)", fvaluesN[i]);
+                //rt.addValue("Radius (Polynomial fit)", valuesN[i][0]);
+                rt.addValue("Inters. (Polynomial fit)", fvaluesN[i]);
             }
+            rt.addValue("Inters./"+ normalizerString, valuesNS[i][1]);
             if (fvaluesNS!=null) {
-                rt.addValue("Linear (norm.): Power fx (X)", valuesNS[i][0]);
-                rt.addValue("Linear (norm.): Power fx (Y)", fvaluesNS[i]);
+                //rt.addValue("Radius (Power fit)", valuesNS[i][0]);
+                rt.addValue("Inters./"+ normalizerString +" (Power fit)", fvaluesNS[i]);
             }
+            rt.addValue("log(Radius)", valuesLOG[i][0]);
+            rt.addValue("log(Inters./"+ normalizerString +")", valuesLOG[i][1]);
             //if (fvaluesLOG!=null) {
-            //   rt.addValue("Log-log: Exponential (X)", valuesLOG[i][0]);
-            //    rt.addValue("Log-log: Exponential (Y)", fvaluesLOG[i]);
+            //    rt.addValue("log(Radius) (Exponential fit)", valuesLOG[i][0]);
+            //    rt.addValue("log(Inters./"+ normalizerString +") (Exponential fit)", fvaluesLOG[i]);
             //}
         }
 
