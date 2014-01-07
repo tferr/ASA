@@ -56,7 +56,7 @@ import java.util.Vector;
 public class Sholl_Analysis implements PlugIn, DialogListener {
 
     /* Plugin Information */
-    public static final String VERSION = "3.2";
+    public static final String VERSION = "3.3";
     private static final String URL = "http://fiji.sc/Sholl_Analysis";
 
     /* Sholl Type Definitions */
@@ -735,7 +735,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
         gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
         gd.addNumericField("#_Primary branches", primaryBranches, 0);
         gd.setInsets(0, 2*xIndent, 0);
-        gd.addCheckbox("Infer from Starting radius", inferPrimary);
+        gd.addCheckbox("Infer from starting radius", inferPrimary);
         gd.setInsets(6, xIndent, 0);
         gd.addCheckbox("Fit profile and compute descriptors", fitCurve);
         gd.setInsets(3, 2*xIndent, 0);
