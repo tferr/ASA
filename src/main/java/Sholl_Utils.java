@@ -1,6 +1,5 @@
-/* Copyright 2013 Tiago Ferreira, 2005 Tom Maddock
+/* Copyright 2014 Tiago Ferreira
  *
- * This file is part of the ImageJ plugin "Bitmap Sholl Analysis".
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -25,10 +24,17 @@ import java.io.*;
 //import java.net.*;
 import java.awt.image.IndexColorModel;
 
-/** Simple auxiliary commands related to Sholl_Analysis */
+/**
+ * Simple auxiliary commands related to Sholl_Analysis
+ *
+ * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
+ * @see <a href="http://fiji.sc/Sholl_Analysis">http://fiji.sc/Sholl_Analysis</a>
+ *
+ * @author Tiago Ferreira
+ */
 public class Sholl_Utils implements PlugIn {
 
-    private static final String BUILD = " 2013.12";
+    private static final String BUILD = " 2014.01";
     private static final String SRC_URL = "https://github.com/tferr/ASA";
     private static final String DOC_URL = "http://fiji.sc/Sholl_Analysis";
     private static int background = Sholl_Analysis.maskBackground;
@@ -77,10 +83,10 @@ public class Sholl_Utils implements PlugIn {
     /** Displays an "about" info box */
     void showAbout() {
         final String msg1 = " Version " + Sholl_Analysis.VERSION + BUILD;
-        final String msg2 = "Quantitative Sholl of untraced neuronal arbors in 2D/3D\n"
-                           +"Tiago Ferreira, Tom Maddock";
+        final String msg2 = "Quantitative Sholl-based morphometry of untraced neuronal\n"
+        			+ "arbors in 2D/3D\n \nTiago Ferreira, Tom Maddock";
 
-        final GenericDialog gd = new GenericDialog("Sholl Analysis Plugins");
+        final GenericDialog gd = new GenericDialog("About Sholl Analysis...");
         gd.addMessage(msg1, new Font("SansSerif", Font.BOLD, 12));
         gd.addMessage(msg2, new Font("SansSerif", Font.PLAIN, 12));
         gd.enableYesNoCancel("Browse Documentation", "Browse Repository");

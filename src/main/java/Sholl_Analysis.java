@@ -1,4 +1,4 @@
-/* Copyright 2013 Tiago Ferreira, 2005 Tom Maddock
+/* Copyright 2014 Tiago Ferreira, 2005 Tom Maddock
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,21 +42,20 @@ import java.util.Arrays;
 import java.util.Vector;
 
 /**
- * Performs Sholl Analysis on segmented arbors. Several analysis methods are
- * available: Linear (N), Linear (N/S), Semi-log and Log-log as described in
- * Milosevic and Ristanovic, J Theor Biol (2007) 245(1)130-40.
- * The original method is described in Sholl, DA. J Anat (1953) 87(4)387-406.
+ * ImageJ 1.x plugin that uses the Sholl technique to perform neuronal morphometry
+ * directly from bitmap images. Analysis is performed on segmented arbors. For
+ * binary images, background is always considered to be 0, independently of
+ * <code>ij.Prefs.blackBackground</code>
  *
- * NB: For binary images, background is always considered to be 0, independently
- * of Prefs.blackBackground.
+ * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
+ * @see <a href="http://fiji.sc/Sholl_Analysis">http://fiji.sc/Sholl_Analysis</a>
  *
- * @author Tiago Ferreira v2-v3, Feb 2012-June 2013
- * @author Tom Maddock v1, Oct 2005
+ * @author Tiago Ferreira, Tom Maddock (v1, 2005)
  */
 public class Sholl_Analysis implements PlugIn, DialogListener {
 
     /* Plugin Information */
-    public static final String VERSION = "3.3";
+    public static final String VERSION = "3.4a";
     private static final String URL = "http://fiji.sc/Sholl_Analysis";
 
     /* Sholl Type Definitions */
@@ -84,7 +83,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
     /* Curve Fitting, Results and Descriptors */
     private static boolean fitCurve = true;
-    private static final String[] DEGREES = { "4th degree", "5th degree", "6th degree", "7th degree", "8th degree", "Best fitting degree" };
+    private static final String[] DEGREES = { "3rd degree", "4th degree", "5th degree", "6th degree", "7th degree", "8th degree", "Best fitting degree" };
     private static final int SMALLEST_DATASET = 6;
     private static final String SHOLLTABLE = "Sholl Results";
     private static double[] centroid;
@@ -101,7 +100,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
     private static double endRadius   = 100.0;
     private static double stepRadius  = 1;
     private static double incStep     = 0;
-    private static int polyChoice     = 5;
+    private static int polyChoice     = DEGREES.length - 1;
     private static boolean verbose;
     private static boolean mask;
     public static int maskBackground = 228;
@@ -515,7 +514,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		 //cf.setMaxIterations(50000); //default: 25000
 
 		if (method == SHOLL_N) {
-			if (DEGREES[polyChoice].startsWith("4")) {
+			if (DEGREES[polyChoice].startsWith("3")) {
+				cf.doFit(CurveFitter.POLY3, false);
+			} else if (DEGREES[polyChoice].startsWith("4")) {
 				cf.doFit(CurveFitter.POLY4, false);
 			} else if (DEGREES[polyChoice].startsWith("5")) {
 				cf.doFit(CurveFitter.POLY5, false);
@@ -655,8 +656,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
     /** Guesses the polynomial of best fit by comparison of coefficient of determination */
     static private int getBestPolyFit(final double x[], final double[] y) {
 
-    	final int[] polyList = { CurveFitter.POLY4, CurveFitter.POLY5, CurveFitter.POLY6,
-    							 CurveFitter.POLY7, CurveFitter.POLY8 };
+    	final int[] polyList = { CurveFitter.POLY3, CurveFitter.POLY4, CurveFitter.POLY5,
+    							 CurveFitter.POLY6, CurveFitter.POLY7, CurveFitter.POLY8 };
 
     	int bestFit = 0;
     	double bestRSquared = 0.0;
@@ -665,6 +666,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
     	for (int i=0; i<polyList.length; i++) {
 
     		final CurveFitter cf = new CurveFitter(x, y);
+    		//cf.setRestarts(4); // default: 2;
+    		//cf.setMaxIterations(50000); //default: 25000
     		cf.doFit(polyList[i], false);
     		listRSquared[i] = cf.getRSquared();
     		if (listRSquared[i] > bestRSquared) {
@@ -672,7 +675,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
     			bestFit = i;
     		}
     		if (verbose)
-    			IJ.log( CurveFitter.fitList[polyList[i]] +": R^2= "+ IJ.d2s(listRSquared[i], 5) );
+    			IJ.log( CurveFitter.fitList[polyList[i]]
+    					+": R^2= "+ IJ.d2s(listRSquared[i], 5) +"... "
+    					+ cf.getStatusString());
 
     	}
 
