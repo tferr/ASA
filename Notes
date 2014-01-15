@@ -1,10 +1,11 @@
-Sholl Analysis, http://fiji.sc/Sholl_Analysis/
+Sholl Analysis, http://fiji.sc/Sholl_Analysis
 
 WISH LIST
 =========
-    - Obtain a mask for every chosen method (slices of an ImageStack?)
+    - Fitting to polynomials of higher degree
     - Fix dialog prompt: Can become higher than 700px and may not be displayed on netbooks
     - Restrict analysis to area ROIs (rather than hemicircles/spheres?)
+    - Obtain a mask for every chosen method (slices of an ImageStack?)
 
 
 RELEASE NOTES
@@ -12,7 +13,25 @@ RELEASE NOTES
    (Unfortunately, the numbering scheme is somewhat arbitrary and not that meaningful.
     However, large increments usually indicate changes in the user interface).
 
-Version 3.3 (December 2013) [latest]
+
+TESTING VERSION
+---------------
+   This is the latest development version. It will be available through the Fiji updater
+   once new features mature. It may break previous macros you may have written. Builds for
+   this 'pre-release' are available at http://jenkins.imagej.net/job/Sholl-Analysis/
+
+Version 3.4b (January 2014) [Testing version]
+    - Guesses which of the normalization methods (semi-log or log-log) is the most
+      informative using the concept of 'determination ratio'
+    - Added 2nd and 3rd polynomials as fitting choices
+
+
+STABLE VERSIONS
+---------------
+   These are all the 'stable' builds made available through http://fiji.sc/Sholl_Analysis
+   and the Fiji Updater
+
+Version 3.3 (December 2013) [latest release]
     - Calculates skewness and kurtosis for both sampled and fitted data
     - Fixed v3.1 bug in which values from log-log plot were not listed in table
 

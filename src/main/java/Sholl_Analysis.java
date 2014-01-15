@@ -35,6 +35,7 @@ import ij.text.*;
 import ij.util.Tools;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.IndexColorModel;
 import java.io.*;
 import java.util.ArrayList;
@@ -52,10 +53,10 @@ import java.util.Vector;
  *
  * @author Tiago Ferreira, Tom Maddock (v1, 2005)
  */
-public class Sholl_Analysis implements PlugIn, DialogListener {
+public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
     /* Plugin Information */
-    public static final String VERSION = "3.4a";
+    public static final String VERSION = "3.4b";
     private static final String URL = "http://fiji.sc/Sholl_Analysis";
 
     /* Sholl Type Definitions */
@@ -83,11 +84,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
     /* Curve Fitting, Results and Descriptors */
     private static boolean fitCurve = true;
-    private static final String[] DEGREES = { "3rd degree", "4th degree", "5th degree", "6th degree", "7th degree", "8th degree", "Best fitting degree" };
+    private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree", "7th degree", "8th degree", "Best fitting degree" };
     private static final int SMALLEST_DATASET = 6;
     private static final String SHOLLTABLE = "Sholl Results";
     private static double[] centroid;
     private static int enclosingCutOff = 1;
+    private static boolean chooseLog = true;
 
 	/* Image path and Output Options */
     private static boolean validPath;
@@ -152,6 +154,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	private static double[] radii;
 	private static double[] counts;
+
+	/* Dialog listeners (csvPrompt) */
+	private static Checkbox iechooseLog;
+	private static Checkbox ieshollNS;
+	private static Checkbox ieshollSLOG;
+	private static Checkbox ieshollLOG;
 
     public void run( final String arg) {
 
@@ -384,6 +392,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
         }
 
+        // Linear (norm) is not performed when deciding between semi-log/log-log
+        if (chooseLog) {
+
+        	IJ.showStatus("Calculating determination ratio...");
+        	// this is inefficient: we'll be splitting double arrays
+        	final double dratio = getDeterminationRatio(valuesSLOG, valuesLOG);
+    		statsTable.addValue("Determination ratio", dratio);
+        	shollNS = false;
+        	shollSLOG = (dratio>=1);
+        	shollLOG = (dratio<1);
+
+        }
+
         final String normalizerString = is3D ? NORMS3D[normChoice] : NORMS2D[normChoice];
         final String distanceString = is3D ? "3D distance" : "2D distance";
 
@@ -397,25 +418,25 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
             savePlot(plotNS, SHOLL_NS);
 
         }
-		if (shollSLOG) {
+        if (shollSLOG) {
 
-			final Plot plotSLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_SLOG] +") for "+ imgTitle,
-					distanceString +" ("+ unit +")", "log(Inters./"+ normalizerString +")",
-                    valuesSLOG, SHOLL_SLOG);
-            if (fitCurve)
-                plotRegression(valuesSLOG, plotSLOG, statsTable, SHOLL_TYPES[SHOLL_SLOG]);
-            savePlot(plotSLOG, SHOLL_SLOG);
+        	final Plot plotSLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_SLOG] +") for "+ imgTitle,
+        			distanceString +" ("+ unit +")", "log(Inters./"+ normalizerString +")",
+        			valuesSLOG, SHOLL_SLOG);
+        	if (fitCurve)
+        		plotRegression(valuesSLOG, plotSLOG, statsTable, SHOLL_TYPES[SHOLL_SLOG]);
+        	savePlot(plotSLOG, SHOLL_SLOG);
 
         }
-		if (shollLOG) {
+        if (shollLOG) {
 
-			final Plot plotLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_LOG] +") for "+ imgTitle,
-                    "log("+ distanceString +")", "log(Inters./"+ normalizerString +")",
-                    valuesLOG, SHOLL_LOG);
-            if (fitCurve)
-                //fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG, statsTable, plotLOG);
-                plotRegression(valuesLOG, plotLOG, statsTable, SHOLL_TYPES[SHOLL_LOG]);
-            savePlot(plotLOG, SHOLL_LOG);
+        	final Plot plotLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_LOG] +") for "+ imgTitle,
+        			"log("+ distanceString +")", "log(Inters./"+ normalizerString +")",
+        			valuesLOG, SHOLL_LOG);
+        	if (fitCurve)
+        		//fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG, statsTable, plotLOG);
+        		plotRegression(valuesLOG, plotLOG, statsTable, SHOLL_TYPES[SHOLL_LOG]);
+        	savePlot(plotLOG, SHOLL_LOG);
 
         }
 
@@ -514,7 +535,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		 //cf.setMaxIterations(50000); //default: 25000
 
 		if (method == SHOLL_N) {
-			if (DEGREES[polyChoice].startsWith("3")) {
+			if (DEGREES[polyChoice].startsWith("2")) {
+				cf.doFit(CurveFitter.POLY2, false);
+			} else if (DEGREES[polyChoice].startsWith("3")) {
 				cf.doFit(CurveFitter.POLY3, false);
 			} else if (DEGREES[polyChoice].startsWith("4")) {
 				cf.doFit(CurveFitter.POLY4, false);
@@ -529,7 +552,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			} else {
 				IJ.showStatus("Choosing polynomial of best fit...");
 	    		if (verbose)
-	    			IJ.log("*** Choosing polynomial of best fit for "+ imgTitle +"...");
+	    			IJ.log("\n*** Choosing polynomial of best fit for "+ imgTitle +"...");
 				cf.doFit(getBestPolyFit(x,y), false);
 			}
 		} else if (method == SHOLL_NS) {
@@ -653,11 +676,49 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
     }
 
 
+    /**
+     * Obtains the "Determination Ratio", used to choose between semi-log and
+     * log-log methods: (R^2 semi-log regression)/(R^2 log-log regression)
+     */
+	static private double getDeterminationRatio(final double semilog[][], final double[][] loglog) {
+
+		final int size = semilog.length;
+		final double[] slx = new double[size];
+		final double[] sly = new double[size];
+		final double[] llx = new double[size];
+		final double[] lly = new double[size];
+
+		for (int i=0; i <size; i++) {
+			slx[i] = semilog[i][0];
+			sly[i] = semilog[i][1];
+			llx[i] = loglog[i][0];
+			lly[i] = loglog[i][1];
+		}
+    	final CurveFitter cf1 = new CurveFitter(slx, sly);
+    	final CurveFitter cf2 = new CurveFitter(llx, lly);
+    	cf1.doFit(CurveFitter.STRAIGHT_LINE, false);
+    	cf2.doFit(CurveFitter.STRAIGHT_LINE, false);
+    	final double rsqrd1 = cf1.getRSquared();
+    	final double rsqrd2 = cf2.getRSquared();
+
+		if (verbose) {
+			IJ.log("\n*** Choosing normalization method for "+ imgTitle +"...");
+			IJ.log("Semi-log: R^2= "+ IJ.d2s(rsqrd1, 5) +"... "+ cf1.getStatusString());
+			IJ.log("Log-log: R^2= "+ IJ.d2s(rsqrd2, 5) +"... "+ cf2.getStatusString());
+		}
+
+    	return rsqrd1/Math.max(Double.MIN_VALUE,rsqrd2);
+
+    }
+
+
     /** Guesses the polynomial of best fit by comparison of coefficient of determination */
     static private int getBestPolyFit(final double x[], final double[] y) {
 
-    	final int[] polyList = { CurveFitter.POLY3, CurveFitter.POLY4, CurveFitter.POLY5,
-    							 CurveFitter.POLY6, CurveFitter.POLY7, CurveFitter.POLY8 };
+    	final int[] polyList = { CurveFitter.POLY2, CurveFitter.POLY3,
+    							 CurveFitter.POLY4, CurveFitter.POLY5,
+    							 CurveFitter.POLY6, CurveFitter.POLY7,
+    							 CurveFitter.POLY8 };
 
     	int bestFit = 0;
     	double bestRSquared = 0.0;
@@ -759,10 +820,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
         gd.setInsets(8, xIndent/2, 2);
         gd.addMessage("Normalized Profiles:");
         gd.setInsets(0, xIndent, 0);
-        gd.addCheckboxGroup(1, 3,
-        		new String[]{SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],SHOLL_TYPES[SHOLL_LOG]},
-        		new boolean[]{shollNS, shollSLOG, shollLOG});
-
+        gd.addCheckboxGroup(2, 2,
+        		new String[]{"Most informative", SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],SHOLL_TYPES[SHOLL_LOG]},
+        		new boolean[]{chooseLog, shollNS, shollSLOG, shollLOG});
         gd.setInsets(0, 0, 0);
         if (is3D) {
             gd.addChoice("Normalizer", NORMS3D, NORMS3D[normChoice]);
@@ -871,16 +931,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
         final Choice iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
         iepolyChoice.setEnabled( fitCurve && shollN );
 
+        chooseLog = gd.getNextBoolean();
+        checkboxCounter++;
         shollNS = gd.getNextBoolean();
-        checkboxCounter++;
+        final Checkbox ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
         shollSLOG = gd.getNextBoolean();
-        checkboxCounter++;
+        final Checkbox ieshollSLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
         shollLOG = gd.getNextBoolean();
-        checkboxCounter++;
-
+        final Checkbox ieshollLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
         normChoice = gd.getNextChoiceIndex();
         final Choice ienormChoice = (Choice)choices.elementAt(choiceCounter++);
-        ienormChoice.setEnabled( shollNS || shollSLOG || shollLOG);
+
+        ieshollNS.setEnabled(!chooseLog);
+        ieshollSLOG.setEnabled(!chooseLog);
+        ieshollLOG.setEnabled(!chooseLog);
+        ienormChoice.setEnabled( shollNS || shollSLOG || shollLOG || chooseLog);
 
         // Part V: Mask and outputs
         mask = gd.getNextBoolean();
@@ -948,9 +1013,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
         gd.setInsets(8, xIndent/2, 2);
         gd.addMessage("Normalized Profiles:");
         gd.setInsets(0, xIndent, 0);
-        gd.addCheckboxGroup(1, 3,
-                            new String[]{SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],SHOLL_TYPES[SHOLL_LOG]},
-                            new boolean[]{shollNS, shollSLOG, shollLOG});
+        gd.addCheckboxGroup(2, 2,
+        		new String[]{"Most informative", SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],SHOLL_TYPES[SHOLL_LOG]},
+        		new boolean[]{chooseLog, shollNS, shollSLOG, shollLOG});
 
         final String[] norms = new String[NORMS3D.length];
         for(int i=0; i<norms.length; i++) {
@@ -972,6 +1037,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
         gd.setHelpLabel("Online Help");
         gd.addHelp(URL + "#Importing");
+
+        // Add listeners
+        final Vector<?> checkboxes = gd.getCheckboxes();
+        iechooseLog = (Checkbox)checkboxes.elementAt(3);
+        iechooseLog.addItemListener(this);
+        ieshollNS = (Checkbox)checkboxes.elementAt(4);
+        ieshollNS.addItemListener(this);
+        ieshollNS.setEnabled(!chooseLog);
+		ieshollSLOG = (Checkbox)checkboxes.elementAt(5);
+		ieshollSLOG.addItemListener(this);
+		ieshollSLOG.setEnabled(!chooseLog);
+		ieshollLOG = (Checkbox)checkboxes.elementAt(6);
+		ieshollLOG.addItemListener(this);
+		ieshollLOG.setEnabled(!chooseLog);
+
         gd.showDialog();
 
         if (gd.wasCanceled())
@@ -988,11 +1068,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
         shollN = gd.getNextBoolean();
         polyChoice = gd.getNextChoiceIndex();
+        chooseLog = gd.getNextBoolean();
         shollNS = gd.getNextBoolean();
         shollSLOG = gd.getNextBoolean();
         shollLOG = gd.getNextBoolean();
         normChoice = gd.getNextChoiceIndex();
-
         verbose = gd.getNextBoolean();
         if (validPath) {
         	save = gd.getNextBoolean();
@@ -1019,6 +1099,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
         return true;
 
+    }
+
+
+    /**  Disables invalid options every time csvPrompt changes */
+    public void itemStateChanged(final ItemEvent ie) {
+    	final boolean choose = iechooseLog.getState();
+    	ieshollNS.setEnabled(!choose);
+    	ieshollSLOG.setEnabled(!choose);
+    	ieshollLOG.setEnabled(!choose);
     }
 
 
