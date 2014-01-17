@@ -1,4 +1,4 @@
-/* Copyright 2014 Tiago Ferreira
+/* Copyright 2010-2014 Tiago Ferreira
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,21 +14,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import ij.*;
-//import ij.process.*;
-import ij.gui.*;
-import ij.plugin.*;
+import ij.CompositeImage;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.WindowManager;
+import ij.gui.GenericDialog;
 import ij.io.Opener;
-import java.awt.*;
-import java.io.*;
-//import java.net.*;
+import ij.plugin.PlugIn;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Panel;
+import java.awt.ScrollPane;
+import java.awt.SystemColor;
 import java.awt.image.IndexColorModel;
+import java.io.InputStream;
+
 
 /**
- * Simple auxiliary commands related to Sholl_Analysis
+ * Simple auxiliary commands related to Sholl_Analysis. addScrollBars() is from
+ * Bio-Formats Window.Tools, licensed under GNU GPLv2 (April 2013)
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://fiji.sc/Sholl_Analysis">http://fiji.sc/Sholl_Analysis</a>
+ * @see <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">git.openmicroscopy</a>
  *
  * @author Tiago Ferreira
  */
@@ -82,14 +97,26 @@ public class Sholl_Utils implements PlugIn {
 
     /** Displays an "about" info box */
     void showAbout() {
-        final String msg1 = " Version " + Sholl_Analysis.VERSION + BUILD;
-        final String msg2 = "Quantitative Sholl-based morphometry of untraced neuronal\n"
-        			+ "arbors in 2D/3D\n \nTiago Ferreira, Tom Maddock";
+        final String version = Sholl_Analysis.VERSION + BUILD;
+        final String summary = "Quantitative Sholl-based morphometry of untraced neuronal arbors";
+        final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";
+        final String thanks = "Johannes Schindelin, Wayne Rasband and the Bio-Formats team";
+
+        final Font plainf = new Font("SansSerif", Font.PLAIN, 12);
+        final Font boldf = new Font("SansSerif", Font.BOLD, 12);
 
         final GenericDialog gd = new GenericDialog("About Sholl Analysis...");
-        gd.addMessage(msg1, new Font("SansSerif", Font.BOLD, 12));
-        gd.addMessage(msg2, new Font("SansSerif", Font.PLAIN, 12));
-        gd.enableYesNoCancel("Browse Documentation", "Browse Repository");
+        gd.addMessage(summary, plainf);
+        gd.addMessage("Version", boldf);
+        gd.setInsets(0, 20, 0);
+        gd.addMessage(version, plainf);
+        gd.addMessage("Authors", boldf);
+        gd.setInsets(0, 20, 0);
+        gd.addMessage(authors, plainf);
+        gd.addMessage("Special Thanks", boldf);
+        gd.setInsets(0, 20, 0);
+        gd.addMessage(thanks, plainf);
+        gd.enableYesNoCancel("Browse Documentation", "Browse Source Code");
         gd.hideCancelButton();
         gd.showDialog();
         if (gd.wasCanceled())
@@ -98,5 +125,81 @@ public class Sholl_Utils implements PlugIn {
             IJ.runPlugIn("ij.plugin.BrowserLauncher", DOC_URL);
         else
             IJ.runPlugIn("ij.plugin.BrowserLauncher", SRC_URL);
+    }
+
+    /**
+     * Adds AWT scroll bars to the given container. From bio-formats Window.Tools
+     * @see <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">git.openmicroscopy</a>
+     */
+    @SuppressWarnings("serial")
+    static void addScrollBars(final Container pane) {
+
+    	final GridBagLayout layout = (GridBagLayout) pane.getLayout();
+
+    	// extract components
+    	final int count = pane.getComponentCount();
+    	final Component[] c = new Component[count];
+    	final GridBagConstraints[] gbc = new GridBagConstraints[count];
+    	for (int i=0; i<count; i++) {
+    		c[i] = pane.getComponent(i);
+    		gbc[i] = layout.getConstraints(c[i]);
+    	}
+
+    	// clear components
+    	pane.removeAll();
+    	layout.invalidateLayout(pane);
+
+    	// create new container panel, using GenericDialog's background color
+    	final Panel newPane = new Panel();
+    	final GridBagLayout newLayout = new GridBagLayout();
+    	newPane.setBackground(SystemColor.control);
+    	newPane.setLayout(newLayout);
+    	for (int i=0; i<count; i++) {
+    		newLayout.setConstraints(c[i], gbc[i]);
+    		newPane.add(c[i]);
+    	}
+
+    	// HACK - get preferred size for container panel
+    	// NB: don't know a better way:
+    	// - newPane.getPreferredSize() doesn't work
+    	// - newLayout.preferredLayoutSize(newPane) doesn't work
+    	final Frame f = new Frame();
+    	f.setLayout(new BorderLayout());
+    	f.add(newPane, BorderLayout.CENTER);
+    	f.pack();
+    	final Dimension size = newPane.getSize();
+    	f.remove(newPane);
+    	f.dispose();
+
+    	// compute best size for scrollable viewport
+    	size.width += 35; // initially 25;
+    	size.height += 15;
+    	final Dimension screen = IJ.getScreenSize();
+    	final int maxWidth = 9 * screen.width / 10; // initially 7/8;
+    	final int maxHeight = 8 * screen.height / 10; // initially 3/4
+    	if (size.width > maxWidth) size.width = maxWidth;
+    	if (size.height > maxHeight) size.height = maxHeight;
+
+    	// create scroll pane
+    	final ScrollPane scroll = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED){
+    		public Dimension getPreferredSize() {
+    			return size;
+    		}
+    	};
+    	scroll.add(newPane);
+
+    	// Scrollbar is not placed at top even if scroll.getScrollPosition()
+    	// is already java.awt.Point[x=0,y=0]? How to fix it?
+    	// 		scroll.setScrollPosition(0,0); //Not working?
+    	// 		scroll.setWheelScrollingEnabled(true); //Enabled by default
+
+    	// add scroll pane to original container
+    	final GridBagConstraints constraints = new GridBagConstraints();
+    	constraints.gridwidth = GridBagConstraints.REMAINDER;
+    	constraints.fill = GridBagConstraints.BOTH;
+    	constraints.weightx = 1.0;
+    	constraints.weighty = 1.0;
+    	layout.setConstraints(scroll, constraints);
+    	pane.add(scroll);
     }
 }

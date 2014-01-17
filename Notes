@@ -3,7 +3,6 @@ Sholl Analysis, http://fiji.sc/Sholl_Analysis
 WISH LIST
 =========
     - Fitting to polynomials of higher degree
-    - Fix dialog prompt: Can become higher than 700px and may not be displayed on netbooks
     - Restrict analysis to area ROIs (rather than hemicircles/spheres?)
     - Obtain a mask for every chosen method (slices of an ImageStack?)
 
@@ -18,12 +17,14 @@ TESTING VERSION
 ---------------
    This is the latest development version. It will be available through the Fiji updater
    once new features mature. It may break previous macros you may have written. Builds for
-   this 'pre-release' are available at http://jenkins.imagej.net/job/Sholl-Analysis/
+   these 'pre-releases' are available at http://jenkins.imagej.net/job/Sholl-Analysis/
 
 Version 3.4b (January 2014) [Testing version]
     - Guesses which of the normalization methods (semi-log or log-log) is the most
       informative using the concept of 'determination ratio'
     - Added 2nd and 3rd polynomials as fitting choices
+    - Dialog becomes scrollable if higher than 80% of screen height. This ensures the
+      prompt is displayed properly on small laptops such as netbooks
 
 
 STABLE VERSIONS

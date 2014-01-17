@@ -1,4 +1,4 @@
-/* Copyright 2014 Tiago Ferreira, 2005 Tom Maddock
+/* Copyright 2010-2014 Tiago Ferreira, 2005 Tom Maddock
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -398,7 +398,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         	IJ.showStatus("Calculating determination ratio...");
         	// this is inefficient: we'll be splitting double arrays
         	final double dratio = getDeterminationRatio(valuesSLOG, valuesLOG);
-    		statsTable.addValue("Determination ratio", dratio);
+        	statsTable.addValue("Determination ratio", dratio);
         	shollNS = false;
         	shollSLOG = (dratio>=1);
         	shollLOG = (dratio<1);
@@ -412,10 +412,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 			final Plot plotNS = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_NS] +") for "+ imgTitle,
 					distanceString +" ("+ unit +")", "Inters./"+ normalizerString,
-                    valuesNS, SHOLL_NS);
-            if (fitCurve)
-                fvaluesNS = getFittedProfile(valuesNS, SHOLL_NS, statsTable, plotNS);
-            savePlot(plotNS, SHOLL_NS);
+					valuesNS, SHOLL_NS);
+			if (fitCurve)
+				fvaluesNS = getFittedProfile(valuesNS, SHOLL_NS, statsTable, plotNS);
+			savePlot(plotNS, SHOLL_NS);
 
         }
         if (shollSLOG) {
@@ -852,6 +852,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		//gd.setResizable(true);
+		Sholl_Utils.addScrollBars(gd);
 		gd.showDialog();
 
         if (gd.wasCanceled())
