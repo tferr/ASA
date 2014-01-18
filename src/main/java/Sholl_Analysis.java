@@ -385,7 +385,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
                     is3D ? "3D distance ("+ unit +")" : "2D distance ("+ unit +")",
                     "N. of Intersections",
                     valuesN, SHOLL_N);
-			markPlotPoint(plotN, centroid, Color.RED);
+            markPlotPoint(plotN, centroid, Color.RED);
             if (fitCurve)
                 fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
             savePlot(plotN, SHOLL_N);
@@ -445,8 +445,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         final Frame window = WindowManager.getFrame(profileTable);
         if (window == null)
             rt = new ResultsTable();
-        else
+        else {
             rt = ((TextWindow) window).getTextPanel().getResultsTable();
+            rt.reset();
+        }
 
         rt.setPrecision(getPrecision());
         for (int i=0; i <valuesN.length; i++) {
@@ -702,6 +704,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     	final double rsqrd2 = cf2.getRSquared();
 
 		if (verbose) {
+			//final String norm = is3D ? NORMS3D[normChoice] : NORMS2D[normChoice];
 			IJ.log("\n*** Choosing normalization method for "+ imgTitle +"...");
 			IJ.log("Semi-log: R^2= "+ IJ.d2s(rsqrd1, 5) +"... "+ cf1.getStatusString());
 			IJ.log("Log-log: R^2= "+ IJ.d2s(rsqrd2, 5) +"... "+ cf2.getStatusString());
@@ -965,7 +968,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		}
 
         // Disable the OK button if no method is chosen
-        return (shollN || shollNS || shollSLOG || shollLOG) ? true : false;
+        return (shollN || shollNS || shollSLOG || shollLOG || chooseLog) ? true : false;
 
     }
 
@@ -1019,7 +1022,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         		new boolean[]{chooseLog, shollNS, shollSLOG, shollLOG});
 
         final String[] norms = new String[NORMS3D.length];
-        for(int i=0; i<norms.length; i++) {
+        for (int i=0; i<norms.length; i++) {
             norms[i] = NORMS2D[i] +"/"+ NORMS3D[i];
         }
         gd.setInsets(2, 0, 0);
@@ -1053,8 +1056,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		ieshollLOG.addItemListener(this);
 		ieshollLOG.setEnabled(!chooseLog);
 
+        Sholl_Utils.addScrollBars(gd);
         gd.showDialog();
-
         if (gd.wasCanceled())
             return false;
 
@@ -1093,7 +1096,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 					+ "\n*** Normalizations involving "+ norms[norms.length-1] +" will not be relevant");
         }
 
-        if ( !(shollN || shollNS || shollSLOG || shollLOG) ) {
+        if ( !(shollN || shollNS || shollSLOG || shollLOG || chooseLog) ) {
             sError("No method(s) chosen.\nAt least one analysis method must be chosen.");
             return false;
         }

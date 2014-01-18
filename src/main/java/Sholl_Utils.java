@@ -100,13 +100,13 @@ public class Sholl_Utils implements PlugIn {
         final String version = Sholl_Analysis.VERSION + BUILD;
         final String summary = "Quantitative Sholl-based morphometry of untraced neuronal arbors";
         final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";
-        final String thanks = "Johannes Schindelin, Wayne Rasband and the Bio-Formats team";
+        final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Bio-Formats team";
 
         final Font plainf = new Font("SansSerif", Font.PLAIN, 12);
         final Font boldf = new Font("SansSerif", Font.BOLD, 12);
 
         final GenericDialog gd = new GenericDialog("About Sholl Analysis...");
-        gd.addMessage(summary, plainf);
+        gd.addMessage(summary, boldf);
         gd.addMessage("Version", boldf);
         gd.setInsets(0, 20, 0);
         gd.addMessage(version, plainf);
@@ -173,7 +173,7 @@ public class Sholl_Utils implements PlugIn {
 
     	// compute best size for scrollable viewport
     	size.width += 35; // initially 25;
-    	size.height += 15;
+    	size.height += 30; // initially 15;
     	final Dimension screen = IJ.getScreenSize();
     	final int maxWidth = 9 * screen.width / 10; // initially 7/8;
     	final int maxHeight = 8 * screen.height / 10; // initially 3/4
