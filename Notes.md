@@ -21,6 +21,8 @@ Development Builds
     dialog prompts are displayed properly on small laptops such as netbooks
   * If the same image is repeatedly analyzed, detailed data from previous analysis is
     discarded
+  * Fixed: macros calling the plugin could not parse filenames containing spaces
+
 
 Release Builds
 --------------

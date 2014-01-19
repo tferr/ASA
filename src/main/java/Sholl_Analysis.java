@@ -56,7 +56,7 @@ import java.util.Vector;
 public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
     /* Plugin Information */
-    public static final String VERSION = "3.4b";
+    public static final String VERSION = "3.4"; //-testing
     private static final String URL = "http://fiji.sc/Sholl_Analysis";
 
     /* Sholl Type Definitions */
@@ -218,7 +218,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 			final int depth = img.getNSlices();
 			is3D = depth > 1;
 
-			imgTitle = img.getShortTitle();
+			// Removing spaces could disrupt unique filenames: eg "test 01.tif" and
+			// "test 02.tif" would both be treated as "test" by img.getShortTitle()
+			imgTitle = trimExtension(img.getTitle()); //img.getShortTitle();
 
 			// Get image calibration. Stacks are likely to have anisotropic voxels
 			// with large z-steps. It is unlikely that lateral dimensions will differ
@@ -1836,7 +1838,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		// Calculate the 'center of mass' for the sampled curve (linear Sholl);
 		centroid = baryCenter(x, y);
 		rt.addValue("Centroid radius", centroid[0]);
-		rt.addValue("Centroid inters.", centroid[1]);
+		rt.addValue("Centroid value", centroid[1]);
 
 		rt.addValue("Enclosing radius", enclosingR);
 		//rt.addValue("Enclosed field", field);
@@ -2151,7 +2153,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     /** Returns a filename that does not include extension */
     private String trimExtension(String filename) {
         final int index = filename.lastIndexOf(".");
-        if (index>0)
+        if (index>-1)
             filename = filename.substring(0, index);
         return filename;
     }
