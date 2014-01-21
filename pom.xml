@@ -13,7 +13,7 @@
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>3.4.0</version>
+	<version>3.4.1-SNAPSHOT</version>
 
 	<name>Sholl Analysis</name>
 	<description>An ImageJ 1.x plugin performing bitmap Sholl analysis</description>
