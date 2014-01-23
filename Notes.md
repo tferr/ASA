@@ -7,13 +7,15 @@ pushed to the Fiji Updater once new features mature and no major issues are foun
 binaries of all the builds listed here can be downloaded directly from
 [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/).
 
-> Unfortunately, the numbering scheme is somewhat arbitrary and not that meaningful. However,
-  large increments usually indicate changes in the user interface.
-
 
 Development Builds
 ------------------
-####Version 3.4 (January 2014)
+  * No major changes to report
+
+
+Release Builds
+--------------
+####Version 3.4.0 (January 2014)
   * Guesses which of the normalization methods (semi-log or log-log) is the most
     informative using the concept of _determination ratio_
   * Added 2nd and 3rd polynomials as fitting choices
@@ -23,9 +25,10 @@ Development Builds
     discarded
   * Fixed: macros calling the plugin could not parse filenames containing spaces
 
+> Unfortunately, the numbering scheme used up to version 3.4.0 is somewhat arbitrary and
+  not that meaningful. However, large increments usually indicate changes in the user
+  interface.
 
-Release Builds
---------------
 ####Version 3.3 (December 2013)
   * Calculates skewness and kurtosis for both sampled and fitted data
   * Fixed v3.1 bug in which values from log-log plot were not listed in table
