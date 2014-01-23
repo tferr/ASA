@@ -508,9 +508,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
 	/**
-     * Performs curve fitting, Appends the fitted curve to the Sholl plot, respective
-	 * descriptors to the summary table. Returns fitted values or null if values.length
-	 * is less than SMALLEST_DATASET
+     * Performs curve fitting, adds the fitted curve to the Sholl plot and appends
+	 * or descriptors related with the fit to the summary table. Returns fitted
+	 * values or null if values.length is less than SMALLEST_DATASET
      */
 	private static double[] getFittedProfile(final double[][] values, final int method,
 			final ResultsTable rt, final Plot plot) {
@@ -752,9 +752,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 
     /**
-     * Creates the plugin dialog. Returns the region of the image (relative to the center)
-     * to be trimmed from the analysis "None", "Above","Below", "Right" or "Left".
-     * Returns null if dialog was canceled
+     * Creates the main dialog (csvPrompt imports tabular data). Returns the region
+     * of the image (relative to the center) to be trimmed from the analysis "None",
+     * "Above","Below", "Right" or "Left". Returns null if dialog was canceled
      */
     private boolean bitmapPrompt(final double chordAngle, final boolean is3D) {
 
@@ -870,8 +870,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         }
     }
 
-    /** Retrieves values from the dialog, disabling dialog components that are not applicable.
-        Returns false if user no Analysis method was chosen
+    /** Retrieves values from the dialog, disabling dialog components that are
+        not applicable. Returns false if no analysis method was chosen
      */
     public boolean dialogItemChanged(final GenericDialog gd, final AWTEvent e) {
 
@@ -974,7 +974,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
     }
 
-
+    /**
+     * Creates the dialog for tabular data (bitmapPrompt is the main prompt).
+     * Returns false if dialog was canceled or no analysis method was chosen
+     */
     private boolean csvPrompt(final ResultsTable rt) {
 
         final String[] headings = rt.getHeadings();
@@ -1207,8 +1210,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
     /**
-     * Analogous to countGroups(), counts clusters of 26-connected voxels from an ArrayList
-     * of 3D coordinates. SpikeSupression is not performed
+     * Analogous to countGroups(), counts clusters of 26-connected voxels from an
+     * ArrayList of 3D coordinates. SpikeSupression is not performed
      */
     static public int count3Dgroups(final ArrayList<int[]> points) {
 
@@ -1246,8 +1249,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
     /**
-     * Does the actual 2D analysis. Accepts an array of radius values and takes
-     * the measurements for each
+     * Does the actual 2D analysis. Accepts an array of radii and takes the
+     * measurements for each
      */
     static public double[] analyze2D(final int xc, final int yc,
             final double[] radii, final double pixelSize, final int binsize,
@@ -1352,8 +1355,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
     /**
-     * For a set of points in 2D space, counts how many groups (clusters) of 8-connected
-     * pixels exist.
+     * For a set of points in 2D space, counts how many groups (clusters) of
+     * 8-connected pixels exist.
      */
     static public int countGroups(final int[][] points, final ImageProcessor ip) {
 
@@ -1575,8 +1578,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
     /**
-     * Creates a 2D Sholl heatmap by applying measured values to the foregroud pixels
-     * of a copy of the analyzed image
+     * Creates a 2D Sholl heatmap by applying measured values to the foreground
+     * pixels of a copy of the analyzed image
      */
     private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[] values,
             final int xc, final int yc, final Calibration cal) {
@@ -1706,8 +1709,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
     /**
-     * Returns an IndexColorModel similar to MATLAB's jet color map. An 8-bit gray color
-     * level specified by grayvalue is mapped to index idx.
+     * Returns an IndexColorModel similar to MATLAB's jet color map. An 8-bit
+     * gray color specified by backgroundGray is used as the first entry of the
+     * LUT. See https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306 for
+     * a simplified version by Jerome Mutterer
      */
     public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
 
@@ -2159,8 +2164,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     }
 
     /**
-     * Returns the mean, variance, skewness and kurtosis of an array of univariate data.
-     * Code from ij.process.ByteStatistics
+     * Returns the mean, variance, skewness and kurtosis of an array of univariate
+     * data. Code from ij.process.ByteStatistics
      */
     private final static double[] getMoments(final double values[]) {
 		final int npoints = values.length;

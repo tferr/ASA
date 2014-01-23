@@ -38,7 +38,7 @@ import java.io.InputStream;
 
 
 /**
- * Simple auxiliary commands related to Sholl_Analysis. addScrollBars() is from
+ * Auxiliary commands and routines for Sholl_Analysis. addScrollBars() is from
  * Bio-Formats Window.Tools, licensed under GNU GPLv2 (April 2013)
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
