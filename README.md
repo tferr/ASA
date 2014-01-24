@@ -9,3 +9,6 @@ Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PM
   * It allows continuous and repeated sampling around user-defined foci
 
 Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f57601f2739473e40718c9) called _Advanced Sholl Analysis_, hence the acronym
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tferr/asa/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
