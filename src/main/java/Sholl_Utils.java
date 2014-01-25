@@ -20,11 +20,14 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.io.Opener;
+import ij.plugin.BrowserLauncher;
 import ij.plugin.PlugIn;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
@@ -33,13 +36,15 @@ import java.awt.GridBagLayout;
 import java.awt.Panel;
 import java.awt.ScrollPane;
 import java.awt.SystemColor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.IndexColorModel;
 import java.io.InputStream;
 
 
 /**
  * Auxiliary commands and routines for Sholl_Analysis. addScrollBars() is from
- * Bio-Formats Window.Tools, licensed under GNU GPLv2 (April 2013)
+ * Bio-Formats Window.Tools
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://fiji.sc/Sholl_Analysis">http://fiji.sc/Sholl_Analysis</a>
@@ -100,7 +105,8 @@ public class Sholl_Utils implements PlugIn {
         final String version = Sholl_Analysis.VERSION + BUILD;
         final String summary = "Quantitative Sholl-based morphometry of untraced neuronal arbors";
         final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";
-        final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Bio-Formats team";
+        final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan Preibisch,\n"
+        		+ "Bio-Formats team";
 
         final Font plainf = new Font("SansSerif", Font.PLAIN, 12);
         final Font boldf = new Font("SansSerif", Font.BOLD, 12);
@@ -128,7 +134,8 @@ public class Sholl_Utils implements PlugIn {
     }
 
     /**
-     * Adds AWT scroll bars to the given container. From bio-formats Window.Tools
+     * Adds AWT scroll bars to the given container. From bio-formats Window.Tools,
+     * licensed under GNU GPLv2 (April 2013)
      * @see <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">git.openmicroscopy</a>
      */
     @SuppressWarnings("serial")
@@ -202,4 +209,35 @@ public class Sholl_Utils implements PlugIn {
     	layout.setConstraints(scroll, constraints);
     	pane.add(scroll);
     }
+
+	/**
+	 * Adds a message to a GenericDialog pointing to an URL. From Stephan Preibisch
+	 * @see <a href="https://raw.github.com/fiji/Stitching/master/src/main/java/stitching/CommonFunctions.java>github.com/fiji/Stitching/</a>
+	 */
+	static final void addClickabaleMsg(final GenericDialog gd, final String msg, final String url) {
+		//gd.addMessage(msg, new Font("SansSerif", Font.PLAIN, 12));
+		gd.addMessage(msg);
+		final Component msgLabel = gd.getMessage();
+		msgLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
+				try {
+					BrowserLauncher.openURL(MS_URL);
+				} catch (final Exception localException) {
+					IJ.error("" + localException);
+				}
+			}
+
+			public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
+				msgLabel.setForeground(Color.BLUE);
+				msgLabel.setCursor(new Cursor(12));
+			}
+
+			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
+				msgLabel.setForeground(Color.BLACK);
+				msgLabel.setCursor(new Cursor(0));
+			}
+		});
+
+	}
+
 }

@@ -1,6 +1,6 @@
 # [Sholl Analysis](http://fiji.sc/Sholl_Analysis)
 
-A plugin for ImageJ, the standard in scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from bitmap images.
+A plugin for [ImageJ](http://imagej.nih.gov/ij/)/[Fiji](http://fiji.sc/), the standard in scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from bitmap images.
 
 Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1244622/) is a method used by neuroanatomists to describe neuronal arbors. The plugin takes the original technique beyond conventional approaches, offering major advantages over other implementations:
 

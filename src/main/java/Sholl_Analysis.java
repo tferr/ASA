@@ -56,7 +56,7 @@ import java.util.Vector;
 public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
     /* Plugin Information */
-    public static final String VERSION = "3.4"; //-testing
+    public static final String VERSION = "3.4.1-testing";
     private static final String URL = "http://fiji.sc/Sholl_Analysis";
 
     /* Sholl Type Definitions */
@@ -850,6 +850,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
             gd.addCheckbox("Do not display saved files", hideSaved);
         }
 
+        //gd.setInsets(10, 0, 2);
+        //gd.addMessage("VI. Notes:", headerFont);
+        //gd.setInsets(0, xIndent/2, 2);
+        //Sholl_Utils.addClickabaleMsg(gd, "Interesting link 1", URL);
         gd.setHelpLabel("Online Help");
         gd.addHelp(URL);
 
