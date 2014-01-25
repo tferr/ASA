@@ -221,7 +221,7 @@ public class Sholl_Utils implements PlugIn {
 		msgLabel.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
 				try {
-					BrowserLauncher.openURL(MS_URL);
+					BrowserLauncher.openURL(url);
 				} catch (final Exception localException) {
 					IJ.error("" + localException);
 				}
