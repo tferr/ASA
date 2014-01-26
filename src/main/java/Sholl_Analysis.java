@@ -766,6 +766,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         // Part I: Definition of Shells
         gd.setInsets(-2, 0, 0);
         gd.addMessage("I. Definition of Shells:", headerFont);
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Definition_of_Shells");
         gd.addNumericField("Starting radius", startRadius, 2, 9, unit);
         gd.addNumericField("Ending radius", endRadius, 2, 9, unit);
         gd.addNumericField("Radius_step size", incStep, 2, 9, unit);
@@ -799,10 +800,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
             gd.setInsets(0, 0, 0);
             gd.addChoice("Integration", BIN_TYPES, BIN_TYPES[binChoice]);
         }
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Multiple_Samples_and_Noise_Reduction");
 
         // Part III: Indices and Curve Fitting
         gd.setInsets(10, 0, 2);
         gd.addMessage("III. Descriptors and Curve Fitting:", headerFont);
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting");
         gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
         gd.addNumericField("#_Primary branches", primaryBranches, 0);
         gd.setInsets(0, 2*xIndent, 0);
@@ -815,6 +818,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         // Part IV: Sholl Methods
         gd.setInsets(10, 0, 2);
         gd.addMessage("IV. Sholl Methods:", headerFont);
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Sholl_Methods");
         gd.setInsets(0, xIndent/2, 2);
         gd.addMessage("Profiles Without Normalization:");
         gd.setInsets(0, xIndent, 0);
@@ -838,6 +842,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         // Part V: Mask and outputs
         gd.setInsets(10, 0, 2);
         gd.addMessage("V. Output Options:", headerFont);
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options");
         gd.setInsets(0, xIndent, 0);
         gd.addCheckbox("Create intersections mask", mask);
         gd.addSlider("Background", 0, 255, maskBackground);
@@ -850,10 +855,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
             gd.addCheckbox("Do not display saved files", hideSaved);
         }
 
-        //gd.setInsets(10, 0, 2);
-        //gd.addMessage("VI. Notes:", headerFont);
-        //gd.setInsets(0, xIndent/2, 2);
-        //Sholl_Utils.addClickabaleMsg(gd, "Interesting link 1", URL);
         gd.setHelpLabel("Online Help");
         gd.addHelp(URL);
 

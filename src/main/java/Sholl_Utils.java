@@ -211,33 +211,34 @@ public class Sholl_Utils implements PlugIn {
     }
 
 	/**
-	 * Adds a message to a GenericDialog pointing to an URL. From Stephan Preibisch
+	 * Adds a functional URL to the last added message of a GenericDialog, i.e.,
+	 * the Label created by the last addMessage() call. Based on Stephan Preibisch's
+	 * Stitching plugin
 	 * @see <a href="https://raw.github.com/fiji/Stitching/master/src/main/java/stitching/CommonFunctions.java>github.com/fiji/Stitching/</a>
 	 */
-	static final void addClickabaleMsg(final GenericDialog gd, final String msg, final String url) {
-		//gd.addMessage(msg, new Font("SansSerif", Font.PLAIN, 12));
-		gd.addMessage(msg);
-		final Component msgLabel = gd.getMessage();
-		msgLabel.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
-				try {
-					BrowserLauncher.openURL(url);
-				} catch (final Exception localException) {
-					IJ.error("" + localException);
-				}
-			}
+    static final void setClickabaleMsg(final GenericDialog gd, final String url) {
+    	final Component msgLabel = gd.getMessage();
+    	if ( msgLabel != null && url != null ) {
+    		msgLabel.addMouseListener(new MouseAdapter() {
+    			public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
+    				try {
+    					BrowserLauncher.openURL(url);
+    				} catch (final Exception localException) {
+    					IJ.error("" + localException);
+    				}
+    			}
 
-			public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
-				msgLabel.setForeground(Color.BLUE);
-				msgLabel.setCursor(new Cursor(12));
-			}
+    			public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
+    				msgLabel.setForeground(Color.BLUE);
+    				msgLabel.setCursor(new Cursor(12));
+    			}
 
-			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
-				msgLabel.setForeground(Color.BLACK);
-				msgLabel.setCursor(new Cursor(0));
-			}
-		});
-
-	}
+    			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
+    				msgLabel.setForeground(Color.BLACK);
+    				msgLabel.setCursor(new Cursor(0));
+    			}
+    		});
+    	}
+    }
 
 }
