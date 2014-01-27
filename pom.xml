@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>[1.46h,)</version>
+			<version>${imagej1.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -65,4 +65,5 @@
 		<url>https://github.com/tferr/ASA</url>
 	</scm>
 
+	<url>http://fiji.sc/Sholl_Analysis</url>
 </project>
