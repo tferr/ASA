@@ -230,12 +230,14 @@ public class Sholl_Utils implements PlugIn {
 
     			public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
     				msgLabel.setForeground(Color.BLUE);
-    				msgLabel.setCursor(new Cursor(12));
+    				msgLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    				//IJ.showStatus("Click to open URL...");
     			}
 
     			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
     				msgLabel.setForeground(Color.BLACK);
-    				msgLabel.setCursor(new Cursor(0));
+    				msgLabel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+    				//IJ.showStatus("");
     			}
     		});
     	}
