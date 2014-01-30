@@ -7,6 +7,7 @@ Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PM
   * It does not require previous tracing of the arbor (although analysis can be applied to previously traced arbors)
   * It combines curve fitting with several methods to automatically retrieve quantitative descriptors from sampled data
   * It allows continuous and repeated sampling around user-defined foci
+  * [Many other features](./Notes.md)
 
 Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f57601f2739473e40718c9) called _Advanced Sholl Analysis_, hence the acronym
 

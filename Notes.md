@@ -10,7 +10,9 @@ binaries of all the builds listed here can be downloaded directly from
 
 Development Builds
 ------------------
-  * No major changes to report
+  * Improved prompt: live validation for _Ending radius_/_Radius step size_. Center
+    of analysis is displayed on status bar. Section headings are clickable URLs
+    pointing to respective section of documentation page
 
 
 Release Builds
