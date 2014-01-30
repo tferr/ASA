@@ -870,7 +870,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         else if (dialogItemChanged(gd, null)) { // Read dialog result
             return true;
         } else {
-            sError("No method(s) chosen.\nAt least one analysis method must be chosen.");
+            sError("Invalid parameters. Possible causes:\n"
+            		+ "    - Ending radius/Radius step size misdefined\n"
+					+ "    - No method of analysis chosen");
             return false;
         }
     }
@@ -890,11 +892,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
         // Part I: Definition of Shells
         startRadius = Math.max(0, gd.getNextNumber());
+        //final TextField iestartRadius = (TextField)numericfields.elementAt(fieldCounter++);
         fieldCounter++;
         endRadius = gd.getNextNumber();
-        fieldCounter++;
+        final TextField ieendRadius = (TextField)numericfields.elementAt(fieldCounter++);
+        //fieldCounter++;
         incStep = Math.max(0, gd.getNextNumber());
+        //final TextField ieincStep = (TextField)numericfields.elementAt(fieldCounter++);
         fieldCounter++;
+        if (endRadius<=startRadius || endRadius<=incStep) {
+        	ieendRadius.setForeground(Color.RED);
+        	return false;
+        } else {
+        	ieendRadius.setForeground(Color.BLACK);
+        }
 
         // Orthogonal chord options
         if (orthoChord) {
@@ -920,9 +931,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         }
 
         // Part III: Indices and Curve Fitting
-        enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
+        enclosingCutOff = (int)Math.max(1, gd.getNextNumber());  // will become zero if NaN
         fieldCounter++;
-        primaryBranches = (int)Math.max(1, gd.getNextNumber());
+        primaryBranches = (int)Math.max(1, gd.getNextNumber());  // will become zero if NaN
         final TextField ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
         inferPrimary = gd.getNextBoolean();
         checkboxCounter++;

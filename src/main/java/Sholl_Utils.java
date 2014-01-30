@@ -188,7 +188,7 @@ public class Sholl_Utils implements PlugIn {
     	if (size.height > maxHeight) size.height = maxHeight;
 
     	// create scroll pane
-    	final ScrollPane scroll = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED){
+    	final ScrollPane scroll = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED) {
     		public Dimension getPreferredSize() {
     			return size;
     		}
