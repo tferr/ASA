@@ -284,6 +284,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 			// Show the plugin dialog: Update parameters with user input and
 			// retrieve if analysis will be restricted to a hemicircle/hemisphere
+			IJ.showStatus("Analysis center (pixels): X= "+ x +", Y= "+ y +", Z= "+ z);
 			if(!bitmapPrompt(chordAngle, is3D))
 				return;
 
