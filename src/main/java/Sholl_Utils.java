@@ -54,7 +54,7 @@ import java.io.InputStream;
  */
 public class Sholl_Utils implements PlugIn {
 
-    private static final String BUILD = " 2014.01";
+    private static final String BUILD = " 2014.03";
     private static final String SRC_URL = "https://github.com/tferr/ASA";
     private static final String DOC_URL = "http://fiji.sc/Sholl_Analysis";
     private static int background = Sholl_Analysis.maskBackground;
@@ -216,7 +216,7 @@ public class Sholl_Utils implements PlugIn {
 	 * Stitching plugin
 	 * @see <a href="https://raw.github.com/fiji/Stitching/master/src/main/java/stitching/CommonFunctions.java>github.com/fiji/Stitching/</a>
 	 */
-    static final void setClickabaleMsg(final GenericDialog gd, final String url) {
+    static final void setClickabaleMsg(final GenericDialog gd, final String url, final Color color) {
     	final Component msgLabel = gd.getMessage();
     	if ( msgLabel != null && url != null ) {
     		msgLabel.addMouseListener(new MouseAdapter() {
@@ -235,7 +235,7 @@ public class Sholl_Utils implements PlugIn {
     			}
 
     			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
-    				msgLabel.setForeground(Color.BLACK);
+    				msgLabel.setForeground(color);
     				msgLabel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     				//IJ.showStatus("");
     			}

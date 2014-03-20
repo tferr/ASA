@@ -56,7 +56,7 @@ import java.util.Vector;
 public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
     /* Plugin Information */
-    public static final String VERSION = "3.4.1-testing";
+    public static final String VERSION = "3.4.1";
     private static final String URL = "http://fiji.sc/Sholl_Analysis";
 
     /* Sholl Type Definitions */
@@ -118,7 +118,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     private static int lowerT;
     private static int upperT;
 
-    /* Boundaries of analysis */
+    /* Boundaries and center of analysis */
     private static boolean orthoChord = false;
     private static boolean trimBounds;
     private static String[] quads = new String[2];
@@ -128,12 +128,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
     private static final String QUAD_WEST  = "Right of line";
     private static String quadString = "None";
     private static int quadChoice;
-    private static int minX;
-    private static int maxX;
-    private static int minY;
-    private static int maxY;
-    private static int minZ;
-    private static int maxZ;
+    private static int minX, maxX;
+    private static int minY, maxY;
+    private static int minZ, maxZ;
+	private static int x, y, z;
 
     /* Parameters for 3D analysis */
     private static boolean skipSingleVoxels = false;
@@ -161,17 +159,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 	private static Checkbox ieshollSLOG;
 	private static Checkbox ieshollLOG;
 
+	private ImagePlus img;
+	private ImageProcessor ip;
+
     public void run( final String arg) {
 
         if (IJ.versionLessThan("1.46h"))
             return;
 
-        final ImagePlus img = WindowManager.getCurrentImage();
-
-		// Initialize center coordinates (in pixel units) and N. of samples
-		int x, y, z;
+        img = WindowManager.getCurrentImage();
 		final Calibration cal;
-
 		isCSV = IJ.altKeyDown();
 
 		if (isCSV) {
@@ -210,7 +207,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 			// Make sure image is of the right type, reminding the user
 			// that the analysis is performed on segmented cells
-			final ImageProcessor ip = getValidProcessor(img);
+			ip = getValidProcessor(img);
 			if (ip==null)
 				return;
 
@@ -283,7 +280,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 			}
 
 			// Show the plugin dialog: Update parameters with user input and
-			// retrieve if analysis will be restricted to a hemicircle/hemisphere
+			// find out if analysis will be restricted to a hemicircle/hemisphere
 			IJ.showStatus("Analysis center (pixels): x="+ x +", y="+ y +", z="+ z);
 			if(!bitmapPrompt(chordAngle, is3D))
 				return;
@@ -764,10 +761,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
         final int xIndent = 44;
 
+        // Append URL to document CSV import
+        gd.setInsets(-2, 260, 0);
+        gd.addMessage("Traced arbor?", headerFont, Color.DARK_GRAY);
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing_Profiles_Obtained_Elsewhere", Color.DARK_GRAY);
+
         // Part I: Definition of Shells
-        gd.setInsets(-2, 0, 0);
+        gd.setInsets(-8, 0, 0);
         gd.addMessage("I. Definition of Shells:", headerFont);
-        Sholl_Utils.setClickabaleMsg(gd, URL+"#Definition_of_Shells");
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Definition_of_Shells", Color.BLACK);
         gd.addNumericField("Starting radius", startRadius, 2, 9, unit);
         gd.addNumericField("Ending radius", endRadius, 2, 9, unit);
         gd.addNumericField("Radius_step size", incStep, 2, 9, unit);
@@ -801,12 +803,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
             gd.setInsets(0, 0, 0);
             gd.addChoice("Integration", BIN_TYPES, BIN_TYPES[binChoice]);
         }
-        Sholl_Utils.setClickabaleMsg(gd, URL+"#Multiple_Samples_and_Noise_Reduction");
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Multiple_Samples_and_Noise_Reduction", Color.BLACK);
 
         // Part III: Indices and Curve Fitting
         gd.setInsets(10, 0, 2);
         gd.addMessage("III. Descriptors and Curve Fitting:", headerFont);
-        Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting");
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting", Color.BLACK);
         gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
         gd.addNumericField("#_Primary branches", primaryBranches, 0);
         gd.setInsets(0, 2*xIndent, 0);
@@ -819,7 +821,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         // Part IV: Sholl Methods
         gd.setInsets(10, 0, 2);
         gd.addMessage("IV. Sholl Methods:", headerFont);
-        Sholl_Utils.setClickabaleMsg(gd, URL+"#Sholl_Methods");
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Sholl_Methods", Color.BLACK);
         gd.setInsets(0, xIndent/2, 2);
         gd.addMessage("Profiles Without Normalization:");
         gd.setInsets(0, xIndent, 0);
@@ -843,7 +845,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         // Part V: Mask and outputs
         gd.setInsets(10, 0, 2);
         gd.addMessage("V. Output Options:", headerFont);
-        Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options");
+        Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options", Color.BLACK);
         gd.setInsets(0, xIndent, 0);
         gd.addCheckbox("Create intersections mask", mask);
         gd.addSlider("Background", 0, 255, maskBackground);
@@ -851,35 +853,67 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
         // Offer to save results if local image
         if (validPath) {
             gd.setInsets(2, xIndent, 0);
-            gd.addCheckbox("Save results on image directory", save);
+            gd.addCheckbox("Save results in image directory", save);
 			gd.setInsets(0, 2*xIndent, 0);
             gd.addCheckbox("Do not display saved files", hideSaved);
         }
 
+        gd.enableYesNoCancel("OK","Cf. Segmentation");
         gd.setHelpLabel("Online Help");
         gd.addHelp(URL);
 
 		// Add listener and update prompt before displaying it
         gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
-		//gd.setResizable(true);
 		Sholl_Utils.addScrollBars(gd);
 		gd.showDialog();
 
-        if (gd.wasCanceled())
-            return false;
-        else if (dialogItemChanged(gd, null)) { // Read dialog result
-            return true;
-        } else {
-            sError("Invalid parameters. Possible causes:\n"
-            		+ "    - Ending radius/Radius step size misdefined\n"
-					+ "    - No method of analysis chosen");
-            return false;
+        if (gd.wasCanceled()) {
+        	return false;
+        } else if (gd.wasOKed()) {
+        	if (dialogItemChanged(gd, null)) { // Read dialog result
+        		return true;
+        	} else {
+        		sError("Invalid parameters. Possible causes:\n"
+        			+ "    - Ending radius/Radius step size misdefined\n"
+        			+ "    - No method of analysis chosen");
+        		return false;
+        	}
+        } else { // User pressed the 3rd ("No") button
+
+        	offlineHelp(gd);
+        	if (Recorder.record) Recorder.setCommand("");
+        	return bitmapPrompt(chordAngle, is3D);
+
         }
     }
 
-    /** Retrieves values from the dialog, disabling dialog components that are
-        not applicable. Returns false if no analysis method was chosen
+    /**
+     * Some users have been measuring the interstitial spaces between neuronal
+     * processes rather than the processes themselves. This creates a warning
+     * message while highlighting the arbor to remember the user that highlighted
+     * pixels are the ones to be measured
+     */
+    private void offlineHelp(final GenericDialog parentDialog) {
+    	this.ip.setThreshold(lowerT, upperT, ImageProcessor.RED_LUT);
+    	this.img.updateAndDraw();
+    	new HTMLDialog(parentDialog, "Segmentation Details", "<html>"
+    		+ "Arbor is now highlighted in red. Non-highlighted pixels are<p>"
+    		+ "interpreted as background. Make sure you are measuring<p>"
+    		+ "neuronal processes and not interstitial spaces between them!<p><p>"
+    		+ "<b>Segmentation details:</b><p>"
+    		+ "&emsp;Lower threshold value (lowest intensity in arbor): <tt>"+ lowerT +"</tt><p>"
+    		+ "&emsp;Upper threshold value (brightest intensity in arbor): <tt>"+ upperT +"</tt><p>"
+    		+ "&emsp;Intensity of analysis center: <tt>"+ this.ip.get(x, y) +"</tt><p><p>"
+    		+ "&emsp;Binary image? <tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
+    		+ "&emsp;Inverted Lookup Table? <tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt><p>"
+    		+ "&emsp;Black background (<i>Process>Binary>Options...</i>)? <tt>"+ String.valueOf(Prefs.blackBackground) +"</tt>"
+    		+ "</html>");
+    }
+
+    /**
+     * Retrieves values from the dialog, disabling dialog components that are
+     * not applicable. Returns false if no analysis method was chosen
      */
     public boolean dialogItemChanged(final GenericDialog gd, final AWTEvent e) {
 
@@ -1689,20 +1723,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
                 exitmsg = "32-bit grayscale images are not supported.";
             else {  // 8/16-bit grayscale image
 
-                final double lower = ip.getMinThreshold();
-                if (ip.isBinary() && lower==ImageProcessor.NO_THRESHOLD) {
-                    lowerT = upperT = 255;
-                    if (ip.isInvertedLut()) {
-                        ip.setThreshold(lowerT, upperT, ImageProcessor.RED_LUT);
-                        img.updateAndDraw();
-                    }
-                } else if (lower==ImageProcessor.NO_THRESHOLD)
-                    exitmsg = "Image is not thresholded.";
-                else {
-                    lowerT = (int) lower;
+            	final double lower = ip.getMinThreshold();
+                if (lower!=ImageProcessor.NO_THRESHOLD) {
+                	lowerT = (int) lower;
                     upperT = (int) ip.getMaxThreshold();
-                }
-
+                } else if (ip.isBinary()) { // binary images: background is zero
+            		lowerT = upperT = 255;
+            	} else
+                    exitmsg = "Image is not thresholded.";
             }
         }
 
