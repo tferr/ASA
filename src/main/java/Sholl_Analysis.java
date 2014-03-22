@@ -115,8 +115,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 	private static double vxWH = 1;
 	private static double vxD  = 1;
 	private static boolean is3D;
-	private static int lowerT;
-	private static int upperT;
+	private static double lowerT;
+	private static double upperT;
 
 	/* Boundaries and center of analysis */
 	private static boolean orthoChord = false;
@@ -880,11 +880,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 				return false;
 			}
 		} else { // User pressed the 3rd ("No") button
-
 			offlineHelp(gd);
 			if (Recorder.record) Recorder.setCommand("");
 			return bitmapPrompt(chordAngle, is3D);
-
 		}
 	}
 
@@ -895,20 +893,54 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 	 * pixels are the ones to be measured
 	 */
 	private void offlineHelp(final GenericDialog parentDialog) {
-		this.ip.setThreshold(lowerT, upperT, ImageProcessor.RED_LUT);
+
+		// remember image LUT
+		final LUT lut = this.ip.getLut();
+		final double min = this.ip.getMin();
+		final double max = this.ip.getMax();
+		final double t1 = (min + (lowerT*255.0/(max-min)));
+		final double t2 = (min + (upperT*255.0/(max-min)));
+		final int mode = this.ip.getLutUpdateMode();
+
+		// apply new LUT
+		final byte[] r = new byte[256];
+		final byte[] g = new byte[256];
+		final byte[] b = new byte[256];
+		for (int i=0; i<256; i++) {
+			if (i>=t1 && i<=t2) {
+				r[i] = (byte)0;
+				g[i] = (byte)100;
+				b[i] = (byte)255;
+			} else {
+				r[i] = (byte)255;
+				g[i] = (byte)236;
+				b[i] = (byte)158;
+			}
+		}
+		this.ip.setColorModel(new IndexColorModel(8, 256, r, g, b));
 		this.img.updateAndDraw();
+
 		new HTMLDialog(parentDialog, "Segmentation Details", "<html>"
-			+ "Arbor is now highlighted in red. Non-highlighted pixels are<p>"
-			+ "interpreted as background. Make sure you are measuring<p>"
-			+ "neuronal processes and not interstitial spaces between them!<p><p>"
+			+ "Pixels highlighted "
+			+ "in <span style='background-color:#d0d0d0;color:#0000ff;font-weight:bold;'>&nbsp;Blue&nbsp;</span>"
+			+ " will be interpreted as <i>arbor</i>. Pixels<p>"
+			+ "in <span style='background-color:#808080;color:#ffff00;font-weight:bold;'>&nbsp;Yellow&nbsp;</span>"
+			+ " will be interpreted as <i>background</i>.<p><p>"
+			+ "Make sure you are sampling neuronal processes and not the<p>"
+			+ "interstitial spaces between them!<p><p>"
 			+ "<b>Segmentation details:</b><p>"
-			+ "&emsp;Lower threshold value (lowest intensity in arbor): <tt>"+ lowerT +"</tt><p>"
-			+ "&emsp;Upper threshold value (brightest intensity in arbor): <tt>"+ upperT +"</tt><p>"
-			+ "&emsp;Intensity of analysis center: <tt>"+ this.ip.get(x, y) +"</tt><p><p>"
+			+ "&emsp;Lower threshold value (lowest intensity in arbor): <tt>"+ IJ.d2s(lowerT,1) +"</tt><p>"
+			+ "&emsp;Upper threshold value (brightest intensity in arbor): <tt>"+ IJ.d2s(upperT,1) +"</tt><p>"
+			+ "&emsp;Intensity of analysis center: <tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
 			+ "&emsp;Binary image? <tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
-			+ "&emsp;Inverted Lookup Table? <tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt><p>"
-			+ "&emsp;Black background (<i>Process>Binary>Options...</i>)? <tt>"+ String.valueOf(Prefs.blackBackground) +"</tt>"
+			+ "&emsp;Inverted LUT (Image&#9657;Lookup Tables&#9657;Invert LUT)? <tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt><p>"
+			+ "&emsp;Black background (Process&#9657;Binary&#9657;Options...)? <tt>"+ String.valueOf(Prefs.blackBackground) +"</tt>"
 			+ "</html>");
+
+		// HTMLDialog dismissed: revert to initial state
+		this.ip.setLut(lut);
+		if (mode!=ImageProcessor.NO_LUT_UPDATE) this.ip.setThreshold(lowerT, upperT, mode);
+		this.img.updateAndDraw();
 	}
 
 	/**
@@ -1725,8 +1757,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 				final double lower = ip.getMinThreshold();
 				if (lower!=ImageProcessor.NO_THRESHOLD) {
-					lowerT = (int) lower;
-					upperT = (int) ip.getMaxThreshold();
+					lowerT = lower;
+					upperT = ip.getMaxThreshold();
 				} else if (ip.isBinary()) { // binary images: background is zero
 					lowerT = upperT = 255;
 				} else
