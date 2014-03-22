@@ -10,9 +10,16 @@ binaries of all the builds listed here can be downloaded directly from
 
 Development Builds
 ------------------
-  * Improved prompt: live validation for _Ending radius_/_Radius step size_. Center
+####Version 3.4.1 (March 2014)
+  * Improved prompts: live validation for _Ending radius_/_Radius step size_. Center
     of analysis is displayed on status bar. Section headings are clickable URLs
-    pointing to respective section of documentation page
+    pointing to respective section of the [manual](http://fiji.sc/Sholl_Analysis)
+  * Added _Cf. Segmentation_, that allow users to confirm which phase of the image is being
+    sampled. This should help inexperienced users to make sure they are measuring neuronal
+    processes and not the interstitial spaces between them. It is perplexing how such blunder
+    can escape [peer-review](http://www.ncbi.nlm.nih.gov/pubmed/24485871). Puzzling enough,
+    a tiny fraction of the time spent trying to tuck away such embarrassment would have allowed
+    the authors to read the [documentation](http://fiji.sc/Sholl_Analysis) ad nauseam.
 
 
 Release Builds
@@ -40,7 +47,7 @@ Release Builds
     value of intersection counts. At the default cutoff (1), it is the largest of
     intersecting radii.
 
-####Version 3.1
+####Version 3.1 (June 2013)
   * Hold dow _Alt_ to analyze profiles obtained elsewhere, including those from [Simple
     Neurite Tracer](http://fiji.sc/Simple_Neurite_Tracer)
   * Multiple profiles can be obtained at once
