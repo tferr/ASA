@@ -764,7 +764,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		// Append URL to document CSV import
 		gd.setInsets(-2, 260, 0);
 		gd.addMessage("Traced arbor?", headerFont, Color.DARK_GRAY);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing_Profiles_Obtained_Elsewhere", Color.DARK_GRAY);
+		Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
 
 		// Part I: Definition of Shells
 		gd.setInsets(-8, 0, 0);
@@ -932,9 +932,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 			+ "&emsp;Lower threshold value (lowest intensity in arbor): <tt>"+ IJ.d2s(lowerT,1) +"</tt><p>"
 			+ "&emsp;Upper threshold value (brightest intensity in arbor): <tt>"+ IJ.d2s(upperT,1) +"</tt><p>"
 			+ "&emsp;Intensity of analysis center: <tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
+			+ "&emsp;Image type: <tt>"+ this.ip.getBitDepth() +"-bit</tt><p>"
 			+ "&emsp;Binary image? <tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
-			+ "&emsp;Inverted LUT (Image&#9657;Lookup Tables&#9657;Invert LUT)? <tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt><p>"
-			+ "&emsp;Black background (Process&#9657;Binary&#9657;Options...)? <tt>"+ String.valueOf(Prefs.blackBackground) +"</tt>"
+			+ "&emsp;Black background (Process&#9657;Binary&#9657;Options...)? <tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
+			+ "&emsp;Inverted LUT (Image&#9657;Lookup Tables&#9657;Invert LUT)? <tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt>"
 			+ "</html>");
 
 		// HTMLDialog dismissed: revert to initial state
@@ -1087,6 +1088,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		// Part II: Indices and Curve Fitting
 		gd.setInsets(15, 0, 2);
 		gd.addMessage("II. Descriptors and Ramification Indices:", headerFont);
+		Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting", Color.BLACK);
 		gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
 		gd.addNumericField(" #_Primary branches", primaryBranches, 0);
 		gd.setInsets(0, 2*xIndent, 0);
@@ -1095,6 +1097,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		// Part III: Sholl Methods
 		gd.setInsets(15, 0, 2);
 		gd.addMessage("III. Sholl Methods:", headerFont);
+		Sholl_Utils.setClickabaleMsg(gd, URL+"#Sholl_Methods", Color.BLACK);
 		gd.setInsets(0, xIndent/2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
@@ -1118,11 +1121,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 		gd.setInsets(15, 0, 2);
 		gd.addMessage("IV. Output Options:", headerFont);
+		Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options", Color.BLACK);
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Show fitting details", verbose);
 		if (validPath) {
 			gd.setInsets(0, xIndent, 0);
-			gd.addCheckbox("Save results on directory of profile", save);
+			gd.addCheckbox("Save results in directory of imported profile", save);
 			gd.setInsets(0, xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
