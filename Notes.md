@@ -10,6 +10,11 @@ binaries of all the builds listed here can be downloaded directly from
 
 Development Builds
 ------------------
+  * No major changes to report
+
+
+Release Builds
+--------------
 ####Version 3.4.1 (March 2014)
   * Improved prompts: live validation for _Ending radius_/_Radius step size_. Center
     of analysis is displayed on status bar. Section headings are clickable URLs
@@ -21,9 +26,6 @@ Development Builds
     a tiny fraction of the time spent trying to tuck away such embarrassment would have allowed
     the authors to read the [documentation](http://fiji.sc/Sholl_Analysis) ad nauseam.
 
-
-Release Builds
---------------
 ####Version 3.4.0 (January 2014)
   * Guesses which of the normalization methods (semi-log or log-log) is the most
     informative using the concept of _determination ratio_
