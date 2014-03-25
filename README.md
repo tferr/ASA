@@ -17,6 +17,3 @@ Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f
 
 ###Related Resources
 [Morphometry-related routines](https://github.com/tferr/Scripts#neuronal-morphometry) ([Scripts repository](https://github.com/tferr/Scripts))
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/tferr/asa/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
