@@ -35,7 +35,6 @@ import ij.text.*;
 import ij.util.Tools;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.IndexColorModel;
 import java.io.*;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ import java.util.Vector;
  *
  * @author Tiago Ferreira, Tom Maddock (v1, 2005)
  */
-public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
+public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	public static final String VERSION = "3.4.2-testing";
@@ -152,13 +151,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 
 	private static double[] radii;
 	private static double[] counts;
-
-	/* Dialog listeners (csvPrompt) */
-	private static Checkbox iechooseLog;
-	private static Checkbox ieshollNS;
-	private static Checkbox ieshollSLOG;
-	private static Checkbox ieshollLOG;
-
 	private ImagePlus img;
 	private ImageProcessor ip;
 
@@ -871,14 +863,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
-			if (dialogItemChanged(gd, null)) { // Read dialog result
-				return true;
-			} else {
-				sError("Invalid parameters. Possible causes:\n"
-					+ "	   - Ending radius/Radius step size misdefined\n"
-					+ "	   - No method of analysis chosen");
-				return false;
-			}
+			return dialogItemChanged(gd, null);
 		} else { // User pressed the 3rd ("No") button
 			offlineHelp(gd);
 			if (Recorder.record) Recorder.setCommand("");
@@ -950,118 +935,163 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 	 */
 	public boolean dialogItemChanged(final GenericDialog gd, final AWTEvent e) {
 
+		// components of GenericDialog
 		final Vector<?> numericfields = gd.getNumericFields();
 		final Vector<?> choices = gd.getChoices();
 		final Vector<?> checkboxes = gd.getCheckboxes();
+
+		// options common to bitmapPrompt() and csvPrompt()
+		final TextField ieprimaryBranches;
+		final Choice iepolyChoice, ienormChoice;
+		final Checkbox ieshollNS, ieshollSLOG, ieshollLOG, iehideSaved;
 
 		int checkboxCounter = 0;
 		int choiceCounter = 0;
 		int fieldCounter = 0;
 
-		// Part I: Definition of Shells
-		startRadius = Math.max(0, gd.getNextNumber());
-		//final TextField iestartRadius = (TextField)numericfields.elementAt(fieldCounter++);
-		fieldCounter++;
-		endRadius = gd.getNextNumber();
-		final TextField ieendRadius = (TextField)numericfields.elementAt(fieldCounter++);
-		//fieldCounter++;
-		incStep = Math.max(0, gd.getNextNumber());
-		//final TextField ieincStep = (TextField)numericfields.elementAt(fieldCounter++);
-		fieldCounter++;
-		if (endRadius<=startRadius || endRadius<=incStep) {
-			ieendRadius.setForeground(Color.RED);
-			return false;
-		} else {
-			ieendRadius.setForeground(Color.BLACK);
-		}
+		if (isCSV) { // csvPrompt()
 
-		// Orthogonal chord options
-		if (orthoChord) {
-			trimBounds = gd.getNextBoolean();
-			quadChoice = gd.getNextChoiceIndex();
-			quadString = quads[quadChoice];
-			checkboxCounter++;
-			//final Checkbox ietrimBounds = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-			final Choice iequadChoice = (Choice)choices.elementAt(choiceCounter++);
-			iequadChoice.setEnabled(trimBounds);
-		}
+			choiceCounter = 2;
+			fieldCounter = 1;
+			checkboxCounter = 4;
 
-		// Part II: Multiple samples (2D) and noise filtering (3D)
-		if (is3D) {
-			skipSingleVoxels = gd.getNextBoolean();
-			checkboxCounter++;
-		} else {
-			nSpans = Math.min(Math.max((int)gd.getNextNumber(), 1), 10);
+			// N.B.: previous fields do not require listeners and are retrieved by csvPrompt()
+			is3D = gd.getNextBoolean();
+			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
+			primaryBranches = (int)Math.max(1, gd.getNextNumber());
+
+			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
+			inferPrimary = gd.getNextBoolean();
+
+			shollN = gd.getNextBoolean();
+			polyChoice = gd.getNextChoiceIndex();
+			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
+
+			chooseLog = gd.getNextBoolean();
+			shollNS = gd.getNextBoolean();
+			ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			shollSLOG = gd.getNextBoolean();
+			ieshollSLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			shollLOG = gd.getNextBoolean();
+			ieshollLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			normChoice = gd.getNextChoiceIndex();
+			ienormChoice = (Choice)choices.elementAt(choiceCounter++);
+
+			verbose = gd.getNextBoolean();
+			if (validPath) {
+				save = gd.getNextBoolean();
+				checkboxCounter += 2;
+				hideSaved = gd.getNextBoolean();
+				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				iehideSaved.setEnabled(save);
+			}
+
+		} else { // bitmapPrompt()
+
+			// Part I: Definition of Shells
+			startRadius = Math.max(0, gd.getNextNumber());
+			//final TextField iestartRadius = (TextField)numericfields.elementAt(fieldCounter++);
 			fieldCounter++;
-			binChoice = gd.getNextChoiceIndex();
-			final Choice iebinChoice = (Choice)choices.elementAt(choiceCounter++);
-			iebinChoice.setEnabled(nSpans>1);
+			endRadius = gd.getNextNumber();
+			final TextField ieendRadius = (TextField)numericfields.elementAt(fieldCounter++);
+			//fieldCounter++;
+			incStep = Math.max(0, gd.getNextNumber());
+			//final TextField ieincStep = (TextField)numericfields.elementAt(fieldCounter++);
+			fieldCounter++;
+			if (endRadius<=startRadius || endRadius<=incStep) {
+				ieendRadius.setForeground(Color.RED);
+				return false;
+			} else {
+				ieendRadius.setForeground(Color.BLACK);
+			}
+
+			// Orthogonal chord options
+			if (orthoChord) {
+				trimBounds = gd.getNextBoolean();
+				quadChoice = gd.getNextChoiceIndex();
+				quadString = quads[quadChoice];
+				checkboxCounter++;
+				//final Checkbox ietrimBounds = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				final Choice iequadChoice = (Choice)choices.elementAt(choiceCounter++);
+				iequadChoice.setEnabled(trimBounds);
+			}
+
+			// Part II: Multiple samples (2D) and noise filtering (3D)
+			if (is3D) {
+				skipSingleVoxels = gd.getNextBoolean();
+				checkboxCounter++;
+			} else {
+				nSpans = Math.min(Math.max((int)gd.getNextNumber(), 1), 10);
+				fieldCounter++;
+				binChoice = gd.getNextChoiceIndex();
+				final Choice iebinChoice = (Choice)choices.elementAt(choiceCounter++);
+				iebinChoice.setEnabled(nSpans>1);
+			}
+
+			// Part III: Indices and Curve Fitting
+			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
+			fieldCounter++;
+			primaryBranches = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
+			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
+			inferPrimary = gd.getNextBoolean();
+			checkboxCounter++;
+
+			fitCurve = gd.getNextBoolean();
+			checkboxCounter++;
+			verbose = gd.getNextBoolean();
+			final Checkbox ieverbose = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieverbose.setEnabled(fitCurve);
+
+			// Part IV: Sholl Methods
+			shollN = gd.getNextBoolean();
+			checkboxCounter++;
+
+			polyChoice = gd.getNextChoiceIndex();
+			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
+
+			chooseLog = gd.getNextBoolean();
+			checkboxCounter++;
+			shollNS = gd.getNextBoolean();
+			ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			shollSLOG = gd.getNextBoolean();
+			ieshollSLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			shollLOG = gd.getNextBoolean();
+			ieshollLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			normChoice = gd.getNextChoiceIndex();
+			ienormChoice = (Choice)choices.elementAt(choiceCounter++);
+
+			// Part V: Mask and outputs
+			mask = gd.getNextBoolean();
+			checkboxCounter++;
+			//final Checkbox iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			maskBackground = Math.min(Math.max((int)gd.getNextNumber(), 0), 255);
+			final TextField iemaskBackground = (TextField)numericfields.elementAt(fieldCounter++);
+			iemaskBackground.setEnabled(mask);
+
+			if (validPath) {
+				save = gd.getNextBoolean();
+				checkboxCounter++;
+				hideSaved = gd.getNextBoolean();
+				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				iehideSaved.setEnabled(save);
+			}
+
 		}
 
-		// Part III: Indices and Curve Fitting
-		enclosingCutOff = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
-		fieldCounter++;
-		primaryBranches = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
-		final TextField ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
-		inferPrimary = gd.getNextBoolean();
-		checkboxCounter++;
+		// Disable fields common to both prompts
 		ieprimaryBranches.setEnabled(!inferPrimary);
-
-		fitCurve = gd.getNextBoolean();
-		checkboxCounter++;
-		verbose = gd.getNextBoolean();
-		final Checkbox ieverbose = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-		ieverbose.setEnabled(fitCurve);
-
-		// Part IV: Sholl Methods
-		shollN = gd.getNextBoolean();
-		checkboxCounter++;
-
-		polyChoice = gd.getNextChoiceIndex();
-		final Choice iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
-		iepolyChoice.setEnabled( fitCurve && shollN );
-
-		chooseLog = gd.getNextBoolean();
-		checkboxCounter++;
-		shollNS = gd.getNextBoolean();
-		final Checkbox ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-		shollSLOG = gd.getNextBoolean();
-		final Checkbox ieshollSLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-		shollLOG = gd.getNextBoolean();
-		final Checkbox ieshollLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-		normChoice = gd.getNextChoiceIndex();
-		final Choice ienormChoice = (Choice)choices.elementAt(choiceCounter++);
-
+		iepolyChoice.setEnabled( fitCurve && shollN ); // fitCurve is true if isCSV
 		ieshollNS.setEnabled(!chooseLog);
 		ieshollSLOG.setEnabled(!chooseLog);
 		ieshollLOG.setEnabled(!chooseLog);
-		ienormChoice.setEnabled( shollNS || shollSLOG || shollLOG || chooseLog);
-
-		// Part V: Mask and outputs
-		mask = gd.getNextBoolean();
-		checkboxCounter++;
-		//final Checkbox iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-		maskBackground = Math.min(Math.max((int)gd.getNextNumber(), 0), 255);
-		final TextField iemaskBackground = (TextField)numericfields.elementAt(fieldCounter++);
-		iemaskBackground.setEnabled(mask);
-
-		if (validPath) {
-			save = gd.getNextBoolean();
-			checkboxCounter++;
-			hideSaved = gd.getNextBoolean();
-			final Checkbox iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-			iehideSaved.setEnabled(save);
-		}
+		ienormChoice.setEnabled(shollNS || shollSLOG || shollLOG || chooseLog);
 
 		// Disable the OK button if no method is chosen
-		return (shollN || shollNS || shollSLOG || shollLOG || chooseLog) ? true : false;
+		return (shollN || shollNS || shollSLOG || shollLOG || chooseLog);
 
 	}
 
-	/**
-	 * Creates the dialog for tabular data (bitmapPrompt is the main prompt).
-	 * Returns false if dialog was canceled or no analysis method was chosen
-	 */
+	/** Creates the dialog for tabular data (bitmapPrompt is the main prompt). */
 	private boolean csvPrompt(final ResultsTable rt) {
 
 		final String[] headings = rt.getHeadings();
@@ -1127,27 +1157,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		if (validPath) {
 			gd.setInsets(0, xIndent, 0);
 			gd.addCheckbox("Save results in directory of imported profile", save);
-			gd.setInsets(0, xIndent, 0);
+			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
 
 		gd.setHelpLabel("Online Help");
 		gd.addHelp(URL + "#Importing");
-
-		// Add listeners
-		final Vector<?> checkboxes = gd.getCheckboxes();
-		iechooseLog = (Checkbox)checkboxes.elementAt(3);
-		iechooseLog.addItemListener(this);
-		ieshollNS = (Checkbox)checkboxes.elementAt(4);
-		ieshollNS.addItemListener(this);
-		ieshollNS.setEnabled(!chooseLog);
-		ieshollSLOG = (Checkbox)checkboxes.elementAt(5);
-		ieshollSLOG.addItemListener(this);
-		ieshollSLOG.setEnabled(!chooseLog);
-		ieshollLOG = (Checkbox)checkboxes.elementAt(6);
-		ieshollLOG.addItemListener(this);
-		ieshollLOG.setEnabled(!chooseLog);
-
+		gd.addDialogListener(this);
+		dialogItemChanged(gd, null);
 		Sholl_Utils.addScrollBars(gd);
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -1156,24 +1173,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 		imgTitle = gd.getNextString();
 		final int rColumn = gd.getNextChoiceIndex();
 		final int cColumn = gd.getNextChoiceIndex();
-		is3D = gd.getNextBoolean();
-
-		enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
-		primaryBranches = (int)Math.max(1, gd.getNextNumber());
-		inferPrimary = gd.getNextBoolean();
-
-		shollN = gd.getNextBoolean();
-		polyChoice = gd.getNextChoiceIndex();
-		chooseLog = gd.getNextBoolean();
-		shollNS = gd.getNextBoolean();
-		shollSLOG = gd.getNextBoolean();
-		shollLOG = gd.getNextBoolean();
-		normChoice = gd.getNextChoiceIndex();
-		verbose = gd.getNextBoolean();
-		if (validPath) {
-			save = gd.getNextBoolean();
-			hideSaved = gd.getNextBoolean();
-		}
 
 		if ( rColumn==cColumn ) {
 			sError("\"Distance\" and \"Intersections\" columns cannot be the same.");
@@ -1188,24 +1187,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener, ItemListener {
 					+ "\n*** Normalizations involving "+ norms[norms.length-1] +" will not be relevant");
 		}
 
-		if ( !(shollN || shollNS || shollSLOG || shollLOG || chooseLog) ) {
-			sError("No method(s) chosen.\nAt least one analysis method must be chosen.");
-			return false;
-		}
-
-		return true;
-
+		return dialogItemChanged(gd, null);
 	}
-
-
-	/**	 Disables invalid options every time csvPrompt changes */
-	public void itemStateChanged(final ItemEvent ie) {
-		final boolean choose = iechooseLog.getState();
-		ieshollNS.setEnabled(!choose);
-		ieshollSLOG.setEnabled(!choose);
-		ieshollLOG.setEnabled(!choose);
-	}
-
 
 	/** Measures intersections for each sphere surface */
 	static public double[] analyze3D(final int xc, final int yc, final int zc,
