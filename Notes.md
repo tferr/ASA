@@ -10,7 +10,9 @@ binaries of all the builds listed here can be downloaded directly from
 
 Development Builds
 ------------------
-  * No major changes to report
+####Version 3.4.2
+  * Improved prompts: dialog for tabular data is as interactive as the main dialog for
+    bitmap images
 
 
 Release Builds
