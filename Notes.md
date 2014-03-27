@@ -11,8 +11,9 @@ binaries of all the builds listed here can be downloaded directly from
 Development Builds
 ------------------
 ####Version 3.4.2
-  * Improved prompts: dialog for tabular data is as interactive as the main dialog for
-    bitmap images
+  * Improved prompts: dialog for tabular data is much more interactive
+  * Fixed a bug that made the recorder to omit the plugin's name if the user pressed _Cf.
+    Segmentation_
 
 
 Release Builds

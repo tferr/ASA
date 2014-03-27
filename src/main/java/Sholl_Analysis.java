@@ -876,7 +876,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			return dialogItemChanged(gd, null);
 		} else { // User pressed the 3rd ("No") button
 			offlineHelp(gd);
-			if (Recorder.record) Recorder.setCommand("");
+			if (Recorder.record) Recorder.setCommand("Sholl Analysis"); // hack: Do not record dialog multiple times
 			return bitmapPrompt(chordAngle, is3D);
 		}
 	}
