@@ -149,6 +149,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	// of a "stair" of target pixels (see countSinglePixels)
 	private static boolean doSpikeSupression = true;
 
+	/* Parameters for tabular data */
+	private static ResultsTable csvRT;
+
 	private static double[] radii;
 	private static double[] counts;
 	private ImagePlus img;
@@ -165,12 +168,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) {
 
-			ResultsTable rt = ResultsTable.getResultsTable();
-			if (rt==null || rt.getCounter()==0) {
+			csvRT = ResultsTable.getResultsTable();
+			if (csvRT==null || csvRT.getCounter()==0) {
 				try {
-					rt = ResultsTable.open("");
-					if (rt!=null) {
-						rt.show("Results"); // could be omitted
+					csvRT = ResultsTable.open("");
+					if (csvRT!=null) {
+						csvRT.show("Results"); // could be omitted
 						validPath = true;
 						imgPath = OpenDialog.getLastDirectory();
 						imgTitle = trimExtension(OpenDialog.getLastName());
@@ -186,8 +189,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				imgTitle = "Imported data";
 			}
 
-			if (!csvPrompt(rt))
-				return;
+			if (!csvPrompt()) return;
+
+			if ( Double.isNaN(stepRadius) || stepRadius<=0 ) {
+				if (normChoice==NORMS3D.length-1) {
+					final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
+					IJ.log("*** Warning: Could not determine radius step size for "+ imgTitle
+							+ "\n*** "+ msg +" normalizations will not be relevant");
+				}
+			}
 
 			fitCurve = true;
 			x = (int)Double.NaN;
@@ -951,20 +961,36 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) { // csvPrompt()
 
-			choiceCounter = 2;
-			fieldCounter = 1;
-			checkboxCounter = 4;
+			imgTitle = gd.getNextString();
 
-			// N.B.: previous fields do not require listeners and are retrieved by csvPrompt()
+			// Get columns choices and ensure rColumn and cColumn are not the same
+			final int rColumn = gd.getNextChoiceIndex();
+			final int cColumn = gd.getNextChoiceIndex();
+			final Choice ierColumn = (Choice)choices.elementAt(choiceCounter++);
+			final Choice iecColumn = (Choice)choices.elementAt(choiceCounter++);
+			if (rColumn==cColumn) {
+				final Object source = e.getSource();
+				final int newChoice = (rColumn<ierColumn.getItemCount()-2) ? rColumn+1 : 0;
+				if (source == ierColumn)
+					iecColumn.select(newChoice);
+				else if (source == iecColumn)
+					ierColumn.select(newChoice);
+			}
+
+			counts = csvRT.getColumnAsDoubles(cColumn);
+			radii = csvRT.getColumnAsDoubles(rColumn);
+			stepRadius = csvRT.getValueAsDouble(rColumn, 1) - csvRT.getValueAsDouble(rColumn, 0);
+
 			is3D = gd.getNextBoolean();
 			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
 			primaryBranches = (int)Math.max(1, gd.getNextNumber());
-
+			fieldCounter = 1;
 			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
 
 			shollN = gd.getNextBoolean();
 			polyChoice = gd.getNextChoiceIndex();
+			checkboxCounter = 4;
 			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
 
 			chooseLog = gd.getNextBoolean();
@@ -1092,11 +1118,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Creates the dialog for tabular data (bitmapPrompt is the main prompt). */
-	private boolean csvPrompt(final ResultsTable rt) {
+	private boolean csvPrompt() {
 
-		final String[] headings = rt.getHeadings();
-		if (headings.length<2 || rt.getCounter()<=SMALLEST_DATASET ) {
-			sError("Failed to import profile from "+ rt.getCounter() +"x"+ headings.length +" Results Table.\n"
+		final String[] headings = csvRT.getHeadings();
+		if (headings.length<2 || csvRT.getCounter()<=SMALLEST_DATASET ) {
+			sError("Failed to import profile from "+ csvRT.getCounter() +"x"+ headings.length +" Results Table.\n"
 					+"At least "+ (SMALLEST_DATASET+1) +" pair of values are required for curve fitting.");
 			return false;
 		}
@@ -1169,25 +1195,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
-
-		imgTitle = gd.getNextString();
-		final int rColumn = gd.getNextChoiceIndex();
-		final int cColumn = gd.getNextChoiceIndex();
-
-		if ( rColumn==cColumn ) {
-			sError("\"Distance\" and \"Intersections\" columns cannot be the same.");
-			return false;
-		}
-
-		counts = rt.getColumnAsDoubles(cColumn);
-		radii = rt.getColumnAsDoubles(rColumn);
-		stepRadius = rt.getValueAsDouble(rColumn, 1) - rt.getValueAsDouble(rColumn, 0);
-		if ( Double.isNaN(stepRadius) || stepRadius<=0 ) {
-			IJ.log("*** Warning: Could not determine radius step size for "+ imgTitle
-					+ "\n*** Normalizations involving "+ norms[norms.length-1] +" will not be relevant");
-		}
-
-		return dialogItemChanged(gd, null);
+		else
+			return dialogItemChanged(gd, null);
 	}
 
 	/** Measures intersections for each sphere surface */
