@@ -969,7 +969,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final Choice ierColumn = (Choice)choices.elementAt(choiceCounter++);
 			final Choice iecColumn = (Choice)choices.elementAt(choiceCounter++);
 			if (rColumn==cColumn) {
-				final Object source = e.getSource();
+				final Object source = (e==null) ? null : e.getSource();
 				final int newChoice = (rColumn<ierColumn.getItemCount()-2) ? rColumn+1 : 0;
 				if (source == ierColumn)
 					iecColumn.select(newChoice);
