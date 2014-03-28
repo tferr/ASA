@@ -1195,8 +1195,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
-		else
+		else {
+			recordAltKey();
 			return dialogItemChanged(gd, null);
+		}
 	}
 
 	/** Measures intersections for each sphere surface */
@@ -2258,6 +2260,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double skewness = ((sum3 - 3.0*mean*sum2)/npoints + 2.0*mean*mean2)/(variance*std);
 		final double kurtosis = (((sum4 - 4.0*mean*sum3 + 6.0*mean2*sum2)/npoints - 3.0*mean2*mean2)/(variance*variance)-3.0);
 		return new double[] { mean, variance, skewness, kurtosis };
+	}
+
+	/** Records IJ.setKeyDown(KeyEvent.VK_ALT); */
+	private static final void recordAltKey() {
+		if (Recorder.record) {
+			String recordString = "setKeyDown(\"alt\");";
+			if (Recorder.scriptMode()) // JavaScript, BeanShell or Java
+				recordString = "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);";
+			// NB: using hex values seems simpler as it works with JavaScript
+			Recorder.recordString(recordString+"\n");
+		}
 	}
 
 }
