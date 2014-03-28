@@ -873,6 +873,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
+			improveRecording();
 			return dialogItemChanged(gd, null);
 		} else { // User pressed the 3rd ("No") button
 			offlineHelp(gd);
@@ -1196,7 +1197,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled())
 			return false;
 		else {
-			recordAltKey();
+			improveRecording();
 			return dialogItemChanged(gd, null);
 		}
 	}
@@ -2263,13 +2264,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Records IJ.setKeyDown(KeyEvent.VK_ALT); */
-	private static final void recordAltKey() {
+	private static final void improveRecording() {
 		if (Recorder.record) {
-			String recordString = "setKeyDown(\"alt\");";
-			if (Recorder.scriptMode()) // JavaScript, BeanShell or Java
-				recordString = "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);";
-			// NB: using hex values seems simpler as it works with JavaScript
-			Recorder.recordString(recordString+"\n");
+			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
+				+ "// Tip: See http://fiji.sc/Sholl_Analysis#Batch_Processing for scripting examples\n";
+			if (isCSV) {
+				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java
+					// NB: using hex values seems simpler as it works with JavaScript
+					recordString += "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);\n";
+				} else { // IJ macro language
+					recordString += "setKeyDown(\"alt\");\n";
+				}
+			}
+			Recorder.recordString(recordString);
 		}
 	}
 
