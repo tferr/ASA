@@ -1905,6 +1905,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("I branches (User)", (inferPrimary || primaryBranches==0) ? Double.NaN : primaryBranches);
 		rt.addValue("I branches (Inferred)", (inferPrimary || primaryBranches==0) ? y[0] : Double.NaN);
 		rt.addValue("Intersecting radii", size);
+		rt.addValue("AUC", trapezoidalAUC(y, stepRadius));
 		rt.addValue("Sum inters.", sumY);
 
 		// Calculate  skewness and kurtosis of sampled data (linear Sholl);
@@ -2262,6 +2263,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double skewness = ((sum3 - 3.0*mean*sum2)/npoints + 2.0*mean*mean2)/(variance*std);
 		final double kurtosis = (((sum4 - 4.0*mean*sum3 + 6.0*mean2*sum2)/npoints - 3.0*mean2*mean2)/(variance*variance)-3.0);
 		return new double[] { mean, variance, skewness, kurtosis };
+	}
+
+	/**
+	 * Returns an approximated numerical integration of discrete data sampled at
+	 * equally-spaced intervals using the trapezoidal rule
+	 */
+	private static final double trapezoidalAUC(final double[] values, final double spacing) {
+		double sum = 0.0;
+		for (int i=1; i<values.length; i++)
+			sum += spacing * (values[i]+values[i-1])/2;
+		return sum;
 	}
 
 	/** Records IJ.setKeyDown(KeyEvent.VK_ALT); */
