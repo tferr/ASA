@@ -173,7 +173,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				try {
 					csvRT = ResultsTable.open("");
 					if (csvRT!=null) {
-						csvRT.show("Results"); // could be omitted
+						if (!IJ.macroRunning()) // no need to display table
+							csvRT.show("Results");
 						validPath = true;
 						imgPath = OpenDialog.getLastDirectory();
 						imgTitle = trimExtension(OpenDialog.getLastName());
