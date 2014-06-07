@@ -156,10 +156,10 @@ public class Sholl_Utils implements PlugIn {
     	pane.removeAll();
     	layout.invalidateLayout(pane);
 
-    	// create new container panel, using GenericDialog's background color
+    	// create new container panel
     	final Panel newPane = new Panel();
     	final GridBagLayout newLayout = new GridBagLayout();
-    	newPane.setBackground(SystemColor.control);
+    	newPane.setBackground(SystemColor.window);
     	newPane.setLayout(newLayout);
     	for (int i=0; i<count; i++) {
     		newLayout.setConstraints(c[i], gbc[i]);
