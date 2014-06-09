@@ -14,6 +14,8 @@ Development Builds
   * Improved macro recording: Fixed a bug that made the Macro Recorder to omit the plugin's
     name if the user pressed _Cf. Segmentation_. In addition, Alt key modifiers are now logged;
   * Improved prompts: dialog for tabular data is much more interactive
+  * Auto-restart when choosing to analyze demo image
+
 
 
 Release Builds
