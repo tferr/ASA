@@ -74,7 +74,11 @@ public class Sholl_Utils implements PlugIn {
         if (is!=null) {
             final Opener opener = new Opener();
             final ImagePlus imp = opener.openTiff(is, "Drosophila_ddaC_Neuron.tif");
-            if (imp!=null) imp.show();
+            if (imp==null) {
+                IJ.showStatus("Error: Could not open ddaC.tif!"); IJ.beep();
+            } else {
+                imp.show();
+            }
         }
     }
 

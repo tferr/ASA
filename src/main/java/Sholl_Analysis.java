@@ -2206,18 +2206,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			IJ.error("Sholl Analysis Error", msg);
 		else {
 			final GenericDialog gd = new GenericDialog("Sholl Analysis Error");
-			gd.setInsets(0,0,0);
+			gd.setInsets(0,15,0);
 			gd.addMessage(msg);
-			if (extended) {
-				gd.setInsets(6,0,0);
-				gd.addCheckbox("Open sample arbor (2D) of Drosophila neuron", false);
-			}
+			gd.hideCancelButton();
+			if (extended)
+				gd.enableYesNoCancel("OK", "Analyze sample image");
 			gd.addHelp(URL);
 			gd.setHelpLabel("Online Help");
-			gd.hideCancelButton();
 			gd.showDialog();
-			if (gd.getNextBoolean())
+			if (extended && !gd.wasOKed() && !gd.wasCanceled()) {
 				IJ.runPlugIn("Sholl_Utils", "sample");
+				this.run("");
+			}
 		}
 
 	}
