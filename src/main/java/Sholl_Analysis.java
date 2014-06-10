@@ -136,9 +136,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static boolean skipSingleVoxels = false;
 
 	/* Parameters for 2D analysis */
-	private static final String[] BIN_TYPES = { "Mean", "Median" };
+	private static final String[] BIN_TYPES = { "Mean", "Median", "Mode" };
 	private static final int BIN_AVERAGE = 0;
-	private static final int BIN_MEDIAN	 = 1;
+	private static final int BIN_MEDIAN	= 1;
+	private static final int BIN_MODE = 2;
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
@@ -919,20 +920,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		new HTMLDialog(parentDialog, "Segmentation Details", "<html>"
 			+ "Pixels highlighted "
-			+ "in <span style='background-color:#d0d0d0;color:#0000ff;font-weight:bold;'>&nbsp;Blue&nbsp;</span>"
+			+ "in <span style='background-color:#c0c0c0;color:#0000ff;font-weight:bold;'>&nbsp;Blue&nbsp;</span>"
 			+ " will be interpreted as <i>arbor</i>. Pixels<p>"
 			+ "in <span style='background-color:#808080;color:#ffff00;font-weight:bold;'>&nbsp;Yellow&nbsp;</span>"
 			+ " will be interpreted as <i>background</i>.<p><p>"
 			+ "Make sure you are sampling neuronal processes and not the<p>"
 			+ "interstitial spaces between them!<p><p>"
 			+ "<b>Segmentation details:</b><p>"
-			+ "&emsp;Lower threshold value (lowest intensity in arbor): <tt>"+ IJ.d2s(lowerT,1) +"</tt><p>"
-			+ "&emsp;Upper threshold value (brightest intensity in arbor): <tt>"+ IJ.d2s(upperT,1) +"</tt><p>"
-			+ "&emsp;Intensity of analysis center: <tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
-			+ "&emsp;Image type: <tt>"+ this.ip.getBitDepth() +"-bit</tt><p>"
-			+ "&emsp;Binary image? <tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
-			+ "&emsp;Black background (Process&#9657;Binary&#9657;Options...)? <tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
-			+ "&emsp;Inverted LUT (Image&#9657;Lookup Tables&#9657;Invert LUT)? <tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt>"
+			+ "&emsp;Lower threshold value (lowest intensity in arbor):&ensp<tt>"+ IJ.d2s(lowerT,1) +"</tt><p>"
+			+ "&emsp;Upper threshold value (brightest intensity in arbor):&ensp<tt>"+ IJ.d2s(upperT,1) +"</tt><p>"
+			+ "&emsp;Intensity of analysis center:&ensp<tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
+			+ "&emsp;Image type:&ensp<tt>"+ this.ip.getBitDepth() +"-bit</tt><p>"
+			+ "&emsp;Binary image?&ensp<tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
+			+ "&emsp;Black background (Process&#9657;Binary&#9657;Options...)?&ensp<tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
+			+ "&emsp;Inverted LUT (Image&#9657;Lookup Tables&#9657;Invert LUT)?&ensp<tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt>"
 			+ "</html>");
 
 		// HTMLDialog dismissed: revert to initial state
@@ -1396,13 +1397,25 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					// Mean: Find the samples sum and divide by n. of samples
 					for (sum = 0, k = 0; k < binsize; k++)
 						sum += binsamples[k];
-					data[i] = ((double) sum) / ((double) binsize);
+					data[i] = (double) (sum/binsize);
+
+				} else if (bintype == BIN_MODE) {
+
+					// Mode: Find the value that appears most often
+                    int mode = 0, maxCount = 0;
+                    for (int ma = 0; ma < binsize; ma++) {
+                        int tempCount = 0;
+                        for (int mb = 0; mb < binsize; mb++)
+                            if (binsamples[mb] == binsamples[ma]) tempCount++;
+                        if (tempCount > maxCount)
+                            { maxCount = tempCount; mode = binsamples[ma]; }
+                    }
+                    data[i] = (double) mode;
 
 				}
 
-				// There was only one sample
-			} else
-				data[i] = binsamples[0];
+			} else // There was only one sample
+				data[i] = (double)binsamples[0];
 
 		}
 
