@@ -10,12 +10,12 @@ binaries of all the builds listed here can be downloaded directly from
 
 Development Builds
 ------------------
-####Version 3.4.2
+####Version 3.4.2 (June 2014)
+  * Added _Mode_ to the list of choices for integration of multiple samples (2D images)
   * Improved macro recording: Fixed a bug that made the Macro Recorder to omit the plugin's
-    name if the user pressed _Cf. Segmentation_. In addition, Alt key modifiers are now logged;
-  * Improved prompts: dialog for tabular data is much more interactive
-  * Auto-restart when choosing to analyze demo image
-
+    name if the user pressed _Cf. Segmentation_. In addition, Alt key modifiers are now logged
+  * Improved prompts: dialog for tabular data is much more interactive. With error messages, the
+    plugin now auto-restarts when user chooses to analyze demo image
 
 
 Release Builds
@@ -40,6 +40,7 @@ Release Builds
   * If the same image is repeatedly analyzed, detailed data from previous analysis is
     discarded
   * Fixed: macros calling the plugin could not parse filenames containing spaces
+  * Versioning conforms with [SemVer](http://semver.org)
 
 > Unfortunately, the numbering scheme used up to version 3.4.0 is somewhat arbitrary and
   not that meaningful. However, large increments usually indicate changes in the user
