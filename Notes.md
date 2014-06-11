@@ -4,7 +4,7 @@
 webpage](http://fiji.sc/Sholl_Analysis). [Development builds](#development-builds) may have new
 features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. They are
 pushed to the Fiji Updater once new features mature and no major issues are found. Pre-compiled
-binaries of all the builds listed here can be downloaded directly from
+binaries (and respective sources) of all the versions listed here can be downloaded from
 [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/).
 
 
@@ -14,8 +14,8 @@ Development Builds
   * Added _Mode_ to the list of choices for integration of multiple samples (2D images)
   * Improved macro recording: Fixed a bug that made the Macro Recorder to omit the plugin's
     name if the user pressed _Cf. Segmentation_. In addition, Alt key modifiers are now logged
-  * Improved prompts: dialog for tabular data is much more interactive. With error messages, the
-    plugin now auto-restarts when user chooses to analyze demo image
+  * Improved prompts: Dialog for tabular data is much more interactive. With error messages, the
+    plugin now auto-restarts when user chooses to analyze the ddaC sample image
 
 
 Release Builds

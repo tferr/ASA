@@ -1397,20 +1397,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					// Mean: Find the samples sum and divide by n. of samples
 					for (sum = 0, k = 0; k < binsize; k++)
 						sum += binsamples[k];
-					data[i] = (double) (sum/binsize);
+					data[i] = ((double) sum) / ((double) binsize);
 
 				} else if (bintype == BIN_MODE) {
 
-					// Mode: Find the value that appears most often
-                    int mode = 0, maxCount = 0;
-                    for (int ma = 0; ma < binsize; ma++) {
-                        int tempCount = 0;
-                        for (int mb = 0; mb < binsize; mb++)
-                            if (binsamples[mb] == binsamples[ma]) tempCount++;
-                        if (tempCount > maxCount)
-                            { maxCount = tempCount; mode = binsamples[ma]; }
-                    }
-                    data[i] = (double) mode;
+					// Mode: Find the value that appears most often. The first sampled value is used if no mode exists
+					int mode = 0, maxCount = 0;
+					for (int ma = 0; ma < binsize; ma++) {
+						int tempCount = 0;
+						for (int mb = 0; mb < binsize; mb++)
+							if (binsamples[mb] == binsamples[ma]) tempCount++;
+						if (tempCount > maxCount)
+							{ maxCount = tempCount; mode = binsamples[ma]; }
+					}
+					data[i] = (double) mode;
 
 				}
 
