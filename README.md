@@ -17,8 +17,9 @@ Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f
 
 
 ##Installation
-If you use Fiji, you already have _Sholl Analysis_ installed. If you are using ImageJ, download the
-latest binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/) and drop it into the main ImageJ. For 'development builds' see the [Release Notes](./Notes.md#)
+If you use Fiji, you already have _Sholl Analysis_ installed. If you are not using Fiji, download
+the latest binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/) and drop
+it into the main ImageJ window. For 'development builds' see the [Release Notes](./Notes.md#)
 
 
 ##License
