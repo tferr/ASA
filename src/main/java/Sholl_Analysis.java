@@ -1125,8 +1125,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		final String[] headings = csvRT.getHeadings();
 		if (headings.length<2 || csvRT.getCounter()<=SMALLEST_DATASET ) {
-			sError("Failed to import profile from "+ csvRT.getCounter() +"x"+ headings.length +" Results Table.\n"
-					+"At least "+ (SMALLEST_DATASET+1) +" pair of values are required for curve fitting.");
+			sError("Imported profile from "+ csvRT.getCounter() +"x"+ headings.length +" table does not contain enough data\n"
+					+"points. At least "+ (SMALLEST_DATASET+1) +" pair of values are required for curve fitting.");
 			return false;
 		}
 
