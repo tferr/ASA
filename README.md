@@ -12,8 +12,16 @@ Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PM
 Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f57601f2739473e40718c9) called _Advanced Sholl Analysis_, hence the acronym
 
 
-
-
-
-###Related Resources
+##Related Resources
 [Morphometry-related routines](https://github.com/tferr/Scripts#neuronal-morphometry) ([Scripts repository](https://github.com/tferr/Scripts))
+
+
+##Installation
+If you use Fiji, you already have _Sholl Analysis_ installed. If you are using ImageJ, download the
+latest binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/) and drop it into the main ImageJ. For 'development builds' see the [Release Notes](./Notes.md#)
+
+
+##License
+This program is free software: you can redistribute them and/or modify them under the terms of the
+[GNU General Public License](http://www.gnu.org/licenses/gpl.txt) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later version.
