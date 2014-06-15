@@ -932,8 +932,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			+ "&emsp;Intensity of analysis center:&ensp<tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
 			+ "&emsp;Image type:&ensp<tt>"+ this.ip.getBitDepth() +"-bit</tt><p>"
 			+ "&emsp;Binary image?&ensp<tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
-			+ "&emsp;Black background (Process&#9657;Binary&#9657;Options...)?&ensp<tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
-			+ "&emsp;Inverted LUT (Image&#9657;Lookup Tables&#9657;Invert LUT)?&ensp<tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt>"
+			+ "&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
+			+ "&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt>"
 			+ "</html>");
 
 		// HTMLDialog dismissed: revert to initial state
