@@ -879,9 +879,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			return dialogItemChanged(gd, null);
 		} else { // User pressed the 3rd ("No") button
 			offlineHelp(gd);
-			if (Recorder.record) Recorder.setCommand("Sholl Analysis"); // hack: Do not record dialog multiple times
+			if (Recorder.record) Recorder.setCommand("Sholl Analysis..."); // hack: Do not record dialog multiple times
 			return bitmapPrompt(chordAngle, is3D);
 		}
+	}
+
+	/** Adds a customized "Help" button to the specified dialog */
+	private void addHelp(final GenericDialog gd) {
+		gd.addHelp(isCSV ? URL+"#Importing" : URL);
+		gd.setHelpLabel("Online Help");
 	}
 
 	/**
