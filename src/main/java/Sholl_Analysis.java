@@ -753,9 +753,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 
 	/**
-	 * Creates the main dialog (csvPrompt imports tabular data). Returns the region
-	 * of the image (relative to the center) to be trimmed from the analysis "None",
-	 * "Above","Below", "Right" or "Left". Returns null if dialog was canceled
+	 * Creates the main dialog (csvPrompt imports tabular data). Returns false if
+	 * dialog was canceled or dialogItemChanged() if dialog was OKed. 
+	 * 
+	 * NB: If no method is chosen (which disables the OK button) and offlineHelp()
+	 * is used, the OK button will become available when the HTMLDialog is dismissed.
+	 * FIX? (this seems minor, as it has no consequences...)
 	 */
 	private boolean bitmapPrompt(final double chordAngle, final boolean is3D) {
 
