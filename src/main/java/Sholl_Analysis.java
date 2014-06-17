@@ -285,7 +285,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Show the plugin dialog: Update parameters with user input and
 			// find out if analysis will be restricted to a hemicircle/hemisphere
-			IJ.showStatus("Analysis center (pixels): x="+ x +", y="+ y +", z="+ z);
 			if(!bitmapPrompt(chordAngle, is3D))
 				return;
 
@@ -765,11 +764,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 44;
 
-		// Append URL to document CSV import
-		gd.setInsets(-2, 260, 0);
-		gd.addMessage("Traced arbor?", headerFont, Color.DARK_GRAY);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
-
 		// Part I: Definition of Shells
 		gd.setInsets(-8, 0, 0);
 		gd.addMessage("I. Definition of Shells:", headerFont);
@@ -863,8 +857,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		gd.enableYesNoCancel("OK","Cf. Segmentation");
-		gd.setHelpLabel("Online Help");
-		gd.addHelp(URL);
+		this.addHelp(gd);
 
 		// Add listener and update prompt before displaying it
 		gd.addDialogListener(this);
@@ -962,8 +955,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// options common to bitmapPrompt() and csvPrompt()
 		final TextField ieprimaryBranches;
 		final Choice iepolyChoice, ienormChoice;
-		final Checkbox ieshollNS, ieshollSLOG, ieshollLOG, iehideSaved;
-
+		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG;
+		Checkbox iesave = null, iehideSaved = null;
+		TextField iemaskBackground = null;
+		String tipMsg;
+		
+		// options specific to bitmapPrompt();
+		Choice iequadChoice = null, iebinChoice = null;
+		
+		final Object source = (e==null) ? null : e.getSource();
 		int checkboxCounter = 0;
 		int choiceCounter = 0;
 		int fieldCounter = 0;
@@ -978,7 +978,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final Choice ierColumn = (Choice)choices.elementAt(choiceCounter++);
 			final Choice iecColumn = (Choice)choices.elementAt(choiceCounter++);
 			if (rColumn==cColumn) {
-				final Object source = (e==null) ? null : e.getSource();
 				final int newChoice = (rColumn<ierColumn.getItemCount()-2) ? rColumn+1 : 0;
 				if (source == ierColumn)
 					iecColumn.select(newChoice);
@@ -991,18 +990,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			stepRadius = csvRT.getValueAsDouble(rColumn, 1) - csvRT.getValueAsDouble(rColumn, 0);
 
 			is3D = gd.getNextBoolean();
+			checkboxCounter++;
 			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
 			primaryBranches = (int)Math.max(1, gd.getNextNumber());
 			fieldCounter = 1;
 			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
+			ieinferPrimary = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 
 			shollN = gd.getNextBoolean();
+			checkboxCounter++;
 			polyChoice = gd.getNextChoiceIndex();
-			checkboxCounter = 4;
 			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
 
 			chooseLog = gd.getNextBoolean();
+			iechooseLog = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 			shollNS = gd.getNextBoolean();
 			ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 			shollSLOG = gd.getNextBoolean();
@@ -1013,9 +1015,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			ienormChoice = (Choice)choices.elementAt(choiceCounter++);
 
 			verbose = gd.getNextBoolean();
+			checkboxCounter++;
+
 			if (validPath) {
 				save = gd.getNextBoolean();
-				checkboxCounter += 2;
+				iesave = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 				hideSaved = gd.getNextBoolean();
 				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 				iehideSaved.setEnabled(save);
@@ -1035,6 +1039,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			fieldCounter++;
 			if (endRadius<=startRadius || endRadius<=incStep) {
 				ieendRadius.setForeground(Color.RED);
+				IJ.showStatus("Error: Ending radius out of range!");
 				return false;
 			} else {
 				ieendRadius.setForeground(Color.BLACK);
@@ -1047,7 +1052,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				quadString = quads[quadChoice];
 				checkboxCounter++;
 				//final Checkbox ietrimBounds = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-				final Choice iequadChoice = (Choice)choices.elementAt(choiceCounter++);
+				iequadChoice = (Choice)choices.elementAt(choiceCounter++);
 				iequadChoice.setEnabled(trimBounds);
 			}
 
@@ -1059,7 +1064,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				nSpans = Math.min(Math.max((int)gd.getNextNumber(), 1), 10);
 				fieldCounter++;
 				binChoice = gd.getNextChoiceIndex();
-				final Choice iebinChoice = (Choice)choices.elementAt(choiceCounter++);
+				iebinChoice = (Choice)choices.elementAt(choiceCounter++);
 				iebinChoice.setEnabled(nSpans>1);
 			}
 
@@ -1069,7 +1074,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			primaryBranches = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
 			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
-			checkboxCounter++;
+			ieinferPrimary = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 
 			fitCurve = gd.getNextBoolean();
 			checkboxCounter++;
@@ -1085,7 +1090,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
 
 			chooseLog = gd.getNextBoolean();
-			checkboxCounter++;
+			iechooseLog = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 			shollNS = gd.getNextBoolean();
 			ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 			shollSLOG = gd.getNextBoolean();
@@ -1100,12 +1105,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			checkboxCounter++;
 			//final Checkbox iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 			maskBackground = Math.min(Math.max((int)gd.getNextNumber(), 0), 255);
-			final TextField iemaskBackground = (TextField)numericfields.elementAt(fieldCounter++);
+			iemaskBackground = (TextField)numericfields.elementAt(fieldCounter++);
 			iemaskBackground.setEnabled(mask);
 
 			if (validPath) {
 				save = gd.getNextBoolean();
-				checkboxCounter++;
+				iesave = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 				hideSaved = gd.getNextBoolean();
 				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 				iehideSaved.setEnabled(save);
@@ -1122,7 +1127,37 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		ienormChoice.setEnabled(shollNS || shollSLOG || shollLOG || chooseLog);
 
 		// Disable the OK button if no method is chosen
-		return (shollN || shollNS || shollSLOG || shollLOG || chooseLog);
+		final boolean proceed = (shollN || shollNS || shollSLOG || shollLOG || chooseLog);
+
+		// Provide some interactive feedback (of sorts)
+		if (!proceed)
+		    tipMsg = "Error: At least one method needs to be chosen!";
+		else if (source==null) {
+			tipMsg = (isCSV) ? "Importing tabular data..."
+					: "Analysis center (pixels): x="+ x +", y="+ y +", z="+ z;
+		} else if (source==iequadChoice)
+			tipMsg = "NB: The \"Restriction\" option is disabled with non-orthogonal lines.";
+		else if (source==iebinChoice)
+			tipMsg = "NB: The \"Integration\" option is disabled with 3D images.";
+		else if (source==iepolyChoice)
+			tipMsg = "NB: The NeuroToolbox allows fitting to polynomials of higher order.";
+		else if (source==ienormChoice)
+			tipMsg = "NB: \"Annulus/Spherical shell\" requires non-continuous sampling.";
+		else if (source==iechooseLog || source==ieshollNS || source==ieshollSLOG || source==ieshollLOG)
+			tipMsg = "NB: Determination ratio chooses \"Most informative\" method.";
+		else if (source==ieprimaryBranches || source==ieinferPrimary)
+			tipMsg = "NB: \"Primary branches\" are used to calculate Schoenen indices.";
+		else if (source==iemaskBackground)
+			tipMsg = "Grayscale value for zero-intersections. 0: Black; 255: White...";
+		else if (validPath && (source==iesave || source==iehideSaved))
+			tipMsg = "Saving to "+ imgPath +"...";
+		else if (isCSV)
+			tipMsg = "NB: Saving options disabled (reading Results Table)...";
+		else
+			tipMsg = "NB: Saving options disabled (non-local image)...";
+		IJ.showStatus(tipMsg);
+
+		return proceed;
 
 	}
 
@@ -1196,8 +1231,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
 
-		gd.setHelpLabel("Online Help");
-		gd.addHelp(URL + "#Importing");
+		this.addHelp(gd);
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		Sholl_Utils.addScrollBars(gd);
@@ -2222,16 +2256,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private void error(final String msg, final boolean extended) {
 
 		if (IJ.macroRunning())
-			IJ.error("Sholl Analysis Error", msg);
+			IJ.error("Error (Sholl Analysis v"+ VERSION +")", msg);
 		else {
-			final GenericDialog gd = new GenericDialog("Sholl Analysis Error");
-			gd.setInsets(0,15,0);
+			final GenericDialog gd = new GenericDialog("Error (Sholl Analysis v"+ VERSION +")");
 			gd.addMessage(msg);
+			gd.addMessage("Alternatively, hold \"Alt\" while running the plugin\n"
+					+"to analyze profiles from Simple Neurite Tracer...", null, Color.DARK_GRAY);
+			Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
 			gd.hideCancelButton();
 			if (extended)
-				gd.enableYesNoCancel("OK", "Analyze sample image");
-			gd.addHelp(URL);
-			gd.setHelpLabel("Online Help");
+				gd.enableYesNoCancel("OK", "Analyze Sample Image");
+			this.addHelp(gd);
 			gd.showDialog();
 			if (extended && !gd.wasOKed() && !gd.wasCanceled()) {
 				IJ.runPlugIn("Sholl_Utils", "sample");
@@ -2287,10 +2322,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final void improveRecording() {
 		if (Recorder.record) {
 			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
-				+ "// Tip: See http://fiji.sc/Sholl_Analysis#Batch_Processing for scripting examples\n";
+				+ "// Visit http://fiji.sc/Sholl_Analysis#Batch_Processing for scripting examples\n";
 			if (isCSV) {
-				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java
-					// NB: using hex values seems simpler as it works with JavaScript
+				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as of IJ.1.48
+					// NB: using hex values seems simpler as it works with JavaScript recording
 					recordString += "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);\n";
 				} else { // IJ macro language
 					recordString += "setKeyDown(\"alt\");\n";

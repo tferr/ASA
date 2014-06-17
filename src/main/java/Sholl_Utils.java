@@ -106,7 +106,7 @@ public class Sholl_Utils implements PlugIn {
 
     /** Displays an "about" info box */
     void showAbout() {
-        final String version = Sholl_Analysis.VERSION + BUILD;
+        final String version = Sholl_Analysis.VERSION +" "+ BUILD;
         final String summary = "Quantitative Sholl-based morphometry of untraced neuronal arbors";
         final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";
         final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan Preibisch,\n"
