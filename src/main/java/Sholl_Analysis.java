@@ -2273,8 +2273,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.showDialog();
 			if (extended && !gd.wasOKed() && !gd.wasCanceled()) {
 				IJ.runPlugIn("Sholl_Utils", "sample");
-				this.img = WindowManager.getCurrentImage();
-				this.run("");
+				final ImagePlus sampleImg = WindowManager.getCurrentImage();
+				if (this.img!=sampleImg) {
+					this.img = sampleImg; this.run("");
+				} else
+					IJ.error("Error: Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
 			}
 		}
 
