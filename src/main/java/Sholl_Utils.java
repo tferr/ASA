@@ -160,10 +160,11 @@ public class Sholl_Utils implements PlugIn {
     	pane.removeAll();
     	layout.invalidateLayout(pane);
 
-    	// create new container panel
+    	// create new container panel. Default background in ij.gui.GenericDialog is
+    	// SystemColor.control, but w/ OSX Java7 SystemColor.control has changed value?
     	final Panel newPane = new Panel();
     	final GridBagLayout newLayout = new GridBagLayout();
-    	newPane.setBackground(SystemColor.window);
+    	newPane.setBackground(SystemColor.control);
     	newPane.setLayout(newLayout);
     	for (int i=0; i<count; i++) {
     		newLayout.setConstraints(c[i], gbc[i]);
