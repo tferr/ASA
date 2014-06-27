@@ -1265,7 +1265,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			IJ.showProgress(s, nspheres);
 			IJ.showStatus("Sampling sphere "+ (s+1) +"/"+ nspheres +". Press 'Esc' to abort...");
 			if (IJ.escapePressed())
-				{ IJ.beep(); mask = false; return data; }
+				{ IJ.beep(); return data; }
 
 			// Initialize ArrayLists to hold surface points
 			final ArrayList<int[]> points = new ArrayList<int[]>();
@@ -1745,7 +1745,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Sholl mask as a 16-bit image. Any negative values from polynomial will become 0
 		final ImageProcessor mp = new ShortProcessor(ip.getWidth(), ip.getHeight());
 
-		final int drawSteps = values.length;
+		final int drawSteps = values.length; // endRadius may have never been reached (eg, if Esc was pressed)
 		final int firstRadius = (int) Math.round( startRadius/vxWH );
 		final int lastRadius = (int) Math.round( (startRadius + (drawSteps-1)*stepRadius)/vxWH) ;
 		final int drawWidth = (int) Math.round( (lastRadius-startRadius)/drawSteps );
