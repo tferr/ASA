@@ -961,7 +961,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG;
 		Checkbox iesave = null, iehideSaved = null;
 		TextField iemaskBackground = null;
-		String tipMsg;
 		
 		// options specific to bitmapPrompt();
 		Choice iequadChoice = null, iebinChoice = null;
@@ -1133,31 +1132,31 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean proceed = (shollN || shollNS || shollSLOG || shollLOG || chooseLog);
 
 		// Provide some interactive feedback (of sorts)
+		String tipMsg;
 		if (!proceed)
-		    tipMsg = "Error: At least one method needs to be chosen!";
-		else if (source==null) {
-			tipMsg = (isCSV) ? "Importing tabular data..."
-					: "Analysis center (pixels): x="+ x +", y="+ y +", z="+ z;
-		} else if (source==iequadChoice)
-			tipMsg = "NB: The \"Restriction\" option is disabled with non-orthogonal lines.";
-		else if (source==iebinChoice)
-			tipMsg = "NB: The \"Integration\" option is disabled with 3D images.";
-		else if (source==iepolyChoice)
-			tipMsg = "NB: The NeuroToolbox allows fitting to polynomials of higher order.";
-		else if (source==ienormChoice)
-			tipMsg = "NB: \"Annulus/Spherical shell\" requires non-continuous sampling.";
-		else if (source==iechooseLog || source==ieshollNS || source==ieshollSLOG || source==ieshollLOG)
-			tipMsg = "NB: Determination ratio chooses \"Most informative\" method.";
-		else if (source==ieprimaryBranches || source==ieinferPrimary)
-			tipMsg = "NB: \"Primary branches\" are used to calculate Schoenen indices.";
-		else if (source==iemaskBackground)
-			tipMsg = "Grayscale value for zero-intersections. 0: Black; 255: White...";
-		else if (validPath && (source==iesave || source==iehideSaved))
-			tipMsg = "Saving to "+ imgPath +"...";
+			tipMsg = "Error: At least one method needs to be chosen!";
+		else if (validPath)
+			tipMsg = "Saving path: "+ imgPath;
 		else if (isCSV)
 			tipMsg = "NB: Saving options disabled (reading Results Table)...";
 		else
-			tipMsg = "NB: Saving options disabled (non-local image)...";
+			tipMsg = "NB: Saving options disabled (non-local image)..."; //"Analysis center (pixels): x="+ x +", y="+ y +", z="+ z;
+		if (source!=null) {
+			if (source==iequadChoice)
+				tipMsg = "NB: The \"Restriction\" option is disabled with non-orthogonal lines.";
+			else if (source==iebinChoice)
+				tipMsg = "NB: The \"Integration\" option is disabled with 3D images.";
+			else if (source==iepolyChoice)
+				tipMsg = "NB: The BAR update site allows fitting to polynomials of higher order.";
+			else if (source==ienormChoice)
+				tipMsg = "NB: \"Annulus/Spherical shell\" requires non-continuous sampling.";
+			else if (source==iechooseLog || source==ieshollNS || source==ieshollSLOG || source==ieshollLOG)
+				tipMsg = "NB: Determination ratio chooses \"Most informative\" method.";
+			else if (source==ieprimaryBranches || source==ieinferPrimary)
+				tipMsg = "NB: \"Primary branches\" are used to calculate Schoenen indices.";
+			else if (source==iemaskBackground)
+				tipMsg = "Grayscale value for zero-intersections. 0: Black; 255: White...";
+		}
 		IJ.showStatus(tipMsg);
 
 		return proceed;

@@ -7,19 +7,21 @@ Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PM
   * It does not require previous tracing of the arbor (although analysis can be applied to previously traced arbors)
   * It combines curve fitting with several methods to automatically retrieve quantitative descriptors from sampled data
   * It allows continuous and repeated sampling around user-defined foci
-  * [Many other features](./Notes.md)
 
 Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f57601f2739473e40718c9) called _Advanced Sholl Analysis_, hence the acronym
 
 
-##Related Resources
-[Morphometry-related routines](https://github.com/tferr/Scripts#neuronal-morphometry) ([Scripts repository](https://github.com/tferr/Scripts))
+##Resources
+ - [Documentation page](http://fiji.sc/Sholl_Analysis)
+ - [Release Notes](./Notes.md)
+ - Complementary routines provided by [IJ BAR](https://github.com/tferr/Scripts#scripts):
+   - Routines for [Bitmap Morphometry](https://github.com/tferr/Scripts#neuronal-morphometry)
+   - Routines for [Data Analysis](https://github.com/tferr/Scripts#data-analysis)
 
 
 ##Installation
 If you use Fiji, you already have _Sholl Analysis_ installed. If you are not using Fiji, download
-the latest binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/) and drop
-it into the main ImageJ window. For 'development builds' see the [Release Notes](./Notes.md#)
+the latest stable binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop it into the main ImageJ window. For further details see the [documentation page](http://fiji.sc/Sholl_Analysis#Non-Fiji_users). For details on _development builds_ see [Release Notes](./Notes.md#)
 
 
 ##License

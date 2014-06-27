@@ -11,14 +11,14 @@ binaries (and respective sources) of all the versions listed here can be downloa
 Development Builds
 ------------------
 ####Version 3.4.2 (June 2014)
-  * Fitting to higher order polynomials is now possible, albeit from the [Complementary Toolbox](http://fiji.sc/Sholl_Analysis#Complementary_Tools)
+  * Fitting to higher order polynomials is now possible using a [BAR command](https://github.com/tferr/Scripts) (documentation: [GitHub](https://github.com/tferr/Scripts/blob/master/Data_Analysis/README.md#fit-polynomial), [Fiji](http://fiji.sc/Sholl_Analysis#Complementary_Tools))
   * Added _Mode_ to the list of choices for integration of multiple samples (2D images)
   * Improved macro recording: Fixed a bug that made the Macro Recorder to omit the plugin's
     name if the user pressed _Cf. Segmentation_. In addition, Alt key modifiers are now logged
   * Improved prompts:
     * Dialog for tabular data is much more interactive
     * Interactive feedback using ImageJ's status bar
-    * With error messages, the plugin now auto-restarts when user chooses to analyze the ddaC sample image
+    * With error messages, the plugin now auto-restarts when user chooses to analyze the ddaC sample image (_File>Open Samples>ddaC Neuron_)
   * Minor fixes
 
 Release Builds
@@ -145,6 +145,6 @@ Release Builds
 
 Wish List
 ---------
-  * Fitting to polynomials of higher degree
+  * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-june-2014))
   * Restrict analysis to area ROIs (rather than hemicircles/spheres?)
   * Obtain a mask for every chosen method (slices of an ImageStack?)
