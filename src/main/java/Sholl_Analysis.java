@@ -203,7 +203,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					} else	//user pressed "Cancel" in file prompt
 						return;
 				} catch(final IOException e) {
-					sError(e.getMessage());
+					lError(e.getMessage());
 					return;
 				}
 			} else {
@@ -212,7 +212,26 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				imgTitle = "Imported data";
 			}
 
-			if (!csvPrompt()) return;
+			fitCurve = true; // The goal of CSV import is curve fitting
+
+			// Update parameters for CSV data with user input. Reset the state of
+			// the Alt key modifier in case user wants to access bitmapPrompt by
+			// Alt-canceling the dialog. This does not apply when the user Alt-
+			// clicks on the button that triggers retrieveSampleData()
+			if (!IJ.macroRunning()) IJ.setKeyUp(KeyEvent.VK_ALT);
+			if (!csvPrompt()) {
+
+				// Did the user press Alt while dismissing csvPrompt()?
+				if (IJ.altKeyDown() && !IJ.macroRunning() &&
+						IJ.showMessageWithCancel("Sholll Analysis v"+ VERSION,
+							"Dismiss CSV import and initiate bitmap analysis?")) { 
+					isCSV = false;
+					IJ.setKeyUp(KeyEvent.VK_ALT);
+					this.run(arg);
+				}
+				return;
+
+			}
 
 			if ( Double.isNaN(stepRadius) || stepRadius<=0 ) {
 				if (normChoice==NORMS3D.length-1) {
@@ -222,7 +241,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				}
 			}
 
-			fitCurve = true;
 			x = (int)Double.NaN;
 			y = (int)Double.NaN;
 			z = (int)Double.NaN;
@@ -306,8 +324,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Show the plugin dialog: Update parameters with user input and
 			// find out if analysis will be restricted to a hemicircle/hemisphere
-			if(!bitmapPrompt(chordAngle, is3D))
+			if (!bitmapPrompt(chordAngle, is3D)) {
+
+				// Did the user press Alt while dismissing bitmapPrompt?
+				if (IJ.altKeyDown() && !IJ.macroRunning() &&
+						IJ.showMessageWithCancel("Sholll Analysis v"+ VERSION,
+							"Dismiss bitmap analysis and initiate CSV import?")) {
+					isCSV = true;
+					IJ.setKeyDown(KeyEvent.VK_ALT);
+					this.run(arg);
+				}
 				return;
+
+			}
 
 			// Impose valid parameters
 			final int wdth = ip.getWidth();
@@ -879,13 +908,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
-
-		gd.enableYesNoCancel("OK","Cf. Segmentation");
-		this.addHelp(gd);
+		this.customizeButtons(gd, "Cf. Segmentation");
 
 		// Add listener and update prompt before displaying it
 		gd.addDialogListener(this);
-		dialogItemChanged(gd, null);
 		Sholl_Utils.addScrollBars(gd);
 		gd.showDialog();
 
@@ -896,34 +922,31 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			return dialogItemChanged(gd, null);
 		} else { // User pressed the 3rd ("No") button
 			offlineHelp(gd);
-			if (Recorder.record) Recorder.setCommand("Sholl Analysis..."); // hack: Do not record dialog multiple times
+			// TODO Find a more robust way of ignoring previous recordings
+			if (Recorder.record) Recorder.setCommand("Sholl Analysis...");
 			return bitmapPrompt(chordAngle, is3D);
 		}
 	}
 
-	/** Adds a customized "Help" button to the specified dialog */
-	private void addHelp(final GenericDialog gd) {
-		gd.addHelp(isCSV ? URL+"#Importing" : URL);
+	/**
+	 * Adds a customized "Help" button to the specified dialog. A customized 3rd
+	 * action' button is also added if thirdButtonLabel is not null
+	 */
+	private void customizeButtons(final GenericDialog gd, String thirdButtonLabel) {
+		if (thirdButtonLabel!=null)
+			gd.enableYesNoCancel("OK", thirdButtonLabel);
+		gd.addHelp(isCSV ? URL + "#Importing" : URL);
 		gd.setHelpLabel("Online Help");
 	}
 
-	/**
-	 * Some users have been measuring the interstitial spaces between neuronal
-	 * processes rather than the processes themselves. This creates a warning
-	 * message while highlighting the arbor to remember the user that highlighted
-	 * pixels are the ones to be measured
-	 */
-	private void offlineHelp(final GenericDialog parentDialog) {
+	/** Applies "Cf. Segmentation" LUT */
+	private void applySegmentationLUT() {
 
-		// remember image LUT
-		final LUT lut = this.ip.getLut();
 		final double min = this.ip.getMin();
 		final double max = this.ip.getMax();
 		final double t1 = (min + (lowerT*255.0/(max-min)));
 		final double t2 = (min + (upperT*255.0/(max-min)));
-		final int mode = this.ip.getLutUpdateMode();
 
-		// apply new LUT
 		final byte[] r = new byte[256];
 		final byte[] g = new byte[256];
 		final byte[] b = new byte[256];
@@ -941,6 +964,28 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		this.ip.setColorModel(new IndexColorModel(8, 256, r, g, b));
 		this.img.updateAndDraw();
 
+	}
+
+	/**
+	 * Some users have been measuring the interstitial spaces between neuronal
+	 * processes rather than the processes themselves. This creates a warning
+	 * message while highlighting the arbor to remember the user that highlighted
+	 * pixels are the ones to be measured
+	 */
+	private void offlineHelp(final GenericDialog parentDialog) {
+
+		// remember image LUT
+		final LUT lut = this.ip.getLut();
+		final int mode = this.ip.getLutUpdateMode();
+
+		// apply new LUT in new thread to provide a more responsive user interface
+		final Thread newThread = new Thread(new Runnable() {
+		     public void run() {
+		    	 applySegmentationLUT();
+		     }});
+		newThread.start();
+
+		// present dialog
 		new HTMLDialog(parentDialog, "Segmentation Details", "<html>"
 			+ "Pixels highlighted "
 			+ "in <span style='background-color:#c0c0c0;color:#0000ff;font-weight:bold;'>&nbsp;Blue&nbsp;</span>"
@@ -980,7 +1025,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final TextField ieprimaryBranches;
 		final Choice iepolyChoice, ienormChoice;
 		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG;
-		Checkbox iesave = null, iehideSaved = null;
+		Checkbox iehideSaved = null;
 		TextField iemaskBackground = null;
 		
 		// options specific to bitmapPrompt();
@@ -1000,7 +1045,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final int cColumn = gd.getNextChoiceIndex();
 			final Choice ierColumn = (Choice)choices.elementAt(choiceCounter++);
 			final Choice iecColumn = (Choice)choices.elementAt(choiceCounter++);
-			if (rColumn==cColumn) {
+			if (rColumn==cColumn) { //TODO Make this more reliable with 2-col tables
 				final int newChoice = (rColumn<ierColumn.getItemCount()-2) ? rColumn+1 : 0;
 				if (source == ierColumn)
 					iecColumn.select(newChoice);
@@ -1042,7 +1087,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			if (validPath) {
 				save = gd.getNextBoolean();
-				iesave = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				checkboxCounter++;
 				hideSaved = gd.getNextBoolean();
 				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 				iehideSaved.setEnabled(save);
@@ -1133,7 +1178,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			if (validPath) {
 				save = gd.getNextBoolean();
-				iesave = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				checkboxCounter++;
 				hideSaved = gd.getNextBoolean();
 				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
 				iehideSaved.setEnabled(save);
@@ -1189,8 +1234,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		final String[] headings = csvRT.getHeadings();
 		if (headings.length<2 || csvRT.getCounter()<=SMALLEST_DATASET ) {
-			sError("Imported profile from "+ csvRT.getCounter() +"x"+ headings.length +" table does not contain enough data\n"
-					+"points. At least "+ (SMALLEST_DATASET+1) +" pair of values are required for curve fitting.");
+			lError("Profile in Results table does not contain enough data points.\nAt least "
+					+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
 			return false;
 		}
 
@@ -1254,16 +1299,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
 
-		this.addHelp(gd);
+		this.customizeButtons(gd, "Import Other Data");
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		Sholl_Utils.addScrollBars(gd);
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
-		else {
+		else if (gd.wasOKed()) {
 			improveRecording();
 			return dialogItemChanged(gd, null);
+		} else { // User pressed the 3rd ("No") button
+			retrieveSampleData();
+			return false;
 		}
 	}
 
@@ -2275,32 +2323,47 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/** Creates improved error messages with help button */
+	/** Creates improved error messages with 'help' and 'action' buttons */
 	private void error(final String msg, final boolean extended) {
 
 		if (IJ.macroRunning())
-			IJ.error("Error (Sholl Analysis v"+ VERSION +")", msg);
+			IJ.error("Sholl Analysis v"+ VERSION +" Error", msg);
 		else {
-			final GenericDialog gd = new GenericDialog("Error (Sholl Analysis v"+ VERSION +")");
+			final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" Error");
 			gd.addMessage(msg);
-			gd.addMessage("Alternatively, hold \"Alt\" while running the plugin\n"
-					+"to analyze profiles from Simple Neurite Tracer...", null, Color.DARK_GRAY);
-			Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
+			if (!isCSV) {
+				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin\n"
+						+"to analyze profiles from Simple Neurite Tracer...", null, Color.DARK_GRAY);
+				Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
+			}
 			gd.hideCancelButton();
 			if (extended)
-				gd.enableYesNoCancel("OK", "Analyze Sample Image");
-			this.addHelp(gd);
+				this.customizeButtons(gd, (isCSV)?"Import Other Data":"Analyze Sample Image");
 			gd.showDialog();
-			if (extended && !gd.wasOKed() && !gd.wasCanceled()) {
-				IJ.runPlugIn("Sholl_Utils", "sample");
-				final ImagePlus sampleImg = WindowManager.getCurrentImage();
-				if (this.img!=sampleImg) {
-					this.img = sampleImg; this.run("");
-				} else
-					IJ.error("Error: Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
-			}
+			if (extended && !gd.wasOKed() && !gd.wasCanceled())
+				retrieveSampleData();
 		}
 
+	}
+
+	/** Re-runs the plugin with sample data */
+	private void retrieveSampleData() {
+		if (isCSV) {
+			if (Analyzer.resetCounter()) { // save existing Results?
+				// TODO Find a more robust way of ignoring previous recordings
+				if (Recorder.record) Recorder.setCommand("Sholl Analysis...");
+				IJ.setKeyDown(KeyEvent.VK_ALT);
+				this.run("");
+			}
+		} else {
+			IJ.runPlugIn("Sholl_Utils", "sample");
+			final ImagePlus sampleImg = WindowManager.getCurrentImage();
+			if (this.img!=sampleImg) {
+				this.img = sampleImg; this.run("");
+			} else
+				IJ.error("Error: Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
+		}
+		return;
 	}
 
 	/** Simple error message */
@@ -2349,7 +2412,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final void improveRecording() {
 		if (Recorder.record) {
 			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
-				+ "// Visit http://fiji.sc/Sholl_Analysis#Batch_Processing for scripting examples\n";
+				+ "// Visit "+ URL +"#Batch_Processing for scripting examples\n";
 			if (isCSV) {
 				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as of IJ.1.48
 					// NB: using hex values seems simpler as it works with JavaScript recording
