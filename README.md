@@ -14,14 +14,14 @@ Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f
 ##Resources
  - [Documentation page](http://fiji.sc/Sholl_Analysis)
  - [Release Notes](./Notes.md)
- - Complementary routines provided by [IJ BAR](https://github.com/tferr/Scripts#scripts):
+ - Complementary routines provided by [IJ BAR](https://github.com/tferr/Scripts#ij-bar) and its [update site](http://fiji.sc/BAR#Installation):
    - Routines for [Bitmap Morphometry](https://github.com/tferr/Scripts#neuronal-morphometry)
    - Routines for [Data Analysis](https://github.com/tferr/Scripts#data-analysis)
 
 
 ##Installation
 If you use Fiji, you already have _Sholl Analysis_ installed. If you are not using Fiji, download
-the latest stable binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop it into the main ImageJ window. For further details see the [documentation page](http://fiji.sc/Sholl_Analysis#Non-Fiji_users). For details on _development builds_ see [Release Notes](./Notes.md#)
+the latest stable binary from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop it into the main ImageJ window (see the [documentation page](http://fiji.sc/Sholl_Analysis#Non-Fiji_users) for further details). For information on _development builds_ see [Release Notes](./Notes.md#).
 
 
 ##License

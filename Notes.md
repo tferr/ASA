@@ -10,16 +10,28 @@ binaries (and respective sources) of all the versions listed here can be downloa
 
 Development Builds
 ------------------
-####Version 3.4.2 (June 2014)
-  * Fitting to higher order polynomials is now possible using a [BAR command](https://github.com/tferr/Scripts) (documentation: [GitHub](https://github.com/tferr/Scripts/blob/master/Data_Analysis/README.md#fit-polynomial), [Fiji](http://fiji.sc/Sholl_Analysis#Complementary_Tools))
+####Version 3.4.2 (July 2014)
+  * Fitting to higher order polynomials is now possible using a
+    [BAR command](https://github.com/tferr/Scripts) (documentation:
+    [GitHub](https://github.com/tferr/Scripts/blob/master/Data_Analysis/README.md#fit-polynomial),
+    [Fiji](http://fiji.sc/Sholl_Analysis#Complementary_Tools))
   * Added _Mode_ to the list of choices for integration of multiple samples (2D images)
-  * Improved macro recording: Fixed a bug that made the Macro Recorder to omit the plugin's
-    name if the user pressed _Cf. Segmentation_. In addition, Alt key modifiers are now logged
-  * Improved prompts:
-    * Dialog for tabular data is much more interactive
-    * Interactive feedback using ImageJ's status bar
-    * With error messages, the plugin now auto-restarts when user chooses to analyze the ddaC sample image (_File>Open Samples>ddaC Neuron_)
-  * Minor fixes
+  * Improved user interface:
+    * Macro/script recording: The Alt key modifier is now logged, so that users no longer need
+      to find out how to trigger the key event in their macros
+    * Tooltips are displayed in the ImageJ status bar when key options are specified
+    * Dialog for tabular (CSV) data is much interactive and imported data can be replaced at any
+      time using the _Import Other Data_ command
+    * With error messages, the plugin now auto-restarts when user chooses to analyze the ddaC
+      sample image (_File>Open Samples>ddaC Neuron_) or when the imported CSV data is not valid
+    * Users can shuttle between _Bitmap_ and _CSV_ modes by dismissing prompts while holding the
+      Alt key
+  * Bug fixes:
+    * Fixed a bug that made the Macro Recorder to record an invalid command after pressing
+      _Cf. Segmentation_
+    * Fixed a but that did not give users the opportunity to save the Results table before it
+       would be cleared by the plugin
+
 
 Release Builds
 --------------
@@ -32,7 +44,7 @@ Release Builds
     processes and not the interstitial spaces between them. It is perplexing how such blunder
     can escape [peer-review](http://www.ncbi.nlm.nih.gov/pubmed/24485871). Puzzling enough,
     a tiny fraction of the time spent trying to tuck away such embarrassment would have allowed
-    the authors to read the [documentation](http://fiji.sc/Sholl_Analysis) ad nauseam.
+    the authors to read the [documentation](http://fiji.sc/Sholl_Analysis) ad nauseam
 
 ####Version 3.4.0 (January 2014)
   * Guesses which of the normalization methods (semi-log or log-log) is the most
@@ -56,7 +68,7 @@ Release Builds
 ####Version 3.2 (August 2013)
   * Enclosing radius is defined as the widest distance associated with a specified cutoff
     value of intersection counts. At the default cutoff (1), it is the largest of
-    intersecting radii.
+    intersecting radii
 
 ####Version 3.1 (June 2013)
   * Hold dow _Alt_ to analyze profiles obtained elsewhere, including those from [Simple
@@ -69,7 +81,7 @@ Release Builds
     and 90, which usually provides a better fit. However, Sholl decay is only calculated
     when logarithmic methods are chosen (v2.2 behavior)
   * Normalization can be performed against: Area of circle/Volume of sphere, Perimeter of
-    circumference/Surface of sphere or Area of annulus/Volume of spheric shell.
+    circumference/Surface of sphere or Area of annulus/Volume of spheric shell
   * Made main dialog more intuitive. This may brake previous macros created with the Macro
     Recorder
   * Barycenter and other descriptors are highlighted on plot
