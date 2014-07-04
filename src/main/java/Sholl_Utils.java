@@ -59,7 +59,8 @@ public class Sholl_Utils implements PlugIn {
     private static final String DOC_URL = "http://fiji.sc/Sholl_Analysis";
     private static int background = Sholl_Analysis.maskBackground;
 
-    public void run(final String arg) {
+    @Override
+	public void run(final String arg) {
         if (arg.equalsIgnoreCase("about"))
             showAbout();
         else if (arg.equalsIgnoreCase("sample"))
@@ -82,7 +83,43 @@ public class Sholl_Utils implements PlugIn {
         }
     }
 
-    /** Applies the "MATLAB Jet" to frontmost image */
+	/**
+	 * Returns an IndexColorModel similar to MATLAB's jet color map. An 8-bit
+	 * gray color specified by backgroundGray is used as the first entry of the
+	 * LUT. See https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306 for
+	 * a simplified version by Jerome Mutterer
+	 */
+	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
+
+		// Initialize colors arrays (zero-filled by default)
+		final byte[] reds	= new byte[256];
+		final byte[] greens = new byte[256];
+		final byte[] blues	= new byte[256];
+
+		// Set greens, index 0-32; 224-255: 0
+		for( int i = 0; i < 256/4; i++ )		 // index 32-96
+			greens[i+256/8] = (byte)(i*255*4/256);
+		for( int i = 256*3/8; i < 256*5/8; ++i ) // index 96-160
+			greens[i] = (byte)255;
+		for( int i = 0; i < 256/4; i++ )		 // index 160-224
+			greens[i+256*5/8] = (byte)(255-(i*255*4/256));
+
+		// Set blues, index 224-255: 0
+		for(int i = 0; i < 256*7/8; i++)		 // index 0-224
+			blues[i] = greens[(i+256/4) % 256];
+
+		// Set reds, index 0-32: 0
+		for(int i = 256/8; i < 256; i++)		 // index 32-255
+			reds[i] = greens[(i+256*6/8) % 256];
+
+		// Set background color
+		reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
+
+		return new IndexColorModel(8, 256, reds, greens, blues);
+
+	}
+
+    /** Applies matlabJetColorMap() to frontmost image */
     void applyJetLut() {
         ImagePlus imp = WindowManager.getCurrentImage();
         if (imp!=null && imp.getType()==ImagePlus.COLOR_RGB) {
@@ -91,7 +128,7 @@ public class Sholl_Utils implements PlugIn {
         }
 
         // Display LUT
-        final IndexColorModel cm = Sholl_Analysis.matlabJetColorMap(background);
+        final IndexColorModel cm = matlabJetColorMap(background);
         if (imp==null) {
             imp = new ImagePlus("MATLAB Jet",ij.plugin.LutLoader.createImage(cm));
             imp.show();
@@ -194,7 +231,8 @@ public class Sholl_Utils implements PlugIn {
 
     	// create scroll pane
     	final ScrollPane scroll = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED) {
-    		public Dimension getPreferredSize() {
+    		@Override
+			public Dimension getPreferredSize() {
     			return size;
     		}
     	};
@@ -225,7 +263,8 @@ public class Sholl_Utils implements PlugIn {
     	final Component msgLabel = gd.getMessage();
     	if ( msgLabel != null && url != null ) {
     		msgLabel.addMouseListener(new MouseAdapter() {
-    			public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
+    			@Override
+				public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
     				try {
     					BrowserLauncher.openURL(url);
     				} catch (final Exception localException) {
@@ -233,13 +272,15 @@ public class Sholl_Utils implements PlugIn {
     				}
     			}
 
-    			public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
+    			@Override
+				public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
     				msgLabel.setForeground(Color.BLUE);
     				msgLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
     				//IJ.showStatus("Click to open URL...");
     			}
 
-    			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
+    			@Override
+				public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
     				msgLabel.setForeground(color);
     				msgLabel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
     				//IJ.showStatus("");

@@ -179,10 +179,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus img;
 	private ImageProcessor ip;
 
+	@Override
 	public void run( final String arg) {
 
-		if (IJ.versionLessThan("1.46h"))
-			return;
+		if (IJ.versionLessThan("1.46h")) return; // this is required for non-fiji users
 
 		img = WindowManager.getCurrentImage();
 		final Calibration cal;
@@ -389,9 +389,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			if (orthoChord && trimBounds) {
 				if (quadString.equals(QUAD_NORTH))
-					maxY = (int) Math.min(y + xymaxradius, y);
+					maxY = Math.min(y + xymaxradius, y);
 				else if (quadString.equals(QUAD_SOUTH))
-					minY = (int) Math.max(y - xymaxradius, y);
+					minY = Math.max(y - xymaxradius, y);
 				else if (quadString.equals(QUAD_WEST))
 					minX = x;
 				else if (quadString.equals(QUAD_EAST))
@@ -932,7 +932,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Adds a customized "Help" button to the specified dialog. A customized 3rd
 	 * action' button is also added if thirdButtonLabel is not null
 	 */
-	private void customizeButtons(final GenericDialog gd, String thirdButtonLabel) {
+	private void customizeButtons(final GenericDialog gd, final String thirdButtonLabel) {
 		if (thirdButtonLabel!=null)
 			gd.enableYesNoCancel("OK", thirdButtonLabel);
 		gd.addHelp(isCSV ? URL + "#Importing" : URL);
@@ -980,7 +980,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// apply new LUT in new thread to provide a more responsive user interface
 		final Thread newThread = new Thread(new Runnable() {
-		     public void run() {
+		     @Override
+			public void run() {
 		    	 applySegmentationLUT();
 		     }});
 		newThread.start();
@@ -997,7 +998,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			+ "<b>Segmentation details:</b><p>"
 			+ "&emsp;Lower threshold value (lowest intensity in arbor):&ensp<tt>"+ IJ.d2s(lowerT,1) +"</tt><p>"
 			+ "&emsp;Upper threshold value (brightest intensity in arbor):&ensp<tt>"+ IJ.d2s(upperT,1) +"</tt><p>"
-			+ "&emsp;Intensity of analysis center:&ensp<tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
+			+ "&emsp;Value at analysis center (x="+ x +", y="+ y +", z="+ z +"):&ensp<tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
 			+ "&emsp;Image type:&ensp<tt>"+ this.ip.getBitDepth() +"-bit</tt><p>"
 			+ "&emsp;Binary image?&ensp<tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
 			+ "&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
@@ -1014,6 +1015,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Retrieves values from the dialog, disabling dialog components that are
 	 * not applicable. Returns false if no analysis method was chosen
 	 */
+	@Override
 	public boolean dialogItemChanged(final GenericDialog gd, final AWTEvent e) {
 
 		// components of GenericDialog
@@ -1499,9 +1501,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					// Pull out the median value: average the two middle values if no
 					// center exists otherwise pull out the center value
 					if (binsize % 2 == 0)
-						data[i] = ((double) (binsamples[binsize/2] + binsamples[binsize/2 -1])) /2.0;
+						data[i] = (binsamples[binsize/2] + binsamples[binsize/2 -1]) /2.0;
 					else
-						data[i] = (double) binsamples[binsize/2];
+						data[i] = binsamples[binsize/2];
 
 				} else if (bintype == BIN_AVERAGE) {
 
@@ -1521,12 +1523,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 						if (tempCount > maxCount)
 							{ maxCount = tempCount; mode = binsamples[ma]; }
 					}
-					data[i] = (double) mode;
+					data[i] = mode;
 
 				}
 
 			} else // There was only one sample
-				data[i] = (double)binsamples[0];
+				data[i] = binsamples[0];
 
 		}
 
@@ -1837,7 +1839,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Apply LUT
-		mp.setColorModel(matlabJetColorMap(maskBackground));
+		mp.setColorModel(Sholl_Utils.matlabJetColorMap(maskBackground));
 		//(new ContrastEnhancer()).stretchHistogram(mp, 0.35);
 		final double[] range = Tools.getMinMax(values);
 		mp.setMinAndMax(0, range[1]);
@@ -1907,42 +1909,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		return ip;
-	}
-
-	/**
-	 * Returns an IndexColorModel similar to MATLAB's jet color map. An 8-bit
-	 * gray color specified by backgroundGray is used as the first entry of the
-	 * LUT. See https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306 for
-	 * a simplified version by Jerome Mutterer
-	 */
-	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
-
-		// Initialize colors arrays (zero-filled by default)
-		final byte[] reds	= new byte[256];
-		final byte[] greens = new byte[256];
-		final byte[] blues	= new byte[256];
-
-		// Set greens, index 0-32; 224-255: 0
-		for( int i = 0; i < 256/4; i++ )		 // index 32-96
-			greens[i+256/8] = (byte)(i*255*4/256);
-		for( int i = 256*3/8; i < 256*5/8; ++i ) // index 96-160
-			greens[i] = (byte)255;
-		for( int i = 0; i < 256/4; i++ )		 // index 160-224
-			greens[i+256*5/8] = (byte)(255-(i*255*4/256));
-
-		// Set blues, index 224-255: 0
-		for(int i = 0; i < 256*7/8; i++)		 // index 0-224
-			blues[i] = greens[(i+256/4) % 256];
-
-		// Set reds, index 0-32: 0
-		for(int i = 256/8; i < 256; i++)		 // index 32-255
-			reds[i] = greens[(i+256*6/8) % 256];
-
-		// Set background color
-		reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
-
-		return new IndexColorModel(8, 256, reds, greens, blues);
-
 	}
 
 	/**
@@ -2180,7 +2146,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			color = Color.RED;
 			labelSufix += " [P10-P90]"; //"[P\u2081\u2080 - P\u2089\u2080]";
 			start = (int)(size*0.10);
-			end	  = (int)(end-start);
+			end	  = end-start;
 
 			// Do not proceed if there are not enough points
 			if (end <= SMALLEST_DATASET)
