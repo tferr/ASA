@@ -872,7 +872,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Part IV: Sholl Methods
 		gd.setInsets(10, 0, 2);
 		gd.addMessage("IV. Sholl Methods:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Sholl_Methods", Color.BLACK);
+		Sholl_Utils.setClickabaleMsg(gd, URL+"#Choice_of_Methods", Color.BLACK);
 		gd.setInsets(0, xIndent/2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
@@ -1265,7 +1265,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Part III: Sholl Methods
 		gd.setInsets(15, 0, 2);
 		gd.addMessage("III. Sholl Methods:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Sholl_Methods", Color.BLACK);
+		Sholl_Utils.setClickabaleMsg(gd, URL+"#Choice_of_Methods", Color.BLACK);
 		gd.setInsets(0, xIndent/2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
