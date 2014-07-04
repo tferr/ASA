@@ -1098,7 +1098,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else { // bitmapPrompt()
 
 			// Part I: Definition of Shells
-			startRadius = Math.max(0, gd.getNextNumber());
+			startRadius = (Double.isNaN(startRadius)) ? vxWH : Math.max(vxWH, gd.getNextNumber());
 			//final TextField iestartRadius = (TextField)numericfields.elementAt(fieldCounter++);
 			fieldCounter++;
 			endRadius = gd.getNextNumber();
