@@ -362,7 +362,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Exit if there are no samples
 			if (size<=1) {
-				sError(" Invalid Parameters: Starting radius must be smaller than\n"
+				sError("Invalid parameters: Starting radius must be smaller than\n"
 					+ "Ending radius and Radius step size must be within range!");
 				return;
 			}
@@ -915,6 +915,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Add listener and update prompt before displaying it
 		gd.addDialogListener(this);
 		Sholl_Utils.addScrollBars(gd);
+		showStartupTooltip();
 		gd.showDialog();
 
 		if (gd.wasCanceled()) {
@@ -939,6 +940,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.enableYesNoCancel("OK", thirdButtonLabel);
 		gd.addHelp(isCSV ? URL + "#Importing" : URL);
 		gd.setHelpLabel("Online Help");
+	}
+
+	/** Displays a status bar message explaining why some dialog sections are disabled */
+	private void showStartupTooltip() {
+		if (validPath)
+			IJ.showStatus("Saving path: "+ imgPath);
+		else
+			IJ.showStatus("NB: Saving options disabled. Unknown source of dataset...");
 	}
 
 	/** Applies "Cf. Segmentation" LUT */
@@ -1202,30 +1211,34 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean proceed = (shollN || shollNS || shollSLOG || shollLOG || chooseLog);
 
 		// Provide some interactive feedback (of sorts)
-		String tipMsg;
+		String tipMsg = "NB: ";
 		if (!proceed)
 			tipMsg = "Error: At least one method needs to be chosen!";
-		else if (validPath)
-			tipMsg = "Saving path: "+ imgPath;
-		else if (isCSV)
-			tipMsg = "NB: Saving options disabled (reading Results Table)...";
-		else
-			tipMsg = "NB: Saving options disabled (non-local image)..."; //"Analysis center (pixels): x="+ x +", y="+ y +", z="+ z;
 		if (source!=null) {
 			if (source==iequadChoice)
-				tipMsg = "NB: The \"Restriction\" option is disabled with non-orthogonal lines.";
+				tipMsg += "The \"Restriction\" option requires an orthogonal line.";
 			else if (source==iebinChoice)
-				tipMsg = "NB: The \"Integration\" option is disabled with 3D images.";
+				tipMsg += "The \"Integration\" option is disabled with 3D images.";
 			else if (source==iepolyChoice)
-				tipMsg = "NB: The BAR update site allows fitting to polynomials of higher order.";
+				tipMsg += "The BAR update site allows fitting to polynomials of higher order.";
 			else if (source==ienormChoice)
-				tipMsg = "NB: \"Annulus/Spherical shell\" requires non-continuous sampling.";
+				tipMsg += "\"Annulus/Spherical shell\" requires non-continuous sampling.";
 			else if (source==iechooseLog || source==ieshollNS || source==ieshollSLOG || source==ieshollLOG)
-				tipMsg = "NB: Determination ratio chooses \"Most informative\" method.";
+				tipMsg += "Determination ratio chooses most informative method.";
 			else if (source==ieprimaryBranches || source==ieinferPrimary)
-				tipMsg = "NB: \"Primary branches\" are used to calculate Schoenen indices.";
+				tipMsg += "# Primary branches are used to calculate Schoenen indices.";
 			else if (source==iemaskBackground)
-				tipMsg = "Grayscale value for zero-intersections. 0: Black; 255: White...";
+				tipMsg += "Grayscale value for zero-intersections. 0: Black; 255: White.";
+			else if (source==iehideSaved)
+				tipMsg += "Saving path: "+ imgPath;
+			else {
+				if (Double.isNaN(startRadius))
+					tipMsg += "Starting radius: 0   ";
+				if (Double.isNaN(endRadius))
+					tipMsg += "Ending radius: max.   ";
+				if (Double.isNaN(incStep) || incStep == 0)
+					tipMsg += "Step size: continuous";
+			}
 		}
 		IJ.showStatus(tipMsg);
 
@@ -1307,7 +1320,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		Sholl_Utils.addScrollBars(gd);
+		showStartupTooltip();
 		gd.showDialog();
+
 		if (gd.wasCanceled())
 			return false;
 		else if (gd.wasOKed()) {
@@ -1895,7 +1910,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		if (!"".equals(exitmsg)) {
-			lError(exitmsg + "\n \nThis plugin requires a segmented arbor. Either:\n"
+			lError(exitmsg + "\n \nThis plugin requires a segmented arbor (2D/3D). Either:\n"
 				  + "	 - A binary image (Arbor: non-zero value)\n"
 				  + "	 - A thresholded grayscale image (8/16-bit)");
 			return null;
@@ -2300,8 +2315,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" Error");
 			gd.addMessage(msg);
 			if (!isCSV) {
-				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin\n"
-						+"to analyze profiles from Simple Neurite Tracer...", null, Color.DARK_GRAY);
+				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin to\n"
+						+"analyze profiles from Simple Neurite Tracer...", null, Color.DARK_GRAY);
 				Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
 			}
 			gd.hideCancelButton();
