@@ -352,8 +352,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			dz = (z<=depth/2) ? (z-depth)*vxD : z*vxD;
 
 			maxEndRadius = Math.sqrt(dx*dx + dy*dy + dz*dz);
+			if (Double.isNaN(startRadius)) startRadius = 0;
+			if (Double.isNaN(incStep)) incStep = 0;
 			endRadius = Double.isNaN(endRadius) ? maxEndRadius : Math.min(endRadius, maxEndRadius);
-			stepRadius = Math.max(vxSize, Double.isNaN(incStep) ? 0 : incStep);
+			stepRadius = Math.max(vxSize, incStep);
 
 			// Calculate how many samples will be taken
 			final int size = (int) ((endRadius-startRadius)/stepRadius)+1;
@@ -1098,10 +1100,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else { // bitmapPrompt()
 
 			// Part I: Definition of Shells
-			startRadius = (Double.isNaN(startRadius)) ? vxWH : Math.max(vxWH, gd.getNextNumber());
+			startRadius = Math.max(0, gd.getNextNumber());
 			//final TextField iestartRadius = (TextField)numericfields.elementAt(fieldCounter++);
 			fieldCounter++;
-			endRadius = gd.getNextNumber();
+			endRadius = Math.max(0, gd.getNextNumber());
 			final TextField ieendRadius = (TextField)numericfields.elementAt(fieldCounter++);
 			//fieldCounter++;
 			incStep = Math.max(0, gd.getNextNumber());
