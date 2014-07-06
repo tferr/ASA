@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>1.169</version>
+		<version>2.23</version>
 		<relativePath />
 	</parent>
 
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>${imagej1.version}</version><!--$NO-MVN-MAN-VER$-->
+			<version>1.49c</version>
 		</dependency>
 	</dependencies>
 

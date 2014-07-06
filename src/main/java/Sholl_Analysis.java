@@ -182,7 +182,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	@Override
 	public void run( final String arg) {
 
-		if (IJ.versionLessThan("1.46h")) return; // this is required for non-fiji users
+		if (IJ.versionLessThan("1.49c")) return; // this is required for non-fiji users
 
 		img = WindowManager.getCurrentImage();
 		final Calibration cal;
