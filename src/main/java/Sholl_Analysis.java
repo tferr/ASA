@@ -1066,9 +1066,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					ierColumn.select(newChoice);
 			}
 
+			// Retrieve data
 			counts = csvRT.getColumnAsDoubles(cColumn);
 			radii = csvRT.getColumnAsDoubles(rColumn);
-			stepRadius = csvRT.getValueAsDouble(rColumn, 1) - csvRT.getValueAsDouble(rColumn, 0);
+			stepRadius = incStep = counts[1] - counts[0]; // arrayIndexOutOfBoundsException if SMALLEST_DATASET<2
+			startRadius = radii[0];
+			endRadius = radii[radii.length-1];
 
 			is3D = gd.getNextBoolean();
 			checkboxCounter++;
@@ -2004,8 +2007,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("X center (px)", isCSV ? Double.NaN : xc);
 		rt.addValue("Y center (px)", isCSV ? Double.NaN : yc);
 		rt.addValue("Z center (slice)", isCSV ? Double.NaN : zc);
-		rt.addValue("Starting radius", isCSV ? Double.NaN : startRadius);
-		rt.addValue("Ending radius", isCSV ? Double.NaN : endRadius);
+		rt.addValue("Starting radius", startRadius);
+		rt.addValue("Ending radius", endRadius);
 		rt.addValue("Radius step", stepRadius);
 		rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
 		rt.addValue("Enclosing radius cutoff", enclosingCutOff);

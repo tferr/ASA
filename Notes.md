@@ -31,6 +31,7 @@ Development Builds
       _Cf. Segmentation_
     * Fixed a but that did not give users the opportunity to save the Results table before it
        would be cleared by the plugin
+    * Fixed a but that caused some settings to be logged as _NaN_ when analysing CSV data
 
 
 Release Builds
