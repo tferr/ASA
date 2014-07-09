@@ -69,17 +69,28 @@ public class Sholl_Utils implements PlugIn {
             applyJetLut();
     }
 
-    /** Displays the ddaC sample image in ./resources */
-    void displaySample() {
-        final InputStream is = getClass().getResourceAsStream("/resources/ddaC.tif");
+
+    /**
+     * Returns the ddaC sample image in ./resources. Returns null if image
+     * cannot be retrieved
+     */
+    public static ImagePlus sampleImage() {
+        final InputStream is = Sholl_Utils.class.getResourceAsStream("/resources/ddaC.tif");
+        ImagePlus imp = null;
         if (is!=null) {
             final Opener opener = new Opener();
-            final ImagePlus imp = opener.openTiff(is, "Drosophila_ddaC_Neuron.tif");
-            if (imp==null) {
-                IJ.showStatus("Error: Could not open ddaC.tif!"); IJ.beep();
-            } else {
-                imp.show();
-            }
+            imp = opener.openTiff(is, "Drosophila_ddaC_Neuron.tif");
+        }
+        return imp;
+    }
+ 
+    /** Displays the ddaC sample image in ./resources */
+    void displaySample() {
+        final ImagePlus imp = sampleImage();
+        if (imp==null) {
+            IJ.showStatus("Error: Could not open ddaC.tif!"); IJ.beep();
+        } else {
+            imp.show();
         }
     }
 

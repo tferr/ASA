@@ -947,7 +947,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (validPath)
 			IJ.showStatus("Saving path: "+ imgPath);
 		else
-			IJ.showStatus("NB: Saving options disabled. Unknown source of dataset...");
+			IJ.showStatus("NB: Saving options disabled. Path of dataset unknown...");
 	}
 
 	/** Applies "Cf. Segmentation" LUT */
@@ -2342,9 +2342,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				this.run("");
 			}
 		} else {
-			IJ.runPlugIn("Sholl_Utils", "sample");
-			final ImagePlus sampleImg = WindowManager.getCurrentImage();
-			if (this.img!=sampleImg) {
+			final ImagePlus sampleImg = Sholl_Utils.sampleImage();
+			if (sampleImg!=null) {
+				sampleImg.show();
 				this.img = sampleImg; this.run("");
 			} else
 				IJ.error("Error: Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
