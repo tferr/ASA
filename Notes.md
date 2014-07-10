@@ -1,16 +1,23 @@
 ##Release Notes for [Sholl Analysis](http://fiji.sc/Sholl_Analysis)
 
-[Release builds](#release-builds) are available through the Fiji Updater or from the [plugin's
+The latest [release build](#release-builds) is available through the Fiji Updater or from the [plugin's
 webpage](http://fiji.sc/Sholl_Analysis). [Development builds](#development-builds) may have new
 features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. They are
 pushed to the Fiji Updater once new features mature and no major issues are found. Pre-compiled
-binaries (and respective sources) of all the versions listed here can be downloaded from
-[jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/).
+binaries (and respective sources) of the versions listed here can be downloaded from
+[jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/) or from the
+[releases](https://github.com/tferr/ASA/releases) page.
 
 
 Development Builds
 ------------------
+  * No major changes to report
+
+
+Release Builds
+--------------
 ####Version 3.4.2 (July 2014)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10803.png)](http://dx.doi.org/10.5281/zenodo.10803)
   * Fitting to higher order polynomials is now possible using a
     [BAR command](https://github.com/tferr/Scripts) (documentation:
     [GitHub](https://github.com/tferr/Scripts/blob/master/Data_Analysis/README.md#fit-polynomial),
@@ -33,9 +40,6 @@ Development Builds
        would be cleared by the plugin
     * Fixed a but that caused some settings to be logged as _NaN_ when analysing CSV data
 
-
-Release Builds
---------------
 ####Version 3.4.1 (March 2014)
   * Improved prompts: live validation for _Ending radius_/_Radius step size_. Center
     of analysis is displayed on status bar. Section headings are clickable URLs
