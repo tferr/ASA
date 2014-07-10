@@ -6,10 +6,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.scijava</groupId>
-		<artifactId>pom-scijava</artifactId>
-		<version>2.23</version>
+		<artifactId>pom-imagej</artifactId>
+		<version>2.35</version>
 		<relativePath />
+		<groupId>net.imagej</groupId>
 	</parent>
 
 	<groupId>ca.mcgill</groupId>
@@ -23,7 +23,6 @@
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
-			<version>1.49c</version>
 		</dependency>
 	</dependencies>
 
