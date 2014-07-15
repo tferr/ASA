@@ -46,10 +46,7 @@ Release Builds
     pointing to respective section of the [manual](http://fiji.sc/Sholl_Analysis)
   * Added _Cf. Segmentation_, that allow users to confirm which phase of the image is being
     sampled. This should help inexperienced users to make sure they are measuring neuronal
-    processes and not the interstitial spaces between them. It is perplexing how such blunder
-    can escape [peer-review](http://www.ncbi.nlm.nih.gov/pubmed/24485871). Puzzling enough,
-    a tiny fraction of the time spent trying to tuck away such embarrassment would have allowed
-    the authors to read the [documentation](http://fiji.sc/Sholl_Analysis) ad nauseam
+    processes and not the interstitial spaces between them.
 
 ####Version 3.4.0 (January 2014)
   * Guesses which of the normalization methods (semi-log or log-log) is the most
@@ -162,6 +159,6 @@ Release Builds
 
 Wish List
 ---------
-  * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-june-2014))
+  * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-july-2014))
   * Restrict analysis to area ROIs (rather than hemicircles/spheres?)
   * Obtain a mask for every chosen method (slices of an ImageStack?)
