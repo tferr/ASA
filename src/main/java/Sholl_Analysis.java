@@ -233,6 +233,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			}
 
+			// Retrieve parameters from chosen columns
+			stepRadius = radii[1] - radii[0]; // NB: arrayIndexOutOfBoundsException if SMALLEST_DATASET<2
+			startRadius = radii[0];
+			endRadius = radii[radii.length-1];
 			if ( Double.isNaN(stepRadius) || stepRadius<=0 ) {
 				if (normChoice==NORMS3D.length-1) {
 					final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
@@ -241,9 +245,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				}
 			}
 
+			// "Reset" all variables that relate only to bitmap analysis
 			x = (int)Double.NaN;
 			y = (int)Double.NaN;
 			z = (int)Double.NaN;
+			incStep = Double.NaN;
 			cal = null; unit = "N.A.";
 
 		} else {
@@ -1069,9 +1075,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// Retrieve data
 			counts = csvRT.getColumnAsDoubles(cColumn);
 			radii = csvRT.getColumnAsDoubles(rColumn);
-			stepRadius = incStep = counts[1] - counts[0]; // arrayIndexOutOfBoundsException if SMALLEST_DATASET<2
-			startRadius = radii[0];
-			endRadius = radii[radii.length-1];
 
 			is3D = gd.getNextBoolean();
 			checkboxCounter++;
@@ -1234,7 +1237,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				tipMsg += "Grayscale value for zero-intersections. 0: Black; 255: White.";
 			else if (source==iehideSaved)
 				tipMsg += "Saving path: "+ imgPath;
-			else {
+			else if (!isCSV) {
 				if (Double.isNaN(startRadius))
 					tipMsg += "Starting radius: 0   ";
 				if (Double.isNaN(endRadius))
