@@ -418,7 +418,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (trimmedCounts==0) {
 			IJ.beep();
 			IJ.showProgress(0, 0);
-			IJ.showTime(img, img.getStartTime(), "Error: All intersection counts were zero! ");
+			IJ.showStatus("Error: All intersection counts were zero!");
 			return;
 		}
 
