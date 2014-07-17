@@ -1978,7 +1978,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		else
 			rt = ((TextWindow) window).getTextPanel().getResultsTable();
 
-			double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = 0;
+			double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
 
 		// Retrieve simple statistics
 		final int size = values.length;

@@ -11,8 +11,11 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-  * No major changes to report
-
+ * Bug fixes in analysis of tabular data:
+    * Fixed: Reported _Radius Step_ was innacurate: it was being calculated from the difference between the first two rows in _Intersections column_ rather than _Distance column_. This was due to a silly overlook.
+    * Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every time a choice was made in the dialog prompt. This was spurious, and could cause the plugin to abort.
+    * Fixed an exception triggered when _Intersections column_ contained no numeric data
+ * Enclosing radius is now set to _NaN_ if the cutoff is not met
 
 Release Builds
 --------------
