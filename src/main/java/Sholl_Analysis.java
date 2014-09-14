@@ -959,6 +959,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Applies "Cf. Segmentation" LUT */
 	private void applySegmentationLUT() {
 
+		this.ip.resetMinAndMax();
 		final double min = this.ip.getMin();
 		final double max = this.ip.getMax();
 		final double t1 = (min + (lowerT*255.0/(max-min)));
@@ -1024,7 +1025,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// HTMLDialog dismissed: revert to initial state
 		this.ip.setLut(lut);
-		if (mode!=ImageProcessor.NO_LUT_UPDATE) this.ip.setThreshold(lowerT, upperT, mode);
+		this.ip.setThreshold(lowerT, upperT, mode);
 		this.img.updateAndDraw();
 	}
 
