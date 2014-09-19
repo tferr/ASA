@@ -84,14 +84,15 @@ public class Sholl_Utils implements PlugIn {
         return imp;
     }
  
-    /** Displays the ddaC sample image in ./resources */
-    void displaySample() {
+    /** Displays the ddaC sample image in ./resources and returns a reference to it */
+    static ImagePlus displaySample() {
         final ImagePlus imp = sampleImage();
         if (imp==null) {
             IJ.showStatus("Error: Could not open ddaC.tif!"); IJ.beep();
         } else {
             imp.show();
         }
+        return imp;
     }
 
 	/**

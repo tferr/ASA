@@ -184,7 +184,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (IJ.versionLessThan("1.49c")) return; // this is required for non-fiji users
 
-		img = WindowManager.getCurrentImage();
+		if (arg.equalsIgnoreCase("sample")) {
+			img = Sholl_Utils.displaySample();
+			if (img==null) {
+				sError("Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
+				return;
+			}
+		} else
+			img = WindowManager.getCurrentImage();
 		final Calibration cal;
 		isCSV = IJ.altKeyDown();
 
@@ -2346,12 +2353,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				this.run("");
 			}
 		} else {
-			final ImagePlus sampleImg = Sholl_Utils.sampleImage();
-			if (sampleImg!=null) {
-				sampleImg.show();
-				this.img = sampleImg; this.run("");
-			} else
-				IJ.error("Error: Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
+			this.run("sample");
 		}
 		return;
 	}
