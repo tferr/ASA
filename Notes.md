@@ -20,6 +20,7 @@ Development Builds
  * General:
     * Enclosing radius is now set to _NaN_ if the respective cutoff is not met
     * Made the _Analyze Sample Image_ command more reliable
+    * Ensure coherence in reported abbreviations (in previous versions multiple abbreviations were used for the same metric)
 
 Release Builds
 --------------

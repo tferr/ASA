@@ -696,18 +696,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rif = (inferPrimary || primaryBranches==0) ? cv/y[0] : cv/primaryBranches;
 
 			// Register parameters
-			plotLabel.append("\nCV= "+ IJ.d2s(cv, 2));
-			plotLabel.append("\nCR= "+ IJ.d2s(cr, 2));
-			plotLabel.append("\nMV= "+ IJ.d2s(mv, 2));
+			plotLabel.append("\nNm= "+ IJ.d2s(cv, 2));
+			plotLabel.append("\nrc= "+ IJ.d2s(cr, 2));
+			plotLabel.append("\nNav= "+ IJ.d2s(mv, 2));
 			plotLabel.append("\n"+ (parameters.length-2) + "th degree");
 
 			rt.addValue("Critical value", cv);
 			rt.addValue("Critical radius", cr);
 			rt.addValue("Mean value", mv);
-			rt.addValue("Ramification index (CV)", rif);
+			rt.addValue("Ramification index (fit)", rif);
 			final double[] moments = getMoments(fy);
-			rt.addValue("Skewness (fitted)", moments[2]);
-			rt.addValue("Kurtosis (fitted)", moments[3]);
+			rt.addValue("Skewness (fit)", moments[2]);
+			rt.addValue("Kurtosis (fit)", moments[3]);
 			rt.addValue("Polyn. degree", parameters.length-2);
 			rt.addValue("Polyn. R^2", cf.getRSquared());
 
@@ -2023,8 +2023,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Radius step", stepRadius);
 		rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
 		rt.addValue("Enclosing radius cutoff", enclosingCutOff);
-		rt.addValue("I branches (User)", (inferPrimary || primaryBranches==0) ? Double.NaN : primaryBranches);
-		rt.addValue("I branches (Inferred)", (inferPrimary || primaryBranches==0) ? y[0] : Double.NaN);
+		rt.addValue("I branches (user)", (inferPrimary || primaryBranches==0) ? Double.NaN : primaryBranches);
+		rt.addValue("I branches (inferred)", (inferPrimary || primaryBranches==0) ? y[0] : Double.NaN);
 		rt.addValue("Intersecting radii", size);
 		rt.addValue("Sum inters.", sumY);
 
