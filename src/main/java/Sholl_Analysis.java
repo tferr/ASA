@@ -925,9 +925,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		this.customizeButtons(gd, "Cf. Segmentation");
 
-		// Add listener and update prompt before displaying it
+		// Add listener and scroll bars. Update prompt and status bar before displaying it
 		gd.addDialogListener(this);
 		Sholl_Utils.addScrollBars(gd);
+		dialogItemChanged(gd, null);
 		showStartupTooltip();
 		gd.showDialog();
 
