@@ -42,6 +42,7 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.process.LUT;
 import ij.process.ShortProcessor;
+import ij.text.TextPanel;
 import ij.text.TextWindow;
 import ij.util.Tools;
 
@@ -173,11 +174,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Parameters for tabular data */
 	private static ResultsTable csvRT;
+	private static int rColumn;
+	private static int cColumn;
+	private static boolean limitCSV;
 
 	private static double[] radii;
 	private static double[] counts;
 	private ImagePlus img;
 	private ImageProcessor ip;
+
 
 	@Override
 	public void run( final String arg) {
@@ -241,14 +246,30 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 			// Retrieve parameters from chosen columns
-			stepRadius = radii[1] - radii[0]; // NB: arrayIndexOutOfBoundsException if SMALLEST_DATASET<2
+			radii = csvRT.getColumnAsDoubles(rColumn);
+			counts = csvRT.getColumnAsDoubles(cColumn);
+			if (limitCSV) {
+				final TextPanel tp = (TextPanel)ResultsTable.getResultsWindow().getTextPanel();
+				final int startRow = tp.getSelectionStart();
+				final int endRow = tp.getSelectionEnd();
+				final boolean validRange = startRow!=-1 && endRow!=-1 && startRow!=endRow;
+				if (validRange) {
+					radii = Arrays.copyOfRange(radii, startRow, endRow+1);
+					counts = Arrays.copyOfRange(counts, startRow, endRow+1);
+				} else {
+					IJ.log("*** Warning: "+ imgTitle +"\n*** Option to restrict "
+							+ "analysis ignored: Not a valid selection of rows");
+				}
+			}
+
+			stepRadius = (radii.length>1) ? radii[1] - radii[0] : Double.NaN;
 			startRadius = radii[0];
 			endRadius = radii[radii.length-1];
 			if ( Double.isNaN(stepRadius) || stepRadius<=0 ) {
 				if (normChoice==NORMS3D.length-1) {
 					final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
-					IJ.log("*** Warning: Could not determine radius step size for "+ imgTitle
-							+ "\n*** "+ msg +" normalizations will not be relevant");
+					IJ.log("*** Warning: "+ imgTitle +"\n*** Could not determine"
+							+ " radius step size: "+ msg +" normalizations will not be relevant");
 				}
 			}
 
@@ -595,7 +616,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Abort curve fitting when dealing with small datasets that are prone to
 		// inflated coefficients of determination
 		if (fitCurve && size <= SMALLEST_DATASET) {
-			IJ.log(longtitle +":\nCurve fitting not performed: Not enough data points");
+			IJ.log(longtitle +":\nCurve fitting not performed: Not enough data points\n"+
+					"At least "+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
 			return null;
 		}
 
@@ -1069,22 +1091,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			imgTitle = gd.getNextString();
 
 			// Get columns choices and ensure rColumn and cColumn are not the same
-			final int rColumn = gd.getNextChoiceIndex();
-			final int cColumn = gd.getNextChoiceIndex();
+			rColumn = gd.getNextChoiceIndex();
+			cColumn = gd.getNextChoiceIndex();
 			final Choice ierColumn = (Choice)choices.elementAt(choiceCounter++);
 			final Choice iecColumn = (Choice)choices.elementAt(choiceCounter++);
-			if (rColumn==cColumn) { //TODO Make this more reliable with 2-col tables
-				final int newChoice = (rColumn<ierColumn.getItemCount()-2) ? rColumn+1 : 0;
+			if (rColumn==cColumn) {
+				final int newChoice = (rColumn<ierColumn.getItemCount()-1) ? rColumn+1 : 0;
 				if (source == ierColumn)
 					iecColumn.select(newChoice);
 				else if (source == iecColumn)
 					ierColumn.select(newChoice);
 			}
 
-			// Retrieve data
-			counts = csvRT.getColumnAsDoubles(cColumn);
-			radii = csvRT.getColumnAsDoubles(rColumn);
-
+			limitCSV = gd.getNextBoolean();
+			checkboxCounter++;
 			is3D = gd.getNextBoolean();
 			checkboxCounter++;
 			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
@@ -1264,13 +1284,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Creates the dialog for tabular data (bitmapPrompt is the main prompt). */
 	private boolean csvPrompt() {
 
+		if (!validTable(csvRT)) return false;
 		final String[] headings = csvRT.getHeadings();
-		if (headings.length<2 || csvRT.getCounter()<=SMALLEST_DATASET ) {
-			lError("Profile in Results table does not contain enough data points.\nAt least "
-					+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
-			return false;
-		}
-
 		final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" (Tabular Data)");
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
@@ -1282,6 +1297,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addStringField("Name of dataset", imgTitle, 20);
 		gd.addChoice("Distance column", headings, headings[0]);
 		gd.addChoice("Intersections column", headings, headings[1]);
+		gd.setInsets(0, xIndent, 0);
+		gd.addCheckbox("Restrict analysis to selected rows only (if any)", limitCSV);
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("3D data? (uncheck if 2D profile)", is3D);
 
@@ -1347,6 +1364,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			retrieveSampleData();
 			return false;
 		}
+	}
+
+	/** Checks if table is valid while warning user about it*/
+	private boolean validTable(final ResultsTable table) {
+		boolean isValid = false;
+		if (table==null || !IJ.isResultsWindow()) {
+			lError("Results table is no longer available!");
+		} else if (table.getHeadings().length<2 || table.getCounter()==0) {
+			lError("Profile in Results table does not contain enough data points.\nNote that at least "
+					+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
+		} else
+			isValid = true;
+		return isValid;
 	}
 
 	/** Measures intersections for each sphere surface */
@@ -2330,8 +2360,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" Error");
 			gd.addMessage(msg);
 			if (!isCSV) {
-				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin to\n"
-						+"analyze profiles from Simple Neurite Tracer...", null, Color.DARK_GRAY);
+				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin to:\n"
+						+ " - Re-analyze data from previous runs\n"
+						+ " - Analyze profiles from Simple Neurite Tracer", null, Color.DARK_GRAY);
 				Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
 			}
 			gd.hideCancelButton();

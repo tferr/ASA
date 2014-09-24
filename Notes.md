@@ -11,16 +11,17 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
- * Bug fixes in analysis of tabular data:
-    * Fixed: Reported _Radius Step_ was innacurate: it was being calculated from the difference between the first two rows in _Intersections column_ rather than _Distance column_. This was due to a silly overlook.
-    * Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every time a choice was made in the dialog prompt. This was spurious, and could cause the plugin to abort.
-    * Fixed an exception triggered when _Intersections column_ contained no numeric data
- * Bug fixes in bitmap analysis:
-    * Fixed a bug that did not allow _Cf. Segmentation_ to parse binary images with display ranges other than 0-255
+ * Analysis of tabular data:
+    * Improvement: Analysis can be restricted to selected rows
+    * Fixed: Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every time a choice was made in the dialog prompt. This was spurious, and could cause the plugin to abort.
+    * Fixed: Exception triggered when _Intersections column_ contained no numeric data
+    * Fixed: Reported _Radius Step_ was innacurate: it was being extracted from the difference between the first two rows in _Intersections column_ rather than _Distance column_. This was due to a silly overlook.
+ * Bitmap analysis:
+    * Fixed: _Cf. Segmentation_ could not parse binary images with display ranges other than 0-255
  * General:
-    * Enclosing radius is now set to _NaN_ if the respective cutoff is not met
-    * Made the _Analyze Sample Image_ command more reliable
-    * Ensure coherence in reported abbreviations (in previous versions multiple abbreviations were used for the same metric)
+    * Fixed: Auto-restart triggered by the _Analyze Sample Image_ command was unreliable
+    * Improvement: Enclosing radius is now set to _NaN_ if the respective cutoff is not met
+    * Improvement: Ensure coherence in abbreviations (some metrics were reported using multiple abbreviations)
 
 Release Builds
 --------------
