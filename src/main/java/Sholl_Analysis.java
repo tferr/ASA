@@ -78,7 +78,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	public static final String VERSION = "3.4.3-DEV";
-	private static final String URL = "http://fiji.sc/Sholl_Analysis";
+	private static final String URL = "http://fiji.sc/Sholl";
 
 	/* Sholl Type Definitions */
 	private static final String[] SHOLL_TYPES = { "Linear", "Linear-norm", "Semi-log", "Log-log" };
