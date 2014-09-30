@@ -194,6 +194,7 @@ public class Sholl_Utils implements PlugIn {
     @SuppressWarnings("serial")
     static void addScrollBars(final Container pane) {
 
+    	addCitationUrl((GenericDialog) pane);
     	final GridBagLayout layout = (GridBagLayout) pane.getLayout();
 
     	// extract components
@@ -301,4 +302,12 @@ public class Sholl_Utils implements PlugIn {
     	}
     }
 
+	/** Allows users to visit the manuscript from a dialog prompt */
+    static final void addCitationUrl(final GenericDialog gd) {
+    	gd.setInsets(10, 0, 0);
+    	gd.addMessage("Please be so kind as to cite this program in your own\n"
+    			+ "research: Ferreira et al. Nat Methods 11, 982–4 (2014)", null, Color.DARK_GRAY);
+    	setClickabaleMsg(gd, "http://dx.doi.org/10.1038/nmeth.3125", Color.DARK_GRAY);
+
+    }
 }
