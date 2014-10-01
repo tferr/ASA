@@ -56,7 +56,7 @@ public class Sholl_Utils implements PlugIn {
 
     private static final String BUILD = "2014.07";
     private static final String SRC_URL = "https://github.com/tferr/ASA";
-    private static final String DOC_URL = "http://fiji.sc/Sholl_Analysis";
+    private static final String DOC_URL = "http://fiji.sc/Sholl";
     private static int background = Sholl_Analysis.maskBackground;
 
     @Override
@@ -307,7 +307,7 @@ public class Sholl_Utils implements PlugIn {
     	gd.setInsets(10, 0, 0);
     	gd.addMessage("Please be so kind as to cite this program in your own\n"
     			+ "research: Ferreira et al. Nat Methods 11, 982–4 (2014)", null, Color.DARK_GRAY);
-    	setClickabaleMsg(gd, "http://dx.doi.org/10.1038/nmeth.3125", Color.DARK_GRAY);
+    	setClickabaleMsg(gd, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html", Color.DARK_GRAY);
 
     }
 }
