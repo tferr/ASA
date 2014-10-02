@@ -1,7 +1,7 @@
-##Release Notes for [Sholl Analysis](http://fiji.sc/Sholl_Analysis)
+##Release Notes for [Sholl Analysis](http://fiji.sc/Sholl)
 
 The latest [release build](#release-builds) is available through the Fiji Updater or from the [plugin's
-webpage](http://fiji.sc/Sholl_Analysis). [Development builds](#development-builds) may have new
+webpage](http://fiji.sc/Sholl). [Development builds](#development-builds) may have new
 features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. They are
 pushed to the Fiji Updater once new features mature and no major issues are found. Pre-compiled
 binaries (and respective sources) of the versions listed here can be downloaded from
@@ -11,6 +11,13 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
+ * No major changes to report
+
+
+Release Builds
+--------------
+####Version 3.4.3 (October 2014)
+[![DOI](https://zenodo.org/badge/4622/tferr/ASA.png)](http://dx.doi.org/10.5281/zenodo.11939)
  * Analysis of tabular data:
     * Improvement: Analysis can be restricted to selected rows
     * Fixed: Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every time a choice was made in the dialog prompt. This was spurious, and could cause the plugin to abort.
@@ -23,8 +30,6 @@ Development Builds
     * Improvement: Enclosing radius is now set to _NaN_ if the respective cutoff is not met
     * Improvement: Ensure coherence in abbreviations (some metrics were reported using multiple abbreviations)
 
-Release Builds
---------------
 ####Version 3.4.2 (July 2014)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10803.png)](http://dx.doi.org/10.5281/zenodo.10803)
   * Fitting to higher order polynomials is now possible using a

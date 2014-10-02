@@ -14,7 +14,7 @@
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>3.4.3</version>
+	<version>3.4.4-SNAPSHOT</version>
 
 	<name>Sholl Analysis</name>
 	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from bitmap images</description>

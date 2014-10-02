@@ -77,7 +77,7 @@ import java.util.Vector;
 public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
-	public static final String VERSION = "3.4.3";
+	public static final String VERSION = "3.4.4-DEV";
 	private static final String URL = "http://fiji.sc/Sholl";
 
 	/* Sholl Type Definitions */
