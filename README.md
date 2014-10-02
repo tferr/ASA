@@ -1,4 +1,4 @@
-# [Sholl Analysis](http://fiji.sc/Sholl_Analysis)
+# [Sholl Analysis](http://fiji.sc/Sholl)
 
 A plugin for [ImageJ](http://imagej.nih.gov/ij/)/[Fiji](http://fiji.sc/), the standard in scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from bitmap images.
 
@@ -10,9 +10,11 @@ Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PM
 
 Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f57601f2739473e40718c9) called _Advanced Sholl Analysis_, hence the acronym
 
+##Publication
+This program is described in [Nature methods](http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html). The manuscript uses _Sholl Analysis_ to describe and classify morphologically challenging cells and is accompanied by a [Supplementary Note](http://www.nature.com/nmeth/journal/v11/n10/extref/nmeth.3125-S1.pdf) that presents the software in greater detail.
 
 ##Resources
- - [Documentation page](http://fiji.sc/Sholl_Analysis)
+ - [Documentation page](http://fiji.sc/Sholl)
  - [Release Notes](./Notes.md)
  - Complementary routines provided by [IJ BAR](https://github.com/tferr/Scripts#ij-bar) and its [update site](http://fiji.sc/BAR#Installation):
    - Routines for [Bitmap Morphometry](https://github.com/tferr/Scripts#neuronal-morphometry)
@@ -21,7 +23,7 @@ Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA: 1fdf4992b748ef8678f
 
 ##Installation
 If you use Fiji, you already have _Sholl Analysis_ installed. If you are not using Fiji, download
-the latest stable binary from [fiji.sc](http://fiji.sc/Sholl_Analysis) or from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop it into the main ImageJ window (see the [documentation page](http://fiji.sc/Sholl_Analysis#Non-Fiji_users) for further details). For information on _development builds_ see [Release Notes](./Notes.md#).
+the latest stable binary from [fiji.sc](http://fiji.sc/Sholl) or from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop it into the main ImageJ window (see the [documentation page](http://fiji.sc/Sholl#Non-Fiji_users) for further details). For information on _development builds_ see [Release Notes](./Notes.md#).
 
 
 ##License
