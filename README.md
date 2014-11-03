@@ -1,4 +1,8 @@
 # [Sholl Analysis](http://fiji.sc/Sholl)
+[![Jenkins](http://img.shields.io/jenkins/s/http/jenkins.imagej.net/Sholl-Analysis.svg?style=flat-square)](http://jenkins.imagej.net/job/Sholl-Analysis/)
+[![Latest Release](https://img.shields.io/github/release/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/releases)
+[![Issues](https://img.shields.io/github/issues/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/issues)
+[![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
 
 A plugin for [ImageJ](http://imagej.nih.gov/ij/)/[Fiji](http://fiji.sc/), the standard in scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from bitmap images.
 
