@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>net.imagej</groupId>
 		<artifactId>pom-imagej</artifactId>
-		<version>5.0</version>
+		<version>5.0.2</version>
 		<relativePath />
 	</parent>
 
@@ -56,6 +56,7 @@
 	</repositories>
 
 	<dependencies>
+		<!-- ImageJ dependencies -->
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
