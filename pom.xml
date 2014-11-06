@@ -18,13 +18,7 @@
 
 	<name>Sholl Analysis</name>
 	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from bitmap images</description>
-
-	<dependencies>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij</artifactId>
-		</dependency>
-	</dependencies>
+	<url>http://fiji.sc/Sholl</url>
 
 	<developers>
 		<developer>
@@ -46,6 +40,13 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<connection>scm:git:git://github.com/tferr/ASA</connection>
+		<developerConnection>scm:git:git@github.com:tferr/ASA</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/tferr/ASA</url>
+	</scm>
+
 	<repositories>
 		<!-- NB: for project parent -->
 		<repository>
@@ -54,12 +55,11 @@
 		</repository>
 	</repositories>
 
-	<scm>
-		<connection>scm:git:git://github.com/tferr/ASA</connection>
-		<developerConnection>scm:git:git@github.com:tferr/ASA</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/tferr/ASA</url>
-	</scm>
+	<dependencies>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+	</dependencies>
 
-	<url>http://fiji.sc/Sholl</url>
 </project>
