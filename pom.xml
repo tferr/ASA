@@ -6,10 +6,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>pom-imagej</artifactId>
-		<version>2.51</version>
-		<relativePath />
 		<groupId>net.imagej</groupId>
+		<artifactId>pom-imagej</artifactId>
+		<version>5.0.2</version>
+		<relativePath />
 	</parent>
 
 	<groupId>ca.mcgill</groupId>
@@ -18,13 +18,7 @@
 
 	<name>Sholl Analysis</name>
 	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from bitmap images</description>
-
-	<dependencies>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij</artifactId>
-		</dependency>
-	</dependencies>
+	<url>http://fiji.sc/Sholl</url>
 
 	<developers>
 		<developer>
@@ -46,18 +40,6 @@
 		</developer>
 	</developers>
 
-	<!-- NB: for project parent -->
-	<repositories>
-		<repository>
-			<id>imagej.releases</id>
-			<url>http://maven.imagej.net/content/repositories/releases</url>
-		</repository>
-		<repository>
-			<id>imagej.snapshots</id>
-			<url>http://maven.imagej.net/content/repositories/snapshots</url>
-		</repository>
-	</repositories>
-
 	<scm>
 		<connection>scm:git:git://github.com/tferr/ASA</connection>
 		<developerConnection>scm:git:git@github.com:tferr/ASA</developerConnection>
@@ -65,5 +47,20 @@
 		<url>https://github.com/tferr/ASA</url>
 	</scm>
 
-	<url>http://fiji.sc/Sholl</url>
+	<repositories>
+		<!-- NB: for project parent -->
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<!-- ImageJ dependencies -->
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>
