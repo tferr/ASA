@@ -6,8 +6,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>net.imagej</groupId>
-		<artifactId>pom-imagej</artifactId>
+		<groupId>sc.fiji</groupId>
+		<artifactId>pom-fiji</artifactId>
 		<version>5.0.2</version>
 		<relativePath />
 	</parent>
