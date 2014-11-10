@@ -30,6 +30,17 @@ If you use Fiji, you already have _Sholl Analysis_ installed. If you are not usi
 the latest stable binary from [fiji.sc](http://fiji.sc/Sholl) or from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop it into the main ImageJ window (see the [documentation page](http://fiji.sc/Sholl#Non-Fiji_users) for further details). For information on _development builds_ see [Release Notes](./Notes.md#).
 
 
+## Help?
+ * Want to contribute?
+    * Thanks! Please, please do! See [here](https://guides.github.com/activities/contributing-to-open-source/) and [here](https://help.github.com/articles/fork-a-repo) for details on how to [fork ASA](https://github.com/tferr/ASA/fork) or [here](https://help.github.com/articles/using-pull-requests) on how to initiate a [pull request](https://github.com/tferr/ASA/pulls)
+    * Documentation updates are also welcome, so go ahead and improve the _Sholl Analysis_ [documentation page](http://fiji.sc/Sholl)
+ * Having problems? Found a bug? Need to ask a question?
+    * See the plugin's [FAQs](http://fiji.sc/Sholl#FAQ), Fiji [FAQs](http://fiji.sc/Frequently_Asked_Questions) and [Bug reporting best practices](http://fiji.sc/Bug_reporting_best_practices). Then, you can either:
+      * [Open an issue](https://github.com/tferr/ASA/issues) on this repository
+      * Report it on the [ImageJ mailing list](http://imagej.nih.gov/ij/list.html)
+      * Use Fiji's [Report a Bug](http://fiji.sc/Report_a_Bug) command
+
+
 ##License
 This program is free software: you can redistribute them and/or modify them under the terms of the
 [GNU General Public License](http://www.gnu.org/licenses/gpl.txt) as published by the Free Software
