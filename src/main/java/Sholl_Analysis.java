@@ -1929,10 +1929,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		ImageProcessor ip = null;
 		String exitmsg = "";
+		String tipMsg = "Run \"Image>Type>8/16-bit\" to change image type";
 
 		if (img==null) {
+			tipMsg = "Press \"Analyze Sample Image\" for a demo";
 			exitmsg = "There are no images open.";
 		} else if (img.isComposite()) {
+			tipMsg = "Run \"Split Channels\" to simplifly composite images";
 			exitmsg = "Composite images are not supported.";
 		} else {
 			ip = img.getProcessor();
@@ -1949,12 +1952,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					upperT = ip.getMaxThreshold();
 				} else if (ip.isBinary()) { // binary images: background is zero
 					lowerT = upperT = 255;
-				} else
+				} else {
+					tipMsg = "Run \"Image>Adjust>Threshold...\" before running the plugin";
 					exitmsg = "Image is not thresholded.";
+				}
 			}
 		}
 
 		if (!"".equals(exitmsg)) {
+			IJ.showStatus("Tip: "+ tipMsg + "...");
 			lError(exitmsg + "\n \nThis plugin requires a segmented arbor (2D/3D). Either:\n"
 				  + "	 - A binary image (Arbor: non-zero value)\n"
 				  + "	 - A thresholded grayscale image (8/16-bit)");
