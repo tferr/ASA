@@ -215,7 +215,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					} else	//user pressed "Cancel" in file prompt
 						return;
 				} catch(final IOException e) {
-					lError(e.getMessage());
+					lError("", e.getMessage());
 					return;
 				}
 			} else {
@@ -1370,9 +1370,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private boolean validTable(final ResultsTable table) {
 		boolean isValid = false;
 		if (table==null || !IJ.isResultsWindow()) {
-			lError("Results table is no longer available!");
+			lError("Results table is no longer available!","");
 		} else if (table.getHeadings().length<2 || table.getCounter()==0) {
-			lError("Profile in Results table does not contain enough data points.\nNote that at least "
+			lError("Profile in Results table does not contain enough data points.", "N.B. At least "
 					+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
 		} else
 			isValid = true;
@@ -1961,7 +1961,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (!"".equals(exitmsg)) {
 			IJ.showStatus("Tip: "+ tipMsg + "...");
-			lError(exitmsg + "\n \nThis plugin requires a segmented arbor (2D/3D). Either:\n"
+			lError(exitmsg, "This plugin requires a segmented arbor (2D/3D). Either:\n"
 				  + "	 - A binary image (Arbor: non-zero value)\n"
 				  + "	 - A thresholded grayscale image (8/16-bit)");
 			return null;
@@ -2358,13 +2358,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Creates improved error messages with 'help' and 'action' buttons */
-	private void error(final String msg, final boolean extended) {
+	private void error(final String boldMsg, final String plainMsg, final boolean extended) {
 
-		if (IJ.macroRunning())
+		if (IJ.macroRunning()) {
+			final String msg = boldMsg +"\n"+ plainMsg;
 			IJ.error("Sholl Analysis v"+ VERSION +" Error", msg);
-		else {
+		} else {
 			final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" Error");
-			gd.addMessage(msg);
+			if (boldMsg!=null && !"".equals(boldMsg)) {
+				gd.addMessage(boldMsg, new Font("SansSerif", Font.BOLD, 12));
+			}
+			if (plainMsg!=null && !"".equals(plainMsg)) {
+				gd.addMessage(plainMsg);
+			}
 			if (!isCSV) {
 				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin to:\n"
 						+ " - Re-analyze data from previous runs\n"
@@ -2398,12 +2404,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/** Simple error message */
 	private void sError(final String msg) {
-		error(msg, false);
+		error("", msg, false);
 	}
 
 	/** Extended error message */
-	private void lError(final String msg) {
-		error(msg, true);
+	private void lError(final String mainMsg, final String extraMsg) {
+		error(mainMsg, extraMsg, true);
 	}
 
 	/** Returns a filename that does not include extension */
