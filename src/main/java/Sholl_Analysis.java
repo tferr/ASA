@@ -52,7 +52,6 @@ import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.KeyEvent;
@@ -531,11 +530,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		ResultsTable rt;
 		final String profileTable = imgTitle + "_Sholl-Profiles";
-		final Frame window = WindowManager.getFrame(profileTable);
+		final TextWindow window = (TextWindow)WindowManager.getFrame(profileTable);
 		if (window == null)
 			rt = new ResultsTable();
 		else {
-			rt = ((TextWindow) window).getTextPanel().getResultsTable();
+			rt = window.getTextPanel().getResultsTable();
 			rt.reset();
 		}
 
@@ -2017,11 +2016,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final int yc, final int zc, final double[][] values) {
 
 		ResultsTable rt;
-		final Frame window = WindowManager.getFrame(SHOLLTABLE);
+		final TextWindow window = (TextWindow)WindowManager.getFrame(SHOLLTABLE);
 		if (window == null)
 			rt = new ResultsTable();
 		else
-			rt = ((TextWindow) window).getTextPanel().getResultsTable();
+			rt = window.getTextPanel().getResultsTable();
 
 			double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
 
