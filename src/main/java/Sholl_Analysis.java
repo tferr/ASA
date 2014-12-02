@@ -538,6 +538,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.reset();
 		}
 
+		rt.showRowNumbers(false);
 		rt.setPrecision(getPrecision());
 		for (int i=0; i <valuesN.length; i++) {
 			rt.incrementCounter();
