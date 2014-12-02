@@ -2048,7 +2048,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		rt.incrementCounter();
 		rt.setPrecision(getPrecision());
-		rt.addLabel("Image", rowLabel + " (" + unit + ")");
+		rt.addLabel("Image", rowLabel);
+		rt.addValue("Unit", unit );
 		rt.addValue("Lower threshold", isCSV ? Double.NaN : lowerT);
 		rt.addValue("Upper threshold", isCSV ? Double.NaN : upperT);
 		rt.addValue("X center (px)", isCSV ? Double.NaN : xc);
