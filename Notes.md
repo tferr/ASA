@@ -11,7 +11,11 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
- * No major changes to report
+ * Improvements:
+   * Exit messages with tooltips [(#8)](https://github.com/tferr/ASA/issues/8)
+   * Better table formatting. Distance unit is reported on a dedicated column [(#9)](https://github.com/tferr/ASA/issues/9)
+ * Minimum requirements: ImageJ 1.49i
+
 
 
 Release Builds
