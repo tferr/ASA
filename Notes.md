@@ -11,12 +11,11 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
- * Improvements:
+ * UI Improvements:
    * Exit messages with tooltips [(#8)](https://github.com/tferr/ASA/issues/8)
-   * Better table formatting. Distance unit is reported on a dedicated column [(#9)](https://github.com/tferr/ASA/issues/9)
- * Minimum requirements: ImageJ 1.49i
-
-
+   * Table tweaks: Auto-formatting of decimal places; Plot tables without row numbers; Distance
+     unit is reported on a dedicated column [(#9)](https://github.com/tferr/ASA/issues/9)
+ * Minimum requirements: ImageJ 1.49i.
 
 Release Builds
 --------------
@@ -24,15 +23,20 @@ Release Builds
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.png)](http://dx.doi.org/10.5281/zenodo.11939)
  * Analysis of tabular data:
     * Improvement: Analysis can be restricted to selected rows
-    * Fixed: Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every time a choice was made in the dialog prompt. This was spurious, and could cause the plugin to abort.
+    * Fixed: Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every
+      time a choice was made in the dialog prompt. This was spurious, and could cause the plugin to
+      abort
     * Fixed: Exception triggered when _Intersections column_ contained no numeric data
-    * Fixed: Reported _Radius Step_ was innacurate: it was being extracted from the difference between the first two rows in _Intersections column_ rather than _Distance column_. This was due to a silly overlook.
+    * Fixed: Reported _Radius Step_ was innacurate: it was being extracted from the difference between
+      the first two rows in _Intersections column_ rather than _Distance column_. This was due to a
+      silly overlook
  * Bitmap analysis:
     * Fixed: _Cf. Segmentation_ could not parse binary images with display ranges other than 0-255
  * General:
     * Fixed: Auto-restart triggered by the _Analyze Sample Image_ command was unreliable
     * Improvement: Enclosing radius is now set to _NaN_ if the respective cutoff is not met
-    * Improvement: Ensure coherence in abbreviations (some metrics were reported using multiple abbreviations)
+    * Improvement: Ensure coherence in abbreviations (some metrics were reported using multiple
+      abbreviations)
 
 ####Version 3.4.2 (July 2014)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10803.png)](http://dx.doi.org/10.5281/zenodo.10803)
