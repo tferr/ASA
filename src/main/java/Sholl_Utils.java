@@ -53,7 +53,7 @@ import java.io.InputStream;
  */
 public class Sholl_Utils implements PlugIn {
 
-	private static final String BUILD = "2014.12";
+	private static final String BUILD = "2015.03";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 	private static final String DOC_URL = "http://fiji.sc/Sholl";
 	private static int background = Sholl_Analysis.maskBackground;
