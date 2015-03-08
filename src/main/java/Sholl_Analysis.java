@@ -52,6 +52,7 @@ import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.KeyEvent;
@@ -357,7 +358,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Show the plugin dialog: Update parameters with user input and
 			// find out if analysis will be restricted to a hemicircle/hemisphere
-			if (!bitmapPrompt(chordAngle, is3D)) {
+			if (!bitmapPrompt(chordAngle, is3D, null)) {
 
 				// Did the user press Alt while dismissing bitmapPrompt?
 				if (IJ.altKeyDown() && !IJ.macroRunning() &&
@@ -847,7 +848,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * is used, the OK button will become available when the HTMLDialog is dismissed.
 	 * FIX? (this seems minor, as it has no consequences...)
 	 */
-	private boolean bitmapPrompt(final double chordAngle, final boolean is3D) {
+	private boolean bitmapPrompt(final double chordAngle, final boolean is3D, final Point loc) {
 
 		final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION);
 
@@ -952,6 +953,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		Sholl_Utils.addScrollBars(gd);
 		dialogItemChanged(gd, null);
 		showStartupTooltip();
+		if (loc!=null)
+			gd.setLocation(loc);
 		gd.showDialog();
 
 		if (gd.wasCanceled()) {
@@ -963,7 +966,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			offlineHelp(gd);
 			// TODO Find a more robust way of ignoring previous recordings
 			if (Recorder.record) Recorder.setCommand("Sholl Analysis...");
-			return bitmapPrompt(chordAngle, is3D);
+			return bitmapPrompt(chordAngle, is3D, gd.getLocation());
 		}
 	}
 
