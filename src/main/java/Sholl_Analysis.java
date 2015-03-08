@@ -856,7 +856,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final int xIndent = 44;
 
 		// Part I: Definition of Shells
-		gd.setInsets(-8, 0, 0);
+		gd.setInsets(0, 0, 0);
 		gd.addMessage("I. Definition of Shells:", headerFont);
 		Sholl_Utils.setClickabaleMsg(gd, URL+"#Definition_of_Shells", Color.BLACK);
 		gd.addNumericField("Starting radius", startRadius, 2, 9, unit);

@@ -35,7 +35,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Panel;
 import java.awt.ScrollPane;
-import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.IndexColorModel;
@@ -210,11 +209,9 @@ public class Sholl_Utils implements PlugIn {
 		pane.removeAll();
 		layout.invalidateLayout(pane);
 
-		// create new container panel. Default background in ij.gui.GenericDialog is
-		// SystemColor.control, but w/ OSX Java7 SystemColor.control has changed value?
+		// create new container panel
 		final Panel newPane = new Panel();
 		final GridBagLayout newLayout = new GridBagLayout();
-		newPane.setBackground(SystemColor.control);
 		newPane.setLayout(newLayout);
 		for (int i=0; i<count; i++) {
 			newLayout.setConstraints(c[i], gbc[i]);
@@ -242,28 +239,50 @@ public class Sholl_Utils implements PlugIn {
 		if (size.width > maxWidth) size.width = maxWidth;
 		if (size.height > maxHeight) size.height = maxHeight;
 
-		// create scroll pane
+		// Create scroll pane. This has some problems: In some installations horizontal
+		// scrollbars will be displayed even if not required. In others, setScrollPosition
+		// will not be respected and panel will not be anchored to top
 		final ScrollPane scroll = new ScrollPane(ScrollPane.SCROLLBARS_AS_NEEDED) {
 			@Override
 			public Dimension getPreferredSize() {
 				return size;
 			}
 		};
+
+		// Tweak for Mac OS (mainly 10.9/10.10): The background of ScrollPane does not match that
+		// of ij.gui.GenericDialog, i.e., SystemColor.control. Imposing SystemColor.control is not
+		// reliable as it appears to be always Color.WHITE in Java 7 and higher. On the other hand,
+		// Using UIManager to retrieve control color seems to work consistently across platforms:
+		// nadeausoftware.com/articles/2010/07/java_tip_systemcolors_mac_os_x_user_interface_themes
+		final Color background = javax.swing.UIManager.getColor("control");
+		newPane.setBackground(background);
+		scroll.setBackground(background);
 		scroll.add(newPane);
+		scroll.validate();
+		scroll.setScrollPosition(0,0);
 
-		// Scrollbar is not placed at top even if scroll.getScrollPosition()
-		// is already java.awt.Point[x=0,y=0]? How to fix it?
-		//	scroll.setScrollPosition(0,0); //Not working?
-		//	scroll.setWheelScrollingEnabled(true); //Enabled by default
+		// Create an "awt border" around the scrollpanel in cases where such border is absent
+		// Platforms tested: Ubuntu: Open JDK7,8, Windows XP: Sun JDK7, Mac OS: Sun JDK7,8
+		final Panel borderPanel = new Panel();
+		if (IJ.isMacOSX() && IJ.isJava17()) {
+			final float hsbVals[] = Color.RGBtoHSB(background.getRed(),
+					background.getGreen(), background.getBlue(), null);
+			borderPanel.setBackground(Color.getHSBColor(hsbVals[0], hsbVals[1],
+					0.92f * hsbVals[2]));
+		}
+		borderPanel.add(scroll);
 
-		// add scroll pane to original container
+		// ensure constraints
 		final GridBagConstraints constraints = new GridBagConstraints();
 		constraints.gridwidth = GridBagConstraints.REMAINDER;
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weightx = 1.0;
 		constraints.weighty = 1.0;
 		layout.setConstraints(scroll, constraints);
-		pane.add(scroll);
+
+		// add scroll pane to original container
+		pane.add(borderPanel);
+
 	}
 
 	/**
@@ -304,7 +323,7 @@ public class Sholl_Utils implements PlugIn {
 
 	/** Allows users to visit the manuscript from a dialog prompt */
 	static final void addCitationUrl(final GenericDialog gd) {
-		gd.setInsets(10, 0, 0);
+		gd.setInsets(10, 5, 0);
 		gd.addMessage("Please be so kind as to cite this program in your own\n"
 				+ "research: Ferreira et al. Nat Methods 11, 982–4 (2014)", null, Color.DARK_GRAY);
 		setClickabaleMsg(gd, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html", Color.DARK_GRAY);
