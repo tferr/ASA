@@ -1036,23 +1036,40 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		newThread.start();
 
 		// present dialog
-		new HTMLDialog(parentDialog, "Segmentation Details", "<html>"
-			+ "Pixels highlighted "
-			+ "in <span style='background-color:#c0c0c0;color:#0000ff;font-weight:bold;'>&nbsp;Blue&nbsp;</span>"
-			+ " will be interpreted as <i>arbor</i>. Pixels<p>"
-			+ "in <span style='background-color:#808080;color:#ffff00;font-weight:bold;'>&nbsp;Yellow&nbsp;</span>"
-			+ " will be interpreted as <i>background</i>.<p><p>"
-			+ "Make sure you are sampling neuronal processes and not the<p>"
-			+ "interstitial spaces between them!<p><p>"
-			+ "<b>Segmentation details:</b><p>"
-			+ "&emsp;Lower threshold value (lowest intensity in arbor):&ensp<tt>"+ IJ.d2s(lowerT,1) +"</tt><p>"
-			+ "&emsp;Upper threshold value (brightest intensity in arbor):&ensp<tt>"+ IJ.d2s(upperT,1) +"</tt><p>"
-			+ "&emsp;Value at analysis center (x="+ x +", y="+ y +", z="+ z +"):&ensp<tt>"+ IJ.d2s(this.ip.get(x, y),1) +"</tt><p><p>"
-			+ "&emsp;Image type:&ensp<tt>"+ this.ip.getBitDepth() +"-bit</tt><p>"
-			+ "&emsp;Binary image?&ensp<tt>"+ String.valueOf(this.ip.isBinary()) +"</tt><p>"
-			+ "&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>"+ String.valueOf(Prefs.blackBackground) +"</tt><p>"
-			+ "&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>"+ String.valueOf(this.ip.isInvertedLut()) +"</tt>"
-			+ "</html>");
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
+		sb.append("<div WIDTH=400>");
+		sb.append("Pixels highlighted in ");
+		sb.append("<span style='background-color:#c0c0c0;color:#0000ff;font-weight:bold;'>&nbsp;Blue&nbsp;</span> ");
+		sb.append("will be interpreted as <i>arbor</i>. Pixels in ");
+		sb.append("<span style='background-color:#b0b0b0;color:#ffff00;font-weight:bold;'>&nbsp;Yellow&nbsp;</span> ");
+		sb.append("will be interpreted as <i>background</i>. ");
+		sb.append("Make sure you are sampling neuronal processes and not the interstitial spaces between them!");
+		sb.append("<br><br>");
+		sb.append("<b>Segmentation values:</b><br>");
+		sb.append("&emsp;Lower threshold (lowest intensity in arbor):&ensp<tt>").append( IJ.d2s(lowerT,1)).append("</tt><br>");
+		sb.append("&emsp;Upper threshold (brightest intensity in arbor):&ensp<tt>").append( IJ.d2s(upperT,1)).append("</tt><br>");
+		sb.append("&emsp;Intensity at analysis center (x=").append(String.valueOf(x)).append(", y=")
+				.append(String.valueOf(y)).append(", z=").append(String.valueOf(z)).append("):&ensp<tt>")
+				.append(IJ.d2s(this.ip.get(x, y),1)).append("</tt>");
+		sb.append("<br><br>");
+		sb.append("<b>Image details:</b><br>");
+		sb.append("&emsp;Image type:&ensp;").append(String.valueOf(this.ip.getBitDepth())).append("-bit")
+				.append((is3D)?" (3D)":" (2D)").append("<br>");
+		sb.append("&emsp;Binary image?&ensp;").append(String.valueOf(this.ip.isBinary())).append("</tt><br>");
+		sb.append("&emsp;Spatial units:&ensp;<tt>").append(unit).append("</tt><br>");
+		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>").append(String.valueOf(this.ip.isInvertedLut())).append("</tt>");
+		sb.append("<br><br>");
+		sb.append("<b>Analysis options:</b><br>");
+		sb.append("&emsp;Orthogonal analysis allowed?&ensp<tt>").append(String.valueOf(orthoChord)).append("</tt><br>");
+		sb.append("&emsp;Repetead measures allowed?&ensp<tt>").append(String.valueOf(!is3D)).append("</tt><br>");
+		sb.append("&emsp;Noise supression allowed?&ensp<tt>").append(String.valueOf(is3D)).append("</tt>");
+		sb.append("<br><br>");
+		sb.append("<b>Other settings:</b><br>");
+		sb.append("&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>").append(String.valueOf(Prefs.blackBackground)).append("</tt>");
+		sb.append("</div>");
+		sb.append("</html>");
+		new HTMLDialog(parentDialog, "Segmentation Details", sb.toString());
 
 		// HTMLDialog dismissed: revert to initial state
 		this.ip.setLut(lut);
