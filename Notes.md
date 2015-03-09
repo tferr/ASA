@@ -11,16 +11,26 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
- * UI Improvements:
-   * Exit messages with tooltips [(#8)](https://github.com/tferr/ASA/issues/8)
-   * Table tweaks: Auto-formatting of decimal places; Plot tables without row numbers; Distance
-     unit is reported on a dedicated column [(#9)](https://github.com/tferr/ASA/issues/9)
- * Minimum requirements: ImageJ 1.49i.
+* No major changes to report
+
 
 Release Builds
 --------------
+####Version 3.4.4 (March 2015)
+[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](http://dx.doi.org/10.5281/zenodo.15913)
+
+ * UI Improvements:
+   * Exit messages with tooltips [(#8)](https://github.com/tferr/ASA/issues/8)
+   * _Cf. Segmentation_: Clarified information. Position of main prompt is restored after
+     _Cf. Segmentation_ has been dismissed
+   * Tables: Auto-formatting of decimal places; Plot tables without row numbers; Distance
+     unit is reported on a dedicated column [(#9)](https://github.com/tferr/ASA/issues/9)
+   * Fixed: main dialogs were not properly rendered in Mac OS with Java 7 and higher
+ * Minimum requirements: ImageJ 1.49i
+
 ####Version 3.4.3 (October 2014)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.png)](http://dx.doi.org/10.5281/zenodo.11939)
+
  * Analysis of tabular data:
     * Improvement: Analysis can be restricted to selected rows
     * Fixed: Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every
@@ -40,6 +50,7 @@ Release Builds
 
 ####Version 3.4.2 (July 2014)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10803.png)](http://dx.doi.org/10.5281/zenodo.10803)
+
   * Fitting to higher order polynomials is now possible using a
     [BAR command](https://github.com/tferr/Scripts) (documentation:
     [GitHub](https://github.com/tferr/Scripts/blob/master/Data_Analysis/README.md#fit-polynomial),
