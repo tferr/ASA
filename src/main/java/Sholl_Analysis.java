@@ -659,6 +659,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		//IJ.showStatus("Curve fitter status: " + cf.getStatusString());
 		final double[] parameters = cf.getParams();
+		final int degree = cf.getNumParams()-1;
 
 		// Get fitted data
 		final double[] fy = new double[size];
@@ -725,7 +726,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plotLabel.append("\nNm= "+ IJ.d2s(cv, 2));
 			plotLabel.append("\nrc= "+ IJ.d2s(cr, 2));
 			plotLabel.append("\nNav= "+ IJ.d2s(mv, 2));
-			plotLabel.append("\n"+ (parameters.length-2) + "th degree");
+			plotLabel.append("\n" + Sholl_Utils.ordinal(degree)).append(" degree");
 
 			rt.addValue("Critical value", cv);
 			rt.addValue("Critical radius", cr);
@@ -734,7 +735,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final double[] moments = getMoments(fy);
 			rt.addValue("Skewness (fit)", moments[2]);
 			rt.addValue("Kurtosis (fit)", moments[3]);
-			rt.addValue("Polyn. degree", parameters.length-2);
+			rt.addValue("Polyn. degree", degree);
 			rt.addValue("Polyn. R^2", cf.getRSquared());
 
 		}

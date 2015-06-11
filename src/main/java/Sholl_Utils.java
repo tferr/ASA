@@ -185,6 +185,21 @@ public class Sholl_Utils implements PlugIn {
 			IJ.runPlugIn("ij.plugin.BrowserLauncher", SRC_URL);
 	}
 
+	/** Convers an integer to its ordinal (http://stackoverflow.com/a/6810409) */
+	static String ordinal(final int i) {
+		final String[] sufixes = new String[] { "th", "st", "nd", "rd", "th",
+				"th", "th", "th", "th", "th" };
+		switch (i % 100) {
+		case 11:
+		case 12:
+		case 13:
+			return i + "th";
+		default:
+			return i + sufixes[i % 10];
+
+		}
+	}
+
 	/**
 	 * Adds AWT scroll bars to the given container. From bio-formats Window.Tools,
 	 * licensed under GNU GPLv2 (April 2013)
