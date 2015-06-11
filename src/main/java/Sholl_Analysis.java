@@ -14,6 +14,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import fiji.Debug;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -183,6 +184,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus img;
 	private ImageProcessor ip;
 
+
+	public static void main(final String[] args) { Debug.run("Sholl Analysis...",""); }
 
 	@Override
 	public void run( final String arg) {
