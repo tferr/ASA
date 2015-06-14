@@ -344,4 +344,51 @@ public class Sholl_Utils implements PlugIn {
 		setClickabaleMsg(gd, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html", Color.DARK_GRAY);
 
 	}
+	public static void setNoPlots(final boolean noPlots) {
+		Sholl_Analysis.noPlots = noPlots;
+	}
+	public static void setNoTable(final boolean noTable) {
+		Sholl_Analysis.noTable = noTable;
+	}
+	public static void setPlotLabels(final boolean plotLabels) {
+		Sholl_Analysis.plotLabels = plotLabels;
+	}
+	public static void setPrecision(final int precision) {
+		Sholl_Analysis.fMetricsPrecision = precision;
+	}
+	public static void setNoPlots(final String booleanString) {
+		if (validateBooleanString(booleanString))
+			Sholl_Analysis.noPlots = Boolean.valueOf(booleanString);
+	}
+	public static void setNoTable(final String booleanString) {
+		if (validateBooleanString(booleanString))
+			Sholl_Analysis.noTable = Boolean.valueOf(booleanString);
+	}
+	public static void setPlotLabels(final String booleanString) {
+		if (validateBooleanString(booleanString))
+			Sholl_Analysis.plotLabels = Boolean.valueOf(booleanString);
+	}
+	public static void setPrecision(final String intString) {
+		if (validateIntString(intString))
+			Sholl_Analysis.fMetricsPrecision = Integer.parseInt(intString);
+	}
+
+	static boolean validateBooleanString(final String string) {
+		final boolean valid = string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false");
+		if (!valid)
+			IJ.log(">>> Sholl Utils: Not a valid option: '" + string + "'");
+		return valid;
+	}
+
+	static boolean validateIntString(final String string) {
+		boolean valid = true;
+		try {
+			Integer.parseInt(string);
+		} catch (final NumberFormatException e) {
+			valid = false;
+			IJ.log(">>> Sholl Utils: Not a valid option: '" + string + "'");
+		}
+		return valid;
+	}
+
 }
