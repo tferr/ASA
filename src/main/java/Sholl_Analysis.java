@@ -170,7 +170,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	static boolean noPlots = false; // Exclude plots from output?
 	static boolean noTable = false; // Exclude detailed table from output?
 	static boolean plotLabels = true; // Describe fitted curves in plots?
-	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum & local max //TODO TO BE IMPLEMENTED
+	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum & local max
 
 	// If the edge of a group of pixels lies tangent to the sampling circle, multiple
 	// intersections with that circle will be counted. With this flag on, we will try to
@@ -734,14 +734,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					{ cv = cvTmp; cr = crTmp; }
 			}
 
-			// Calculate mv, the mean value of the fitted Sholl function.
-			// This can be done assuming that the mean value is the height
-			// of a rectangle that has the width of (NonZeroEndRadius -
-			// NonZeroStartRadius) and the same area of the area under the
-			// fitted curve on that discrete interval
+			// Calculate mv, the mean value of the fitted polynomial between
+			// NonZeroStartRadius and NonZeroEndRadius. We will define it as
+			// a Riemann sum calculated with a 1/fMetricsPrecision of radius
+			// step size. For a walk-through, see eg,
+			// http://archives.math.utk.edu/visual.calculus/5/average.1/
 			final double[] xRange = Tools.getMinMax(x);
-			for (int i = 0; i < parameters.length-1; i++) //-1?
-				mv += (parameters[i]/(i+1)) * Math.pow(xRange[1]-xRange[0], i);
+			final int subintervals = size * fMetricsPrecision;
+			final double deltaX = (xRange[1] - xRange[0]) / subintervals;
+			for (int i = 0; i < subintervals; i++) {
+				final double xi = xRange[0] + (i * deltaX);
+				final double f_xi = cf.f(parameters, xi);
+				mv += f_xi * deltaX;
+			}
+			mv = (1 / (xRange[1] - xRange[0])) * mv;
 
 			// Highlight mean value on the plot
 			if (plot!=null) {
