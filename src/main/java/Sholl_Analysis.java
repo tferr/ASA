@@ -166,6 +166,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
+	static boolean noPlots = false; // Exclude plots from output?
+	static boolean noTable = false; // Exclude detailed table from output?
+	static boolean plotLabels = true; // Describe fitted curves in plots?
 	// If the edge of a group of pixels lies tangent to the sampling circle, multiple
 	// intersections with that circle will be counted. With this flag on, we will try to
 	// find these "false positives" and throw them out. A way to attempt this (we will be
@@ -472,15 +475,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Create plots
 		if (shollN) {
-
-			final Plot plotN = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_N] +") for "+ imgTitle,
-					is3D ? "3D distance ("+ unit +")" : "2D distance ("+ unit +")",
-					"N. of Intersections",
-					valuesN, SHOLL_N);
-			markPlotPoint(plotN, centroid, Color.RED);
+			final Plot plotN;
+			if (noPlots) {
+				plotN = null;
+			} else {
+				plotN = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_N] +") for "+ imgTitle,
+						is3D ? "3D distance ("+ unit +")" : "2D distance ("+ unit +")",
+						"N. of Intersections", valuesN, SHOLL_N);
+			}
 			if (fitCurve)
 				fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
-			savePlot(plotN, SHOLL_N);
+			if (!noPlots) {
+				markPlotPoint(plotN, centroid, Color.RED);
+				savePlot(plotN, SHOLL_N);
+			}
 
 		}
 
@@ -501,80 +509,97 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final String distanceString = is3D ? "3D distance" : "2D distance";
 
 		if (shollNS) {
-
-			final Plot plotNS = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_NS] +") for "+ imgTitle,
-					distanceString +" ("+ unit +")", "Inters./"+ normalizerString,
-					valuesNS, SHOLL_NS);
+			final Plot plotNS;
+			if (noPlots) {
+				plotNS = null;
+			} else {
+				plotNS = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_NS] +") for "+ imgTitle,
+						distanceString +" ("+ unit +")", "Inters./"+ normalizerString,
+						valuesNS, SHOLL_NS);
+			}
 			if (fitCurve)
 				fvaluesNS = getFittedProfile(valuesNS, SHOLL_NS, statsTable, plotNS);
-			savePlot(plotNS, SHOLL_NS);
+			if (!noPlots)
+				savePlot(plotNS, SHOLL_NS);
 
 		}
 		if (shollSLOG) {
-
-			final Plot plotSLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_SLOG] +") for "+ imgTitle,
-					distanceString +" ("+ unit +")", "log(Inters./"+ normalizerString +")",
-					valuesSLOG, SHOLL_SLOG);
+			final Plot plotSLOG;
+			if (noPlots) {
+				plotSLOG = null;
+			} else {
+				plotSLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_SLOG] +") for "+ imgTitle,
+						distanceString +" ("+ unit +")", "log(Inters./"+ normalizerString +")",
+						valuesSLOG, SHOLL_SLOG);
+			}
 			if (fitCurve)
 				plotRegression(valuesSLOG, plotSLOG, statsTable, SHOLL_TYPES[SHOLL_SLOG]);
-			savePlot(plotSLOG, SHOLL_SLOG);
+			if (!noPlots)
+				savePlot(plotSLOG, SHOLL_SLOG);
 
 		}
 		if (shollLOG) {
-
-			final Plot plotLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_LOG] +") for "+ imgTitle,
-					"log("+ distanceString +")", "log(Inters./"+ normalizerString +")",
-					valuesLOG, SHOLL_LOG);
+			final Plot plotLOG;
+			if (noPlots) {
+				plotLOG = null;
+			} else {
+				plotLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_LOG] +") for "+ imgTitle,
+						"log("+ distanceString +")", "log(Inters./"+ normalizerString +")",
+						valuesLOG, SHOLL_LOG);
+			}
 			if (fitCurve)
 				//fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG, statsTable, plotLOG);
 				plotRegression(valuesLOG, plotLOG, statsTable, SHOLL_TYPES[SHOLL_LOG]);
-			savePlot(plotLOG, SHOLL_LOG);
+			if (!noPlots)
+				savePlot(plotLOG, SHOLL_LOG);
 
 		}
 
-		ResultsTable rt;
-		final String profileTable = imgTitle + "_Sholl-Profiles";
-		final TextWindow window = (TextWindow)WindowManager.getFrame(profileTable);
-		if (window == null)
-			rt = new ResultsTable();
-		else {
-			rt = window.getTextPanel().getResultsTable();
-			rt.reset();
-		}
-
-		rt.showRowNumbers(false);
-		rt.setPrecision(getPrecision());
-		for (int i=0; i <valuesN.length; i++) {
-			rt.incrementCounter();
-			rt.addValue("Radius", valuesN[i][0]);
-			rt.addValue("Inters.", valuesN[i][1]);
-			if (fvaluesN!=null) {
-				//rt.addValue("Radius (Polynomial fit)", valuesN[i][0]);
-				rt.addValue("Inters. (Polynomial fit)", fvaluesN[i]);
+		if (!noTable) {
+			ResultsTable rt;
+			final String profileTable = imgTitle + "_Sholl-Profiles";
+			final TextWindow window = (TextWindow)WindowManager.getFrame(profileTable);
+			if (window == null)
+				rt = new ResultsTable();
+			else {
+				rt = window.getTextPanel().getResultsTable();
+				rt.reset();
 			}
-			rt.addValue("Inters./"+ normalizerString, valuesNS[i][1]);
-			if (fvaluesNS!=null) {
-				//rt.addValue("Radius (Power fit)", valuesNS[i][0]);
-				rt.addValue("Inters./"+ normalizerString +" (Power fit)", fvaluesNS[i]);
-			}
-			rt.addValue("log(Radius)", valuesLOG[i][0]);
-			rt.addValue("log(Inters./"+ normalizerString +")", valuesLOG[i][1]);
-			//if (fvaluesLOG!=null) {
-			//	rt.addValue("log(Radius) (Exponential fit)", valuesLOG[i][0]);
-			//	rt.addValue("log(Inters./"+ normalizerString +") (Exponential fit)", fvaluesLOG[i]);
-			//}
-		}
 
-		if (validPath && save) {
-			try {
-				final String path = imgPath + profileTable;
-				rt.saveAs(path + Prefs.get("options.ext", ".csv"));
-			} catch (final IOException e) {
-				IJ.log(">>>> An error occurred when saving "+ imgTitle +"'s profile(s):\n"+ e);
+			rt.showRowNumbers(false);
+			rt.setPrecision(getPrecision());
+			for (int i=0; i <valuesN.length; i++) {
+				rt.incrementCounter();
+				rt.addValue("Radius", valuesN[i][0]);
+				rt.addValue("Inters.", valuesN[i][1]);
+				if (fvaluesN!=null) {
+					//rt.addValue("Radius (Polynomial fit)", valuesN[i][0]);
+					rt.addValue("Inters. (Polynomial fit)", fvaluesN[i]);
+				}
+				rt.addValue("Inters./"+ normalizerString, valuesNS[i][1]);
+				if (fvaluesNS!=null) {
+					//rt.addValue("Radius (Power fit)", valuesNS[i][0]);
+					rt.addValue("Inters./"+ normalizerString +" (Power fit)", fvaluesNS[i]);
+				}
+				rt.addValue("log(Radius)", valuesLOG[i][0]);
+				rt.addValue("log(Inters./"+ normalizerString +")", valuesLOG[i][1]);
+				//if (fvaluesLOG!=null) {
+				//	rt.addValue("log(Radius) (Exponential fit)", valuesLOG[i][0]);
+				//	rt.addValue("log(Inters./"+ normalizerString +") (Exponential fit)", fvaluesLOG[i]);
+				//}
 			}
+
+			if (validPath && save) {
+				try {
+					final String path = imgPath + profileTable;
+					rt.saveAs(path + Prefs.get("options.ext", ".csv"));
+				} catch (final IOException e) {
+					IJ.log(">>>> An error occurred when saving "+ imgTitle +"'s profile(s):\n"+ e);
+				}
+			}
+			if (!validPath || (validPath && !hideSaved))
+				rt.show(profileTable);
 		}
-		if (!validPath || (validPath && !hideSaved))
-			rt.show(profileTable);
 
 		String exitmsg = "Done. ";
 
@@ -670,13 +695,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final StringBuffer plotLabel = new StringBuffer();
 
 		// Register quality of fit
-		plotLabel.append("\nR\u00B2= "+ IJ.d2s(cf.getRSquared(), 3));
+		plotLabel.append("R\u00B2= "+ IJ.d2s(cf.getRSquared(), 3));
 
 		// Plot fitted curve
-		plot.setColor(Color.BLUE);
-		plot.setLineWidth(2);
-		plot.addPoints(x, fy, PlotWindow.LINE);
-		plot.setLineWidth(1);
+		if (plot!=null) {
+			plot.setColor(Color.BLUE);
+			plot.setLineWidth(2);
+			plot.addPoints(x, fy, PlotWindow.LINE);
+			plot.setLineWidth(1);
+		}
 
 		if (verbose) {
 			IJ.log("\n*** "+ longtitle +", fitting details:"+ cf.getResultString());
@@ -714,10 +741,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			for (int i = 0; i < parameters.length-1; i++) //-1?
 				mv += (parameters[i]/(i+1)) * Math.pow(xRange[1]-xRange[0], i);
 
-			// Highlight the mean value on the plot
-			plot.setLineWidth(1);
-			plot.setColor(Color.LIGHT_GRAY);
-			plot.drawLine(xRange[0], mv, xRange[1], mv);
+			// Highlight mean value on the plot
+			if (plot!=null) {
+				plot.setLineWidth(1);
+				plot.setColor(Color.LIGHT_GRAY);
+				plot.drawLine(xRange[0], mv, xRange[1], mv);
+			}
 
 			// Calculate the "fitted" ramification index
 			rif = (inferPrimary || primaryBranches==0) ? cv/y[0] : cv/primaryBranches;
@@ -740,7 +769,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
+		if (plot!=null && plotLabels)
+			makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
 		rt.show(SHOLLTABLE);
 		return fy;
 
@@ -2230,14 +2260,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		int start = 0;
 		int end = size-1;
 
-		Color color = Color.BLUE;
-		final StringBuffer label = new StringBuffer();
 		String labelSufix = " ("+ method +")";
 
 		final CurveFitter cf;
 		if (trim) {
 
-			color = Color.RED;
 			labelSufix += " [P10-P90]"; //"[P\u2081\u2080 - P\u2089\u2080]";
 			start = (int)(size*0.10);
 			end = end-start;
@@ -2264,15 +2291,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				+ labelSufix + cf.getResultString());
 		}
 
-		final double x1 = x[start];
-		final double x2 = x[end];
-		final double y1 = cf.f(cfparam, x1);
-		final double y2 = cf.f(cfparam, x2);
-
-		plot.setLineWidth(2);
-		plot.setColor(color);
-		plot.drawLine(x1, y1, x2, y2);
-
 		final double k = -cfparam[1];	// slope
 		final double kIntercept = cfparam[0];	// y-intercept
 		final double kRSquared = cf.getRSquared();	// R^2
@@ -2282,12 +2300,29 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Regression R^2"+ labelSufix, kRSquared);
 		rt.show(SHOLLTABLE);
 
-		label.append("R\u00B2= "+ IJ.d2s(kRSquared, 3));
-		label.append("\nk= "+ IJ.d2s(k, -2));
-		label.append("\nIntercept= "+ IJ.d2s(kIntercept,2));
+		if (plot!=null) {
 
-		markPlotPoint(plot, new double[]{0, kIntercept}, color);
-		makePlotLabel(plot, label.toString(), color);
+			final double x1 = x[start];
+			final double x2 = x[end];
+			final double y1 = cf.f(cfparam, x1);
+			final double y2 = cf.f(cfparam, x2);
+
+			final Color color = (trim) ? Color.RED : Color.BLUE;
+			plot.setLineWidth(2);
+			plot.setColor(color);
+			plot.drawLine(x1, y1, x2, y2);
+			plot.setLineWidth(1);
+
+			markPlotPoint(plot, new double[]{0, kIntercept}, color);
+			if (plotLabels) {
+				final StringBuffer label = new StringBuffer();
+				label.append("R\u00B2= "+ IJ.d2s(kRSquared, 3));
+				label.append("\nk= "+ IJ.d2s(k, -2));
+				label.append("\nIntercept= "+ IJ.d2s(kIntercept,2));
+				makePlotLabel(plot, label.toString(), color);
+			}
+
+		}
 
 	}
 
