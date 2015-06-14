@@ -714,22 +714,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (method==SHOLL_N) {
 
-			double cv = 0; // Polyn. regression: ordinate of maximum
-			double cr = 0; // Polyn. regression: abscissa of maximum
-			double mv = 0; // Polyn. regression: Average value
-			double rif = 0; // Polyn. regression: Ramification index
+			double cv = 0d; // Polyn. regression: ordinate of maximum
+			double cr = 0d; // Polyn. regression: abscissa of maximum
+			double mv = 0d; // Polyn. regression: Average value
+			double rif = 0d; // Polyn. regression: Ramification index
 
 			// Get coordinates of cv, the local maximum of polynomial. We'll
-			// iterate around the index of highest fitted value to retrive values
-			// empirically. This is probably the most ineficient way of doing it
+			// iterate around the index of highest fitted value to retrieve values
+			// with a precision of 1/fMetricsPrecision of radius step size
 			final int maxIdx = CurveFitter.getMax(fy);
-			final int iterations = 1000;
 			final double crLeft = (x[Math.max(maxIdx-1, 0)] + x[maxIdx]) / 2;
 			final double crRight = (x[Math.min(maxIdx+1, size-1)] + x[maxIdx]) / 2;
-			final double step = (crRight-crLeft) / iterations;
+			final double crStep = (crRight-crLeft) / fMetricsPrecision;
 			double crTmp, cvTmp;
-			for (int i = 0; i < iterations; i++) {
-				crTmp = crLeft + (i*step);
+			for (int i = 0; i < fMetricsPrecision; i++) {
+				crTmp = crLeft + (i*crStep);
 				cvTmp = cf.f(parameters, crTmp);
 				if (cvTmp > cv)
 					{ cv = cvTmp; cr = crTmp; }
