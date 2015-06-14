@@ -65,13 +65,13 @@ import java.util.Arrays;
 import java.util.Vector;
 
 /**
- * ImageJ 1.x plugin that uses the Sholl technique to perform neuronal morphometry
+ * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
  * directly from bitmap images. Analysis is performed on segmented arbors. For
  * binary images, background is always considered to be 0, independently of
  * <code>ij.Prefs.blackBackground</code>
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
- * @see <a href="http://fiji.sc/Sholl_Analysis">http://fiji.sc/Sholl_Analysis</a>
+ * @see <a href="http://fiji.sc/Sholl">http://fiji.sc/Sholl</a>
  *
  * @author Tiago Ferreira, Tom Maddock (v1, 2005)
  */
@@ -166,9 +166,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
+	/* Advanced options that can be set using Sholl_Utils */
 	static boolean noPlots = false; // Exclude plots from output?
 	static boolean noTable = false; // Exclude detailed table from output?
 	static boolean plotLabels = true; // Describe fitted curves in plots?
+	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum & local max //TODO TO BE IMPLEMENTED
+
 	// If the edge of a group of pixels lies tangent to the sampling circle, multiple
 	// intersections with that circle will be counted. With this flag on, we will try to
 	// find these "false positives" and throw them out. A way to attempt this (we will be

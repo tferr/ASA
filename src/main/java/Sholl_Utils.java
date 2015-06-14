@@ -42,13 +42,10 @@ import java.io.InputStream;
 
 
 /**
- * Auxiliary commands and routines for Sholl_Analysis. addScrollBars() is from
- * Bio-Formats Window.Tools
+ * Auxiliary commands and routines for {@link Sholl_Analysis}
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
- * @see <a href="http://fiji.sc/Sholl_Analysis">http://fiji.sc/Sholl_Analysis</a>
- * @see <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">git.openmicroscopy</a>
- *
+ * @see <a href="http://fiji.sc/Sholl">http://fiji.sc/Sholl</a>
  * @author Tiago Ferreira
  */
 public class Sholl_Utils implements PlugIn {
@@ -83,7 +80,7 @@ public class Sholl_Utils implements PlugIn {
 		return imp;
 	}
  
-	/** Displays the ddaC sample image in ./resources and returns a reference to it */
+	/** Displays the ddaC sample image and returns a reference to it */
 	static ImagePlus displaySample() {
 		final ImagePlus imp = sampleImage();
 		if (imp==null) {
@@ -96,9 +93,10 @@ public class Sholl_Utils implements PlugIn {
 
 	/**
 	 * Returns an IndexColorModel similar to MATLAB's jet color map. An 8-bit
-	 * gray color specified by backgroundGray is used as the first entry of the
-	 * LUT. See https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306 for
-	 * a simplified version by Jerome Mutterer
+	 * gray color specified by <code>backgroundGray</code> is used as the first
+	 * entry of the LUT. See this <a
+	 * href="https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306"
+	 * >thread</a> for a simplified version by Jerome Mutterer
 	 */
 	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
 
@@ -201,9 +199,11 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/**
-	 * Adds AWT scroll bars to the given container. From bio-formats Window.Tools,
-	 * licensed under GNU GPLv2 (April 2013)
-	 * @see <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">git.openmicroscopy</a>
+	 * Adds AWT scroll bars to the given container. From bio-formats
+	 * Window.Tools, licensed under GNU GPLv2 (April 2013)
+	 * 
+	 * @see <a
+	 *      href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">git.openmicroscopy</a>
 	 */
 	@SuppressWarnings("serial")
 	static void addScrollBars(final Container pane) {
@@ -344,30 +344,153 @@ public class Sholl_Utils implements PlugIn {
 		setClickabaleMsg(gd, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html", Color.DARK_GRAY);
 
 	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
+	 * tables will be displayed).
+	 *
+	 * @param noPlots
+	 *            If <code>true</code>, plugin will only output tables. If
+	 *            <code>false</code>, both tables and plots will be produced
+	 *            (the default)
+	 */
 	public static void setNoPlots(final boolean noPlots) {
 		Sholl_Analysis.noPlots = noPlots;
 	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output
+	 * (Summary table is still displayed).
+	 *
+	 * @see {@link #setNoPlots(boolean)}
+	 *
+	 * @param noTable
+	 *            If <code>true</code>, plugin will not output the
+	 *            "detailed table" containing all the retrieved profiles. Note
+	 *            that the Summary "Sholl Results" table is always displayed.
+	 */
 	public static void setNoTable(final boolean noTable) {
 		Sholl_Analysis.noTable = noTable;
 	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
+	 * plots.
+	 *
+	 * @param plotLabels
+	 *            If <code>true</code>, plotting labels will be added, otherwise
+	 *            they will be omitted
+	 */
 	public static void setPlotLabels(final boolean plotLabels) {
 		Sholl_Analysis.plotLabels = plotLabels;
 	}
+
+	/**
+	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics from
+	 * fitted data, such as Nav and Nm.
+	 *
+	 * @param precision
+	 *            The precision value as a fraction of radius step size. Eg,
+	 *            <code>100</code> sets accuracy to radiusStepSize/100
+	 */
 	public static void setPrecision(final int precision) {
 		Sholl_Analysis.fMetricsPrecision = precision;
 	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setNoPlots(boolean) setNoPlots()} to be called by
+	 * IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
+	 * tables will be displayed). An error message is displayed in the IJ Log
+	 * window if <code>booleanString</code> can not be parsed. Usage example:
+	 * <code>call("Sholl_Utils.setNoPlots", "false");</code>
+	 *
+	 * </p>
+	 *
+	 * @param booleanString
+	 *            If <code>"true"</code>, plugin will only output tables. If
+	 *            <code>"false"</code>, both tables and plots will be produced
+	 *            (the default)
+	 */
 	public static void setNoPlots(final String booleanString) {
 		if (validateBooleanString(booleanString))
 			Sholl_Analysis.noPlots = Boolean.valueOf(booleanString);
 	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setNoTable(boolean) setNoTable()} to be called by
+	 * IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output.
+	 * An error message is displayed in the IJ Log window if
+	 * <code>booleanString</code> can not be parsed. Usage example:
+	 * <code>call("Sholl_Utils.setNoTable", "false");</code>
+	 * </p>
+	 *
+	 * @param booleanString
+	 *            If <code>"true"</code>, plugin will not output the
+	 *            "detailed table" containing all the retrieved profiles. Note
+	 *            that the Summary "Sholl Results" table is always displayed.
+	 */
 	public static void setNoTable(final String booleanString) {
 		if (validateBooleanString(booleanString))
 			Sholl_Analysis.noTable = Boolean.valueOf(booleanString);
 	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setPlotLabels(boolean) setPlotLabels()} to be
+	 * called by IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
+	 * plots. An error message is displayed in the IJ Log window if
+	 * <code>booleanString</code> can not be parsed. Usage example:
+	 * <code>call("Sholl_Utils.setPlotLabels", "false");</code>
+	 * </p>
+	 *
+	 * @param booleanString
+	 *            If <code>"true"</code>, plotting labels will be added.
+	 */
 	public static void setPlotLabels(final String booleanString) {
 		if (validateBooleanString(booleanString))
 			Sholl_Analysis.plotLabels = Boolean.valueOf(booleanString);
 	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setPrecision(int) setPrecision()} to be called by
+	 * IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
+	 * from fitted data, such as Nav and Nm. An error message is displayed in
+	 * the IJ Log window if <code>intString</code> is invalid. Usage example:
+	 * <code>call("Sholl_Utils.setPrecision", "1000");</code>
+	 * </p>
+	 *
+	 * @param intString
+	 *            The string integer to set the precision in terms of radius
+	 *            step size. Eg, <code>"100"</code> sets accuracy to
+	 *            radiusStepSize/100
+	 */
 	public static void setPrecision(final String intString) {
 		if (validateIntString(intString))
 			Sholl_Analysis.fMetricsPrecision = Integer.parseInt(intString);
