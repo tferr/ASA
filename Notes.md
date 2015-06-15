@@ -12,6 +12,15 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 Development Builds
 ------------------
 * No major changes to report
+ * Accuracy improvements:
+   * Improved accuracy of _Nav_ calculation. Ensure it remains accurate for odd shaped profiles
+     (highly skewed or containing plateaus) [(#12)](https://github.com/tferr/ASA/issues/12). A
+     Riemann sum is now used to calculate definite integrals
+ * Scripting improvements:
+   * Several (advanced) options that are not present in the main dialog can now be set by calling
+     `Sholl_Utils`. For more details see [Advanced Options](http://fiji.sc/Sholl#Advanced_Options)
+     section of the manual.
+ * Minimum requirements: ImageJ 1.49t
 
 
 Release Builds
