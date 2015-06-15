@@ -2351,7 +2351,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Draws a label at the less "crowded" corner of a plot canvas */
 	public static void makePlotLabel(final Plot plot, final String label, final Color color) {
 
-		final int margin = 7; // Axes internal margin, 1+Plot.TICK_LENGTH
 		final ImageProcessor ip = plot.getProcessor();
 
 		int maxLength = 0; String maxLine = "";
@@ -2362,15 +2361,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				{ maxLength = length; maxLine = lines[i]; }
 		}
 
+		final Font font = new Font("Helvetica", Font.PLAIN, PlotWindow.fontSize);
+		ip.setFont(font);
+		plot.setFont(font);
 		final FontMetrics metrics = ip.getFontMetrics();
-		final int textWidth = metrics.stringWidth(maxLine+" ");
-		final int lineHeight = metrics.getHeight();
-		final int textHeight = lineHeight * lines.length;
+		final int textWidth = metrics.stringWidth(maxLine);
+		final int textHeight = metrics.getHeight() * lines.length;
 
-		final int yTop = Plot.TOP_MARGIN + margin + lineHeight;
-		final int yBottom = Plot.TOP_MARGIN + PlotWindow.plotHeight - textHeight;
-		final int xLeft = Plot.LEFT_MARGIN + margin;
-		final int xRight = Plot.LEFT_MARGIN + PlotWindow.plotWidth - margin - textWidth;
+		final Rectangle r = plot.getDrawingFrame();
+		final int padding = 4; // space between label and axes
+		final int yTop = r.y + 1 + padding;
+		final int yBottom = r.y + r.height - textHeight - padding;
+		final int xLeft = r.x + 1 + padding;
+		final int xRight = r.x + r.width - textWidth - padding;
 
 		final double northEast = meanRoiValue(ip, xLeft, yTop, textWidth, textHeight);
 		final double northWest = meanRoiValue(ip, xRight, yTop, textWidth, textHeight);
@@ -2378,15 +2381,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double southWest = meanRoiValue(ip, xRight, yBottom, textWidth, textHeight);
 		final double pos = Math.max(Math.max(northEast, northWest), Math.max(southEast,southWest));
 
-		ip.setColor(color);
+		ip.setColor(0);
+		plot.setColor(color);
+		// We'll draw the text so that multiple labels can be added without overlap
 		if (pos==northEast) {
 			ip.drawString(label, xLeft, yTop);
+			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yTop));
 		} else if (pos==northWest) {
 			ip.drawString(label, xRight, yTop);
+			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yTop));
 		} else if (pos==southEast) {
 			ip.drawString(label, xLeft, yBottom);
+			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yBottom));
 		} else {
 			ip.drawString(label, xRight, yBottom);
+			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yBottom));
 		}
 
 	}
