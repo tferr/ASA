@@ -11,7 +11,11 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* No major changes to report
+ * UI Improvements:
+   * Redesign plot labels that were missing since IJ 1.49t
+     [(#11)](https://github.com/tferr/ASA/issues/11)
+   * Improved plots using the [new plotting capabilities](http://imagej.nih.gov/ij/notes.html) of
+     IJ 1.49
  * Accuracy improvements:
    * Improved accuracy of _Nav_ calculation. Ensure it remains accurate for odd shaped profiles
      (highly skewed or containing plateaus) [(#12)](https://github.com/tferr/ASA/issues/12). A
