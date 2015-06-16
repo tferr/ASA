@@ -53,7 +53,6 @@ public class Sholl_Utils implements PlugIn {
 	private static final String BUILD = "2015.03";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 	private static final String DOC_URL = "http://fiji.sc/Sholl";
-	private static int background = Sholl_Analysis.maskBackground;
 
 	@Override
 	public void run(final String arg) {
@@ -141,7 +140,7 @@ public class Sholl_Utils implements PlugIn {
 		}
 
 		// Display LUT
-		final IndexColorModel cm = matlabJetColorMap(background);
+		final IndexColorModel cm = matlabJetColorMap(Sholl_Analysis.getMaskBackground());
 		if (imp==null) {
 			imp = new ImagePlus("MATLAB Jet",ij.plugin.LutLoader.createImage(cm));
 			imp.show();

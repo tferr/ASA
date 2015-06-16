@@ -127,7 +127,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int polyChoice = DEGREES.length - 1;
 	private static boolean verbose;
 	private static boolean mask;
-	public static int maskBackground = 228;
+	private static int maskBackground = 228;
 	private static boolean save;
 	private static boolean isCSV = false;
 
@@ -979,7 +979,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options", Color.BLACK);
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Create intersections mask", mask);
-		gd.addSlider("Background", 0, 255, maskBackground);
+		gd.addSlider("Background", 0, 255, getMaskBackground());
 
 		// Offer to save results if local image
 		if (validPath) {
@@ -1283,7 +1283,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			mask = gd.getNextBoolean();
 			checkboxCounter++;
 			//final Checkbox iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-			maskBackground = Math.min(Math.max((int)gd.getNextNumber(), 0), 255);
+			setMaskBackground(Math.min(Math.max((int)gd.getNextNumber(), 0), 255));
 			iemaskBackground = (TextField)numericfields.elementAt(fieldCounter++);
 			iemaskBackground.setEnabled(mask);
 
@@ -1964,7 +1964,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Apply LUT
-		mp.setColorModel(Sholl_Utils.matlabJetColorMap(maskBackground));
+		mp.setColorModel(Sholl_Utils.matlabJetColorMap(getMaskBackground()));
 		//(new ContrastEnhancer()).stretchHistogram(mp, 0.35);
 		final double[] range = Tools.getMinMax(values);
 		mp.setMinAndMax(0, range[1]);
@@ -2537,6 +2537,29 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 			Recorder.recordString(recordString);
 		}
+	}
+
+	/**
+	 * Returns the background color of the Sholl mask image
+	 *
+	 * @return the gray value (8-bit scale) of the first entry of the LUT of the
+	 *         Sholl mask's LUT image
+	 * @see Sholl_Utils#matlabJetColorMap(int)
+	 */
+	public static int getMaskBackground() {
+		return maskBackground;
+	}
+
+	/**
+	 * Sets the background color of the Sholl mask
+	 *
+	 * @param grayLevel
+	 *            the gray value (8-bit scale) to be used as the first entry of
+	 *            the LUT of the Sholl mask image
+	 * @see Sholl_Utils#matlabJetColorMap(int)
+	 */
+	public static void setMaskBackground(int grayLevel) {
+		Sholl_Analysis.maskBackground = grayLevel;
 	}
 
 }
