@@ -40,7 +40,6 @@ import ij.plugin.ZProjector;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 import ij.process.ImageProcessor;
-import ij.process.ImageStatistics;
 import ij.process.LUT;
 import ij.process.ShortProcessor;
 import ij.text.TextPanel;
@@ -52,7 +51,6 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TextField;
@@ -167,7 +165,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
-	/* Advanced options that can be set using Sholl_Utils */
+	/* Advanced options that can be set using the API */
 	static boolean noPlots = false; // Exclude plots from output?
 	static boolean noTable = false; // Exclude detailed table from output?
 	static boolean plotLabels = true; // Describe fitted curves in plots?
@@ -492,7 +490,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (fitCurve)
 				fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
 			if (!noPlots) {
-				markPlotPoint(plotN, centroid, Color.RED);
+				Sholl_Utils.markPlotPoint(plotN, centroid, Color.RED);
 				savePlot(plotN, SHOLL_N);
 			}
 
@@ -781,7 +779,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		if (plot!=null && plotLabels)
-			makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
+			Sholl_Utils.makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
 		rt.show(SHOLLTABLE);
 		return fy;
 
@@ -2146,33 +2144,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return ip;
 	}
 
-	/**
-	 * Calculates the centroid of a non-self-intersecting closed polygon. It is
-	 * assumed that <code>xpoints</code> and <code>ypoints</code> have the same
-	 * size
-	 *
-	 * @param xpoints
-	 *            X coordinates of vertices
-	 * @param ypoints
-	 *            Y coordinates of vertices
-	 * @return the centroid {x,y} coordinates
-	 * @see <a
-	 *      href="http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon">Centroid
-	 *      of polygon </a>
-	 */
-	public static double[] baryCenter(final double[] xpoints, final double[] ypoints) {
-
-		double area = 0, sumx = 0, sumy = 0;
-		for (int i=1; i<xpoints.length; i++) {
-			final double cfactor = (xpoints[i-1]*ypoints[i]) - (xpoints[i]*ypoints[i-1]);
-			sumx += (xpoints[i-1] + xpoints[i]) * cfactor;
-			sumy += (ypoints[i-1] + ypoints[i]) * cfactor;
-			area += cfactor/2;
-		}
-		return new double[] { sumx/(6*area), sumy/(6*area) };
-
-	}
-
 	/** Retrieves the median of an array */
 	private static double getMedian(final double[] array) {
 
@@ -2253,7 +2224,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Ramification index (sampled)", ri);
 
 		// Calculate the 'center of mass' for the sampled curve (linear Sholl);
-		centroid = baryCenter(x, y);
+		centroid = Sholl_Utils.baryCenter(x, y);
 		rt.addValue("Centroid radius", centroid[0]);
 		rt.addValue("Centroid value", centroid[1]);
 
@@ -2434,118 +2405,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.drawLine(x1, y1, x2, y2);
 			plot.setLineWidth(1);
 
-			markPlotPoint(plot, new double[]{0, kIntercept}, color);
+			Sholl_Utils.markPlotPoint(plot, new double[]{0, kIntercept}, color);
 			if (plotLabels) {
 				final StringBuffer label = new StringBuffer();
 				label.append("R\u00B2= "+ IJ.d2s(kRSquared, 3));
 				label.append("\nk= "+ IJ.d2s(k, -2));
 				label.append("\nIntercept= "+ IJ.d2s(kIntercept,2));
-				makePlotLabel(plot, label.toString(), color);
+				Sholl_Utils.makePlotLabel(plot, label.toString(), color);
 			}
 
 		}
 
 	}
-
-	/**
-	 * Highlights a point on a plot without listing it on the Plot's table.
-	 *
-	 * @param plot
-	 *            Plot object
-	 * @param coordinates
-	 *            The coordinates of the point in calibrated (axes) coordinates
-	 * @param color
-	 *            Sets the drawing color. This will not affect the drawing color
-	 *            for the next objects to be be added to the plot
-	 */
-	public static void markPlotPoint(final Plot plot, final double[] coordinates,
-			final Color color) {
-
-		plot.setLineWidth(6); // default markSize: 5;
-		plot.setColor(color);
-		plot.drawLine(coordinates[0], coordinates[1], coordinates[0], coordinates[1]);
-
-		// restore defaults
-		plot.setLineWidth(1);
-		plot.setColor(Color.BLACK);
-
-	}
-
-	/**
-	 * Draws a label at the less crowded corner of an ImageJ plot. Height and
-	 * width of label is measured so that text remains within the plot's frame.
-	 * Text is added to the first free position in this sequence: NE, NW, SE,
-	 * SW.
-	 *
-	 * @param plot
-	 *            Plot object
-	 * @param label
-	 *            Label contents
-	 * @param color
-	 *            Foreground color of text. Note that this will also set the
-	 *            drawing color for the next objects to be be added to the plot
-	 */
-	public static void makePlotLabel(final Plot plot, final String label, final Color color) {
-
-		final ImageProcessor ip = plot.getProcessor();
-
-		int maxLength = 0; String maxLine = "";
-		final String[] lines = Tools.split(label, "\n");
-		for (int i = 0; i<lines.length; i++) {
-			final int length = lines[i].length();
-			if (length>maxLength)
-				{ maxLength = length; maxLine = lines[i]; }
-		}
-
-		final Font font = new Font("Helvetica", Font.PLAIN, PlotWindow.fontSize);
-		ip.setFont(font);
-		plot.setFont(font);
-		final FontMetrics metrics = ip.getFontMetrics();
-		final int textWidth = metrics.stringWidth(maxLine);
-		final int textHeight = metrics.getHeight() * lines.length;
-
-		final Rectangle r = plot.getDrawingFrame();
-		final int padding = 4; // space between label and axes
-		final int yTop = r.y + 1 + padding;
-		final int yBottom = r.y + r.height - textHeight - padding;
-		final int xLeft = r.x + 1 + padding;
-		final int xRight = r.x + r.width - textWidth - padding;
-
-		final double northEast = meanRoiValue(ip, xLeft, yTop, textWidth, textHeight);
-		final double northWest = meanRoiValue(ip, xRight, yTop, textWidth, textHeight);
-		final double southEast = meanRoiValue(ip, xLeft, yBottom, textWidth, textHeight);
-		final double southWest = meanRoiValue(ip, xRight, yBottom, textWidth, textHeight);
-		final double pos = Math.max(Math.max(northEast, northWest), Math.max(southEast,southWest));
-
-		ip.setColor(0);
-		plot.setColor(color);
-		// We'll draw the text so that multiple labels can be added without overlap
-		if (pos==northEast) {
-			ip.drawString(label, xLeft, yTop);
-			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yTop));
-		} else if (pos==northWest) {
-			ip.drawString(label, xRight, yTop);
-			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yTop));
-		} else if (pos==southEast) {
-			ip.drawString(label, xLeft, yBottom);
-			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yBottom));
-		} else {
-			ip.drawString(label, xRight, yBottom);
-			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yBottom));
-		}
-
-	}
-
-
-	/** Returns the mean value of a rectangular ROI */
-	private static double meanRoiValue(final ImageProcessor ip, final int x, final int y,
-			final int width, final int height) {
-
-		ip.setRoi(x, y, width, height);
-		return ImageStatistics.getStatistics(ip, Measurements.MEAN, null).mean;
-
-	}
-
 
 	/** Saves plot according to imgPath */
 	private static void savePlot(final Plot plot, final int shollChoice) {
@@ -2696,6 +2567,174 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	public static void setMaskBackground(int grayLevel) {
 		Sholl_Analysis.maskBackground = grayLevel;
+	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
+	 * tables will be displayed).
+	 *
+	 * @param noPlots
+	 *            If <code>true</code>, plugin will only output tables. If
+	 *            <code>false</code>, both tables and plots will be produced
+	 *            (the default)
+	 */
+	public static void setNoPlots(final boolean noPlots) {
+		Sholl_Analysis.noPlots = noPlots;
+	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output
+	 * (Summary table is still displayed).
+	 *
+	 * @param noTable
+	 *            If <code>true</code>, plugin will not output the
+	 *            "detailed table" containing all the retrieved profiles. Note
+	 *            that the Summary "Sholl Results" table is always displayed.
+	 *
+	 * @see #setNoPlots(boolean)
+	 */
+	public static void setNoTable(final boolean noTable) {
+		Sholl_Analysis.noTable = noTable;
+	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
+	 * plots.
+	 *
+	 * @param plotLabels
+	 *            If <code>true</code>, plotting labels will be added, otherwise
+	 *            they will be omitted
+	 */
+	public static void setPlotLabels(final boolean plotLabels) {
+		Sholl_Analysis.plotLabels = plotLabels;
+	}
+
+	/**
+	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
+	 * from fitted data, such as Nav and Nm.
+	 *
+	 * @param precision
+	 *            The precision value as a fraction of radius step size. Eg,
+	 *            <code>100</code> sets accuracy to radiusStepSize/100
+	 */
+	public static void setPrecision(final int precision) {
+		Sholl_Analysis.fMetricsPrecision = precision;
+	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setNoPlots(boolean) setNoPlots()} to be called by
+	 * IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
+	 * tables will be displayed). An error message is displayed in the IJ Log
+	 * window if <code>booleanString</code> can not be parsed. Usage example:
+	 * <code>call("Sholl_Utils.setNoPlots", "false");</code>
+	 * </p>
+	 *
+	 * @param booleanString
+	 *            If <code>"true"</code>, plugin will only output tables. If
+	 *            <code>"false"</code>, both tables and plots will be produced
+	 *            (the default)
+	 */
+	public static void setNoPlots(final String booleanString) {
+		if (validateBooleanString(booleanString))
+			Sholl_Analysis.noPlots = Boolean.valueOf(booleanString);
+	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setNoTable(boolean) setNoTable()} to be called by
+	 * IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output.
+	 * An error message is displayed in the IJ Log window if
+	 * <code>booleanString</code> can not be parsed. Usage example:
+	 * <code>call("Sholl_Utils.setNoTable", "false");</code>
+	 * </p>
+	 *
+	 * @param booleanString
+	 *            If <code>"true"</code>, plugin will not output the
+	 *            "detailed table" containing all the retrieved profiles. Note
+	 *            that the Summary "Sholl Results" table is always displayed.
+	 */
+	public static void setNoTable(final String booleanString) {
+		if (validateBooleanString(booleanString))
+			Sholl_Analysis.noTable = Boolean.valueOf(booleanString);
+	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setPlotLabels(boolean) setPlotLabels()} to be
+	 * called by IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
+	 * plots. An error message is displayed in the IJ Log window if
+	 * <code>booleanString</code> can not be parsed. Usage example:
+	 * <code>call("Sholl_Utils.setPlotLabels", "false");</code>
+	 * </p>
+	 *
+	 * @param booleanString
+	 *            If <code>"true"</code>, plotting labels will be added.
+	 */
+	public static void setPlotLabels(final String booleanString) {
+		if (validateBooleanString(booleanString))
+			Sholl_Analysis.plotLabels = Boolean.valueOf(booleanString);
+	}
+
+	/**
+	 * <p>
+	 * Alternative to {@link #setPrecision(int) setPrecision()} to be called by
+	 * IJ macros using the
+	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * built-in macro function
+	 * </p>
+	 *
+	 * <p>
+	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
+	 * from fitted data, such as Nav and Nm. An error message is displayed in
+	 * the IJ Log window if <code>intString</code> is invalid. Usage example:
+	 * <code>call("Sholl_Utils.setPrecision", "1000");</code>
+	 * </p>
+	 *
+	 * @param intString
+	 *            The string integer to set the precision in terms of radius
+	 *            step size. Eg, <code>"100"</code> sets accuracy to
+	 *            radiusStepSize/100
+	 */
+	public static void setPrecision(final String intString) {
+		if (validateIntString(intString))
+			Sholl_Analysis.fMetricsPrecision = Integer.parseInt(intString);
+	}
+
+	static boolean validateBooleanString(final String string) {
+		final boolean valid = string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false");
+		if (!valid)
+			IJ.log(">>> Sholl Utils: Not a valid option: '" + string + "'");
+		return valid;
+	}
+
+	static boolean validateIntString(final String string) {
+		boolean valid = true;
+		try {
+			Integer.parseInt(string);
+		} catch (final NumberFormatException e) {
+			valid = false;
+			IJ.log(">>> Sholl Utils: Not a valid option: '" + string + "'");
+		}
+		return valid;
 	}
 
 }
