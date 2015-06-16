@@ -54,6 +54,7 @@ public class Sholl_Utils implements PlugIn {
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 	private static final String DOC_URL = "http://fiji.sc/Sholl";
 
+	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
 	@Override
 	public void run(final String arg) {
 		if (arg.equalsIgnoreCase("about"))
