@@ -65,10 +65,10 @@ public class Sholl_Utils implements PlugIn {
 			applyJetLut();
 	}
 
-
 	/**
-	 * Returns the ddaC sample image in ./resources. Returns null if image
-	 * cannot be retrieved
+	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
+	 * 
+	 * @return ddaC image, or null if image cannot be retrieved
 	 */
 	public static ImagePlus sampleImage() {
 		final InputStream is = Sholl_Utils.class.getResourceAsStream("/resources/ddaC.tif");
@@ -92,11 +92,15 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/**
-	 * Returns an IndexColorModel similar to MATLAB's jet color map. An 8-bit
-	 * gray color specified by <code>backgroundGray</code> is used as the first
-	 * entry of the LUT. See this <a
-	 * href="https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306"
-	 * >thread</a> for a simplified version by Jerome Mutterer
+	 * Returns an IndexColorModel similar to MATLAB's jet color map.
+	 *
+	 * @param backgroundGray
+	 *            the gray value (8-bit scale) to be used as the first entry of
+	 *            the LUT.
+	 * @return The "Jet" LUT with the specified background entry
+	 * @see <a
+	 *      href="https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306">alternative
+	 *      version</a> by Jerome Mutterer
 	 */
 	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
 
@@ -150,7 +154,7 @@ public class Sholl_Utils implements PlugIn {
 		}
 	}
 
-	/** Displays an "about" info box */
+	/** Displays the Sholl's plugin "about" info box */
 	void showAbout() {
 		final String version = Sholl_Analysis.VERSION +" "+ BUILD;
 		final String summary = "Quantitative Sholl-based morphometry of untraced neuronal arbors";
@@ -183,7 +187,7 @@ public class Sholl_Utils implements PlugIn {
 			IJ.runPlugIn("ij.plugin.BrowserLauncher", SRC_URL);
 	}
 
-	/** Convers an integer to its ordinal (http://stackoverflow.com/a/6810409) */
+	/** Converts an integer to its ordinal (http://stackoverflow.com/a/6810409) */
 	static String ordinal(final int i) {
 		final String[] sufixes = new String[] { "th", "st", "nd", "rd", "th",
 				"th", "th", "th", "th", "th" };
@@ -302,9 +306,12 @@ public class Sholl_Utils implements PlugIn {
 
 	/**
 	 * Adds a functional URL to the last added message of a GenericDialog, i.e.,
-	 * the Label created by the last addMessage() call. Based on Stephan Preibisch's
-	 * Stitching plugin
-	 * @see <a href="https://raw.github.com/fiji/Stitching/master/src/main/java/stitching/CommonFunctions.java>github.com/fiji/Stitching/</a>
+	 * the Label created by the last addMessage() call. Based on Stephan
+	 * Preibisch's Stitching plugin
+	 * 
+	 * @see <a href=
+	 *      "https://raw.github.com/fiji/Stitching/master/src/main/java/stitching/CommonFunctions.java>github.com/fiji/Stitching/</a
+	 *      >
 	 */
 	static final void setClickabaleMsg(final GenericDialog gd, final String url, final Color color) {
 		final Component msgLabel = gd.getMessage();
@@ -340,7 +347,7 @@ public class Sholl_Utils implements PlugIn {
 	static final void addCitationUrl(final GenericDialog gd) {
 		gd.setInsets(10, 5, 0);
 		gd.addMessage("Please be so kind as to cite this program in your own\n"
-				+ "research: Ferreira et al. Nat Methods 11, 982–4 (2014)", null, Color.DARK_GRAY);
+				+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)", null, Color.DARK_GRAY);
 		setClickabaleMsg(gd, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html", Color.DARK_GRAY);
 
 	}
@@ -362,12 +369,12 @@ public class Sholl_Utils implements PlugIn {
 	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output
 	 * (Summary table is still displayed).
 	 *
-	 * @see {@link #setNoPlots(boolean)}
-	 *
 	 * @param noTable
 	 *            If <code>true</code>, plugin will not output the
 	 *            "detailed table" containing all the retrieved profiles. Note
 	 *            that the Summary "Sholl Results" table is always displayed.
+	 *
+	 * @see #setNoPlots(boolean)
 	 */
 	public static void setNoTable(final boolean noTable) {
 		Sholl_Analysis.noTable = noTable;
@@ -386,8 +393,8 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/**
-	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics from
-	 * fitted data, such as Nav and Nm.
+	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
+	 * from fitted data, such as Nav and Nm.
 	 *
 	 * @param precision
 	 *            The precision value as a fraction of radius step size. Eg,
@@ -410,7 +417,6 @@ public class Sholl_Utils implements PlugIn {
 	 * tables will be displayed). An error message is displayed in the IJ Log
 	 * window if <code>booleanString</code> can not be parsed. Usage example:
 	 * <code>call("Sholl_Utils.setNoPlots", "false");</code>
-	 *
 	 * </p>
 	 *
 	 * @param booleanString
