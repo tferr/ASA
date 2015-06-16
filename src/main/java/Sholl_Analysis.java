@@ -2146,17 +2146,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/** Retrieves the median of an array */
 	private static double getMedian(final double[] array) {
-
 		final int size = array.length;
-		final double[] sArray = array.clone();
-		Arrays.sort(sArray);
+		Arrays.sort(array);
 		final double median;
 		if (size % 2 == 0)
-			median = (sArray[size/2] + sArray[size/2 -1])/2;
+			median = (array[size/2] + array[size/2 -1])/2;
 		else
-			median = sArray[size/2];
+			median = array[size/2];
 		return median;
-
 	}
 
 	/** Returns the Sholl Summary Table populated with profile statistics */
