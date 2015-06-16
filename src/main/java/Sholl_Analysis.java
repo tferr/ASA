@@ -2087,6 +2087,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
+	 * Checks if image to be analyzed is valid.
+	 *
+	 * @param imp
+	 *            the image being analyzed
+	 * @return true, if valid (8/16 bit, non-composite)
+	 */
+	public boolean validateImage(final ImagePlus imp) {
+		return (imp != null && !imp.isComposite() && imp.getBitDepth() < 24);
+	}
+
+	/**
 	 * Checks if image is valid (segmented grayscale), sets validPath and
 	 * returns its ImageProcessor
 	 */
