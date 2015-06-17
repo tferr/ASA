@@ -11,6 +11,13 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
+* No major changes to report
+
+Release Builds
+--------------
+####Version 3.4.5 (June 2015)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18621.svg)](http://dx.doi.org/10.5281/zenodo.18621)
+
  * UI Improvements:
    * Redesign plot labels that were missing since IJ 1.49t
      [(#11)](https://github.com/tferr/ASA/issues/11)
@@ -22,13 +29,12 @@ Development Builds
      Riemann sum is now used to calculate definite integrals
  * Scripting improvements:
    * Several (advanced) options that are not present in the main dialog can now be set by calling
-     `Sholl_Utils`. For more details see [Advanced Options](http://fiji.sc/Sholl#Advanced_Options)
+     `Sholl_Utils`. For more details see the [Advanced Options](http://fiji.sc/Sholl#Advanced_Options)
      section of the manual.
+   * Improved Javadocs
+     [download](https://github.com/tferr/ASA/releases/download/3.4.5/Sholl_Analysis-3.4.5-javadoc.jar)
  * Minimum requirements: ImageJ 1.49t
 
-
-Release Builds
---------------
 ####Version 3.4.4 (March 2015)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](http://dx.doi.org/10.5281/zenodo.15913)
 
