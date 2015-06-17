@@ -29,8 +29,8 @@ Release Builds
      Riemann sum is now used to calculate definite integrals
  * Scripting improvements:
    * Several (advanced) options that are not present in the main dialog can now be set by calling
-     `Sholl_Utils`. For more details see the [Advanced Options](http://fiji.sc/Sholl#Advanced_Options)
-     section of the manual.
+     the `Sholl_Analysis` API. For more details see the
+     [Advanced Options](http://fiji.sc/Sholl#Advanced_Options) section of the manual.
    * Improved Javadocs
      [download](https://github.com/tferr/ASA/releases/download/3.4.5/Sholl_Analysis-3.4.5-javadoc.jar)
  * Minimum requirements: ImageJ 1.49t
