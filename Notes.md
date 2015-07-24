@@ -11,7 +11,9 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* No major changes to report
+* API (Javadocs) are now [online](http://tferr.github.io/ASA/apidocs/), and can be accessed using
+  _Help>About Sholl Analysis..._
+
 
 Release Builds
 --------------
@@ -32,7 +34,7 @@ Release Builds
      the `Sholl_Analysis` API. For more details see the
      [Advanced Options](http://fiji.sc/Sholl#Advanced_Options) section of the manual.
    * Improved Javadocs
-     [download](https://github.com/tferr/ASA/releases/download/3.4.5/Sholl_Analysis-3.4.5-javadoc.jar)
+     [(download)](https://github.com/tferr/ASA/releases/download/3.4.5/Sholl_Analysis-3.4.5-javadoc.jar)
  * Minimum requirements: ImageJ 1.49t
 
 ####Version 3.4.4 (March 2015)
