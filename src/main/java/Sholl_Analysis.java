@@ -989,7 +989,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
-		this.customizeButtons(gd, "Cf. Segmentation");
+		this.customizeButtons(gd, false, "Cf. Segmentation");
 
 		// Add listener and scroll bars. Update prompt and status bar before displaying it
 		gd.addDialogListener(this);
@@ -1017,11 +1017,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Adds a customized "Help" button to the specified dialog. A customized 3rd
 	 * action' button is also added if thirdButtonLabel is not null
 	 */
-	private void customizeButtons(final GenericDialog gd, final String thirdButtonLabel) {
-		if (thirdButtonLabel!=null)
+	private void customizeButtons(final GenericDialog gd,
+			final boolean customHelpLabel, final String thirdButtonLabel) {
+		if (thirdButtonLabel != null)
 			gd.enableYesNoCancel("OK", thirdButtonLabel);
 		gd.addHelp(isCSV ? URL + "#Importing" : URL);
-		gd.setHelpLabel("Online Help");
+		if (customHelpLabel) // Wide labels distort main prompt on mac w/ java 1.7+
+			gd.setHelpLabel("Online Help");
 	}
 
 	/** Displays a status bar message explaining why some dialog sections are disabled */
@@ -1416,7 +1418,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
 
-		this.customizeButtons(gd, "Import Other Data");
+		this.customizeButtons(gd, false, "Import Other Data");
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		Sholl_Utils.addScrollBars(gd);
@@ -2472,7 +2474,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 			gd.hideCancelButton();
 			if (extended)
-				this.customizeButtons(gd, (isCSV)?"Import Other Data":"Analyze Sample Image");
+				this.customizeButtons(gd, true, (isCSV)?"Import Other Data":"Analyze Sample Image");
 			gd.showDialog();
 			if (extended && !gd.wasOKed() && !gd.wasCanceled())
 				retrieveSampleData();

@@ -288,7 +288,7 @@ public class Sholl_Utils implements PlugIn {
 		scroll.setBackground(background);
 		scroll.add(newPane);
 		scroll.validate();
-		scroll.setScrollPosition(0,0);
+		scroll.setScrollPosition(0,0); //TODO this does not seem to work with java 6, mac 10.9
 
 		// Create an "awt border" around the scrollpanel in cases where such border is absent
 		// Platforms tested: Ubuntu: Open JDK7,8, Windows XP: Sun JDK7, Mac OS: Sun JDK7,8
