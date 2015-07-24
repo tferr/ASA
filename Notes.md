@@ -11,8 +11,11 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* API (Javadocs) are now [online](http://tferr.github.io/ASA/apidocs/), and can be accessed using
-  _Help>About Sholl Analysis..._
+* API (Javadocs) are now [online](http://tferr.github.io/ASA/apidocs/) (using a static
+  [GitHub page](http://tferr.github.io/ASA/)), and can be accessed using _Help>About Plugins>
+  About Sholl Analysis..._
+* More UI tweaks to ensure the dialog prompts are displayed properly in Mac OS with Java 1.7 and
+  higher
 
 
 Release Builds
