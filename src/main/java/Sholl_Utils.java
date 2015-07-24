@@ -184,13 +184,15 @@ public class Sholl_Utils implements PlugIn {
 		gd.addMessage("Special Thanks", boldf);
 		gd.setInsets(0, 20, 0);
 		gd.addMessage(thanks, plainf);
-		gd.enableYesNoCancel("Browse Documentation", "Browse Source Code");
-		gd.hideCancelButton();
+		gd.enableYesNoCancel("API", "Source Code");
+		gd.addHelp(DOC_URL);
+		gd.setHelpLabel("User Manual");
+		gd.setCancelLabel("Dismiss");
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
 		else if (gd.wasOKed())
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", DOC_URL);
+			IJ.runPlugIn("ij.plugin.BrowserLauncher", "http://tferr.github.io/ASA/apidocs/");
 		else
 			IJ.runPlugIn("ij.plugin.BrowserLauncher", SRC_URL);
 	}
