@@ -46,6 +46,14 @@
 		<tag>HEAD</tag>
 		<url>https://github.com/tferr/ASA</url>
 	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/tferr/ASA/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://jenkins.imagej.net/job/Sholl-Analysis/</url>
+	</ciManagement>
 
 	<repositories>
 		<!-- NB: for project parent -->
@@ -66,4 +74,5 @@
 			<artifactId>fiji-lib</artifactId>
 		</dependency>
 	</dependencies>
+
 </project>
