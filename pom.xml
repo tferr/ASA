@@ -23,23 +23,41 @@
 
 	<developers>
 		<developer>
-			<id>tom</id>
-			<name>Tom Maddock</name>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-			</roles>
-		</developer>
-		<developer>
 			<id>tferr</id>
 			<name>Tiago Ferreira</name>
 			<email>tiagoalvespedrosa@gmail.com</email>
 			<organization>McGill</organization>
 			<roles>
+				<role>lead</role>
 				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
 			</roles>
 		</developer>
 	</developers>
+	<contributors>
+		<contributor>
+			<name>Tom Maddock</name>
+			<roles><role>founder</role></roles>
+		</contributor>
+		<contributor>
+			<name>Mark Hiner</name>
+			<url>http://imagej.net/User:Hinerm</url>
+			<properties><id>hinerm</id></properties>
+		</contributor>
+		<contributor>
+			<name>Curtis Rueden</name>
+			<url>http://imagej.net/User:Rueden</url>
+			<properties><id>ctrueden</id></properties>
+		</contributor>
+		<contributor>
+			<name>Johannes Schindelin</name>
+			<url>http://imagej.net/User:Schindelin</url>
+			<properties><id>dscho</id></properties>
+		</contributor>
+	</contributors>
 
 	<scm>
 		<connection>scm:git:git://github.com/tferr/ASA</connection>
