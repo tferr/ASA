@@ -66,5 +66,4 @@
 			<artifactId>fiji-lib</artifactId>
 		</dependency>
 	</dependencies>
-
 </project>
