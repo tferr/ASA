@@ -954,9 +954,27 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.setInsets(10, 0, 2);
 		gd.addMessage("III. Descriptors and Curve Fitting:", headerFont);
 		Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting", Color.BLACK);
-		gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
-		gd.addNumericField("#_Primary branches", primaryBranches, 0);
-		gd.setInsets(0, 2*xIndent, 0);
+		gd.addNumericField(" Enclosing radius cutoff", enclosingCutOff, 0, 4, "intersection(s)");
+
+		// We'll use the "units" label of the GenericDialog's numeric field to
+		// provide some feedback on the usage of multi-point counters
+		// (http://imagej.net/Sholl#InitialROIs). This is obviously extremely
+		// hacky, but we are already at the limit of customization allowed by
+		// GenericDialogs
+		final String mpTip = (primaryFromPointRoi)
+				? "Multi-point [2-" + multipointCount + "] count: " + String.valueOf((int) primaryBranches)
+				: "(Multi-point counter absent)";
+		gd.addNumericField("#_Primary branches", primaryBranches, 0, 4, mpTip);
+		if (!IJ.macroRunning()) {
+			try { // Access "units" label
+				final Panel p = (Panel) gd.getComponent(gd.getComponentCount() - 1);
+				final Label l = (Label) p.getComponent(1);
+				l.setForeground(Color.GRAY);
+			} catch (final Exception ignored) {
+			}
+		}
+
+		gd.setInsets(0, 2 * xIndent, 0);
 		gd.addCheckbox("Infer from starting radius", inferPrimary);
 		gd.setInsets(6, xIndent, 0);
 		gd.addCheckbox("Fit profile and compute descriptors", fitCurve);
