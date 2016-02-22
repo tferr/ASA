@@ -53,14 +53,14 @@ import java.io.InputStream;
  * Auxiliary commands and routines for {@link Sholl_Analysis}
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
- * @see <a href="http://fiji.sc/Sholl">http://fiji.sc/Sholl</a>
+ * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  * @author Tiago Ferreira
  */
 public class Sholl_Utils implements PlugIn {
 
-	private static final String BUILD = "2015.06";
+	private static final String BUILD = "2016.03";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
-	private static final String DOC_URL = "http://fiji.sc/Sholl";
+	private static final String DOC_URL = "http://imagej.net/Sholl";
 
 	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
 	@Override

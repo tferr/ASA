@@ -68,14 +68,14 @@ import java.util.Vector;
  *
  * @author Tiago Ferreira (v2-3, 2010-2016), Tom Maddock (v1, 2005)
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
- * @see <a href="http://fiji.sc/Sholl">http://fiji.sc/Sholl</a>
+ * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  */
 public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
 	public static final String VERSION = "3.4.6-DEV";
-	private static final String URL = "http://fiji.sc/Sholl";
+	private static final String URL = "http://imagej.net/Sholl";
 
 	/* Sholl Type Definitions */
 	private static final String[] SHOLL_TYPES = { "Linear", "Linear-norm", "Semi-log", "Log-log" };
