@@ -372,7 +372,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Not a proper ROI type
 			} else {
-				sError("Straight Line or Point selection required.");
+				sError("Straight Line, Point or Multi-point selection required.");
 				return;
 			}
 
@@ -1140,9 +1140,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>").append(String.valueOf(this.ip.isInvertedLut())).append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Analysis options:</b><br>");
-		sb.append("&emsp;Orthogonal analysis allowed?&ensp<tt>").append(String.valueOf(orthoChord)).append("</tt><br>");
+		sb.append("&emsp;Orthogonal restriction allowed?&ensp<tt>").append(String.valueOf(orthoChord)).append("</tt><br>");
 		sb.append("&emsp;Repetead measures allowed?&ensp<tt>").append(String.valueOf(!is3D)).append("</tt><br>");
-		sb.append("&emsp;Noise supression allowed?&ensp<tt>").append(String.valueOf(is3D)).append("</tt>");
+		sb.append("&emsp;Noise supression allowed?&ensp<tt>").append(String.valueOf(is3D)).append("</tt><br>");
+		sb.append("&emsp;Multi-point ROIs marking primary branches:&ensp<tt>")
+				.append(String.valueOf(Math.max(0, multipointCount - 1))).append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Other settings:</b><br>");
 		sb.append("&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>").append(String.valueOf(Prefs.blackBackground)).append("</tt>");
