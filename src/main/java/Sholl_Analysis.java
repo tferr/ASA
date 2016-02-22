@@ -97,7 +97,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int normChoice;
 
 	/* Ramification Indices */
-	private static int primaryBranches = 4;
+	private static double primaryBranches = Double.NaN;
 	private static boolean inferPrimary;
 
 	/* Curve Fitting, Results and Descriptors */
@@ -718,7 +718,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			double cv = 0d; // Polyn. regression: ordinate of maximum
 			double cr = 0d; // Polyn. regression: abscissa of maximum
 			double mv = 0d; // Polyn. regression: Average value
-			double rif = 0d; // Polyn. regression: Ramification index
+			double rif = Double.NaN; // Polyn. regression: Ramification index
 
 			// Get coordinates of cv, the local maximum of polynomial. We'll
 			// iterate around the index of highest fitted value to retrieve values
@@ -758,7 +758,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 			// Calculate the "fitted" ramification index
-			rif = (inferPrimary || primaryBranches==0) ? cv/y[0] : cv/primaryBranches;
+			if (inferPrimary)
+				rif = cv / y[0];
+			else if ( !(primaryBranches == 0 || Double.isNaN(primaryBranches)) )
+				rif = cv / primaryBranches;
 
 			// Register parameters
 			plotLabel.append("\nNm= "+ IJ.d2s(cv, 2));
@@ -1178,7 +1181,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			is3D = gd.getNextBoolean();
 			checkboxCounter++;
 			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
-			primaryBranches = (int)Math.max(1, gd.getNextNumber());
+			primaryBranches = gd.getNextNumber();
+			if (primaryBranches<=0)
+				primaryBranches = Double.NaN;
 			fieldCounter = 1;
 			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
@@ -1257,7 +1262,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// Part III: Indices and Curve Fitting
 			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
 			fieldCounter++;
-			primaryBranches = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
+			primaryBranches = gd.getNextNumber();
+			if (primaryBranches<=0)
+				primaryBranches = Double.NaN;
 			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
 			ieinferPrimary = (Checkbox)checkboxes.elementAt(checkboxCounter++);
@@ -2202,7 +2209,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Calculate ramification index, the maximum of intersection divided by the n.
 		// of primary branches, assumed to be the n. intersections at starting radius
-		final double ri = (inferPrimary || primaryBranches==0) ? maxIntersect / y[0] : maxIntersect / primaryBranches;
+		final double ri;
+		if (inferPrimary)
+			ri = maxIntersect / y[0];
+		else if ( !(primaryBranches == 0 || Double.isNaN(primaryBranches)) )
+			ri = maxIntersect / primaryBranches;
+		else
+			ri = Double.NaN;
 
 		rt.incrementCounter();
 		rt.setPrecision(getPrecision());
@@ -2218,8 +2231,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Radius step", stepRadius);
 		rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
 		rt.addValue("Enclosing radius cutoff", enclosingCutOff);
-		rt.addValue("I branches (user)", (inferPrimary || primaryBranches==0) ? Double.NaN : primaryBranches);
-		rt.addValue("I branches (inferred)", (inferPrimary || primaryBranches==0) ? y[0] : Double.NaN);
+		rt.addValue("I branches (user)", (inferPrimary) ? Double.NaN : primaryBranches);
+		rt.addValue("I branches (inferred)", (inferPrimary) ? y[0] : Double.NaN);
 		rt.addValue("Intersecting radii", size);
 		rt.addValue("Sum inters.", sumY);
 
