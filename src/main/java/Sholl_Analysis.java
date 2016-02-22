@@ -1,4 +1,4 @@
-/* Copyright 2010-2015 Tiago Ferreira, 2005 Tom Maddock
+/* Copyright 2010-2016 Tiago Ferreira, 2005 Tom Maddock
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ import java.util.Vector;
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
  * directly from bitmap images.
  *
- * @author Tiago Ferreira (v2-3, 2010-2015), Tom Maddock (v1, 2005)
+ * @author Tiago Ferreira (v2-3, 2010-2016), Tom Maddock (v1, 2005)
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://fiji.sc/Sholl">http://fiji.sc/Sholl</a>
  */
