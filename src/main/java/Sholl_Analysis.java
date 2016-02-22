@@ -99,6 +99,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Ramification Indices */
 	private static double primaryBranches = Double.NaN;
 	private static boolean inferPrimary;
+	private static boolean primaryFromPointRoi = false;
+	private static int multipointCount;
 
 	/* Curve Fitting, Results and Descriptors */
 	private static boolean fitCurve = true;
@@ -320,10 +322,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			z = img.getCurrentSlice();
 
-			// Get parameters from current ROI. Prompt for one if none exists
+			// Deal with ROI defining center of analysis
 			Roi roi = img.getRoi();
 			final boolean validRoi = roi!=null && (roi.getType()==Roi.LINE || roi.getType()==Roi.POINT);
 
+			// If possible, prompt for a new ROI if nothing appropriate was found
 			if (!IJ.macroRunning() && !validRoi) {
 				img.killRoi();
 				Toolbar.getInstance().setTool("line");
@@ -339,11 +342,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				roi = img.getRoi();
 			}
 
-			// Initialize angle of the line roi (if any). It will become positive
-			// if a line (chord) exists.
-			double chordAngle = -1.0;
-
-			// Line: Get center coordinates, length and angle of chord
+			// Straight line: get center coordinates, end radius and angle of chord.
+			double chordAngle = -1.0; // Initialize line angle
 			if (roi!=null && roi.getType()==Roi.LINE) {
 
 				final Line chord = (Line) roi;
@@ -353,12 +353,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				chordAngle = Math.abs(chord.getAngle(x, y, chord.x2, chord.y2));
 
 			// Point: Get center coordinates (x,y)
+			primaryFromPointRoi = false;
+			multipointCount = 0;
 			} else if (roi != null && roi.getType() == Roi.POINT) {
 
 				final PointRoi point = (PointRoi) roi;
 				final Rectangle rect = point.getBounds();
 				x = rect.x;
 				y = rect.y;
+
+				// If multi-point, use point count to specify # Primary branches
+				multipointCount = point.getCount(point.getCounter());
+				if (multipointCount > 1) {
+					primaryBranches = multipointCount - 1;
+					inferPrimary = false;
+					primaryFromPointRoi = true;
+				}
 
 			// Not a proper ROI type
 			} else {
