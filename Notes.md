@@ -1,7 +1,7 @@
 ##Release Notes for [Sholl Analysis](http://fiji.sc/Sholl)
 
 The latest [release build](#release-builds) is available through the Fiji Updater or from the [plugin's
-webpage](http://fiji.sc/Sholl). [Development builds](#development-builds) may have new
+webpage](http://imagej.net/Sholl). [Development builds](#development-builds) may have new
 features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. They are
 pushed to the Fiji Updater once new features mature and no major issues are found. Pre-compiled
 binaries (and respective sources) of the versions listed here can be downloaded from
@@ -11,15 +11,23 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* API (Javadocs) are now [online](http://tferr.github.io/ASA/apidocs/) (using a static
-  [GitHub page](http://tferr.github.io/ASA/)), and can be accessed using _Help>About Plugins>
-  About Sholl Analysis..._
-* More UI tweaks to ensure the dialog prompts are displayed properly in Mac OS with Java 1.7 and
-  higher
+
 
 
 Release Builds
 --------------
+####Version 3.4.6 (February 2016)
+* Primary branches can be retrieved from [multi-point counters](http://imagej.net/Sholl#Startup_ROI)
+* Ramification indices (RI) are only calculated when explicitly requested. To disable RI calculations
+  deselect the _Infer from starting radius_ checkbox <u>and</u> invalidate the _# Primary branches_
+  field by setting it to `0` or `NaN`
+* API (Javadocs) are now [online](http://tferr.github.io/ASA/apidocs/) (using a static
+  [GitHub page](http://tferr.github.io/ASA/)), and can be accessed using _Help>About Plugins>
+  About Sholl Analysis..._
+* More UI tweaks to ensure dialog prompts are more informative and display properly in Mac OS with
+  Java 1.8
+
+
 ####Version 3.4.5 (June 2015)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18621.svg)](http://dx.doi.org/10.5281/zenodo.18621)
 
@@ -216,6 +224,7 @@ Release Builds
 
 Wish List
 ---------
+  * ~~Allow manual counting of primary branches~~ ([Version 3.4.6](#version-346-february-2016))
   * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-july-2014))
   * Restrict analysis to area ROIs (rather than hemicircles/spheres?)
   * Obtain a mask for every chosen method (slices of an ImageStack?)
