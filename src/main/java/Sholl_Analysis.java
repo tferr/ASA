@@ -194,8 +194,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImageProcessor ip;
 
 
-	/** See {@link fiji.Debug#run(java.lang.String, java.lang.String)} */
-	public static void main(final String[] args) { Debug.run("Sholl Analysis...",""); }
+	/**
+	 * Debug helper
+	 * 
+	 * @param args
+	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
+	 */
+	public static void main(final String[] args) {
+		Debug.run("Sholl Analysis...", "");
+	}
 
 	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
 	@Override
@@ -1655,8 +1662,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the number of samples to be retrieved at each radius
 	 * @param bintype
 	 *            flag for integration of multiple samples:
-	 *            {@value #BIN_AVERAGE}, {@value #BIN_Median} or
-	 *            {@value #BIN_Mode}
+	 *            {@value #BIN_AVERAGE}, {@value #BIN_MEDIAN} or
+	 *            {@value #BIN_MODE}
 	 * @param ip
 	 *            ImageProcessor of analyzed image
 	 * @return intersection counts (the linear profile of sampled data)
@@ -1801,7 +1808,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param ip
 	 *            the image being analyzed
 	 * @return the number of detected clusters
-	 * @see {@link #countSinglePixels}
+	 * @see #countSinglePixels
 	 */
 	static public int countGroups(final int[][] points, final ImageProcessor ip) {
 

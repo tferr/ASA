@@ -106,9 +106,9 @@ public class Sholl_Utils implements PlugIn {
 	 *            the gray value (8-bit scale) to be used as the first entry of
 	 *            the LUT.
 	 * @return The "Jet" LUT with the specified background entry
-	 * @see <a
-	 *      href="https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306">alternative
-	 *      version</a> by Jerome Mutterer
+	 * @see <a href=
+	 *      "https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306">Jerome
+	 *      Mutterer's alternative</a>
 	 */
 	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
 
