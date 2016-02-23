@@ -58,7 +58,7 @@ import java.io.InputStream;
  */
 public class Sholl_Utils implements PlugIn {
 
-	private static final String BUILD = "2016.03";
+	private static final String BUILD = "2016.02";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 	private static final String DOC_URL = "http://imagej.net/Sholl";
 

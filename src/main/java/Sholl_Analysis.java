@@ -76,7 +76,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	public static final String VERSION = "3.4.6-DEV";
+	public static final String VERSION = "3.4.6";
 	private static final String URL = "http://imagej.net/Sholl";
 
 	/* Sholl Type Definitions */
@@ -967,7 +967,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// We'll use the "units" label of the GenericDialog's numeric field to
 		// provide some feedback on the usage of multi-point counters
-		// (http://imagej.net/Sholl#InitialROIs). This is obviously extremely
+		// (http://imagej.net/Sholl#Startup_ROI). This is obviously extremely
 		// hacky, but we are already at the limit of customization allowed by
 		// GenericDialogs
 		final String mpTip = (primaryFromPointRoi)
