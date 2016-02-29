@@ -76,7 +76,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	public static final String VERSION = "3.4.6";
+	public static final String VERSION = "3.4.7-DEV";
 	private static final String URL = "http://imagej.net/Sholl";
 
 	/* Sholl Type Definitions */

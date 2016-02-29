@@ -11,7 +11,8 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-
+####Version 3.4.7
+* No major changes to report
 
 
 Release Builds
