@@ -1,3 +1,4 @@
+package sholl;
 /* Copyright 2010-2016 Tiago Ferreira, 2005 Tom Maddock
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,6 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+import java.awt.AWTEvent;
+import java.awt.Checkbox;
+import java.awt.Choice;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.TextField;
+import java.awt.event.KeyEvent;
+import java.awt.image.IndexColorModel;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
 
 import fiji.Debug;
 import ij.IJ;
@@ -45,24 +64,6 @@ import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 import ij.util.Tools;
-
-import java.awt.AWTEvent;
-import java.awt.Checkbox;
-import java.awt.Choice;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.TextField;
-import java.awt.event.KeyEvent;
-import java.awt.image.IndexColorModel;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -1038,8 +1039,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		showStartupTooltip();
 		if (loc!=null)
 			gd.setLocation(loc);
-		gd.showDialog();
 
+		gd.showDialog();
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
@@ -1108,7 +1109,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * message while highlighting the arbor to remember the user that highlighted
 	 * pixels are the ones to be measured
 	 */
-	private void offlineHelp(final GenericDialog parentDialog) {
+	void offlineHelp(final GenericDialog parentDialog) {
 
 		// remember image LUT
 		final LUT lut = this.ip.getLut();

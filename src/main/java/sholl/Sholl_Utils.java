@@ -1,3 +1,4 @@
+package sholl;
 /* Copyright 2010-2016 Tiago Ferreira
  *
  * This program is free software: you can redistribute it and/or modify
