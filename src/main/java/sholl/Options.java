@@ -6,6 +6,7 @@ import fiji.Debug;
 import ij.Prefs;
 import ij.gui.GenericDialog;
 import ij.plugin.PlugIn;
+import ij.plugin.frame.Recorder;
 
 public class Options implements PlugIn {
 
@@ -185,6 +186,8 @@ public class Options implements PlugIn {
 			Prefs.set(METRICS_KEY, currentMetrics);
 			setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
 		} else {
+			if (Recorder.record)
+				Recorder.recordOption("reset");
 			resetOptions();
 		}
 	}
