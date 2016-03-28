@@ -20,12 +20,16 @@ import java.awt.Checkbox;
 import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +37,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.UIManager;
 
 import fiji.Debug;
 import ij.IJ;
@@ -1014,6 +1022,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		dialogItemChanged(gd, null);
 		showStartupTooltip();
 
+		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.showScrollableDialog();
 		if (gd.wasCanceled()) {
 			return false;
@@ -1433,6 +1442,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
 
+		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		showStartupTooltip();
@@ -2167,6 +2177,69 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		return ip;
+	}
+
+	/** Creates optionsMenu */
+	JPopupMenu createOptionsMenu(final GenericDialog gd) {
+		final JPopupMenu popup = new JPopupMenu();
+		JMenuItem mi;
+		if (isCSV) {
+			mi = new JMenuItem("Analyze Other Data...");
+			mi.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
+					gd.dispose();
+					run("csv");
+				}
+			});
+			popup.add(mi);
+		} else {
+			mi = new JMenuItem("Cf. Segmentation");
+			mi.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					offlineHelp(gd);
+				}
+			});
+			popup.add(mi);
+		}
+		mi = new JMenuItem("Options...");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new Options().run("");
+				if (Recorder.record) {
+					Recorder.recordString(
+							"// To record the \"More\u00bb Options...\" command run \"Sholl>Metrics & Options...\"\n");
+					Recorder.setCommand((isCSV) ? "Sholl Analysis (Tabular Data)..." : "Sholl Analysis...");
+				}
+			}
+		});
+		popup.add(mi);
+		popup.addSeparator();
+		mi = new JMenuItem(isCSV ? "Analyze image..." : "Analyze Tabular Data...");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
+				gd.dispose();
+				run(isCSV ? "" : "csv");
+			}
+		});
+		popup.add(mi);
+		popup.addSeparator();
+		mi = new JMenuItem("Online documentation");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				IJ.runPlugIn("ij.plugin.BrowserLauncher", isCSV ? URL + "#Importing" : URL);
+			}
+		});
+		popup.add(mi);
+		mi = new JMenuItem("About...");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				IJ.runPlugIn("sholl.Sholl_Utils", "about");
+			}
+		});
+		popup.add(mi);
+		return popup;
 	}
 
 	/** Retrieves the median of an array */
