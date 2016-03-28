@@ -38,6 +38,7 @@ public class Options implements PlugIn {
 	final static int UNSET_PREFS = -1;
 	static int currentMetrics = UNSET_PREFS;
 	static int maskBackground = UNSET_PREFS;
+	static String commentString = null;
 
 	/**
 	 * Debug helper
@@ -81,10 +82,23 @@ public class Options implements PlugIn {
 		maskBackground = grayLevel;
 	}
 
+	public static String getCommentString() {
+		if (commentString == null)
+			commentString = Prefs.getString(METRICS_KEY + ".comment", null);
+		return commentString;
+	}
+
+	void setCommentString(final String comment) {
+		Prefs.set(METRICS_KEY + ".comment", comment);
+		commentString = comment;
+	}
+
 	void resetOptions() {
 		Prefs.set(METRICS_KEY, null);
+		Prefs.set(METRICS_KEY+ ".comment", null);
 		Prefs.set(MASK_KEY, null);
 		currentMetrics = UNSET_PREFS;
+		commentString = null;
 		maskBackground = UNSET_PREFS;
 	}
 
@@ -161,13 +175,19 @@ public class Options implements PlugIn {
 
 		final GenericDialog gd = new GenericDialog("Sholl Metrics and Options");
 		final Font font = new Font("SansSerif", Font.BOLD, 12);
+
+		// Metrics (columns of Sholl Results table)
 		gd.setInsets(0, 0, 0);
 		gd.addMessage("Include in Sholl Results:", font);
 		gd.setInsets(0, 0, 0);
 		gd.addCheckboxGroup(8, 2, labels, states);
+		gd.addStringField("Append comment:", getCommentString(), 20);
+
+		// Intersections mask
 		gd.setInsets(15, 0, 0);
 		gd.addMessage("Intersections mask:", font);
-		gd.addSlider("  Background (grayscale)", 0, 255, getMaskBackground());
+		gd.addSlider("  Background (grayscale):", 0, 255, getMaskBackground());
+
 		gd.addHelp("http://imagej.net/Sholl_Analysis#Metrics");
 		gd.enableYesNoCancel("OK", "Reset to Defaults");
 		gd.showDialog();
@@ -184,6 +204,7 @@ public class Options implements PlugIn {
 					currentMetrics &= ~items[i];
 			}
 			Prefs.set(METRICS_KEY, currentMetrics);
+			setCommentString(gd.getNextString());
 			setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
 		} else {
 			if (Recorder.record)
