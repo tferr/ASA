@@ -63,7 +63,7 @@ public class Options implements PlugIn {
 	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
 	 */
 	public static void main(final String[] args) {
-		Debug.run("Sholl Options...", "");
+		Debug.run("Metrics & Options...", "");
 	}
 
 	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
