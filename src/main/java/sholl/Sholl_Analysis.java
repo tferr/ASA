@@ -88,7 +88,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Plugin Information */
 	/** The Plugin's version */
 	public static final String VERSION = "3.4.7-DEV";
-	private static final String URL = "http://imagej.net/Sholl";
+	private static final String URL = "http://imagej.net/Sholl_Analysis";
 
 	/* Sholl Type Definitions */
 	private static final String[] SHOLL_TYPES = { "Linear", "Linear-norm", "Semi-log", "Log-log" };
