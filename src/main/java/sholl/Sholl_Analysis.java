@@ -372,7 +372,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Show the plugin dialog: Update parameters with user input and
 			// find out if analysis will be restricted to a hemicircle/hemisphere
-			if (!bitmapPrompt(chordAngle, is3D, null)) {
+			if (!bitmapPrompt(chordAngle, is3D)) {
 
 				// Did the user press Alt while dismissing bitmapPrompt?
 				if (IJ.altKeyDown() && !IJ.macroRunning() &&
@@ -893,12 +893,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * Creates the main dialog (csvPrompt imports tabular data). Returns false if
 	 * dialog was canceled or dialogItemChanged() if dialog was OKed. 
-	 * 
-	 * NB: If no method is chosen (which disables the OK button) and offlineHelp()
-	 * is used, the OK button will become available when the HTMLDialog is dismissed.
-	 * FIX? (this seems minor, as it has no consequences...)
 	 */
-	private boolean bitmapPrompt(final double chordAngle, final boolean is3D, final Point loc) {
+	private boolean bitmapPrompt(final double chordAngle, final boolean is3D) {
 
 		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION);
 
@@ -1012,14 +1008,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
-		this.customizeButtons(gd, false, "Cf. Segmentation");
 
 		// Add listener and scroll bars. Update prompt and status bar before displaying it
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		showStartupTooltip();
-		if (loc!=null)
-			gd.setLocation(loc);
 
 		gd.showScrollableDialog();
 		if (gd.wasCanceled()) {
@@ -1027,11 +1020,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else if (gd.wasOKed()) {
 			improveRecording();
 			return dialogItemChanged(gd, null);
-		} else { // User pressed the 3rd ("No") button
-			offlineHelp(gd);
-			// TODO Find a more robust way of ignoring previous recordings
-			if (Recorder.record) Recorder.setCommand("Sholl Analysis...");
-			return bitmapPrompt(chordAngle, is3D, gd.getLocation());
+		} else { // User pressed any other button
+			return false;
 		}
 	}
 
@@ -1443,7 +1433,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		}
 
-		this.customizeButtons(gd, false, "Import Other Data");
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		showStartupTooltip();
@@ -1454,8 +1443,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		else if (gd.wasOKed()) {
 			improveRecording();
 			return dialogItemChanged(gd, null);
-		} else { // User pressed the 3rd ("No") button
-			retrieveSampleData();
+		} else {
 			return false;
 		}
 	}
