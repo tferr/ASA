@@ -1015,12 +1015,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Save results in image directory", save);
 			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
+		} else {
+			gd.setInsets(0, xIndent, 0);
+			gd.addMessage("Saving options disabled. Image is not saved locally...", null,
+					gd.getDisabledComponentColor());
 		}
 
 		// Add listener and scroll bars. Update prompt and status bar before displaying it
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
-		showStartupTooltip();
 
 		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.showScrollableDialog();
@@ -1046,15 +1049,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (customHelpLabel) // Wide labels distort main prompt on mac w/ java 1.7+
 			gd.setHelpLabel("Online Help");
 	}
-
-	/** Displays a status bar message explaining why some dialog sections are disabled */
-	private void showStartupTooltip() {
-		if (validPath)
-			IJ.showStatus("Saving path: "+ imgPath);
-		else
-			IJ.showStatus("NB: Saving options disabled. Path of dataset unknown...");
-	}
-
 	/** Applies "Cf. Segmentation" LUT */
 	private void applySegmentationLUT() {
 
@@ -1440,12 +1434,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Save results in directory of imported profile", save);
 			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
+		} else {
+			gd.setInsets(0, xIndent, 0);
+			gd.addMessage("Saving options disabled. Path of data unknow...", null,
+					gd.getDisabledComponentColor());
 		}
 
 		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
-		showStartupTooltip();
 		gd.showScrollableDialog();
 
 		if (gd.wasCanceled())
