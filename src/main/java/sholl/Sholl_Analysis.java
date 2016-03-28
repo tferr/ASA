@@ -221,7 +221,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else
 			img = WindowManager.getCurrentImage();
 		final Calibration cal;
-		isCSV = IJ.altKeyDown();
+		isCSV = IJ.altKeyDown() || arg.equalsIgnoreCase("csv");
 
 		if (isCSV) {
 
