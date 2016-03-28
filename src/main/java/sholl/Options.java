@@ -91,9 +91,9 @@ public class Options implements PlugIn {
 	void promptForOptions() {
 
 		currentMetrics = getMetrics();
-		final String[] labels = new String[17];
-		final int[] items = new int[17];
-		final boolean[] states = new boolean[17];
+		final String[] labels = new String[16];
+		final int[] items = new int[16];
+		final boolean[] states = new boolean[16];
 
 		items[0] = DIRECTORY;
 		labels[0] = "Image directory";
