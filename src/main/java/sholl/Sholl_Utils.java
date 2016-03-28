@@ -15,6 +15,18 @@ package sholl;
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.image.IndexColorModel;
+import java.io.InputStream;
+
+import javax.swing.UIManager;
+
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
@@ -24,30 +36,12 @@ import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.io.Opener;
 import ij.measure.Measurements;
-import ij.plugin.BrowserLauncher;
+import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.Tools;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Panel;
-import java.awt.Rectangle;
-import java.awt.ScrollPane;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.IndexColorModel;
-import java.io.InputStream;
+import sholl.gui.EnhancedGenericDialog;
 
 
 /**

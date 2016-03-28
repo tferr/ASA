@@ -23,7 +23,6 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Label;
 import java.awt.Panel;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
