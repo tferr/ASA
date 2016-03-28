@@ -348,4 +348,29 @@ public class Sholl_Utils implements PlugIn {
 
 	}
 
+	/** Checks if table in the "Results" window contains valid data */
+	static boolean validResultsTable() {
+		final ResultsTable rt = ResultsTable.getResultsTable();
+		return (ResultsTable.getResultsWindow() != null && rt != null && rt.getCounter() != 0);
+	}
+
+
+	/**
+	 * Retrieves text from the system clipboard.
+	 *
+	 * @return the text contents of the clipboard or an empty string if no text
+	 *         could be retrieved
+	 */
+	static String getClipboardText() {
+		String text = "";
+		try {
+			final Toolkit toolkit = Toolkit.getDefaultToolkit();
+			final Clipboard clipboard = toolkit.getSystemClipboard();
+			text = (String)clipboard.getData(DataFlavor.stringFlavor);
+		} catch (final Exception e) {
+			//if (IJ.debugMode) IJ.handleException(e);
+		}
+		return text;
+	}
+
 }
