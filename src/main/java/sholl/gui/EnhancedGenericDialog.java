@@ -1,18 +1,24 @@
 package sholl.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Panel;
 import java.awt.ScrollPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.JPopupMenu;
 
 import ij.IJ;
 import ij.gui.GenericDialog;
@@ -23,6 +29,10 @@ import ij.plugin.BrowserLauncher;
  */
 public class EnhancedGenericDialog extends GenericDialog {
 	private static final long serialVersionUID = 1L;
+
+	private String labelOfHelpActionButton = null;
+	private ActionListener helpActionButtonListener = null;
+	private MouseAdapter helpActionMouseListener = null;
 
 	public EnhancedGenericDialog(final String title) {
 		super(title);
@@ -74,6 +84,51 @@ public class EnhancedGenericDialog extends GenericDialog {
 				}
 			});
 		}
+	}
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+		final Object source = e.getSource();
+		if (!isHeadless() && source != null && labelOfHelpActionButton != null
+				&& source.toString().contains(labelOfHelpActionButton) && helpActionButtonListener != null) {
+			helpActionButtonListener.actionPerformed(e);
+		} else {
+			super.actionPerformed(e);
+		}
+	}
+
+	public void assignListenerToHelpButton(final String buttonLabel, final ActionListener listener) {
+		if (buttonLabel != null && listener != null) {
+			super.addHelp("");
+			super.setHelpLabel(buttonLabel);
+			labelOfHelpActionButton = buttonLabel;
+			helpActionButtonListener = listener;
+		}
+	}
+
+	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
+		if (buttonLabel != null && popupmenu != null) {
+			super.addHelp("");
+			super.setHelpLabel(buttonLabel);
+			labelOfHelpActionButton = buttonLabel;
+			helpActionMouseListener = new MouseAdapter() {
+				public void mousePressed(final MouseEvent e) {
+					popupmenu.show((Button) e.getSource(), 0, 0);
+				}
+			};
+
+			helpActionButtonListener = new ActionListener() {
+				public void actionPerformed(final ActionEvent e) {
+					final MouseEvent me = new MouseEvent((Component) e.getSource(), MouseEvent.MOUSE_CLICKED,
+							e.getWhen(), MouseEvent.MOUSE_PRESSED, 0, 0, 0, true);
+					helpActionMouseListener.mousePressed(me);
+				}
+			};
+		}
+	}
+
+	private static boolean isHeadless() {
+		return GraphicsEnvironment.isHeadless();
 	}
 
 	public void showScrollableDialog() {
