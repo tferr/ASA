@@ -208,14 +208,13 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/** Allows users to visit the manuscript from a dialog prompt */
-	static final void addCitationUrl(final GenericDialog gd) {
-		gd.setInsets(10, 5, 0);
-		gd.addMessage("Please be so kind as to cite this program in your own\n"
-				+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)", null, Color.DARK_GRAY);
-		setClickabaleMsg(gd, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html", Color.DARK_GRAY);
-
+	static final void addCitationUrl(final EnhancedGenericDialog gd) {
+		gd.setInsets(10, 10, 0);
+		gd.addHyperlinkMessage(
+				"Please be so kind as to cite this program in your own\n"
+						+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)",
+				null, Color.DARK_GRAY, "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html");
 	}
-
 
 	/**
 	 * Calculates the centroid of a non-self-intersecting closed polygon. It is

@@ -2546,7 +2546,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final String msg = boldMsg +"\n"+ plainMsg;
 			IJ.error("Sholl Analysis v"+ VERSION +" Error", msg);
 		} else {
-			final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" Error");
+			final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION +" Error");
 			if (boldMsg!=null && !"".equals(boldMsg)) {
 				gd.addMessage(boldMsg, new Font("SansSerif", Font.BOLD, 12));
 			}
@@ -2554,14 +2554,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				gd.addMessage(plainMsg);
 			}
 			if (!isCSV) {
-				gd.addMessage("Alternatively, hold \"Alt\" while running the plugin to:\n"
-						+ "	 - Re-analyze data from previous runs\n"
-						+ "	 - Analyze profiles from Simple Neurite Tracer", null, Color.DARK_GRAY);
-				Sholl_Utils.setClickabaleMsg(gd, URL+"#Importing", Color.DARK_GRAY);
+				gd.addHyperlinkMessage(
+						"Alternatively, hold \"Alt\" [Sholl Analysis (Tabular Data)...] to:\n"
+								+ "	 - Re-analyze data from previous runs\n"
+								+ "	 - Analyze profiles from Simple Neurite Tracer",
+						null, Color.DARK_GRAY, URL + "#Importing");
 			}
 			gd.hideCancelButton();
-			if (extended)
-				this.customizeButtons(gd, true, (isCSV)?"Import Other Data":"Analyze Sample Image");
+			if (extended) {
+				gd.addHelp(isCSV ? URL + "#Importing" : URL);
+				gd.setHelpLabel("Online Help");
+				gd.enableYesNoCancel("OK", (isCSV)?"Import Other Data":"Analyze Sample Image");
+			}
 			gd.showDialog();
 			if (extended && !gd.wasOKed() && !gd.wasCanceled())
 				retrieveSampleData();
