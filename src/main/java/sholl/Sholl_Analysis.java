@@ -29,6 +29,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -225,27 +226,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) {
 
-			csvRT = ResultsTable.getResultsTable();
-			if (csvRT==null || csvRT.getCounter()==0) {
-				try {
-					csvRT = ResultsTable.open("");
-					if (csvRT!=null) {
-						if (!IJ.macroRunning()) // no need to display table
-							csvRT.show("Results");
-						validPath = true;
-						imgPath = OpenDialog.getLastDirectory();
-						imgTitle = trimExtension(OpenDialog.getLastName());
-					} else	//user pressed "Cancel" in file prompt
-						return;
-				} catch(final IOException e) {
-					lError("", e.getMessage());
-					return;
-				}
-			} else {
-				imgPath = null;
-				validPath = false;
-				imgTitle = "Imported data";
-			}
+			csvRT = getTable();
+			if (csvRT==null)
+				return;
 
 			fitCurve = true; // The goal of CSV import is curve fitting
 
@@ -2794,4 +2777,117 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return valid;
 	}
 
+
+	/**
+	 * Prompts the user for tabular data, retrieved from several sources
+	 * including 1) Importing a new text/csv file; 2) Trying to import data from
+	 * the system clipboard; 3) Importing a demo dataset populated by random
+	 * (Gaussian) values; or 4) any other {@link ij.measure.ResultsTable}
+	 * currently opened by ImageJ.
+	 *
+	 * @return A populated Results table or <code>null</code> if chosen source
+	 *         did not contain valid data.
+	 */
+	ResultsTable getTable() {
+
+		ResultsTable rt = null;
+		final ArrayList<ResultsTable> tables = new ArrayList<ResultsTable>();
+		final ArrayList<String> tableTitles = new ArrayList<String>();
+
+		final Frame[] windows = WindowManager.getNonImageWindows();
+		TextWindow rtWindow;
+		for (final Frame w : windows) {
+			if (w instanceof TextWindow) {
+				rtWindow = (TextWindow) w;
+				rt = ((TextWindow) w).getTextPanel().getResultsTable();
+				if (rt != null) {
+					tables.add(rt);
+					tableTitles.add(rtWindow.getTitle());
+				}
+			}
+		}
+
+		final boolean noTablesOpened = tableTitles.isEmpty();
+
+		// Append options for external sources
+		tableTitles.add("External file...");
+		tableTitles.add("Clipboard");
+
+		// Build prompt
+		final GenericDialog gd = new GenericDialog("Choose Sampled Profile");
+		final int cols = (tableTitles.size() < 18) ? 1 : 2;
+		final int rows = (tableTitles.size() % cols > 0) ? tableTitles.size() / cols + 1 : tableTitles.size() / cols;
+		gd.addRadioButtonGroup("Use tabular data of sampled profiles from:", tableTitles.toArray(new String[tableTitles.size()]), rows,
+				cols, tableTitles.get(0));
+		// gd.hideCancelButton();
+		gd.showDialog();
+
+		if (gd.wasCanceled()) {
+			return null;
+
+		} else if (gd.wasOKed()) {
+
+			imgPath = null; // Path of dataset
+			validPath = false; // Path of dataset is accessible
+			imgTitle = "Imported data"; // Dataset name
+			final String choice = gd.getNextRadioButton();
+
+			if (choice.equals("External file...")) {
+
+				try {
+					rt = ResultsTable.open("");
+					if (rt != null && validTable(rt)) {
+						validPath = true;
+						imgPath = OpenDialog.getLastDirectory();
+						imgTitle = WindowManager.makeUniqueName(OpenDialog.getLastName());
+						if (!IJ.macroRunning()) // no need to display table
+							rt.show(imgTitle);
+					}
+				} catch (final IOException e) {
+					lError("", e.getMessage());
+				}
+
+			} else if (choice.equals("Clipboard")) {
+
+				final String clipboard = Sholl_Utils.getClipboardText();
+				final String error = "Clipboard does not seem to contain valid data";
+				if (clipboard.isEmpty()) {
+					rt = null;
+					lError("", error);
+				} else {
+					try {
+						final File temp = File.createTempFile("IJclipboard", ".txt");
+						temp.deleteOnExit();
+						final PrintStream out = new PrintStream(temp.getAbsolutePath());
+						out.println(clipboard);
+						out.close();
+						rt = ResultsTable.open(temp.getAbsolutePath());
+						if (validTable(rt)) {
+							imgTitle = WindowManager.makeUniqueName("Clipboard Data");
+							if (!IJ.macroRunning()) // no need to display table
+								rt.show(imgTitle);
+						} else {
+							lError("", error);
+							return null;
+						}
+					} catch (final IOException ignored) {
+						rt = null;
+						lError("", "Could not extract tabular data from clipboard.");
+					}
+				}
+			} else if (!noTablesOpened) {
+
+				rt = tables.get(tableTitles.indexOf(choice));
+				if (rt == null)
+					lError("", imgTitle + " is no longer available.");
+				else if (validTable(rt))
+					imgTitle = choice;
+
+			}
+
+		}
+
+		return rt;
+
+	}
 }
