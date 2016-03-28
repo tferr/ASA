@@ -77,7 +77,7 @@ public class Options implements PlugIn {
 		return maskBackground;
 	}
 
-	public static void setMaskBackground(final int grayLevel) {
+	void setMaskBackground(final int grayLevel) {
 		Prefs.set(MASK_KEY, grayLevel);
 		maskBackground = grayLevel;
 	}
