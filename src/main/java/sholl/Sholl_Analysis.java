@@ -916,15 +916,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	private boolean bitmapPrompt(final double chordAngle, final boolean is3D, final Point loc) {
 
-		final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION);
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION);
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 44;
 
 		// Part I: Definition of Shells
 		gd.setInsets(0, 0, 0);
-		gd.addMessage("I. Definition of Shells:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Definition_of_Shells", Color.BLACK);
+		gd.addHyperlinkMessage("I. Definition of Shells:", headerFont, Color.BLACK, URL + "#Definition_of_Shells");
 		gd.addNumericField("Starting radius", startRadius, 2, 9, unit);
 		gd.addNumericField("Ending radius", endRadius, 2, 9, unit);
 		gd.addNumericField("Radius_step size", incStep, 2, 9, unit);
@@ -948,22 +947,23 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Part II: Multiple samples (2D) and noise filtering (3D)
 		if (is3D) {
 			gd.setInsets(2, 0, 2);
-			gd.addMessage("II. Noise Reduction:", headerFont);
+			gd.addHyperlinkMessage("II. Noise Reduction:", headerFont, Color.BLACK,
+					URL + "#Multiple_Samples_and_Noise_Reduction");
 			gd.setInsets(0, xIndent, 0);
 			gd.addCheckbox("Ignore isolated (6-connected) voxels", skipSingleVoxels);
 		} else {
 			gd.setInsets(10, 0, 2);
-			gd.addMessage("II. Multiple Samples per Radius:", headerFont);
+			gd.addHyperlinkMessage("II. Multiple Samples per Radius:", headerFont, Color.BLACK,
+					URL + "#Multiple_Samples_and_Noise_Reduction");
 			gd.addSlider("#_Samples", 1, 10, nSpans);
 			gd.setInsets(0, 0, 0);
 			gd.addChoice("Integration", BIN_TYPES, BIN_TYPES[binChoice]);
 		}
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Multiple_Samples_and_Noise_Reduction", Color.BLACK);
 
 		// Part III: Indices and Curve Fitting
 		gd.setInsets(10, 0, 2);
-		gd.addMessage("III. Descriptors and Curve Fitting:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting", Color.BLACK);
+		gd.addHyperlinkMessage("III. Descriptors and Curve Fitting:", headerFont, Color.BLACK,
+				URL + "#Descriptors_and_Curve_Fitting");
 		gd.addNumericField(" Enclosing radius cutoff", enclosingCutOff, 0, 4, "intersection(s)");
 
 		// We'll use the "units" label of the GenericDialog's numeric field to
@@ -993,8 +993,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Part IV: Sholl Methods
 		gd.setInsets(10, 0, 2);
-		gd.addMessage("IV. Sholl Methods:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Choice_of_Methods", Color.BLACK);
+		gd.addHyperlinkMessage("IV. Sholl Methods:", headerFont, Color.BLACK, URL + "#Choice_of_Methods");
 		gd.setInsets(0, xIndent/2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
@@ -1017,8 +1016,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Part V: Mask and outputs
 		gd.setInsets(10, 0, 2);
-		gd.addMessage("V. Output Options:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options", Color.BLACK);
+		gd.addHyperlinkMessage("V. Output Options:", headerFont, Color.BLACK, URL + "#Output_Options");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Create intersections mask", mask);
 		gd.addSlider("Background", 0, 255, getMaskBackground());
@@ -1034,13 +1032,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Add listener and scroll bars. Update prompt and status bar before displaying it
 		gd.addDialogListener(this);
-		Sholl_Utils.addScrollBars(gd);
 		dialogItemChanged(gd, null);
 		showStartupTooltip();
 		if (loc!=null)
 			gd.setLocation(loc);
 
-		gd.showDialog();
+		gd.showScrollableDialog();
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
@@ -1403,7 +1400,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (!validTable(csvRT)) return false;
 		final String[] headings = csvRT.getHeadings();
-		final GenericDialog gd = new GenericDialog("Sholl Analysis v"+ VERSION +" (Tabular Data)");
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION +" (Tabular Data)");
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 40;
@@ -1421,8 +1418,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Part II: Indices and Curve Fitting
 		gd.setInsets(15, 0, 2);
-		gd.addMessage("II. Descriptors and Ramification Indices:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Descriptors_and_Curve_Fitting", Color.BLACK);
+		gd.addHyperlinkMessage("II. Descriptors and Ramification Indices:", headerFont, Color.BLACK, URL+"#Descriptors_and_Curve_Fitting");
 		gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
 		gd.addNumericField(" #_Primary branches", primaryBranches, 0);
 		gd.setInsets(0, 2*xIndent, 0);
@@ -1430,8 +1426,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Part III: Sholl Methods
 		gd.setInsets(15, 0, 2);
-		gd.addMessage("III. Sholl Methods:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Choice_of_Methods", Color.BLACK);
+		gd.addHyperlinkMessage("III. Sholl Methods:", headerFont, Color.BLACK, URL+"#Choice_of_Methods");
 		gd.setInsets(0, xIndent/2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
@@ -1454,8 +1449,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addChoice("Normalizer", norms, norms[normChoice]);
 
 		gd.setInsets(15, 0, 2);
-		gd.addMessage("IV. Output Options:", headerFont);
-		Sholl_Utils.setClickabaleMsg(gd, URL+"#Output_Options", Color.BLACK);
+		gd.addHyperlinkMessage("IV. Output Options:", headerFont, Color.BLACK, URL+"#Output_Options");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Show fitting details", verbose);
 		if (validPath) {
@@ -1468,9 +1462,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		this.customizeButtons(gd, false, "Import Other Data");
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
-		Sholl_Utils.addScrollBars(gd);
 		showStartupTooltip();
-		gd.showDialog();
+		gd.showScrollableDialog();
 
 		if (gd.wasCanceled())
 			return false;
