@@ -35,6 +35,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPopupMenu;
+import javax.swing.UIManager;
 
 import ij.IJ;
 import ij.gui.GenericDialog;
@@ -258,5 +259,13 @@ public class EnhancedGenericDialog extends GenericDialog {
 		// add scroll pane to original container
 		this.add(borderPanel);
 
+	}
+
+	public Color getDisabledComponentColor() {
+		try {
+			return UIManager.getColor("CheckBox.disabledText");
+		} catch (Exception ignored) {
+			return Color.GRAY;
+		}
 	}
 }

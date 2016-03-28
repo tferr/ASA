@@ -64,6 +64,7 @@ import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 import ij.util.Tools;
+import sholl.gui.EnhancedGenericDialog;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -979,7 +980,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			try { // Access "units" label
 				final Panel p = (Panel) gd.getComponent(gd.getComponentCount() - 1);
 				final Label l = (Label) p.getComponent(1);
-				l.setForeground(Color.GRAY);
+				l.setForeground(gd.getDisabledComponentColor());
 			} catch (final Exception ignored) {
 			}
 		}
