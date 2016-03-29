@@ -1448,15 +1448,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/** Checks if table is valid while warning user about it*/
 	private boolean validTable(final ResultsTable table) {
-		boolean isValid = false;
-		if (table==null || !IJ.isResultsWindow()) {
-			lError("Results table is no longer available!","");
-		} else if (table.getHeadings().length<2 || table.getCounter()==0) {
+		if (table==null) {
+			return false;
+		} else if (table.getHeadings().length<2 || table.getCounter()<2) {
 			lError("Profile in Results table does not contain enough data points.", "N.B. At least "
 					+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
+			return false;
 		} else
-			isValid = true;
-		return isValid;
+			return true;
 	}
 
 	/**
