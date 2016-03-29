@@ -39,7 +39,6 @@ import java.util.Vector;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.UIManager;
 
 import fiji.Debug;
 import ij.IJ;

@@ -25,8 +25,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.image.IndexColorModel;
 import java.io.InputStream;
 
-import javax.swing.UIManager;
-
 import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
