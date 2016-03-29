@@ -1037,18 +1037,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 	}
 
-	/**
-	 * Adds a customized "Help" button to the specified dialog. A customized 3rd
-	 * action' button is also added if thirdButtonLabel is not null
-	 */
-	private void customizeButtons(final GenericDialog gd,
-			final boolean customHelpLabel, final String thirdButtonLabel) {
-		if (thirdButtonLabel != null)
-			gd.enableYesNoCancel("OK", thirdButtonLabel);
-		gd.addHelp(isCSV ? URL + "#Importing" : URL);
-		if (customHelpLabel) // Wide labels distort main prompt on mac w/ java 1.7+
-			gd.setHelpLabel("Online Help");
-	}
 	/** Applies "Cf. Segmentation" LUT */
 	private void applySegmentationLUT() {
 
