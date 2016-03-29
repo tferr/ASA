@@ -198,6 +198,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	private static double[] radii;
 	private static double[] counts;
+	private static int prefs = Options.getMetrics();
 	private ImagePlus img;
 	private ImageProcessor ip;
 
@@ -783,8 +784,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.addValue("Mean value", mv);
 			rt.addValue("Ramification index (fit)", rif);
 			final double[] moments = getMoments(fy);
-			rt.addValue("Skewness (fit)", moments[2]);
-			rt.addValue("Kurtosis (fit)", moments[3]);
+			if ((prefs & Options.SKEWNESS) != 0)
+				rt.addValue("Skewness (fit)", moments[2]);
+			if ((prefs & Options.KURTOSIS) != 0)
+				rt.addValue("Kurtosis (fit)", moments[3]);
 			rt.addValue("Polyn. degree", degree);
 			rt.addValue("Polyn. R^2", cf.getRSquared());
 
@@ -2292,30 +2295,40 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Z center (slice)", isCSV ? Double.NaN : zc);
 		rt.addValue("Starting radius", startRadius);
 		rt.addValue("Ending radius", endRadius);
-		rt.addValue("Radius step", stepRadius);
-		rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
 		rt.addValue("Enclosing radius cutoff", enclosingCutOff);
+		if ((prefs & Options.RADIUS_STEP) != 0)
+			rt.addValue("Radius step", stepRadius);
+		if ((prefs & Options.SAMPLES_PER_RADIUS) != 0)
+			rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
 		rt.addValue("I branches (user)", (inferPrimary) ? Double.NaN : primaryBranches);
 		rt.addValue("I branches (inferred)", (inferPrimary) ? y[0] : Double.NaN);
-		rt.addValue("Intersecting radii", size);
-		rt.addValue("Sum inters.", sumY);
+		if ((prefs & Options.INTERSECTING_RADII) != 0)
+			rt.addValue("Intersecting radii", size);
+		if ((prefs & Options.SUM_INTERS) != 0)
+			rt.addValue("Sum inters.", sumY);
 
 		// Calculate skewness and kurtosis of sampled data (linear Sholl);
 		final double[] moments = getMoments(y);
-		rt.addValue("Mean inters.", moments[0]);
-		rt.addValue("Median inters.", getMedian(y));
-		rt.addValue("Skewness (sampled)", moments[2]);
-		rt.addValue("Kurtosis (sampled)", moments[3]);
+		if ((prefs & Options.MEAN_INTERS) != 0)
+			rt.addValue("Mean inters.", moments[0]);
+		if ((prefs & Options.MEDIAN_INTERS) != 0)
+			rt.addValue("Median inters.", getMedian(y));
+		if ((prefs & Options.SKEWNESS) != 0)
+			rt.addValue("Skewness (sampled)", moments[2]);
+		if ((prefs & Options.KURTOSIS) != 0)
+			rt.addValue("Kurtosis (sampled)", moments[3]);
 		rt.addValue("Max inters.", maxIntersect);
 		rt.addValue("Max inters. radius", maxR);
 		rt.addValue("Ramification index (sampled)", ri);
 
 		// Calculate the 'center of mass' for the sampled curve (linear Sholl);
-		centroid = Sholl_Utils.baryCenter(x, y);
-		rt.addValue("Centroid radius", centroid[0]);
-		rt.addValue("Centroid value", centroid[1]);
-
-		rt.addValue("Enclosing radius", enclosingR);
+		if ((prefs & Options.CENTROID) != 0) {
+			centroid = Sholl_Utils.baryCenter(x, y);
+			rt.addValue("Centroid radius", centroid[0]);
+			rt.addValue("Centroid value", centroid[1]);
+		}
+		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
+			rt.addValue("Enclosing radius", enclosingR);
 		//rt.addValue("Enclosed field", field);
 		rt.show(SHOLLTABLE);
 		return rt;
