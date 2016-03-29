@@ -137,7 +137,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int polyChoice = DEGREES.length - 1;
 	private static boolean verbose;
 	private static boolean mask;
-	private static int maskBackground = 228;
 	private static boolean save;
 	private static boolean isCSV = false;
 
@@ -1006,7 +1005,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addHyperlinkMessage("V. Output Options:", headerFont, Color.BLACK, URL + "#Output_Options");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Create intersections mask", mask);
-		gd.addSlider("Background", 0, 255, getMaskBackground());
 
 		// Offer to save results if local image
 		if (validPath) {
@@ -1162,8 +1160,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final Choice iepolyChoice, ienormChoice;
 		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG;
 		Checkbox iehideSaved = null;
-		TextField iemaskBackground = null;
-		
+
 		// options specific to bitmapPrompt();
 		Choice iequadChoice = null, iebinChoice = null;
 		
@@ -1309,11 +1306,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// Part V: Mask and outputs
 			mask = gd.getNextBoolean();
 			checkboxCounter++;
-			//final Checkbox iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-			setMaskBackground(Math.min(Math.max((int)gd.getNextNumber(), 0), 255));
-			iemaskBackground = (TextField)numericfields.elementAt(fieldCounter++);
-			iemaskBackground.setEnabled(mask);
-
 			if (validPath) {
 				save = gd.getNextBoolean();
 				checkboxCounter++;
@@ -1352,8 +1344,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				tipMsg += "Determination ratio chooses most informative method.";
 			else if (source==ieprimaryBranches || source==ieinferPrimary)
 				tipMsg += "# Primary branches are used to calculate Schoenen indices.";
-			else if (source==iemaskBackground)
-				tipMsg += "Grayscale value for zero-intersections. 0: Black; 255: White.";
 			else if (source==iehideSaved)
 				tipMsg += "Saving path: "+ imgPath;
 			else if (!isCSV) {
@@ -2086,7 +2076,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Apply LUT
-		mp.setColorModel(Sholl_Utils.matlabJetColorMap(getMaskBackground()));
+		mp.setColorModel(Sholl_Utils.matlabJetColorMap(Options.getMaskBackground()));
 		//(new ContrastEnhancer()).stretchHistogram(mp, 0.35);
 		final double[] range = Tools.getMinMax(values);
 		mp.setMinAndMax(0, range[1]);
