@@ -905,7 +905,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION);
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
-		final int xIndent = 44;
+		final int xIndent = 42;
 
 		// Part I: Definition of Shells
 		gd.setInsets(0, 0, 0);
@@ -1008,7 +1008,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Offer to save results if local image
 		if (validPath) {
-			gd.setInsets(2, xIndent, 0);
+			gd.setInsets(0, xIndent, 0);
 			gd.addCheckbox("Save results in image directory", save);
 			gd.setInsets(0, 2*xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
@@ -1022,6 +1022,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 
+		Sholl_Utils.addCitationUrl(gd);
 		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.showScrollableDialog();
 		if (gd.wasCanceled()) {
@@ -1429,6 +1430,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					gd.getDisabledComponentColor());
 		}
 
+		Sholl_Utils.addCitationUrl(gd);
 		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
