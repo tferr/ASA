@@ -1121,12 +1121,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				.append((is3D)?" (3D)":" (2D)").append("<br>");
 		sb.append("&emsp;Binary image?&ensp;").append(String.valueOf(this.ip.isBinary())).append("</tt><br>");
 		sb.append("&emsp;Spatial units:&ensp;<tt>").append(unit).append("</tt><br>");
-		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>").append(String.valueOf(this.ip.isInvertedLut())).append("</tt>");
+		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>").append(String.valueOf(this.ip.isInvertedLut())).append("</tt><br>");
+		sb.append("&emsp;Image saved locally?&ensp;").append(String.valueOf(validPath)).append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Analysis options:</b><br>");
 		sb.append("&emsp;Orthogonal restriction allowed?&ensp<tt>").append(String.valueOf(orthoChord)).append("</tt><br>");
 		sb.append("&emsp;Repetead measures allowed?&ensp<tt>").append(String.valueOf(!is3D)).append("</tt><br>");
 		sb.append("&emsp;Noise supression allowed?&ensp<tt>").append(String.valueOf(is3D)).append("</tt><br>");
+		sb.append("&emsp;Saving options available?&ensp<tt>").append(String.valueOf(validPath)).append("</tt><br>");
 		sb.append("&emsp;Multi-point ROIs marking primary branches:&ensp<tt>")
 				.append(String.valueOf(Math.max(0, multipointCount - 1))).append("</tt>");
 		sb.append("<br><br>");
