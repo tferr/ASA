@@ -2162,7 +2162,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Creates optionsMenu */
-	JPopupMenu createOptionsMenu(final GenericDialog gd) {
+	JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
 		if (isCSV) {
