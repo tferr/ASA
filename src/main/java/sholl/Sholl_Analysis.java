@@ -198,7 +198,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	private static double[] radii;
 	private static double[] counts;
-	private static int prefs = Options.getMetrics();
+	private static int prefs;
 	private ImagePlus img;
 	private ImageProcessor ip;
 
@@ -465,6 +465,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		IJ.showStatus("Preparing Results...");
+
+		// Retrieve preferences
+		prefs = Options.getMetrics();
 
 		// Retrieve pairs of radii, counts for intersecting radii
 		final double[][] valuesN = getNonZeroValues(radii, counts);
