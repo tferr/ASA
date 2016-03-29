@@ -19,7 +19,6 @@ package sholl;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -27,7 +26,6 @@ import javax.swing.JPopupMenu;
 import fiji.Debug;
 import ij.IJ;
 import ij.Prefs;
-import ij.gui.GenericDialog;
 import ij.measure.Measurements;
 import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;

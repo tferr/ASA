@@ -34,7 +34,6 @@ import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.io.Opener;
 import ij.measure.Measurements;
-import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
