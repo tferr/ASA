@@ -2278,7 +2278,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			ri = Double.NaN;
 
 		rt.incrementCounter();
-		rt.setPrecision(getPrecision());
+		rt.setPrecision(Options.getScientificNotationAwarePrecision());
 		rt.addValue("Image", rowLabel);
 		if ((prefs & Options.DIRECTORY) != 0)
 			rt.addValue("Directory", (validPath) ? imgPath : "Unknown");
