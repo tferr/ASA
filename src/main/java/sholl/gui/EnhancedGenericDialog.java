@@ -125,6 +125,12 @@ public class EnhancedGenericDialog extends GenericDialog {
 
 	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
 		if (buttonLabel != null && popupmenu != null) {
+			// Ensure swing component is displayed with a java.awt look and feel
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				popupmenu.updateUI();
+			} catch (final Exception ignored) {
+			}
 			super.addHelp("");
 			super.setHelpLabel(buttonLabel);
 			labelOfHelpActionButton = buttonLabel;
