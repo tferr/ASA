@@ -609,7 +609,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (validPath && save) {
 				try {
 					final String path = imgPath + profileTable;
-					rt.saveAs(path + Prefs.get("options.ext", ".csv"));
+					rt.saveAs(path + Prefs.defaultResultsExtension());
 				} catch (final IOException e) {
 					IJ.log(">>>> An error occurred when saving "+ imgTitle +"'s profile(s):\n"+ e);
 				}
