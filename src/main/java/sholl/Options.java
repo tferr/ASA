@@ -252,4 +252,12 @@ public class Options implements PlugIn {
 		}
 	}
 
+	/** Retrieves precision according to Analyze>Set Measurements... */
+	static int getScientificNotationAwarePrecision() {
+		final boolean sNotation = (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0;
+		int precision = Analyzer.getPrecision();
+		if (sNotation)
+			precision = -precision;
+		return precision;
+	}
 }

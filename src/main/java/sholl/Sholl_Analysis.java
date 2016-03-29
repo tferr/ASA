@@ -584,7 +584,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 			rt.showRowNumbers(false);
-			rt.setPrecision(getPrecision());
+			rt.setPrecision(Options.getScientificNotationAwarePrecision());
 			for (int i=0; i <valuesN.length; i++) {
 				rt.incrementCounter();
 				rt.addValue("Radius", valuesN[i][0]);
@@ -2534,17 +2534,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final String path = imgPath + imgTitle +"_ShollPlot"+ SHOLL_TYPES[shollChoice] + ".png";
 			IJ.saveAs(plot.getImagePlus(), "png", path);
 		}
-
-	}
-
-	/** Retrieves precision according to Analyze>Set Measurements... */
-	private static int getPrecision() {
-
-		final boolean sNotation = (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0;
-		int precision = Analyzer.getPrecision();
-		if (sNotation)
-			precision = -precision;
-		return precision;
 
 	}
 
