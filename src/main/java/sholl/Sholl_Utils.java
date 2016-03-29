@@ -211,7 +211,7 @@ public class Sholl_Utils implements PlugIn {
 
 	/** Allows users to visit the manuscript from a dialog prompt */
 	static final void addCitationUrl(final EnhancedGenericDialog gd) {
-		gd.setInsets(10, 10, 0);
+		//gd.setInsets(10, 10, 0);
 		gd.addHyperlinkMessage(
 				"Please be so kind as to cite this program in your own\n"
 						+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)",

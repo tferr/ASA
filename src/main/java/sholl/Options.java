@@ -202,7 +202,7 @@ public class Options implements PlugIn {
 		states[14] = (currentMetrics & CENTROID) != 0;
 
 		items[15] = P1090_REGRESSION;
-		labels[15] = "P10-P90 Regression";
+		labels[15] = "P10-P90 regression";
 		states[15] = (currentMetrics & P1090_REGRESSION) != 0;
 
 		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Metrics and Options");
