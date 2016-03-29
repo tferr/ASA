@@ -318,7 +318,8 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/**
-	 * Highlights a point on a plot without listing it on the Plot's table.
+	 * Highlights a point on a plot without listing it on the Plot's table. Does
+	 * nothing if the points coordinates are <code>null</code>.
 	 *
 	 * @param plot
 	 *            Plot object
@@ -331,6 +332,8 @@ public class Sholl_Utils implements PlugIn {
 	public static void markPlotPoint(final Plot plot, final double[] coordinates,
 			final Color color) {
 
+		if (coordinates==null)
+			return;
 		plot.setLineWidth(6); // default markSize: 5;
 		plot.setColor(color);
 		plot.drawLine(coordinates[0], coordinates[1], coordinates[0], coordinates[1]);

@@ -118,7 +118,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree", "7th degree", "8th degree", "Best fitting degree" };
 	private static final int SMALLEST_DATASET = 6;
 	private static final String SHOLLTABLE = "Sholl Results";
-	private static double[] centroid;
+	private static double[] centroid = null;
 	private static int enclosingCutOff = 1;
 	private static boolean chooseLog = true;
 
