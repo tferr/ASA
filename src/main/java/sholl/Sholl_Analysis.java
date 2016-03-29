@@ -2639,29 +2639,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Returns the background color of the Sholl mask image
-	 *
-	 * @return the gray value (8-bit scale) of the first entry of the LUT of the
-	 *         Sholl mask's LUT image
-	 * @see Sholl_Utils#matlabJetColorMap(int)
-	 */
-	public static int getMaskBackground() {
-		return maskBackground;
-	}
-
-	/**
-	 * Sets the background color of the Sholl mask
-	 *
-	 * @param grayLevel
-	 *            the gray value (8-bit scale) to be used as the first entry of
-	 *            the LUT of the Sholl mask image
-	 * @see Sholl_Utils#matlabJetColorMap(int)
-	 */
-	public static void setMaskBackground(int grayLevel) {
-		Sholl_Analysis.maskBackground = grayLevel;
-	}
-
-	/**
 	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
 	 * tables will be displayed).
 	 *

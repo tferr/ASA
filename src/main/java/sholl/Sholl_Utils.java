@@ -99,7 +99,7 @@ public class Sholl_Utils implements PlugIn {
 	 *
 	 * @param backgroundGray
 	 *            the gray value (8-bit scale) to be used as the first entry of
-	 *            the LUT.
+	 *            the LUT. It is ignored if negative.
 	 * @return The "Jet" LUT with the specified background entry
 	 * @see <a href=
 	 *      "https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306">Jerome
@@ -129,7 +129,9 @@ public class Sholl_Utils implements PlugIn {
 			reds[i] = greens[(i+256*6/8) % 256];
 
 		// Set background color
-		reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
+		if (backgroundGray>0) {
+			reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
+		}
 
 		return new IndexColorModel(8, 256, reds, greens, blues);
 
@@ -144,7 +146,7 @@ public class Sholl_Utils implements PlugIn {
 		}
 
 		// Display LUT
-		final IndexColorModel cm = matlabJetColorMap(Sholl_Analysis.getMaskBackground());
+		final IndexColorModel cm = matlabJetColorMap(-1);
 		if (imp==null) {
 			imp = new ImagePlus("MATLAB Jet",ij.plugin.LutLoader.createImage(cm));
 			imp.show();
