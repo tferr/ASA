@@ -2171,6 +2171,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				public void actionPerformed(ActionEvent e) {
 					gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
 					gd.dispose();
+					improveRecording();
 					run("csv");
 				}
 			});
@@ -2187,12 +2188,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi = new JMenuItem("Options...");
 		mi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new Options().run("");
-				if (Recorder.record) {
-					Recorder.recordString(
-							"// To record the \"More\u00bb Options...\" command run \"Sholl>Metrics & Options...\"\n");
-					Recorder.setCommand((isCSV) ? "Sholl Analysis (Tabular Data)..." : "Sholl Analysis...");
-				}
+				IJ.doCommand("Metrics & Options...");
 			}
 		});
 		popup.add(mi);
@@ -2202,7 +2198,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			public void actionPerformed(ActionEvent e) {
 				gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
 				gd.dispose();
-				run(isCSV ? "" : "csv");
+				improveRecording();
+				run(isCSV?"":"csv");
+				//IJ.doCommand(isCSV ? "Sholl Analysis..." : "Sholl Analysis (Tabular Data)...");
 			}
 		});
 		popup.add(mi);
@@ -2631,8 +2629,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final void improveRecording() {
 		if (Recorder.record) {
 			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
-				+ "// Visit "+ URL +"#Batch_Processing for scripting examples\n";
-			if (isCSV && !Recorder.getCommand().toLowerCase().contains("tabular")) {
+				+ "// Visit "+ URL +"#Batch_Processing for scripting tips\n";
+			String cmd = Recorder.getCommand();
+			String cmdOptions = Recorder.getCommandOptions();
+			if (cmd == null || cmdOptions == null) {
+				recordString += "// NB: Commands in the \"More\u00bb\" dropdown menu should be recorded from \"Analyze>Sholl>\"\n";
+			}
+			if (isCSV && (cmd!=null && !cmd.toLowerCase().contains("tabular"))) {
 				recordString += "// NB: The \"Alt\" key modifier is no longer required: Run \"Sholl Analysis (Tabular Data)...\" instead\n";
 				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as of IJ.1.50
 					// NB: using hex values seems simpler as it works with JavaScript recording
