@@ -17,14 +17,22 @@ package sholl;
 */
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import fiji.Debug;
+import ij.IJ;
 import ij.Prefs;
 import ij.gui.GenericDialog;
 import ij.measure.Measurements;
 import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
+import sholl.gui.EnhancedGenericDialog;
 
 public class Options implements PlugIn {
 
@@ -197,7 +205,7 @@ public class Options implements PlugIn {
 		labels[15] = "P10-P90 Regression";
 		states[15] = (currentMetrics & P1090_REGRESSION) != 0;
 
-		final GenericDialog gd = new GenericDialog("Sholl Metrics and Options");
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Metrics and Options");
 		final Font font = new Font("SansSerif", Font.BOLD, 12);
 
 		// Metrics (columns of Sholl Results table)
@@ -212,7 +220,6 @@ public class Options implements PlugIn {
 		gd.addMessage("Intersections mask:", font);
 		gd.addSlider("  Background (grayscale):", 0, 255, getMaskBackground());
 
-		gd.addHelp("http://imagej.net/Sholl_Analysis#Metrics");
 		// Include IJ preferences for convenience
 		gd.setInsets(15, 0, 2);
 		gd.addMessage("System preferences (affect all ImageJ commands):", font);
@@ -221,6 +228,7 @@ public class Options implements PlugIn {
 		gd.addNumericField("Decimal places (0-9):", Analyzer.getPrecision(), 0, 4, "");
 		gd.setInsets(0, 70, 0);
 		gd.addCheckbox("Scientific notation", (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0);
+		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
 		gd.enableYesNoCancel("OK", "Reset to Defaults");
 		gd.showDialog();
 
@@ -254,6 +262,36 @@ public class Options implements PlugIn {
 				Recorder.recordOption("reset");
 			resetOptions();
 		}
+	}
+
+
+	/** Creates optionsMenu */
+	JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
+		final JPopupMenu popup = new JPopupMenu();
+		JMenuItem mi;
+		mi = new JMenuItem("Plot Options...");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				IJ.doCommand("Profile Plot Options...");
+			}
+		});
+		popup.add(mi);
+		mi = new JMenuItem("Input/Output Options...");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				IJ.doCommand("Input/Output...");
+			}
+		});
+		popup.add(mi);
+		popup.addSeparator();
+		mi = new JMenuItem("Help on Sholl metrics");
+		mi.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				IJ.runPlugIn("ij.plugin.BrowserLauncher", Sholl_Analysis.URL + "#Metrics");
+			}
+		});
+		popup.add(mi);
+		return popup;
 	}
 
 	/** Retrieves precision according to Analyze>Set Measurements... */
