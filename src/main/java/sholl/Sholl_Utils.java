@@ -346,13 +346,6 @@ public class Sholl_Utils implements PlugIn {
 
 	}
 
-	/** Checks if table in the "Results" window contains valid data */
-	static boolean validResultsTable() {
-		final ResultsTable rt = ResultsTable.getResultsTable();
-		return (ResultsTable.getResultsWindow() != null && rt != null && rt.getCounter() != 0);
-	}
-
-
 	/**
 	 * Retrieves text from the system clipboard.
 	 *
