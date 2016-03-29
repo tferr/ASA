@@ -30,7 +30,6 @@ import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
-import ij.gui.GenericDialog;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.io.Opener;
@@ -161,15 +160,15 @@ public class Sholl_Utils implements PlugIn {
 	/** Displays the Sholl's plugin "about" info box */
 	void showAbout() {
 		final String version = Sholl_Analysis.VERSION +" "+ BUILD;
-		final String summary = "Quantitative Sholl-based morphometry of untraced neuronal arbors";
+		final String summary = "Quantitative Sholl-based morphometry of untraced imagges";
 		final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";
-		final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan Preibisch,\n"
+		final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan\nPreibisch, "
 				+ "Bio-Formats team";
 
 		final Font plainf = new Font("SansSerif", Font.PLAIN, 12);
 		final Font boldf = new Font("SansSerif", Font.BOLD, 12);
 
-		final GenericDialog gd = new GenericDialog("About Sholl Analysis...");
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("About Sholl Analysis...");
 		gd.addMessage(summary, boldf);
 		gd.addMessage("Version", boldf);
 		gd.setInsets(0, 20, 0);
@@ -180,10 +179,12 @@ public class Sholl_Utils implements PlugIn {
 		gd.addMessage("Special Thanks", boldf);
 		gd.setInsets(0, 20, 0);
 		gd.addMessage(thanks, plainf);
+		gd.setInsets(0, 20, 0);
+		Sholl_Utils.addCitationUrl(gd);
 		gd.enableYesNoCancel("API", "Source Code");
 		gd.addHelp(Sholl_Analysis.URL);
 		gd.setHelpLabel("User Manual");
-		gd.setCancelLabel("Dismiss");
+		gd.hideCancelButton(); // activate notifiers for help button
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return;
