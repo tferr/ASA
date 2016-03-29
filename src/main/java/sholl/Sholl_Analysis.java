@@ -2641,8 +2641,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (Recorder.record) {
 			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
 				+ "// Visit "+ URL +"#Batch_Processing for scripting examples\n";
-			if (isCSV) {
-				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as of IJ.1.48
+			if (isCSV && !Recorder.getCommand().toLowerCase().contains("tabular")) {
+				recordString += "// NB: The \"Alt\" key modifier is no longer required: Run \"Sholl Analysis (Tabular Data)...\" instead\n";
+				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as of IJ.1.50
 					// NB: using hex values seems simpler as it works with JavaScript recording
 					recordString += "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);\n";
 				} else { // IJ macro language
