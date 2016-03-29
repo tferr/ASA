@@ -127,7 +127,7 @@ public class Sholl_Utils implements PlugIn {
 			reds[i] = greens[(i+256*6/8) % 256];
 
 		// Set background color
-		if (backgroundGray>0) {
+		if (backgroundGray>=0) {
 			reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
 		}
 
