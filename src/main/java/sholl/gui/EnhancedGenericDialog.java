@@ -73,6 +73,8 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 *            The URL to be opened by the default browser of the OS
 	 */
 	public void addHyperlinkMessage(final String text, final Font font, final Color color, final String url) {
+		if (isHeadless())
+			return;
 		super.addMessage(text, font, color);
 		final Component msgLabel = super.getMessage();
 		if (msgLabel != null && url != null) {
@@ -115,7 +117,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	}
 
 	public void assignListenerToHelpButton(final String buttonLabel, final ActionListener listener) {
-		if (buttonLabel != null && listener != null) {
+		if (!isHeadless() && buttonLabel != null && listener != null) {
 			super.addHelp("");
 			super.setHelpLabel(buttonLabel);
 			labelOfHelpActionButton = buttonLabel;
@@ -124,7 +126,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	}
 
 	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
-		if (buttonLabel != null && popupmenu != null) {
+		if (!isHeadless() && buttonLabel != null && popupmenu != null) {
 			// Ensure swing component is displayed with a java.awt look and feel
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -155,7 +157,8 @@ public class EnhancedGenericDialog extends GenericDialog {
 	}
 
 	public void showScrollableDialog() {
-		addScrollBars();
+		if (!isHeadless())
+			addScrollBars();
 		super.showDialog();
 	}
 
