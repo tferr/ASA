@@ -114,12 +114,16 @@ public class Options implements PlugIn {
 	}
 
 	void resetOptions() {
+		// Reset Sholl metrics
 		Prefs.set(METRICS_KEY, null);
 		Prefs.set(METRICS_KEY+ ".comment", null);
 		Prefs.set(MASK_KEY, null);
 		currentMetrics = UNSET_PREFS;
 		commentString = null;
 		maskBackground = UNSET_PREFS;
+		// Reset Analyzer prefs
+		Analyzer.setPrecision(3);
+		Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, false);
 	}
 
 	void promptForOptions() {
