@@ -261,7 +261,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			radii = csvRT.getColumnAsDoubles(rColumn);
 			counts = csvRT.getColumnAsDoubles(cColumn);
 			if (limitCSV) {
-				final TextPanel tp = (TextPanel)ResultsTable.getResultsWindow().getTextPanel();
+				final TextPanel tp = (TextPanel)Sholl_Utils.getTextWindow(imgTitle).getTextPanel();
 				final int startRow = tp.getSelectionStart();
 				final int endRow = tp.getSelectionEnd();
 				final boolean validRange = startRow!=-1 && endRow!=-1 && startRow!=endRow;

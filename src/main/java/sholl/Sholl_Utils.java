@@ -18,6 +18,7 @@ package sholl;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -38,6 +39,7 @@ import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
+import ij.text.TextWindow;
 import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 
@@ -369,4 +371,11 @@ public class Sholl_Utils implements PlugIn {
 		return text;
 	}
 
+	static TextWindow getTextWindow(final String windowtitle) {
+		final Frame f = WindowManager.getFrame(windowtitle);
+		if (f == null || !(f instanceof TextWindow))
+			return null;
+		else
+			return (TextWindow) f;
+	}
 }
