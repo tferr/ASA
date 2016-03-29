@@ -104,7 +104,9 @@ public class Options implements PlugIn {
 		return commentString;
 	}
 
-	void setCommentString(final String comment) {
+	void setCommentString(String comment) {
+		if (comment.trim().isEmpty())
+			comment = null;
 		Prefs.set(METRICS_KEY + ".comment", comment);
 		commentString = comment;
 	}
