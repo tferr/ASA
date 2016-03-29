@@ -21,7 +21,9 @@ import java.awt.Font;
 import fiji.Debug;
 import ij.Prefs;
 import ij.gui.GenericDialog;
+import ij.measure.Measurements;
 import ij.plugin.PlugIn;
+import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 
 public class Options implements PlugIn {
@@ -207,12 +209,22 @@ public class Options implements PlugIn {
 		gd.addSlider("  Background (grayscale):", 0, 255, getMaskBackground());
 
 		gd.addHelp("http://imagej.net/Sholl_Analysis#Metrics");
+		// Include IJ preferences for convenience
+		gd.setInsets(15, 0, 2);
+		gd.addMessage("System preferences (affect all ImageJ commands):", font);
+		gd.addStringField("File extension for tables:", Prefs.defaultResultsExtension(), 4);
+		gd.setInsets(0, 0, 0);
+		gd.addNumericField("Decimal places (0-9):", Analyzer.getPrecision(), 0, 4, "");
+		gd.setInsets(0, 70, 0);
+		gd.addCheckbox("Scientific notation", (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0);
 		gd.enableYesNoCancel("OK", "Reset to Defaults");
 		gd.showDialog();
 
 		if (gd.wasCanceled()) {
 			return;
 		} else if (gd.wasOKed()) {
+
+			// Sholl prefs
 			boolean b = false;
 			for (int i = 0; i < labels.length; i++) {
 				b = gd.getNextBoolean();
@@ -224,6 +236,15 @@ public class Options implements PlugIn {
 			Prefs.set(METRICS_KEY, currentMetrics);
 			setCommentString(gd.getNextString());
 			setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
+
+			// IJ prefs
+			String extension = gd.getNextString();
+			if (!extension.startsWith("."))
+				extension = "." + extension;
+			Prefs.set("options.ext", extension);
+			Analyzer.setPrecision(Math.min(Math.max((int) gd.getNextNumber(), 0), 9));
+			Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, gd.getNextBoolean());
+
 		} else {
 			if (Recorder.record)
 				Recorder.recordOption("reset");
