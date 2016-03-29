@@ -2287,19 +2287,31 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.incrementCounter();
 		rt.setPrecision(getPrecision());
 		rt.addValue("Image", rowLabel);
-		rt.addValue("Unit", unit );
-		rt.addValue("Lower threshold", isCSV ? Double.NaN : lowerT);
-		rt.addValue("Upper threshold", isCSV ? Double.NaN : upperT);
-		rt.addValue("X center (px)", isCSV ? Double.NaN : xc);
-		rt.addValue("Y center (px)", isCSV ? Double.NaN : yc);
-		rt.addValue("Z center (slice)", isCSV ? Double.NaN : zc);
-		rt.addValue("Starting radius", startRadius);
+		if ((prefs & Options.DIRECTORY) != 0)
+			rt.addValue("Directory", (validPath) ? imgPath : "Unknown");
+		String comment = Options.getCommentString();
+		if (comment!=null)
+			rt.addValue("Comment", comment);
+		if ((prefs & Options.UNIT) != 0)
+			rt.addValue("Unit", unit );
+		if ((prefs & Options.THRESHOLD) != 0) {
+			rt.addValue("Lower threshold", isCSV ? Double.NaN : lowerT);
+			rt.addValue("Upper threshold", isCSV ? Double.NaN : upperT);
+		}
+		if ((prefs & Options.CENTER) != 0) {
+			rt.addValue("X center (px)", isCSV ? Double.NaN : xc);
+			rt.addValue("Y center (px)", isCSV ? Double.NaN : yc);
+			rt.addValue("Z center (slice)", isCSV ? Double.NaN : zc);
+		}
+		if ((prefs & Options.STARTING_RADIUS) != 0)
+			rt.addValue("Starting radius", startRadius);
 		rt.addValue("Ending radius", endRadius);
-		rt.addValue("Enclosing radius cutoff", enclosingCutOff);
 		if ((prefs & Options.RADIUS_STEP) != 0)
 			rt.addValue("Radius step", stepRadius);
 		if ((prefs & Options.SAMPLES_PER_RADIUS) != 0)
 			rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
+		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
+			rt.addValue("Enclosing radius cutoff", enclosingCutOff);
 		rt.addValue("I branches (user)", (inferPrimary) ? Double.NaN : primaryBranches);
 		rt.addValue("I branches (inferred)", (inferPrimary) ? y[0] : Double.NaN);
 		if ((prefs & Options.INTERSECTING_RADII) != 0)
@@ -2427,7 +2439,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/** Calls plotRegression for both regressions */
+	/** Calls plotRegression for both regressions as specified in Options */
 	private static void plotRegression(final double[][]values, final Plot plot,
 			final ResultsTable rt, final String method) {
 
@@ -2439,7 +2451,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			y[i] = values[i][1];
 		}
 		plotRegression(x, y, false, plot, rt, method);
-		plotRegression(x, y, true, plot, rt, method);
+		if ((prefs & Options.P1090_REGRESSION) != 0)
+			plotRegression(x, y, true, plot, rt, method);
 
 	}
 
