@@ -55,7 +55,6 @@ public class Sholl_Utils implements PlugIn {
 
 	private static final String BUILD = "2016.02";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
-	private static final String DOC_URL = "http://imagej.net/Sholl";
 
 	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
 	@Override
@@ -182,7 +181,7 @@ public class Sholl_Utils implements PlugIn {
 		gd.setInsets(0, 20, 0);
 		gd.addMessage(thanks, plainf);
 		gd.enableYesNoCancel("API", "Source Code");
-		gd.addHelp(DOC_URL);
+		gd.addHelp(Sholl_Analysis.URL);
 		gd.setHelpLabel("User Manual");
 		gd.setCancelLabel("Dismiss");
 		gd.showDialog();
