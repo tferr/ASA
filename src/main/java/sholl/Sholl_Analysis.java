@@ -2574,12 +2574,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Re-runs the plugin with sample data */
 	private void retrieveSampleData() {
 		if (isCSV) {
-			if (Analyzer.resetCounter()) { // save existing Results?
-				// TODO Find a more robust way of ignoring previous recordings
-				if (Recorder.record) Recorder.setCommand("Sholl Analysis...");
-				IJ.setKeyDown(KeyEvent.VK_ALT);
-				this.run("");
+			if (Recorder.record) { // Ensure getTable() is not recorded multiple times
+				Recorder.setCommand(Recorder.getCommand());
+				improveRecording();
 			}
+			this.run("csv");
 		} else {
 			this.run("sample");
 		}
