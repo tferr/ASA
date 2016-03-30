@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<version>21.3.0</version>
+		<version>21.0.0</version>
 		<relativePath />
 	</parent>
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>3.6.0</version>
+	<version>3.6.1</version>
 
 	<name>Sholl Analysis</name>
 	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images</description>
