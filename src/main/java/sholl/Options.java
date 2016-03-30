@@ -35,34 +35,34 @@ import sholl.gui.EnhancedGenericDialog;
 public class Options implements PlugIn {
 
 	/* Columns in "Sholl Results" table */
-	public static final int DIRECTORY = 1;
-	public static final int UNIT = 2;
-	public static final int THRESHOLD = 4;
-	public static final int CENTER = 8;
-	public static final int STARTING_RADIUS = 16;
-	public static final int ENDING_RADIUS = 32;
-	public static final int RADIUS_STEP = 64;
-	public static final int SAMPLES_PER_RADIUS = 128;
-	public static final int ENCLOSING_RADIUS = 256;
-	public static final int INTERSECTING_RADII = 512;
-	public static final int SUM_INTERS = 1024;
-	public static final int MEAN_INTERS = 2048;
-	public static final int MEDIAN_INTERS = 4096;
-	public static final int SKEWNESS = 8192;
-	public static final int KURTOSIS = 16384;
-	public static final int CENTROID = 0x8000;
-	public static final int P1090_REGRESSION = 0x10000;
+	static final int DIRECTORY = 1;
+	static final int UNIT = 2;
+	static final int THRESHOLD = 4;
+	static final int CENTER = 8;
+	static final int STARTING_RADIUS = 16;
+	static final int ENDING_RADIUS = 32;
+	static final int RADIUS_STEP = 64;
+	static final int SAMPLES_PER_RADIUS = 128;
+	static final int ENCLOSING_RADIUS = 256;
+	static final int INTERSECTING_RADII = 512;
+	static final int SUM_INTERS = 1024;
+	static final int MEAN_INTERS = 2048;
+	static final int MEDIAN_INTERS = 4096;
+	static final int SKEWNESS = 8192;
+	static final int KURTOSIS = 16384;
+	static final int CENTROID = 0x8000;
+	static final int P1090_REGRESSION = 0x10000;
 
-	final static String METRICS_KEY = "sholl.metrics";
+	private final static String METRICS_KEY = "sholl.metrics";
 
 	/* Sholl mask */
-	final static int DEFAULT_MASK_BACKGROUND = 228;
-	final static String MASK_KEY = "sholl.mask";
+	private final static int DEFAULT_MASK_BACKGROUND = 228;
+	private final static String MASK_KEY = "sholl.mask";
 
-	final static int UNSET_PREFS = -1;
-	static int currentMetrics = UNSET_PREFS;
-	static int maskBackground = UNSET_PREFS;
-	static String commentString = null;
+	private final static int UNSET_PREFS = -1;
+	private static int currentMetrics = UNSET_PREFS;
+	private static int maskBackground = UNSET_PREFS;
+	private static String commentString = null;
 
 	/**
 	 * Debug helper
@@ -83,43 +83,43 @@ public class Options implements PlugIn {
 			promptForOptions();
 	}
 
-	static int getDefaultMetrics() {
+	private static int getDefaultMetrics() {
 		return UNIT + THRESHOLD + CENTER + STARTING_RADIUS + ENDING_RADIUS + RADIUS_STEP + SAMPLES_PER_RADIUS
 				+ ENCLOSING_RADIUS + INTERSECTING_RADII + SUM_INTERS + MEAN_INTERS + MEDIAN_INTERS + SKEWNESS + KURTOSIS
 				+ CENTROID + P1090_REGRESSION;
 	}
 
-	public static int getMetrics() {
+	static int getMetrics() {
 		if (currentMetrics == UNSET_PREFS)
 			currentMetrics = Prefs.getInt(METRICS_KEY, getDefaultMetrics());
 		return currentMetrics;
 	}
 
-	public static int getMaskBackground() {
+	static int getMaskBackground() {
 		if (maskBackground == UNSET_PREFS)
 			maskBackground = Prefs.getInt(MASK_KEY, DEFAULT_MASK_BACKGROUND);
 		return maskBackground;
 	}
 
-	void setMaskBackground(final int grayLevel) {
+	private void setMaskBackground(final int grayLevel) {
 		Prefs.set(MASK_KEY, grayLevel);
 		maskBackground = grayLevel;
 	}
 
-	public static String getCommentString() {
+	static String getCommentString() {
 		if (commentString == null)
 			commentString = Prefs.getString(METRICS_KEY + ".comment", null);
 		return commentString;
 	}
 
-	void setCommentString(String comment) {
+	private void setCommentString(String comment) {
 		if (comment.trim().isEmpty())
 			comment = null;
 		Prefs.set(METRICS_KEY + ".comment", comment);
 		commentString = comment;
 	}
 
-	void resetOptions() {
+	private void resetOptions() {
 		// Reset Sholl metrics
 		Prefs.set(METRICS_KEY, null);
 		Prefs.set(METRICS_KEY+ ".comment", null);
@@ -132,7 +132,7 @@ public class Options implements PlugIn {
 		Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, false);
 	}
 
-	void promptForOptions() {
+	private void promptForOptions() {
 
 		currentMetrics = getMetrics();
 		final String[] labels = new String[16];
@@ -264,7 +264,7 @@ public class Options implements PlugIn {
 
 
 	/** Creates optionsMenu */
-	JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
+	private JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
 		mi = new JMenuItem("Plot Options...");
