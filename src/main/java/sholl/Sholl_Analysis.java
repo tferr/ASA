@@ -1026,7 +1026,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		dialogItemChanged(gd, null);
 
 		Sholl_Utils.addCitationUrl(gd);
-		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
+		gd.assignPopupToHelpButton(createOptionsMenu(gd));
 		gd.showScrollableDialog();
 		if (gd.wasCanceled()) {
 			return false;
@@ -1424,7 +1424,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		Sholl_Utils.addCitationUrl(gd);
-		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
+		gd.assignPopupToHelpButton(createOptionsMenu(gd));
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		gd.showScrollableDialog();

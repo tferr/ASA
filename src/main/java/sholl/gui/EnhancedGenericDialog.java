@@ -125,6 +125,9 @@ public class EnhancedGenericDialog extends GenericDialog {
 		}
 	}
 
+	public void assignPopupToHelpButton(final JPopupMenu popupmenu) {
+		assignPopupToHelpButton("More \u00bb", popupmenu);
+	}
 	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
 		if (!isHeadless() && buttonLabel != null && popupmenu != null) {
 			// Ensure swing component is displayed with a java.awt look and feel

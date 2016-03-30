@@ -226,7 +226,7 @@ public class Options implements PlugIn {
 		gd.addNumericField("Decimal places (0-9):", Analyzer.getPrecision(), 0, 4, "");
 		gd.setInsets(0, 70, 0);
 		gd.addCheckbox("Scientific notation", (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0);
-		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
+		gd.assignPopupToHelpButton(createOptionsMenu(gd));
 		gd.enableYesNoCancel("OK", "Revert to Defaults");
 		gd.showDialog();
 
