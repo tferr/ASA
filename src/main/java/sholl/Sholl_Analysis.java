@@ -2798,7 +2798,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	private static boolean validateBooleanString(final String string) {
-		final boolean valid = string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false");
+		final boolean valid = string != null && (string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false"));
 		if (!valid)
 			IJ.log(">>> Sholl Utils: Not a valid option: '" + string + "'");
 		return valid;
