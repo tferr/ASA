@@ -157,7 +157,7 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/** Displays the Sholl's plugin "about" info box */
-	void showAbout() {
+	private void showAbout() {
 		final String version = Sholl_Analysis.VERSION +" "+ BUILD;
 		final String summary = "Quantitative Sholl-based morphometry of untraced imagges";
 		final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";

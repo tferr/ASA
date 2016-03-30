@@ -83,7 +83,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	public static final String VERSION = "3.4.7-DEV";
+	static final String VERSION = "3.4.7-DEV";
 	static final String URL = "http://imagej.net/Sholl_Analysis";
 
 	/* Sholl Type Definitions */
@@ -167,11 +167,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Parameters for 2D analysis */
 	private static final String[] BIN_TYPES = { "Mean", "Median", "Mode" };
 	/** Flag for integration of repeated measures (2D analysis): average */
-	public static final int BIN_AVERAGE = 0;
+	private static final int BIN_AVERAGE = 0;
 	/** Flag for integration of repeated measures (2D analysis): median */
-	public static final int BIN_MEDIAN = 1;
+	private static final int BIN_MEDIAN = 1;
 	/** Flag for integration of repeated measures (2D analysis): mode */
-	public static final int BIN_MODE = 2;
+	private static final int BIN_MODE = 2;
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
@@ -1072,7 +1072,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * message while highlighting the arbor to remember the user that highlighted
 	 * pixels are the ones to be measured
 	 */
-	void offlineHelp(final GenericDialog parentDialog) {
+	private void offlineHelp(final GenericDialog parentDialog) {
 
 		// remember image LUT
 		final LUT lut = this.ip.getLut();
@@ -2160,7 +2160,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Creates optionsMenu */
-	JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
+	private JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
 		if (isCSV) {
@@ -2796,14 +2796,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			Sholl_Analysis.fMetricsPrecision = Integer.parseInt(intString);
 	}
 
-	static boolean validateBooleanString(final String string) {
+	private static boolean validateBooleanString(final String string) {
 		final boolean valid = string.equalsIgnoreCase("true") || string.equalsIgnoreCase("false");
 		if (!valid)
 			IJ.log(">>> Sholl Utils: Not a valid option: '" + string + "'");
 		return valid;
 	}
 
-	static boolean validateIntString(final String string) {
+	private static boolean validateIntString(final String string) {
 		boolean valid = true;
 		try {
 			Integer.parseInt(string);
@@ -2825,7 +2825,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return A populated Results table or <code>null</code> if chosen source
 	 *         did not contain valid data.
 	 */
-	ResultsTable getTable() {
+	private ResultsTable getTable() {
 
 		ResultsTable rt = null;
 		final ArrayList<ResultsTable> tables = new ArrayList<ResultsTable>();

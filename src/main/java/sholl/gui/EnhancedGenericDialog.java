@@ -170,7 +170,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 *      "http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">
 	 *      git.openmicroscopy</a>
 	 */
-	void addScrollBars() {
+	private void addScrollBars() {
 
 		final GridBagLayout layout = (GridBagLayout) this.getLayout();
 
