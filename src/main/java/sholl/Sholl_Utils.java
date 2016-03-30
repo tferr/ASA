@@ -26,7 +26,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.image.IndexColorModel;
 import java.io.InputStream;
 
-import ij.CompositeImage;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -61,8 +60,6 @@ public class Sholl_Utils implements PlugIn {
 			showAbout();
 		else if (arg.equalsIgnoreCase("sample"))
 			displaySample();
-		else if(arg.equalsIgnoreCase("jet"))
-			applyJetLut();
 	}
 
 	/**
@@ -132,28 +129,6 @@ public class Sholl_Utils implements PlugIn {
 
 		return new IndexColorModel(8, 256, reds, greens, blues);
 
-	}
-
-	/** Applies matlabJetColorMap() to frontmost image */
-	void applyJetLut() {
-		ImagePlus imp = WindowManager.getCurrentImage();
-		if (imp!=null && imp.getType()==ImagePlus.COLOR_RGB) {
-			IJ.error("LUTs cannot be assiged to RGB Images.");
-			return;
-		}
-
-		// Display LUT
-		final IndexColorModel cm = matlabJetColorMap(-1);
-		if (imp==null) {
-			imp = new ImagePlus("MATLAB Jet",ij.plugin.LutLoader.createImage(cm));
-			imp.show();
-		} else {
-			if (imp.isComposite())
-				((CompositeImage)imp).setChannelColorModel(cm);
-			else
-				imp.getProcessor().setColorModel(cm);
-			imp.updateAndDraw();
-		}
 	}
 
 	/** Displays the Sholl's plugin "about" info box */
