@@ -227,7 +227,7 @@ public class Options implements PlugIn {
 		gd.setInsets(0, 70, 0);
 		gd.addCheckbox("Scientific notation", (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0);
 		gd.assignPopupToHelpButton("More \u00bb", createOptionsMenu(gd));
-		gd.enableYesNoCancel("OK", "Reset to Defaults");
+		gd.enableYesNoCancel("OK", "Revert to Defaults");
 		gd.showDialog();
 
 		if (gd.wasCanceled()) {

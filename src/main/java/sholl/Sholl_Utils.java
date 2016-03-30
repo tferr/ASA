@@ -134,8 +134,10 @@ public class Sholl_Utils implements PlugIn {
 	/** Displays the Sholl's plugin "about" info box */
 	private void showAbout() {
 		final String version = Sholl_Analysis.VERSION +" "+ BUILD;
-		final String summary = "Quantitative Sholl-based morphometry of untraced imagges";
-		final String authors = "Tiago Ferreira, Tom Maddock (v1.0)";
+		final String summary = "Quantitative Sholl-based morphometry of untraced images";
+		final String authors1 = "Tiago Ferreira";
+		final String authors2 = "(Based on an initial implementation by Tom Maddock)";
+
 		final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan\nPreibisch, "
 				+ "Bio-Formats team";
 
@@ -149,7 +151,9 @@ public class Sholl_Utils implements PlugIn {
 		gd.addMessage(version, plainf);
 		gd.addMessage("Authors", boldf);
 		gd.setInsets(0, 20, 0);
-		gd.addMessage(authors, plainf);
+		gd.addHyperlinkMessage(authors1, plainf, Color.BLUE.darker(), "http://imagej.net/User:Tiago");
+		gd.setInsets(0, 20, 0);
+		gd.addMessage(authors2, plainf);
 		gd.addMessage("Special Thanks", boldf);
 		gd.setInsets(0, 20, 0);
 		gd.addMessage(thanks, plainf);
