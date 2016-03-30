@@ -83,7 +83,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	static final String VERSION = "3.4.7-DEV";
+	static final String VERSION = "3.6.0";
 	static final String URL = "http://imagej.net/Sholl_Analysis";
 
 	/* Sholl Type Definitions */
@@ -224,7 +224,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	@Override
 	public void run( final String arg) {
 
-		if (IJ.versionLessThan("1.49t")) return; // this is required for non-fiji users
+		if (IJ.versionLessThan("1.50e")) return; // this is required for non-fiji users
 
 		if (arg.equalsIgnoreCase("sample")) {
 			img = Sholl_Utils.displaySample();
