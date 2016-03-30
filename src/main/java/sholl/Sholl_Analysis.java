@@ -2294,7 +2294,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		if ((prefs & Options.STARTING_RADIUS) != 0)
 			rt.addValue("Starting radius", startRadius);
-		rt.addValue("Ending radius", endRadius);
+		if ((prefs & Options.ENDING_RADIUS) != 0)
+			rt.addValue("Ending radius", endRadius);
 		if ((prefs & Options.RADIUS_STEP) != 0)
 			rt.addValue("Radius step", stepRadius);
 		if ((prefs & Options.SAMPLES_PER_RADIUS) != 0)
