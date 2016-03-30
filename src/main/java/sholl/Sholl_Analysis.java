@@ -211,7 +211,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		Debug.run("Sholl Analysis...", "");
 	}
 
-	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
+	/**
+	 * This method is called when the plugin is loaded. <code>arg</code> is
+	 * specified in <code>plugins.config</code>. See
+	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
+	 * 
+	 * @param arg
+	 *            If <code>csv</code> the plugin is set for analysis of tabular
+	 *            data. If <code>sample</code>, the plugin runs on a demo image
+	 *            suitable.
+	 */
 	@Override
 	public void run( final String arg) {
 

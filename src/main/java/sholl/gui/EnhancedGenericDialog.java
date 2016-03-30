@@ -42,7 +42,10 @@ import ij.gui.GenericDialog;
 import ij.plugin.BrowserLauncher;
 
 /**
- * Enhances GenericDialog with a few additional methods.
+ * Enhances GenericDialog with a few additional including srollbars as soon as
+ * the Dialog is too large to be displayed, ability to use the "help" button to
+ * display a drop-down menu, and labels featuring clickable hyperlinks.
+ * Customizations are ignored if running headless.
  */
 public class EnhancedGenericDialog extends GenericDialog {
 	private static final long serialVersionUID = 1L;
@@ -51,10 +54,12 @@ public class EnhancedGenericDialog extends GenericDialog {
 	private ActionListener helpActionButtonListener = null;
 	private MouseAdapter helpActionMouseListener = null;
 
+	/** {@link ij.gui.GenericDialog#GenericDialog(String, Frame) GenericDialog constructor} */
 	public EnhancedGenericDialog(final String title) {
 		super(title);
 	}
 
+	/** {@link ij.gui.GenericDialog#GenericDialog(String) GenericDialog constructor} */
 	public EnhancedGenericDialog(final String title, final Frame parent) {
 		super(title, parent);
 	}
@@ -64,11 +69,13 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 * be displayed using the specified font and color.
 	 * 
 	 * @param text
-	 *            The label contents
+	 *            The contents of the clickable label
 	 * @param font
-	 *            the label font
+	 *            the label font. If <code>null</code>, the GenericDialog's default
+	 *            font is used
 	 * @param color
-	 *            the label color
+	 *            the label color. If <code>null</code>, the GenericDialog's default
+	 *            foreground color is used
 	 * @param url
 	 *            The URL to be opened by the default browser of the OS
 	 */
@@ -116,6 +123,19 @@ public class EnhancedGenericDialog extends GenericDialog {
 		}
 	}
 
+	/**
+	 * Adds a "Help" button and attaches the specified listener to it. In IJ1
+	 * GenericDialog, event listeners triggered by the help button are only
+	 * notified when the "Cancel" button is hidden. This method overcomes that
+	 * limitation. NB: Actions triggered by menu items will not be macro
+	 * recordable unless they trigger e.g., {@link ij.IJ#doCommand(String )
+	 * IJ.doCommand()} calls
+	 *
+	 * @param buttonLabel
+	 *            the label of the customized "Help" button
+	 * @param listener
+	 *            the ActionListener monitoring action events
+	 */
 	public void assignListenerToHelpButton(final String buttonLabel, final ActionListener listener) {
 		if (!isHeadless() && buttonLabel != null && listener != null) {
 			super.addHelp("");
@@ -125,9 +145,30 @@ public class EnhancedGenericDialog extends GenericDialog {
 		}
 	}
 
+	/**
+	 * Attaches the specified JPopupMenu to the GenericDialog "Help" button
+	 * renamed "More &#187;". NB: Actions triggered by menu items will not be
+	 * macro recordable unless they trigger e.g.,
+	 * {@link ij.IJ#doCommand(String ) IJ.doCommand()} calls.
+	 *
+	 * @param popupmenu
+	 *            the JPopupMenu to be attached to the "More &#187;" button.
+	 * @see #assignPopupToHelpButton(String, JPopupMenu)
+	 */
 	public void assignPopupToHelpButton(final JPopupMenu popupmenu) {
 		assignPopupToHelpButton("More \u00bb", popupmenu);
 	}
+
+	/**
+	 * Adds a "Help" button and attaches the specified JPopupMenu to it. NB:
+	 * Actions triggered by menu items will not be macro recordable unless they
+	 * trigger e.g., {@link ij.IJ#doCommand(String ) IJ.doCommand()} calls.
+	 *
+	 * @param buttonLabel
+	 *            the label of the "Help" button.
+	 * @param popupmenu
+	 *            the JPopupMenu to be attached to the "Help" button.
+	 */
 	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
 		if (!isHeadless() && buttonLabel != null && popupmenu != null) {
 			// Ensure swing component is displayed with a java.awt look and feel
@@ -159,6 +200,13 @@ public class EnhancedGenericDialog extends GenericDialog {
 		return GraphicsEnvironment.isHeadless();
 	}
 
+	/**
+	 * Adds AWT scroll bars to the dialog before displaying it, when not running
+	 * headless. Scroll bars are only added if the largest dimension of the
+	 * Dialog reaches ~90% of the primary display as reported by
+	 * {@link ij.IJ#getScreenSize() IJ.getScreenSize()}. Dialog remains fully
+	 * recordable.
+	 */
 	public void showScrollableDialog() {
 		if (!isHeadless())
 			addScrollBars();
@@ -166,8 +214,8 @@ public class EnhancedGenericDialog extends GenericDialog {
 	}
 
 	/**
-	 * Adds AWT scroll bars to the GenericDialog. From bio-formats Window.Tools,
-	 * licensed under GNU GPLv2 (April 2013)
+	 * Adds AWT scroll bars to the GenericDialog. From an old version of
+	 * bio-formats Window.Tools, licensed under GNU GPLv2 (April 2013)
 	 * 
 	 * @see <a href=
 	 *      "http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">
@@ -273,6 +321,11 @@ public class EnhancedGenericDialog extends GenericDialog {
 
 	}
 
+	/**
+	 * Returns the foreground color of disabled components.
+	 *
+	 * @return The {@link UIManager} foreground color of a disabled component.
+	 */
 	public Color getDisabledComponentColor() {
 		try {
 			return UIManager.getColor("CheckBox.disabledText");

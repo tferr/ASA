@@ -42,7 +42,7 @@ import sholl.gui.EnhancedGenericDialog;
 
 
 /**
- * Auxiliary commands and routines for {@link Sholl_Analysis}
+ * Utilities for {@link Sholl_Analysis}
  *
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
@@ -53,7 +53,16 @@ public class Sholl_Utils implements PlugIn {
 	private static final String BUILD = "2016.02";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 
-	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
+	/**
+	 * This method is called when the plugin is loaded. <code>arg</code> is
+	 * specified in <code>plugins.config</code>. See
+	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
+	 * 
+	 * @param arg
+	 *            If <code>about</code> the "About" dialog is displayed. If
+	 *            <code>sample</code>, a demo image suitable for Sholl analysis
+	 *            is opened.
+	 */
 	@Override
 	public void run(final String arg) {
 		if (arg.equalsIgnoreCase("about"))
@@ -299,7 +308,7 @@ public class Sholl_Utils implements PlugIn {
 
 	/**
 	 * Highlights a point on a plot without listing it on the Plot's table. Does
-	 * nothing if the points coordinates are <code>null</code>.
+	 * nothing if the point coordinates are <code>null</code>.
 	 *
 	 * @param plot
 	 *            Plot object

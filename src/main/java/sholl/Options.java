@@ -32,6 +32,12 @@ import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 import sholl.gui.EnhancedGenericDialog;
 
+
+/**
+ * This class implements the "Sholl Options and Metrics" command.
+ *
+ * @author Tiago Ferreira
+ */
 public class Options implements PlugIn {
 
 	/* Columns in "Sholl Results" table */
@@ -74,7 +80,15 @@ public class Options implements PlugIn {
 		Debug.run("Metrics & Options...", "");
 	}
 
-	/** See {@link ij.plugin.PlugIn#run(java.lang.String)} */
+	/**
+	 * This method is called when the plugin is loaded. <code>arg</code> is
+	 * specified in <code>plugins.config</code>. See
+	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
+	 * 
+	 * @param arg
+	 *            If <code>reset</code> options and preferences are reset to
+	 *            defaults.
+	 */
 	@Override
 	public void run(final String arg) {
 		if (arg.equals("reset"))
@@ -95,12 +109,27 @@ public class Options implements PlugIn {
 		return currentMetrics;
 	}
 
+	/**
+	 * Returns the background color of the Sholl mask image
+	 *
+	 * @return the gray value (8-bit scale) of the first entry of the LUT of the
+	 *         Sholl mask's LUT image
+	 * @see Sholl_Utils#matlabJetColorMap(int)
+	 */
 	static int getMaskBackground() {
 		if (maskBackground == UNSET_PREFS)
 			maskBackground = Prefs.getInt(MASK_KEY, DEFAULT_MASK_BACKGROUND);
 		return maskBackground;
 	}
 
+	/**
+	 * Sets the background color of the Sholl mask
+	 *
+	 * @param grayLevel
+	 *            the gray value (8-bit scale) to be used as the first entry of
+	 *            the LUT of the Sholl mask image
+	 * @see Sholl_Utils#matlabJetColorMap(int)
+	 */
 	private void setMaskBackground(final int grayLevel) {
 		Prefs.set(MASK_KEY, grayLevel);
 		maskBackground = grayLevel;
