@@ -17,8 +17,8 @@
 	<version>3.4.7-SNAPSHOT</version>
 
 	<name>Sholl Analysis</name>
-	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from bitmap images</description>
-	<url>http://fiji.sc/Sholl</url>
+	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images</description>
+	<url>http://imagej.net/Sholl</url>
 	<inceptionYear>2005</inceptionYear>
 
 	<developers>
