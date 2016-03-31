@@ -11,14 +11,32 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-####Version 3.4.7
+####
 * No major changes to report
 
 
 Release Builds
 --------------
+Version 3.6.1 (March 2016)
+[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+
+* UI overhaul: Functionality of the plugin has been split into several commands. These now reside
+  in the `Analyze> Sholl>` submenu, and, in the plugin prompts, in the _More>>_ dropdown menu.
+* Implemented the _Sholl Metrics & Options_ command, that allows for full customization of the
+  analysis output. In addition, it is now also possible to log file paths and to tag groups of images
+  using a _Comments_ field
+* Analysis of tabular data:
+   * Key modifiers are no longer required. `Sholl> Sholl Analysis (Tabular Data)...` can be used directly
+   * Data can be read from any Textwindow containing table, the system clipboard or an external file
+     (previously the plugin was only aware of the ImageJ _Results_ table)
+* Development: Improved [API](http://tferr.github.io/ASA/apidocs/)
+* NB: This release is identical to v3.6.0, that suffered from an issue that did not allow
+  [automated compilation by jenkins](https://github.com/tferr/ASA/commit/25f2c2e7d918e83b6daa60ff1723658b505eb699)
+
 ####Version 3.4.6 (February 2016)
-* Primary branches can be retrieved from [multi-point counters](http://imagej.net/Sholl#Startup_ROI)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.46437.svg)](http://dx.doi.org/10.5281/zenodo.46437)
+
+* Primary branches can be retrieved from [multi-point counters](http://imagej.net/Sholl_Analysis#Startup_ROI)
 * Ramification indices (RI) are only calculated when explicitly requested. To disable RI calculations
   deselect the _Infer from starting radius_ checkbox <u>and</u> invalidate the _# Primary branches_
   field by setting it to `0` or `NaN`
