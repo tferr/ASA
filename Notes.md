@@ -11,13 +11,12 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-####
 * No major changes to report
 
 
 Release Builds
 --------------
-Version 3.6.1 (March 2016)
+####Version 3.6.1 (March 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 
 * UI overhaul: Functionality of the plugin has been split into several commands. These now reside
