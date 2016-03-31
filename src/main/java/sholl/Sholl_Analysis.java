@@ -1,19 +1,25 @@
-package sholl;
-/* Copyright 2010-2016 Tiago Ferreira, 2005 Tom Maddock
- *
+/*
+ * #%L
+ * Sholl_Analysis plugin for ImageJ
+ * %%
+ * Copyright (C) 2005 - 2016 Tiago Ferreira
+ * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
  */
+package sholl;
 
 import java.awt.AWTEvent;
 import java.awt.Checkbox;
@@ -75,7 +81,7 @@ import sholl.gui.EnhancedGenericDialog;
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
  * directly from bitmap images.
  *
- * @author Tiago Ferreira (v2-3, 2010-2016), Tom Maddock (v1, 2005)
+ * @author Tiago Ferreira (based on an earlier implementation by Tom Maddock)
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  */
