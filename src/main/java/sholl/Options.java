@@ -320,7 +320,7 @@ public class Options implements PlugIn {
 		mi = new JMenuItem("Plot Options...");
 		mi.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				IJ.doCommand("Profile Plot Options...");
+				IJ.doCommand("Plots...");
 			}
 		});
 		popup.add(mi);
