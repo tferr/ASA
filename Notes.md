@@ -11,7 +11,8 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* No major changes to report
+* Fixed a bug in which choosing the _Plot Options..._ from the _More >>_ dropdown menu would
+  not open _Edit>Options>Plots..._
 
 
 Release Builds
@@ -237,12 +238,13 @@ Release Builds
    * Curve Fitting, modernization of Tom's code
 
 ####Version 1.0
-   * Initial version by Tom Maddock
+   * Code imported from Tom Maddock's implementation
 
 
 Wish List
 ---------
   * ~~Allow manual counting of primary branches~~ ([Version 3.4.6](#version-346-february-2016))
   * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-july-2014))
+  * Allow analysis of multichannel images
   * Restrict analysis to area ROIs (rather than hemicircles/spheres?)
   * Obtain a mask for every chosen method (slices of an ImageStack?)
