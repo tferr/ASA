@@ -11,12 +11,20 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* Fixed a bug in which choosing the _Plot Options..._ from the _More >>_ dropdown menu would
-  not open _Edit>Options>Plots..._
-
+* No major changes to report
 
 Release Builds
 --------------
+####Version 3.6.2 (May 2016)
+[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+* Improvements:
+   * Analysis of 3D images is now multithreaded. The number of threads can be set in _Metrics & Options..._
+   * Fixed an exception triggered by IJ1.51a and later when sampling edge voxels
+* Bugs Fixed:
+   * 3D sampling could be shifted by one voxel in Z
+   * _Reset_ option in _Metrics & Options..._ command did not reset all of global preferences
+   * _Plot Options..._ from the _More >>_ dropdown menu would not open _Edit>Options>Plots..._
+
 ####Version 3.6.1 (March 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 
