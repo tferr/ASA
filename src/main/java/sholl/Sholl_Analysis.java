@@ -39,6 +39,8 @@ import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -1533,25 +1535,42 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 							final int ymax = Math.min(yc + (int)Math.round(radii[s]/vxWH), maxY);
 							final int zmax = Math.min(zc + (int)Math.round(radii[s]/vxD), maxZ);
 
-							for (int z = zmin; z < zmax; z++) {
-								for (int y = ymin; y < ymax; y++) {
-									for (int x = xmin; x < xmax; x++) {
-										final double dx = Math.sqrt((x-xc) * vxWH * (x-xc) * vxWH
-												+ (y-yc) * vxWH * (y-yc) * vxWH
-												+ (z-zc) * vxD * (z-zc) * vxD);
-										if (Math.abs(dx - radii[s]) < 0.5) {
-											final double value = stack.getVoxel(x, y, z);
-											if (value >= lowerT && value <= upperT && hasNeighbors(x, y, z, stack)) {
-												points.add(new int[] { x, y, z });
+							try {
+								for (int z = zmin; z < zmax; z++) {
+									for (int y = ymin; y < ymax; y++) {
+										for (int x = xmin; x < xmax; x++) {
+											final double dx = Math.sqrt((x-xc) * vxWH * (x-xc) * vxWH
+													+ (y-yc) * vxWH * (y-yc) * vxWH
+													+ (z-zc) * vxD * (z-zc) * vxD);
+											if (Math.abs(dx - radii[s]) < 0.5) {
+												final double value = stack.getVoxel(x, y, z);
+												if (value >= lowerT && value <= upperT && hasNeighbors(x, y, z, stack)) {
+													points.add(new int[] { x, y, z });
+												}
 											}
 										}
 									}
 								}
-							}
 
-							// We now have the the points intercepting the surface of this Sholl
-							// sphere. Lets check if their respective pixels are clustered
-							data[s] = count3Dgroups(points);
+								// We now have the the points intercepting the surface of this Sholl
+								// sphere. Lets check if their respective pixels are clustered
+								data[s] = count3Dgroups(points);
+
+							} catch (final Exception e) {
+
+								final StringWriter sw = new StringWriter();
+								final PrintWriter pw = new PrintWriter(sw);
+								e.printStackTrace(pw);
+								final String spacer = "*** *** ***";
+								IJ.log(" \n"+spacer);
+								IJ.log("An error occurred while sampling shell " + (s + 1) +". We'll now do our\n"
+										+ "best to exit gracefully... Please include the following Exception\n"
+										+ "when reporting this bug (together with the info retrieved from\n"
+										+ "\"Plugins>Utilities>ImageJ Properties\"):\n \n"+ sw.toString());
+								IJ.log(spacer);
+								return;
+
+							}
 
 						}
 
