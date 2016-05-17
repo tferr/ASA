@@ -1533,7 +1533,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 							final int ymax = Math.min(yc + (int)Math.round(radii[s]/vxWH), maxY);
 							final int zmax = Math.min(zc + (int)Math.round(radii[s]/vxD), maxZ);
 
-							for (int z = zmin; z <= zmax; z++) {
+							for (int z = zmin; z < zmax; z++) {
 								for (int y = ymin; y < ymax; y++) {
 									for (int x = xmin; x < xmax; x++) {
 										final double dx = Math.sqrt((x-xc) * vxWH * (x-xc) * vxWH
