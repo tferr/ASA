@@ -1544,7 +1544,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 													+ (z-zc) * vxD * (z-zc) * vxD);
 											if (Math.abs(dx - radii[s]) < 0.5) {
 												final double value = stack.getVoxel(x, y, z);
-												if (value >= lowerT && value <= upperT && hasNeighbors(x, y, z, stack)) {
+												if (value >= lowerT && value <= upperT && (!skipSingleVoxels
+														|| skipSingleVoxels && hasNeighbors(x, y, z, stack))) {
 													points.add(new int[] { x, y, z });
 												}
 											}
@@ -1564,9 +1565,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 								final String spacer = "*** *** ***";
 								IJ.log(" \n"+spacer);
 								IJ.log("An error occurred while sampling shell " + (s + 1) +". We'll now do our\n"
-										+ "best to exit gracefully... Please include the following Exception\n"
-										+ "when reporting this bug (together with the info retrieved from\n"
-										+ "\"Plugins>Utilities>ImageJ Properties\"):\n \n"+ sw.toString());
+										+ "best to continue... Please include the following Exception\n"
+										+ "when reporting this bug (together with the info retrieved\n"
+										+ "from \"Plugins>Utilities>ImageJ Properties\"):\n \n"+ sw.toString());
 								IJ.log(spacer);
 								return;
 
@@ -1589,9 +1590,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * is thresholded and if position does not correspond to an edge voxel.
 	 */
 	static private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
-
-		if (!skipSingleVoxels)
-			return true; // Do not proceed if secludeSingleVoxels is not set
 
 		final int[][] neighboors = new int[6][3];
 
