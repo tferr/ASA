@@ -2223,7 +2223,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (isCSV) {
 			mi = new JMenuItem("Analyze Other Data...");
 			mi.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(final ActionEvent e) {
 					gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
 					gd.dispose();
 					improveRecording();
@@ -2234,7 +2234,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else {
 			mi = new JMenuItem("Cf. Segmentation");
 			mi.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(final ActionEvent e) {
 					offlineHelp(gd);
 				}
 			});
@@ -2242,7 +2242,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		mi = new JMenuItem("Options...");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				IJ.doCommand("Metrics & Options...");
 			}
 		});
@@ -2250,7 +2250,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.addSeparator();
 		mi = new JMenuItem(isCSV ? "Analyze image..." : "Analyze Tabular Data...");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
 				gd.dispose();
 				improveRecording();
@@ -2262,14 +2262,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.addSeparator();
 		mi = new JMenuItem("Online documentation");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				IJ.runPlugIn("ij.plugin.BrowserLauncher", isCSV ? URL + "#Importing" : URL);
 			}
 		});
 		popup.add(mi);
 		mi = new JMenuItem("About...");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				IJ.runPlugIn("sholl.Sholl_Utils", "about");
 			}
 		});
@@ -2335,7 +2335,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Image", rowLabel);
 		if ((prefs & Options.DIRECTORY) != 0)
 			rt.addValue("Directory", (validPath) ? imgPath : "Unknown");
-		String comment = Options.getCommentString();
+		final String comment = Options.getCommentString();
 		if (comment!=null)
 			rt.addValue("Comment", comment);
 		if ((prefs & Options.UNIT) != 0)
@@ -2686,8 +2686,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (Recorder.record) {
 			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
 				+ "// Visit "+ URL +"#Batch_Processing for scripting tips\n";
-			String cmd = Recorder.getCommand();
-			String cmdOptions = Recorder.getCommandOptions();
+			final String cmd = Recorder.getCommand();
+			final String cmdOptions = Recorder.getCommandOptions();
 			if (cmd == null || cmdOptions == null) {
 				recordString += "// NB: Commands in the \"More\u00bb\" dropdown menu should be recorded from \"Analyze>Sholl>\"\n";
 			}
