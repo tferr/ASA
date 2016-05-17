@@ -42,6 +42,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -74,6 +75,7 @@ import ij.process.LUT;
 import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
+import ij.util.ThreadUtil;
 import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 
@@ -1484,11 +1486,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            The image being analyzed
 	 * @return intersection counts (the linear profile of sampled data)
 	 */
-	static public double[] analyze3D(final int xc, final int yc, final int zc,
+	static public synchronized double[] analyze3D(final int xc, final int yc, final int zc,
 			final double[] radii, final ImagePlus img) {
 
-		int nspheres, xmin, ymin, zmin, xmax, ymax, zmax;
-		double dx, value;
+		int nspheres;
 
 		// Create an array to hold results
 		final double[] data = new double[nspheres = radii.length];
@@ -1496,48 +1497,70 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Get Image Stack
 		final ImageStack stack = img.getStack();
 
-		for (int s = 0; s < nspheres; s++) {
+		// Split processing across the number of available CPUs
+		final AtomicInteger ai = new AtomicInteger(0);
+		final int n_cpus = Prefs.getThreads();
+		final Thread[] threads = ThreadUtil.createThreadArray(n_cpus);
+		setThreadedCounter(0);
 
-			IJ.showProgress(s, nspheres);
-			IJ.showStatus("Sampling sphere "+ (s+1) +"/"+ nspheres +". Press 'Esc' to abort...");
-			if (IJ.escapePressed())
-				{ IJ.beep(); return data; }
+		for (int ithread = 0; ithread < threads.length; ithread++) {
 
-			// Initialize ArrayLists to hold surface points
-			final ArrayList<int[]> points = new ArrayList<int[]>();
+			final int chunkSize = (nspheres + n_cpus - 1) / n_cpus; // divide by threads rounded up.
+			final int start = ithread * chunkSize;
+			final int end = Math.min(start + chunkSize, nspheres);
 
-			// Restrain analysis to the smallest volume for this sphere
-			xmin = Math.max(xc - (int)Math.round(radii[s]/vxWH), minX);
-			ymin = Math.max(yc - (int)Math.round(radii[s]/vxWH), minY);
-			zmin = Math.max(zc - (int)Math.round(radii[s]/vxD), minZ);
-			xmax = Math.min(xc + (int)Math.round(radii[s]/vxWH), maxX);
-			ymax = Math.min(yc + (int)Math.round(radii[s]/vxWH), maxY);
-			zmax = Math.min(zc + (int)Math.round(radii[s]/vxD), maxZ);
+			threads[ithread] = new Thread() {
 
-			for (int z=zmin; z<=zmax; z++) {
-				for (int y=ymin; y<ymax; y++) {
-					for (int x=xmin; x<xmax; x++) {
-						dx = Math.sqrt((x-xc) * vxWH * (x-xc) * vxWH
-									 + (y-yc) * vxWH * (y-yc) * vxWH
-									 + (z-zc) * vxD	 * (z-zc) * vxD);
-						if (Math.abs(dx-radii[s])<0.5) {
-							value = stack.getVoxel(x,y,z);
-							if (value >= lowerT && value <= upperT) {
-								if (hasNeighbors(x,y,z,stack))
-									points.add( new int[]{x,y,z} );
+				public void run() {
+					for (int k = ai.getAndIncrement(); k < n_cpus; k = ai.getAndIncrement()) {
+
+						for (int s = start; s < end; s++) {
+							IJ.showProgress(s, nspheres);
+							IJ.showStatus("Sampling sphere "+ (s+1) +"/"+ nspheres +". Press 'Esc' to abort...");
+							if (IJ.escapePressed()) {
+								IJ.beep();
+								return;
 							}
+
+							// Initialize ArrayLists to hold surface points
+							final ArrayList<int[]> points = new ArrayList<int[]>();
+
+							// Restrain analysis to the smallest volume for this sphere
+							final int xmin = Math.max(xc - (int)Math.round(radii[s]/vxWH), minX);
+							final int ymin = Math.max(yc - (int)Math.round(radii[s]/vxWH), minY);
+							final int zmin = Math.max(zc - (int)Math.round(radii[s]/vxD), minZ);
+							final int xmax = Math.min(xc + (int)Math.round(radii[s]/vxWH), maxX);
+							final int ymax = Math.min(yc + (int)Math.round(radii[s]/vxWH), maxY);
+							final int zmax = Math.min(zc + (int)Math.round(radii[s]/vxD), maxZ);
+
+							for (int z = zmin; z <= zmax; z++) {
+								for (int y = ymin; y < ymax; y++) {
+									for (int x = xmin; x < xmax; x++) {
+										final double dx = Math.sqrt((x-xc) * vxWH * (x-xc) * vxWH
+												+ (y-yc) * vxWH * (y-yc) * vxWH
+												+ (z-zc) * vxD * (z-zc) * vxD);
+										if (Math.abs(dx - radii[s]) < 0.5) {
+											final double value = stack.getVoxel(x, y, z);
+											if (value >= lowerT && value <= upperT && hasNeighbors(x, y, z, stack)) {
+												points.add(new int[] { x, y, z });
+											}
+										}
+									}
+								}
+							}
+
+							// We now have the the points intercepting the surface of this Sholl
+							// sphere. Lets check if their respective pixels are clustered
+							data[s] = count3Dgroups(points);
+
 						}
+
 					}
 				}
-			}
-
-			// We now have the the points intercepting the surface of this Sholl sphere.
-			// Lets check if their respective pixels are clustered
-			data[s] = count3Dgroups(points);
-
-			// Exit as soon as a sphere has no interceptions
-				//if (points.size()==0) break;
+			};
 		}
+		ThreadUtil.startAndJoin(threads);
+
 		return data;
 
 	}
