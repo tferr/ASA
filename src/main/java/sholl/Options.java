@@ -273,7 +273,7 @@ public class Options implements PlugIn {
 
 		// Include IJ preferences for convenience
 		gd.setInsets(15, 0, 2);
-		gd.addMessage("System preferences (affect all ImageJ commands):", font);
+		gd.addMessage("Global preferences (shared by all ImageJ commands):", font);
 		gd.addNumericField("Parallel threads (3D images):", Prefs.getThreads(), 0, 4, "");
 		gd.addStringField("File extension for tables:", Prefs.defaultResultsExtension(), 4);
 		gd.setInsets(0, 0, 0);
