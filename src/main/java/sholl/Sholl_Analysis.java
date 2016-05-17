@@ -209,6 +209,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int prefs;
 	private ImagePlus img;
 	private ImageProcessor ip;
+	private static int progressCounter;
 
 
 	/**
@@ -1517,8 +1518,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					for (int k = ai.getAndIncrement(); k < n_cpus; k = ai.getAndIncrement()) {
 
 						for (int s = start; s < end; s++) {
-							IJ.showProgress(s, nspheres);
-							IJ.showStatus("Sampling sphere "+ (s+1) +"/"+ nspheres +". Press 'Esc' to abort...");
+							final int counter = getThreadedCounter();
+							IJ.showProgress(counter,nspheres);
+							IJ.showStatus("Sampling sphere " + (counter + 1) + "/" + nspheres + " (" + n_cpus
+									+ " threads). Press 'Esc' to abort...");
+							setThreadedCounter(counter+1);
 							if (IJ.escapePressed()) {
 								IJ.beep();
 								return;
@@ -2989,5 +2993,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		return rt;
 
+	}
+
+	private static int getThreadedCounter() {
+		return progressCounter;
+	}
+
+	private static void setThreadedCounter(final int updatedCounter) {
+		progressCounter = updatedCounter;
 	}
 }
