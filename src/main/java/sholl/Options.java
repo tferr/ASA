@@ -180,6 +180,9 @@ public class Options implements PlugIn {
 		// Reset Analyzer prefs
 		Analyzer.setPrecision(3);
 		Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, false);
+		// Reset other global IJ prefs
+		Prefs.setThreads(Runtime.getRuntime().availableProcessors());
+		Prefs.set("options.ext", null);
 	}
 
 	private void promptForOptions() {
