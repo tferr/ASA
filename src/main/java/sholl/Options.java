@@ -271,6 +271,7 @@ public class Options implements PlugIn {
 		// Include IJ preferences for convenience
 		gd.setInsets(15, 0, 2);
 		gd.addMessage("System preferences (affect all ImageJ commands):", font);
+		gd.addNumericField("Parallel threads (3D images):", Prefs.getThreads(), 0, 4, "");
 		gd.addStringField("File extension for tables:", Prefs.defaultResultsExtension(), 4);
 		gd.setInsets(0, 0, 0);
 		gd.addNumericField("Decimal places (0-9):", Analyzer.getPrecision(), 0, 4, "");
@@ -298,6 +299,7 @@ public class Options implements PlugIn {
 			setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
 
 			// IJ prefs
+			Prefs.setThreads((int)gd.getNextNumber());
 			String extension = gd.getNextString();
 			if (!extension.startsWith("."))
 				extension = "." + extension;
