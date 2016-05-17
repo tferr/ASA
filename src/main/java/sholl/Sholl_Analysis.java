@@ -1584,7 +1584,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/** Returns true if at least one of the 6-neighboring voxels of this position is thresholded */
+	/**
+	 * Returns true if at least one of the 6-neighboring voxels of this position
+	 * is thresholded and if position does not correspond to an edge voxel.
+	 */
 	static private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
 
 		if (!skipSingleVoxels)
@@ -1592,7 +1595,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		final int[][] neighboors = new int[6][3];
 
-		// Out of bounds positions will have a value of zero
 		neighboors[0] = new int[]{x-1, y, z};
 		neighboors[1] = new int[]{x+1, y, z};
 		neighboors[2] = new int[]{x, y-1, z};
@@ -1601,11 +1603,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		neighboors[5] = new int[]{x, y, z-1};
 
 		boolean clustered = false;
-
+		double value;
 		for (int i=0; i<neighboors.length; i++) {
-			final double value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2] );
-			if (value >= lowerT && value <= upperT) {
-				clustered = true;
+			try {
+				value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2] );
+				if (value >= lowerT && value <= upperT) {
+					clustered = true;
+					break;
+				}
+			} catch (IndexOutOfBoundsException ignored) { // Edge voxel: Neighborhood unknown.
+				clustered = false;
 				break;
 			}
 		}
