@@ -56,7 +56,7 @@ import sholl.gui.EnhancedGenericDialog;
  */
 public class Sholl_Utils implements PlugIn {
 
-	private static final String BUILD = "2016.04";
+	private static final String BUILD = "2016.05";
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 
 	/**
