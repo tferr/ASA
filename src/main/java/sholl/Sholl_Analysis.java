@@ -295,12 +295,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			stepRadius = (radii.length>1) ? radii[1] - radii[0] : Double.NaN;
 			startRadius = radii[0];
 			endRadius = radii[radii.length-1];
-			if ( Double.isNaN(stepRadius) || stepRadius<=0 ) {
-				if (normChoice==NORMS3D.length-1) {
-					final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
-					IJ.log("*** Warning: "+ imgTitle +"\n*** Could not determine"
-							+ " radius step size: "+ msg +" normalizations will not be relevant");
-				}
+			if (normChoice == NORMS3D.length - 1 && (Double.isNaN(stepRadius) || stepRadius <= 0)) {
+				final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
+				IJ.log("*** Warning: " + imgTitle + "\n*** Could not determine" + " radius step size: " + msg
+						+ " normalizations will not be relevant");
 			}
 
 			// "Reset" all variables that relate only to bitmap analysis
@@ -2645,7 +2643,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else {
 			this.run("sample");
 		}
-		return;
 	}
 
 	/** Simple error message */
