@@ -2471,7 +2471,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Set limits
 		final double[] xScale = Tools.getMinMax(x0);
 		final double[] yScale = Tools.getMinMax(y0);
-		setPlotLimits(plot, method, xScale, yScale);
+		setPlotLimits(plot, xScale, yScale);
 
 		// Add data (default color is black)
 		plot.setColor(Color.GRAY);
@@ -2482,7 +2482,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Sets plot limits imposing grid lines */
-	private static void setPlotLimits(final Plot plot, final int method,
+	private static void setPlotLimits(final Plot plot,
 			final double[] xScale, final double[] yScale) {
 
 		final boolean gridState = PlotWindow.noGridLines;
