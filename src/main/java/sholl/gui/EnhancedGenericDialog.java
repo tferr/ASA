@@ -59,12 +59,26 @@ public class EnhancedGenericDialog extends GenericDialog {
 	private ActionListener helpActionButtonListener = null;
 	private MouseAdapter helpActionMouseListener = null;
 
-	/** {@link ij.gui.GenericDialog#GenericDialog(String, Frame) GenericDialog constructor} */
+	/**
+	 * {@link ij.gui.GenericDialog#GenericDialog(String, Frame) GenericDialog
+	 * constructor}
+	 * 
+	 * @param title
+	 *            Dialog's title
+	 */
 	public EnhancedGenericDialog(final String title) {
 		super(title);
 	}
 
-	/** {@link ij.gui.GenericDialog#GenericDialog(String) GenericDialog constructor} */
+	/**
+	 * {@link ij.gui.GenericDialog#GenericDialog(String) GenericDialog
+	 * constructor}
+	 * 
+	 * @param title
+	 *            Dialog's title
+	 * @param parent
+	 *            Parent frame
+	 */
 	public EnhancedGenericDialog(final String title, final Frame parent) {
 		super(title, parent);
 	}

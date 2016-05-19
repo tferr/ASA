@@ -223,13 +223,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * This method is called when the plugin is loaded. <code>arg</code> is
-	 * specified in <code>plugins.config</code>. See
+	 * This method is called when the plugin is loaded. {@code arg} is
+	 * specified in {@code plugins.config}. See
 	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
 	 * 
 	 * @param arg
-	 *            If <code>csv</code> the plugin is set for analysis of tabular
-	 *            data. If <code>sample</code>, the plugin runs on a demo image
+	 *            If {@code csv} the plugin is set for analysis of tabular
+	 *            data. If {@code sample}, the plugin runs on a demo image
 	 *            suitable.
 	 */
 	@Override
@@ -2715,8 +2715,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * tables will be displayed).
 	 *
 	 * @param noPlots
-	 *            If <code>true</code>, plugin will only output tables. If
-	 *            <code>false</code>, both tables and plots will be produced
+	 *            If {@code true}, plugin will only output tables. If
+	 *            {@code false}, both tables and plots will be produced
 	 *            (the default)
 	 */
 	public static void setNoPlots(final boolean noPlots) {
@@ -2728,7 +2728,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * (Summary table is still displayed).
 	 *
 	 * @param noTable
-	 *            If <code>true</code>, plugin will not output the
+	 *            If {@code true}, plugin will not output the
 	 *            "detailed table" containing all the retrieved profiles. Note
 	 *            that the Summary "Sholl Results" table is always displayed.
 	 *
@@ -2743,7 +2743,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * plots.
 	 *
 	 * @param plotLabels
-	 *            If <code>true</code>, plotting labels will be added, otherwise
+	 *            If {@code true}, plotting labels will be added, otherwise
 	 *            they will be omitted
 	 */
 	public static void setPlotLabels(final boolean plotLabels) {
@@ -2756,7 +2756,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @param precision
 	 *            The precision value as a fraction of radius step size. Eg,
-	 *            <code>100</code> sets accuracy to radiusStepSize/100
+	 *            {@code 100} sets accuracy to radiusStepSize/100
 	 */
 	public static void setPrecision(final int precision) {
 		Sholl_Analysis.fMetricsPrecision = precision;
@@ -2766,20 +2766,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setNoPlots(boolean) setNoPlots()} to be called by
 	 * IJ macros using the
-	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
 	 * built-in macro function
 	 * </p>
 	 *
 	 * <p>
 	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
 	 * tables will be displayed). An error message is displayed in the IJ Log
-	 * window if <code>booleanString</code> can not be parsed. Usage example:
-	 * <code>call("Sholl_Utils.setNoPlots", "false");</code>
+	 * window if {@code booleanString} can not be parsed. Usage example:
+	 * {@code call("sholl.Sholl_Analysis.setNoPlots", "false");}
 	 * </p>
 	 *
 	 * @param booleanString
-	 *            If <code>"true"</code>, plugin will only output tables. If
-	 *            <code>"false"</code>, both tables and plots will be produced
+	 *            If {@code "true"}, plugin will only output tables. If
+	 *            {@code "false"}, both tables and plots will be produced
 	 *            (the default)
 	 */
 	public static void setNoPlots(final String booleanString) {
@@ -2791,19 +2791,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setNoTable(boolean) setNoTable()} to be called by
 	 * IJ macros using the
-	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
 	 * built-in macro function
 	 * </p>
 	 *
 	 * <p>
 	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output.
 	 * An error message is displayed in the IJ Log window if
-	 * <code>booleanString</code> can not be parsed. Usage example:
-	 * <code>call("Sholl_Utils.setNoTable", "false");</code>
+	 * {@code booleanString} can not be parsed. Usage example:
+	 * {@code call("sholl.Sholl_Analysis.setNoTable", "false");}
 	 * </p>
 	 *
 	 * @param booleanString
-	 *            If <code>"true"</code>, plugin will not output the
+	 *            If {@code "true"}, plugin will not output the
 	 *            "detailed table" containing all the retrieved profiles. Note
 	 *            that the Summary "Sholl Results" table is always displayed.
 	 */
@@ -2816,19 +2816,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setPlotLabels(boolean) setPlotLabels()} to be
 	 * called by IJ macros using the
-	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
 	 * built-in macro function
 	 * </p>
 	 *
 	 * <p>
 	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
 	 * plots. An error message is displayed in the IJ Log window if
-	 * <code>booleanString</code> can not be parsed. Usage example:
-	 * <code>call("Sholl_Utils.setPlotLabels", "false");</code>
+	 * {@code booleanString} can not be parsed. Usage example:
+	 * {@code call("sholl.Sholl_Analysis.setPlotLabels", "false");}
 	 * </p>
 	 *
 	 * @param booleanString
-	 *            If <code>"true"</code>, plotting labels will be added.
+	 *            If {@code "true"}, plotting labels will be added.
 	 */
 	public static void setPlotLabels(final String booleanString) {
 		if (validateBooleanString(booleanString))
@@ -2839,20 +2839,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setPrecision(int) setPrecision()} to be called by
 	 * IJ macros using the
-	 * <code><a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a></code>
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
 	 * built-in macro function
 	 * </p>
 	 *
 	 * <p>
 	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
 	 * from fitted data, such as Nav and Nm. An error message is displayed in
-	 * the IJ Log window if <code>intString</code> is invalid. Usage example:
-	 * <code>call("Sholl_Utils.setPrecision", "1000");</code>
+	 * the IJ Log window if {@code intString} is invalid. Usage example:
+	 * {@code call("sholl.Sholl_Analysis.setPrecision", "1000");}
 	 * </p>
 	 *
 	 * @param intString
 	 *            The string integer to set the precision in terms of radius
-	 *            step size. Eg, <code>"100"</code> sets accuracy to
+	 *            step size. Eg, {@code "100"} sets accuracy to
 	 *            radiusStepSize/100
 	 */
 	public static void setPrecision(final String intString) {
@@ -2886,7 +2886,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * (Gaussian) values; or 4) any other {@link ij.measure.ResultsTable}
 	 * currently opened by ImageJ.
 	 *
-	 * @return A populated Results table or <code>null</code> if chosen source
+	 * @return A populated Results table or {@code null} if chosen source
 	 *         did not contain valid data.
 	 */
 	private ResultsTable getTable() {
