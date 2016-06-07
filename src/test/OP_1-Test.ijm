@@ -16,6 +16,8 @@ setThreshold(131, 255);
 // Set center of analysis
 setSlice(z);
 makePoint(x, y);
+call("sholl.Sholl_Analysis.setNoTable", "true");
+call("sholl.Sholl_Analysis.setNoPlots", "true");
 
 run("Sholl Analysis...", "starting=0 ending="+ maxRad
       +" radius_step=0 _=[Above line] ignore enclosing=1 #_primary=[] fit"
