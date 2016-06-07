@@ -1,4 +1,4 @@
-##Release Notes for [Sholl Analysis](http://fiji.sc/Sholl)
+##Release Notes for [Sholl Analysis](http://imagej.net/Sholl)
 
 The latest [release build](#release-builds) is available through the Fiji Updater or from the [plugin's
 webpage](http://imagej.net/Sholl). [Development builds](#development-builds) may have new
@@ -26,8 +26,6 @@ Release Builds
    * _Plot Options..._ from the _More >>_ dropdown menu would not open _Edit>Options>Plots..._
 
 ####Version 3.6.1 (March 2016)
-[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
-
 * UI overhaul: Functionality of the plugin has been split into several commands. These now reside
   in the `Analyze> Sholl>` submenu, and, in the plugin prompts, in the _More>>_ dropdown menu.
 * Implemented the _Sholl Metrics & Options_ command, that allows for full customization of the
@@ -42,8 +40,6 @@ Release Builds
   [automated compilation by jenkins](https://github.com/tferr/ASA/commit/25f2c2e7d918e83b6daa60ff1723658b505eb699)
 
 ####Version 3.4.6 (February 2016)
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.46437.svg)](http://dx.doi.org/10.5281/zenodo.46437)
-
 * Primary branches can be retrieved from [multi-point counters](http://imagej.net/Sholl_Analysis#Startup_ROI)
 * Ramification indices (RI) are only calculated when explicitly requested. To disable RI calculations
   deselect the _Infer from starting radius_ checkbox <u>and</u> invalidate the _# Primary branches_
@@ -56,8 +52,6 @@ Release Builds
 
 
 ####Version 3.4.5 (June 2015)
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18621.svg)](http://dx.doi.org/10.5281/zenodo.18621)
-
  * UI Improvements:
    * Redesign plot labels that were missing since IJ 1.49t
      [(#11)](https://github.com/tferr/ASA/issues/11)
@@ -76,8 +70,6 @@ Release Builds
  * Minimum requirements: ImageJ 1.49t
 
 ####Version 3.4.4 (March 2015)
-[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](http://dx.doi.org/10.5281/zenodo.15913)
-
  * UI Improvements:
    * Exit messages with tooltips [(#8)](https://github.com/tferr/ASA/issues/8)
    * _Cf. Segmentation_: Clarified information. Position of main prompt is restored after
@@ -88,8 +80,6 @@ Release Builds
  * Minimum requirements: ImageJ 1.49i
 
 ####Version 3.4.3 (October 2014)
-[![DOI](https://zenodo.org/badge/4622/tferr/ASA.png)](http://dx.doi.org/10.5281/zenodo.11939)
-
  * Analysis of tabular data:
     * Improvement: Analysis can be restricted to selected rows
     * Fixed: Parameters such as _Radius Step_, _Starting radius_, etc., were being calculated every
@@ -108,8 +98,6 @@ Release Builds
       abbreviations)
 
 ####Version 3.4.2 (July 2014)
-[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10803.png)](http://dx.doi.org/10.5281/zenodo.10803)
-
   * Fitting to higher order polynomials is now possible using a
     [BAR command](https://github.com/tferr/Scripts) (documentation:
     [GitHub](https://github.com/tferr/Scripts/blob/master/Data_Analysis/README.md#fit-polynomial),
