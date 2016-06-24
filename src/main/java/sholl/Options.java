@@ -83,13 +83,19 @@ public class Options implements PlugIn {
 	private final static String METRICS_KEY = "sholl.metrics";
 
 	/* Sholl mask */
-	private final static int DEFAULT_MASK_BACKGROUND = 228;
+	static final int SAMPLED_MASK = 0;
+	static final int FITTED_MASK = 1;
+	private static final String[] MASK_TYPES = new String[] { "Sampled values", "Fitted values" };
 	private final static String MASK_KEY = "sholl.mask";
+	private final static int DEFAULT_MASK_BACKGROUND = 228;
+	private final static int DEFAULT_MASK_TYPE = SAMPLED_MASK;
 
 	private final static int UNSET_PREFS = -1;
 	private static int currentMetrics = UNSET_PREFS;
 	private static int maskBackground = UNSET_PREFS;
+	private static int maskType = UNSET_PREFS;
 	private static String commentString = null;
+
 
 	/**
 	 * Debug helper
@@ -156,6 +162,30 @@ public class Options implements PlugIn {
 		maskBackground = grayLevel;
 	}
 
+	/**
+	 * Returns the type of data to be used in Sholl mask.
+	 *
+	 * @return the type of mask. Either Options.SAMPLED_MASK or
+	 *         Options.FITTED_MASK.
+	 */
+	static int getMaskType() {
+		if (maskType == UNSET_PREFS)
+			maskType = Prefs.getInt(MASK_KEY + ".type", DEFAULT_MASK_TYPE);
+		return maskType;
+	}
+
+	/**
+	 * Sets the type of data to be used in Sholl mask.
+	 *
+	 * @param type
+	 *            the type of mask. Either Options.SAMPLED_MASK or
+	 *            Options.FITTED_MASK.
+	 */
+	private void setMaskType(final int type) {
+		Prefs.set(MASK_KEY + ".type", type);
+		maskType = type;
+	}
+
 	static String getCommentString() {
 		if (commentString == null)
 			commentString = Prefs.getString(METRICS_KEY + ".comment", null);
@@ -174,9 +204,11 @@ public class Options implements PlugIn {
 		Prefs.set(METRICS_KEY, null);
 		Prefs.set(METRICS_KEY+ ".comment", null);
 		Prefs.set(MASK_KEY, null);
+		Prefs.set(MASK_KEY+ ".type", null);
 		currentMetrics = UNSET_PREFS;
 		commentString = null;
 		maskBackground = UNSET_PREFS;
+		maskType = UNSET_PREFS;
 		// Reset Analyzer prefs
 		Analyzer.setPrecision(3);
 		Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, false);
@@ -270,6 +302,7 @@ public class Options implements PlugIn {
 		gd.setInsets(15, 0, 0);
 		gd.addMessage("Intersections mask:", font);
 		gd.addSlider("  Background (grayscale):", 0, 255, getMaskBackground());
+		gd.addChoice("Preferred data:", MASK_TYPES, MASK_TYPES[getMaskType()]);
 
 		// Include IJ preferences for convenience
 		gd.setInsets(15, 0, 2);
@@ -300,6 +333,7 @@ public class Options implements PlugIn {
 			Prefs.set(METRICS_KEY, currentMetrics);
 			setCommentString(gd.getNextString());
 			setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
+			setMaskType(gd.getNextChoiceIndex());
 
 			// IJ prefs
 			Prefs.setThreads((int)gd.getNextNumber());
