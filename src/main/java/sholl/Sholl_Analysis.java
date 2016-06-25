@@ -2088,10 +2088,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[] values,
 			final int xc, final int yc, final Calibration cal) {
 
-		// Check if analyzed image remains available
-		if ( img.getWindow()==null ) return null;
 
-		IJ.showStatus("Preparing intersections mask...");
+		if (values==null)
+			return null;
 
 		ImageProcessor ip;
 
@@ -2144,7 +2143,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Apply calibration, set mask label and mark center of analysis
 		img2.setCalibration(cal);
-		img2.setProperty("Label", (fitCurve && shollN) ? "Fitted data" : "Raw data");
 		img2.setRoi(new PointRoi(xc, yc));
 
 		if (validPath && save) {
