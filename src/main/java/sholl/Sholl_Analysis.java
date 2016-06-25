@@ -2086,8 +2086,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * pixels of a copy of the analyzed image
 	 */
 	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[] values,
-			final int xc, final int yc, final Calibration cal) {
-
+			final int xc, final int yc, final Calibration cal, final boolean floatProcessor) {
 
 		if (values==null)
 			return null;
@@ -2106,8 +2105,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			ip = img.getProcessor();
 		}
 
-		// Sholl mask as a 16-bit image. Any negative values from polynomial will become 0
-		final ImageProcessor mp = new ShortProcessor(ip.getWidth(), ip.getHeight());
+		// NB 16-bit image: Negative values will be set to 0
+		final ImageProcessor mp = (floatProcessor) ? new FloatProcessor(ip.getWidth(), ip.getHeight())
+				: new ShortProcessor(ip.getWidth(), ip.getHeight());
 
 		final int drawSteps = values.length; // endRadius may have never been reached (eg, if Esc was pressed)
 		final int firstRadius = (int) Math.round( startRadius/vxWH );
@@ -2133,10 +2133,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Apply LUT
-		mp.setColorModel(Sholl_Utils.matlabJetColorMap(Options.getMaskBackground()));
-		//(new ContrastEnhancer()).stretchHistogram(mp, 0.35);
 		final double[] range = Tools.getMinMax(values);
-		mp.setMinAndMax(0, range[1]);
+		//(new ContrastEnhancer()).stretchHistogram(mp, 0.35);
+		mp.setMinAndMax(range[0], range[1]);
+		final int fcolor = (floatProcessor && range[1] < 0) ? Options.getMaskBackground() : -1;
+		final int bcolor = (fcolor == -1) ? Options.getMaskBackground() : -1;
+		mp.setColorModel(Sholl_Utils.matlabJetColorMap(bcolor, fcolor));
 
 		final String title = ttl + "_ShollMask.tif";
 		final ImagePlus img2 = new ImagePlus(title, mp);
