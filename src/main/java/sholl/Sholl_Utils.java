@@ -115,6 +115,10 @@ public class Sholl_Utils implements PlugIn {
 	 *      Mutterer's alternative</a>
 	 */
 	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
+		return matlabJetColorMap(backgroundGray, -1);
+	}
+
+	static IndexColorModel matlabJetColorMap(final int backgroundGray, final int foregroundGray) {
 
 		// Initialize colors arrays (zero-filled by default)
 		final byte[] reds	= new byte[256];
@@ -137,9 +141,12 @@ public class Sholl_Utils implements PlugIn {
 		for(int i = 256/8; i < 256; i++)		 // index 32-255
 			reds[i] = greens[(i+256*6/8) % 256];
 
-		// Set background color
+		// Set background and foreground colors
 		if (backgroundGray>=0) {
 			reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
+		}
+		if (foregroundGray>=0) {
+			reds[255] = greens[255] = blues[255] = (byte)foregroundGray;
 		}
 
 		return new IndexColorModel(8, 256, reds, greens, blues);
