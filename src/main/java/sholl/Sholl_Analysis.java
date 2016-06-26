@@ -1182,6 +1182,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		sb.append("&emsp;Image type:&ensp;").append(String.valueOf(this.ip.getBitDepth())).append("-bit")
 				.append((is3D)?" (3D)":" (2D)").append("<br>");
 		sb.append("&emsp;Binary image?&ensp;").append(String.valueOf(this.ip.isBinary())).append("</tt><br>");
+		sb.append("&emsp;Multi-channel image?&ensp;").append(String.valueOf(this.img.isComposite())).append("</tt><br>");
 		sb.append("&emsp;Spatial units:&ensp;<tt>").append(unit).append("</tt><br>");
 		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>").append(String.valueOf(this.ip.isInvertedLut())).append("</tt><br>");
 		sb.append("&emsp;Image saved locally?&ensp;").append(String.valueOf(validPath)).append("</tt>");
@@ -2247,14 +2248,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			exitmsg = "There are no images open.";
 		} else {
 
-			ip = (img.isComposite()) ? img.getChannelProcessor() : img.getProcessor();
 			final int type = img.getBitDepth();
-			if (type==24)
+			if (type == 24)
 				exitmsg = "RGB color images are not supported.";
-			else if (type==32)
+			else if (type == 32)
 				exitmsg = "32-bit grayscale images are not supported.";
-			else {	// 8/16-bit grayscale image
+			else if (img.getNDimensions() > 4 || (img.getNSlices() > 1 && img.getNFrames() > 1))
+				exitmsg = "Images with a temporal axis are not supported.";
+			else { // 8/16-bit grayscale image
 
+				ip = (img.isComposite()) ? img.getChannelProcessor() : img.getProcessor();
 				final double lower = ip.getMinThreshold();
 				if (lower!=ImageProcessor.NO_THRESHOLD) {
 					lowerT = lower;
@@ -2263,7 +2266,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					lowerT = upperT = 255;
 				} else {
 					tipMsg = "Run \"Image>Adjust>Threshold...\" before running the plugin";
-					exitmsg = "Image is not thresholded.";
+					exitmsg = (img.isComposite()) ? "Multi-channel image is not thresholded."
+							: "Image is not thresholded.";
 				}
 			}
 		}
@@ -2272,7 +2276,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			IJ.showStatus("Tip: " + tipMsg + "...");
 			lError(exitmsg, "This plugin requires a segmented arbor (2D/3D). Either:\n"
 						+ "	 - A binary image (Arbor: non-zero value)\n"
-						+ "	 - A thresholded grayscale image (8/16-bit)");
+						+ "	 - A thresholded grayscale image (8/16-bit)\n"
+						+ "	 NB: To threshold a multi-channel image, display it as\n"
+						+ "	        grayscale using \"Image>Color>Channels Tool...\"");
 			return null;
 		}
 
