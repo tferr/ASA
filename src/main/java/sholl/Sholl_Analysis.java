@@ -69,6 +69,7 @@ import ij.io.OpenDialog;
 import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.measure.ResultsTable;
+import ij.plugin.ChannelSplitter;
 import ij.plugin.PlugIn;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
@@ -1552,7 +1553,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double[] data = new double[nspheres = radii.length];
 
 		// Get Image Stack
-		final ImageStack stack = img.getStack();
+		final ImageStack stack = (img.isComposite()) ? ChannelSplitter.getChannel(img, img.getChannel())
+				: img.getStack();
 
 		// Split processing across the number of available CPUs
 		final AtomicInteger ai = new AtomicInteger(0);
@@ -2242,11 +2244,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (img==null) {
 			tipMsg = "Press \"Analyze Sample Image\" for a demo";
 			exitmsg = "There are no images open.";
-		} else if (img.isComposite()) {
-			tipMsg = "Run \"Split Channels\" to simplifly composite images";
-			exitmsg = "Composite images are not supported.";
 		} else {
-			ip = img.getProcessor();
+
+			ip = (img.isComposite()) ? img.getChannelProcessor() : img.getProcessor();
 			final int type = img.getBitDepth();
 			if (type==24)
 				exitmsg = "RGB color images are not supported.";
@@ -2361,7 +2361,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Returns the Sholl Summary Table populated with profile statistics */
-	private static ResultsTable createStatsTable(final String rowLabel, final int xc,
+	private ResultsTable createStatsTable(final String rowLabel, final int xc,
 			final int yc, final int zc, final double[][] values) {
 
 		ResultsTable rt;
@@ -2409,6 +2409,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final String comment = Options.getCommentString();
 		if (comment!=null)
 			rt.addValue("Comment", comment);
+		if (img.isComposite())
+			rt.addValue("Channel", img.getChannel() );
 		if ((prefs & Options.UNIT) != 0)
 			rt.addValue("Unit", unit );
 		if ((prefs & Options.THRESHOLD) != 0) {
