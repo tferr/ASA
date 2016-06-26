@@ -1224,7 +1224,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// options common to bitmapPrompt() and csvPrompt()
 		final TextField ieprimaryBranches;
 		final Choice iepolyChoice, ienormChoice;
-		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG;
+		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask;
 		Checkbox iehideSaved = null;
 
 		// options specific to bitmapPrompt();
@@ -1371,7 +1371,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Part V: Mask and outputs
 			mask = gd.getNextBoolean();
-			checkboxCounter++;
+			iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
+
 			if (validPath) {
 				save = gd.getNextBoolean();
 				checkboxCounter++;
