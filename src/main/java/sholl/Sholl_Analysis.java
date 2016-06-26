@@ -640,16 +640,69 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (isCSV)
 			{ IJ.showStatus(exitmsg); return; }
 
-		// Create intersections mask, but check first if it is worth proceeding
-		if (mask) {
-			final ImagePlus maskimg = makeMask(img, imgTitle, (fvaluesN==null ? counts : fvaluesN), x, y, cal);
+		// Create intersections mask if analyzed image remains available
+		if (mask && img.getWindow() != null) {
+
+			IJ.showStatus("Preparing intersections mask...");
+			final boolean fittedData = Options.getMaskType() == Options.FITTED_MASK && fitCurve;
+			ImagePlus maskimg = null;
+
+			if (shollN && fittedData) {
+
+				maskimg = makeMask(img, imgTitle, fvaluesN, x, y, cal, false);
+				maskimg.setProperty("Label", "Polynomial fit");
+
+			} else if (shollN) {
+
+				maskimg = makeMask(img, imgTitle, counts, x, y, cal, false);
+				maskimg.setProperty("Label", "Sampled data");
+
+			} else if (shollNS && fittedData) {
+
+				maskimg = makeMask(img, imgTitle, fvaluesNS, x, y, cal, true);
+				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] +" (fitted)");
+
+			} else if (shollNS) {
+
+				maskimg = makeMask(img, imgTitle, valuesNS, x, y, cal, true);
+				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] +" (sampled)");
+
+			} else if (shollSLOG && fittedData) {
+
+				try {
+					final double b = statsTable.getValue("Regression intercept (" + SHOLL_TYPES[SHOLL_SLOG] + ")",
+							statsTable.getCounter() - 1);
+					final double k = statsTable.getValue("Regression coefficient (" + SHOLL_TYPES[SHOLL_SLOG] + ")",
+							statsTable.getCounter() - 1);
+					final double[] fvaluesSLOG = new double[valuesSLOG.length];
+					for (int i = 0; i < valuesSLOG.length; i++)
+						fvaluesSLOG[i] = valuesSLOG[i][0] * -k + b;
+					maskimg = makeMask(img, imgTitle, fvaluesSLOG, x, y, cal, true);
+					maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] + " (fitted)");
+				} catch (final IllegalArgumentException ignored) {
+					if (verbose)
+						IJ.log("[Sholl] ERROR: Regression inaccessible for mask creation");
+				}
+
+			} else if (shollSLOG) {
+
+				maskimg = makeMask(img, imgTitle, valuesSLOG, x, y, cal, true);
+				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] +" (sampled)");
+
+			} else if (shollLOG && verbose) {
+
+				IJ.log("[Sholl] INFO: Masks cannot be rendered for " + SHOLL_TYPES[SHOLL_LOG] + " profiles");
+
+			}
 
 			if (maskimg == null) {
-				IJ.beep(); exitmsg = "Error: Mask could not be created! ";
-			} else {
-				if (!validPath || (validPath && !hideSaved))
-					maskimg.show(); maskimg.updateAndDraw();
+				IJ.beep();
+				exitmsg = "Error: Mask could not be created! ";
+			} else if (!validPath || (validPath && !hideSaved)) {
+				maskimg.show();
+				maskimg.updateAndDraw();
 			}
+
 		}
 
 		IJ.showProgress(0, 0);
