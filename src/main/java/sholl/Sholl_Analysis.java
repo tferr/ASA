@@ -2225,10 +2225,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @param imp
 	 *            the image being analyzed
-	 * @return true, if valid (8/16 bit, non-composite)
+	 * @return true, if valid (8/16 bit, 2D/3D, single or multi-channel)
 	 */
 	public boolean validateImage(final ImagePlus imp) {
-		return (imp != null && !imp.isComposite() && imp.getBitDepth() < 24);
+		return (imp != null && imp.getBitDepth() < 24 && imp.getNDimensions() <= 4
+				&& !(imp.getNSlices() > 1 && imp.getNFrames() > 1));
 	}
 
 	/**
