@@ -2082,6 +2082,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		Sholl_Analysis.upperT = upper;
 	}
 
+	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[][] values, final int xc,
+			final int yc, final Calibration cal, final boolean floatProcessor) {
+		final double[] yvalues = new double[values.length];
+		for (int i = 0; i < values.length; i++)
+			yvalues[i] = values[i][1];
+		return makeMask(img, ttl, yvalues, xc, yc, cal, floatProcessor);
+	}
+
 	/**
 	 * Creates a 2D Sholl heatmap by applying measured values to the foreground
 	 * pixels of a copy of the analyzed image
