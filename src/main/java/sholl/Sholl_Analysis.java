@@ -514,9 +514,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotN = null;
 			} else {
-				plotN = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_N] +") for "+ imgTitle,
-						is3D ? "3D distance ("+ unit +")" : "2D distance ("+ unit +")",
-						"N. of Intersections", valuesN, SHOLL_N);
+				plotN = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_N] + ") for " + imgTitle,
+						is3D ? "3D distance (" + unit + ")" : "2D distance (" + unit + ")", "N. of Intersections",
+						valuesN);
 			}
 			if (fitCurve)
 				fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
@@ -548,9 +548,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotNS = null;
 			} else {
-				plotNS = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_NS] +") for "+ imgTitle,
-						distanceString +" ("+ unit +")", "Inters./"+ normalizerString,
-						valuesNS, SHOLL_NS);
+				plotNS = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_NS] + ") for " + imgTitle,
+						distanceString + " (" + unit + ")", "Inters./" + normalizerString, valuesNS);
 			}
 			if (fitCurve)
 				fvaluesNS = getFittedProfile(valuesNS, SHOLL_NS, statsTable, plotNS);
@@ -563,9 +562,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotSLOG = null;
 			} else {
-				plotSLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_SLOG] +") for "+ imgTitle,
-						distanceString +" ("+ unit +")", "log(Inters./"+ normalizerString +")",
-						valuesSLOG, SHOLL_SLOG);
+				plotSLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_SLOG] + ") for " + imgTitle,
+						distanceString + " (" + unit + ")", "log(Inters./" + normalizerString + ")", valuesSLOG);
 			}
 			if (fitCurve)
 				plotRegression(valuesSLOG, plotSLOG, statsTable, SHOLL_TYPES[SHOLL_SLOG]);
@@ -578,9 +576,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotLOG = null;
 			} else {
-				plotLOG = plotValues("Sholl profile ("+ SHOLL_TYPES[SHOLL_LOG] +") for "+ imgTitle,
-						"log("+ distanceString +")", "log(Inters./"+ normalizerString +")",
-						valuesLOG, SHOLL_LOG);
+				plotLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_LOG] + ") for " + imgTitle,
+						"log(" + distanceString + ")", "log(Inters./" + normalizerString + ")", valuesLOG);
 			}
 			if (fitCurve)
 				//fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG, statsTable, plotLOG);
@@ -2522,7 +2519,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/** Returns a plot with some axes customizations*/
 	private static Plot plotValues(final String title, final String xLabel,
-			final String yLabel, final double[][] xy, final int method) {
+			final String yLabel, final double[][] xy) {
 
 		// Extract values
 		final int size = xy.length;
