@@ -172,7 +172,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int minX, maxX;
 	private static int minY, maxY;
 	private static int minZ, maxZ;
-	private static int x, y, z;
+	private static int x, y, z, channel;
 
 	/* Parameters for 3D analysis */
 	private static boolean skipSingleVoxels = false;
@@ -325,6 +325,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final int depth = img.getNSlices();
 			is3D = depth > 1;
 
+			// Get current z,c position
+			z = img.getZ();
+			channel = img.getC();
+
 			// NB: Removing spaces could disrupt unique filenames: eg "test
 			// 01.tif" and "test 02.tif" would both be treated as "test" by
 			// img.getShortTitle()
@@ -343,8 +347,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				unit = "pixels";
 			}
 			vxSize = (is3D) ? Math.cbrt(vxWH * vxWH * vxD) : vxWH;
-
-			z = img.getCurrentSlice();
 
 			// Deal with ROI defining center of analysis
 			Roi roi = img.getRoi();
@@ -1591,8 +1593,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double[] data = new double[nspheres = radii.length];
 
 		// Get Image Stack
-		final ImageStack stack = (img.isComposite()) ? ChannelSplitter.getChannel(img, img.getChannel())
-				: img.getStack();
+		final ImageStack stack = (img.isComposite()) ? ChannelSplitter.getChannel(img, channel) : img.getStack();
 
 		// Split processing across the number of available CPUs
 		final AtomicInteger ai = new AtomicInteger(0);
@@ -2238,7 +2239,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (img.isComposite()) {
 				zp.doHyperStackProjection(false);
 				final ImagePlus projImp = zp.getProjection();
-				projImp.setPositionWithoutUpdate(img.getC(), img.getZ(), img.getT());
+				projImp.setC(channel);
 				ip = projImp.getChannelProcessor();
 			} else {
 				zp.doProjection();
