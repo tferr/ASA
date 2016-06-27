@@ -11,7 +11,10 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* No major changes to report
+* Improvements:
+   * Support for multichannel (composite) images
+   * Preference for preferred data type (sampled/fitted) when rendering Sholl masks
+   * Masks can now be generated for normalized methods
 
 Release Builds
 --------------
