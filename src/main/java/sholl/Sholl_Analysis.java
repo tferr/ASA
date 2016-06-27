@@ -2235,8 +2235,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			zp.setMethod(ZProjector.MAX_METHOD);
 			zp.setStartSlice(minZ);
 			zp.setStopSlice(maxZ);
-			zp.doProjection();
-			ip = zp.getProjection().getProcessor();
+			if (img.isComposite()) {
+				zp.doHyperStackProjection(false);
+				final ImagePlus projImp = zp.getProjection();
+				projImp.setPositionWithoutUpdate(img.getC(), img.getZ(), img.getT());
+				ip = projImp.getChannelProcessor();
+			} else {
+				zp.doProjection();
+				ip = zp.getProjection().getProcessor();
+			}
 		} else {
 			ip = img.getProcessor();
 		}
