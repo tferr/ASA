@@ -2281,10 +2281,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Apply LUT
 		final double[] range = Tools.getMinMax(values);
-		mp.setMinAndMax(range[0], range[1]);
-		final int fcolor = (floatProcessor && range[1] < 0) ? Options.getMaskBackground() : -1;
+		final boolean logMask = floatProcessor && range[1] < 0;
+		final int fcolor = (logMask) ? Options.getMaskBackground() : -1;
 		final int bcolor = (fcolor == -1) ? Options.getMaskBackground() : -1;
 		mp.setColorModel(Sholl_Utils.matlabJetColorMap(bcolor, fcolor));
+		mp.setMinAndMax(logMask ? range[0] : 0, range[1]);
 
 		final String title = ttl + "_ShollMask.tif";
 		final ImagePlus img2 = new ImagePlus(title, mp);
