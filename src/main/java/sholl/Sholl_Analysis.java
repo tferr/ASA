@@ -309,6 +309,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			x = (int) Double.NaN;
 			y = (int) Double.NaN;
 			z = (int) Double.NaN;
+			channel = (int) Double.NaN;
 			incStep = Double.NaN;
 			cal = null;
 			unit = "N.A.";
@@ -2464,6 +2465,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt = new ResultsTable();
 		else
 			rt = window.getTextPanel().getResultsTable();
+		rt.setNaNEmptyCells(true);
 
 		double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
 
@@ -2506,8 +2508,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final String comment = Options.getCommentString();
 		if (comment != null)
 			rt.addValue("Comment", comment);
-		if (img.isComposite())
-			rt.addValue("Channel", img.getChannel());
+		if (!isCSV && img != null && img.isComposite())
+			rt.addValue("Channel", channel);
 		if ((prefs & Options.UNIT) != 0)
 			rt.addValue("Unit", unit);
 		if ((prefs & Options.THRESHOLD) != 0) {
