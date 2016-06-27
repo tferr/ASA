@@ -2281,7 +2281,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Apply LUT
 		final double[] range = Tools.getMinMax(values);
-		// (new ContrastEnhancer()).stretchHistogram(mp, 0.35);
 		mp.setMinAndMax(range[0], range[1]);
 		final int fcolor = (floatProcessor && range[1] < 0) ? Options.getMaskBackground() : -1;
 		final int bcolor = (fcolor == -1) ? Options.getMaskBackground() : -1;
@@ -2484,10 +2483,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				enclosingR = x[i];
 			sumY += y[i];
 		}
-
-//		// Calculate the smallest circle/sphere enclosing the arbor
-//		final double lastR = x[size - 1];
-//		final double field = is3D ? Math.PI * 4 / 3 * lastR * lastR * lastR : Math.PI * lastR * lastR;
 
 		// Calculate ramification index, the maximum of intersection divided by
 		// the n. of primary branches, assumed to be the n. intersections at
