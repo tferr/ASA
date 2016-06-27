@@ -62,7 +62,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	/**
 	 * {@link ij.gui.GenericDialog#GenericDialog(String, Frame) GenericDialog
 	 * constructor}
-	 * 
+	 *
 	 * @param title
 	 *            Dialog's title
 	 */
@@ -73,7 +73,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	/**
 	 * {@link ij.gui.GenericDialog#GenericDialog(String) GenericDialog
 	 * constructor}
-	 * 
+	 *
 	 * @param title
 	 *            Dialog's title
 	 * @param parent
@@ -86,15 +86,15 @@ public class EnhancedGenericDialog extends GenericDialog {
 	/**
 	 * Adds a functional URL consisting of one or more lines of text, which will
 	 * be displayed using the specified font and color.
-	 * 
+	 *
 	 * @param text
 	 *            The contents of the clickable label
 	 * @param font
-	 *            the label font. If <code>null</code>, the GenericDialog's default
-	 *            font is used
+	 *            the label font. If <code>null</code>, the GenericDialog's
+	 *            default font is used
 	 * @param color
-	 *            the label color. If <code>null</code>, the GenericDialog's default
-	 *            foreground color is used
+	 *            the label color. If <code>null</code>, the GenericDialog's
+	 *            default foreground color is used
 	 * @param url
 	 *            The URL to be opened by the default browser of the OS
 	 */
@@ -200,12 +200,14 @@ public class EnhancedGenericDialog extends GenericDialog {
 			super.setHelpLabel(buttonLabel);
 			labelOfHelpActionButton = buttonLabel;
 			helpActionMouseListener = new MouseAdapter() {
+				@Override
 				public void mousePressed(final MouseEvent e) {
 					popupmenu.show((Button) e.getSource(), 0, 0);
 				}
 			};
 
 			helpActionButtonListener = new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					final MouseEvent me = new MouseEvent((Component) e.getSource(), MouseEvent.MOUSE_CLICKED,
 							e.getWhen(), MouseEvent.MOUSE_PRESSED, 0, 0, 0, true);
@@ -235,7 +237,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	/**
 	 * Adds AWT scroll bars to the GenericDialog. From an old version of
 	 * bio-formats Window.Tools, licensed under GNU GPLv2 (April 2013)
-	 * 
+	 *
 	 * @see <a href=
 	 *      "http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/loci-plugins/src/loci/plugins/util/WindowTools.java;hb=HEAD">
 	 *      git.openmicroscopy</a>
@@ -304,18 +306,18 @@ public class EnhancedGenericDialog extends GenericDialog {
 		};
 
 		// Tweak for Mac OS (mainly 10.9/10.10): The background of ScrollPane
-		// does not match that of ij.gui.GenericDialog, i.e., SystemColor.control.
-		// Imposing SystemColor.control is not reliable as it appears to be always
-		// Color.WHITE in Java 7 and higher. On the other hand, using UIManager to
-		// retrieve control color seems to work consistently across platforms:
+		// does not match that of ij.gui.GenericDialog, i.e.,
+		// SystemColor.control. Imposing SystemColor.control is not reliable as
+		// it appears to be always Color.WHITE in Java 7 and higher. On the
+		// other hand, using UIManager to retrieve control color seems to work
+		// consistently across platforms:
 		// nadeausoftware.com/articles/2010/07/java_tip_systemcolors_mac_os_x_user_interface_themes
 		final Color background = javax.swing.UIManager.getColor("control");
 		newPane.setBackground(background);
 		scroll.setBackground(background);
 		scroll.add(newPane);
 		scroll.validate();
-		scroll.setScrollPosition(0, 0); // TODO this does not seem to work with java 6, mac 10.9
-
+		scroll.setScrollPosition(0, 0);
 		// Create an "awt border" around the scrollpanel in cases where such
 		// border is absent Platforms tested: Ubuntu: Open JDK7,8, Windows XP:
 		// Sun JDK7, Mac OS: Sun JDK7,8
@@ -348,7 +350,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	public Color getDisabledComponentColor() {
 		try {
 			return UIManager.getColor("CheckBox.disabledText");
-		} catch (Exception ignored) {
+		} catch (final Exception ignored) {
 			return Color.GRAY;
 		}
 	}

@@ -125,7 +125,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Curve Fitting, Results and Descriptors */
 	private static boolean fitCurve = true;
-	private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree", "7th degree", "8th degree", "Best fitting degree" };
+	private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree",
+			"7th degree", "8th degree", "Best fitting degree" };
 	private static final int SMALLEST_DATASET = 6;
 	private static final String SHOLLTABLE = "Sholl Results";
 	private static double[] centroid = null;
@@ -191,13 +192,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	static boolean noPlots = false; // Exclude plots from output?
 	static boolean noTable = false; // Exclude detailed table from output?
 	static boolean plotLabels = true; // Describe fitted curves in plots?
-	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum & local max
+	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum &
+											// local max
 
-	// If the edge of a group of pixels lies tangent to the sampling circle, multiple
-	// intersections with that circle will be counted. With this flag on, we will try to
-	// find these "false positives" and throw them out. A way to attempt this (we will be
-	// missing some of them) is to throw out 1-pixel groups that exist solely on the edge
-	// of a "stair" of target pixels (see countSinglePixels)
+	// If the edge of a group of pixels lies tangent to the sampling circle,
+	// multiple intersections with that circle will be counted. With this flag
+	// on, we will try to find these "false positives" and throw them out. A way
+	// to attempt this (we will be missing some of them) is to throw out 1-pixel
+	// groups that exist solely on the edge of a "stair" of target pixels (see
+	// countSinglePixels)
 	private static boolean doSpikeSupression = true;
 
 	/* Parameters for tabular data */
@@ -213,10 +216,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImageProcessor ip;
 	private static int progressCounter;
 
-
 	/**
 	 * Debug helper
-	 * 
+	 *
 	 * @param args
 	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
 	 */
@@ -225,23 +227,23 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * This method is called when the plugin is loaded. {@code arg} is
-	 * specified in {@code plugins.config}. See
+	 * This method is called when the plugin is loaded. {@code arg} is specified
+	 * in {@code plugins.config}. See
 	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
-	 * 
+	 *
 	 * @param arg
-	 *            If {@code csv} the plugin is set for analysis of tabular
-	 *            data. If {@code sample}, the plugin runs on a demo image
-	 *            suitable.
+	 *            If {@code csv} the plugin is set for analysis of tabular data.
+	 *            If {@code sample}, the plugin runs on a demo image suitable.
 	 */
 	@Override
-	public void run( final String arg) {
+	public void run(final String arg) {
 
-		if (IJ.versionLessThan("1.51a")) return; // this is required for non-fiji users
+		if (IJ.versionLessThan("1.51a"))
+			return; // this is required for non-fiji users
 
 		if (arg.equalsIgnoreCase("sample")) {
 			img = Sholl_Utils.displaySample();
-			if (img==null) {
+			if (img == null) {
 				sError("Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
 				return;
 			}
@@ -253,22 +255,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (isCSV) {
 
 			csvRT = getTable();
-			if (csvRT==null)
+			if (csvRT == null)
 				return;
 
 			fitCurve = true; // The goal of CSV import is curve fitting
 
-			// Update parameters for CSV data with user input. Reset the state of
-			// the Alt key modifier in case user wants to access bitmapPrompt by
-			// Alt-canceling the dialog. This does not apply when the user Alt-
-			// clicks on the button that triggers retrieveSampleData()
-			if (!IJ.macroRunning()) IJ.setKeyUp(KeyEvent.VK_ALT);
+			// Update parameters for CSV data with user input. Reset the state
+			// of the Alt key modifier in case user wants to access bitmapPrompt
+			// by Alt-canceling the dialog. This does not apply when the user
+			// Alt- clicks on the button that triggers retrieveSampleData()
+			if (!IJ.macroRunning())
+				IJ.setKeyUp(KeyEvent.VK_ALT);
 			if (!csvPrompt()) {
 
 				// Did the user press Alt while dismissing csvPrompt()?
-				if (IJ.altKeyDown() && !IJ.macroRunning() &&
-						IJ.showMessageWithCancel("Sholll Analysis v"+ VERSION,
-							"Dismiss CSV import and initiate bitmap analysis?")) { 
+				if (IJ.altKeyDown() && !IJ.macroRunning() && IJ.showMessageWithCancel("Sholll Analysis v" + VERSION,
+						"Dismiss CSV import and initiate bitmap analysis?")) {
 					isCSV = false;
 					IJ.setKeyUp(KeyEvent.VK_ALT);
 					this.run(arg);
@@ -281,22 +283,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			radii = csvRT.getColumnAsDoubles(rColumn);
 			counts = csvRT.getColumnAsDoubles(cColumn);
 			if (limitCSV) {
-				final TextPanel tp = (TextPanel)Sholl_Utils.getTextWindow(imgTitle).getTextPanel();
+				final TextPanel tp = Sholl_Utils.getTextWindow(imgTitle).getTextPanel();
 				final int startRow = tp.getSelectionStart();
 				final int endRow = tp.getSelectionEnd();
-				final boolean validRange = startRow!=-1 && endRow!=-1 && startRow!=endRow;
+				final boolean validRange = startRow != -1 && endRow != -1 && startRow != endRow;
 				if (validRange) {
-					radii = Arrays.copyOfRange(radii, startRow, endRow+1);
-					counts = Arrays.copyOfRange(counts, startRow, endRow+1);
+					radii = Arrays.copyOfRange(radii, startRow, endRow + 1);
+					counts = Arrays.copyOfRange(counts, startRow, endRow + 1);
 				} else {
-					IJ.log("*** Warning: "+ imgTitle +"\n*** Option to restrict "
+					IJ.log("*** Warning: " + imgTitle + "\n*** Option to restrict "
 							+ "analysis ignored: Not a valid selection of rows");
 				}
 			}
 
-			stepRadius = (radii.length>1) ? radii[1] - radii[0] : Double.NaN;
+			stepRadius = (radii.length > 1) ? radii[1] - radii[0] : Double.NaN;
 			startRadius = radii[0];
-			endRadius = radii[radii.length-1];
+			endRadius = radii[radii.length - 1];
 			if (normChoice == NORMS3D.length - 1 && (Double.isNaN(stepRadius) || stepRadius <= 0)) {
 				final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
 				IJ.log("*** Warning: " + imgTitle + "\n*** Could not determine" + " radius step size: " + msg
@@ -304,65 +306,70 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 			// "Reset" all variables that relate only to bitmap analysis
-			x = (int)Double.NaN;
-			y = (int)Double.NaN;
-			z = (int)Double.NaN;
+			x = (int) Double.NaN;
+			y = (int) Double.NaN;
+			z = (int) Double.NaN;
 			incStep = Double.NaN;
-			cal = null; unit = "N.A.";
+			cal = null;
+			unit = "N.A.";
 
 		} else {
 
 			// Make sure image is of the right type, reminding the user
 			// that the analysis is performed on segmented cells
 			ip = getValidProcessor(img);
-			if (ip==null)
+			if (ip == null)
 				return;
 
 			// Set the 2D/3D Sholl flag
 			final int depth = img.getNSlices();
 			is3D = depth > 1;
 
-			// Removing spaces could disrupt unique filenames: eg "test 01.tif" and
-			// "test 02.tif" would both be treated as "test" by img.getShortTitle()
-			imgTitle = trimExtension(img.getTitle()); //img.getShortTitle();
+			// NB: Removing spaces could disrupt unique filenames: eg "test
+			// 01.tif" and "test 02.tif" would both be treated as "test" by
+			// img.getShortTitle()
+			imgTitle = trimExtension(img.getTitle());
 
-			// Get image calibration. Stacks are likely to have anisotropic voxels
-			// with large z-steps. It is unlikely that lateral dimensions will differ
+			// Get image calibration. Stacks are likely to have anisotropic
+			// voxels with large z-steps. It is unlikely that lateral dimensions
+			// will differ
 			cal = img.getCalibration();
 			if (cal.scaled()) {
 				vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
 				vxD = cal.pixelDepth;
 				unit = cal.getUnits();
 			} else {
-				vxWH = vxD = 1; unit = "pixels";
+				vxWH = vxD = 1;
+				unit = "pixels";
 			}
-			vxSize = (is3D) ? Math.cbrt(vxWH*vxWH*vxD) : vxWH;
+			vxSize = (is3D) ? Math.cbrt(vxWH * vxWH * vxD) : vxWH;
 
 			z = img.getCurrentSlice();
 
 			// Deal with ROI defining center of analysis
 			Roi roi = img.getRoi();
-			final boolean validRoi = roi!=null && (roi.getType()==Roi.LINE || roi.getType()==Roi.POINT);
+			final boolean validRoi = roi != null && (roi.getType() == Roi.LINE || roi.getType() == Roi.POINT);
 
-			// If possible, prompt for a new ROI if nothing appropriate was found
+			// If possible, prompt for a new ROI if nothing appropriate was
+			// found
 			if (!IJ.macroRunning() && !validRoi) {
 				img.killRoi();
 				Toolbar.getInstance().setTool("line");
 				final WaitForUserDialog wd = new WaitForUserDialog(
-								"Please define the largest Sholl radius by creating\n"
+						"Please define the largest Sholl radius by creating\n"
 								+ "a straight line starting at the center of analysis.\n"
 								+ "(Hold down \"Shift\" to draw an orthogonal radius)\n \n"
-								+ "Alternatively, define the focus of the arbor using\n"
-								+ "the Point Selection Tool.");
+								+ "Alternatively, define the focus of the arbor using\n" + "the Point Selection Tool.");
 				wd.show();
 				if (wd.escPressed())
 					return;
 				roi = img.getRoi();
 			}
 
-			// Straight line: get center coordinates, end radius and angle of chord.
+			// Straight line: get center coordinates, end radius and angle of
+			// chord.
 			double chordAngle = -1.0; // Initialize line angle
-			if (roi!=null && roi.getType()==Roi.LINE) {
+			if (roi != null && roi.getType() == Roi.LINE) {
 
 				final Line chord = (Line) roi;
 				x = chord.x1;
@@ -370,9 +377,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				endRadius = vxSize * chord.getRawLength();
 				chordAngle = Math.abs(chord.getAngle(x, y, chord.x2, chord.y2));
 
-			// Point: Get center coordinates (x,y)
-			primaryFromPointRoi = false;
-			multipointCount = 0;
+				// Point: Get center coordinates (x,y)
+				primaryFromPointRoi = false;
+				multipointCount = 0;
 			} else if (roi != null && roi.getType() == Roi.POINT) {
 
 				final PointRoi point = (PointRoi) roi;
@@ -388,20 +395,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					primaryFromPointRoi = true;
 				}
 
-			// Not a proper ROI type
+				// Not a proper ROI type
 			} else {
 				sError("Straight Line, Point or Multi-point selection required.");
 				return;
 			}
 
 			// Show the plugin dialog: Update parameters with user input and
-			// find out if analysis will be restricted to a hemicircle/hemisphere
+			// find out if analysis will be restricted to a hemicircle /
+			// hemisphere
 			if (!bitmapPrompt(chordAngle, is3D)) {
 
 				// Did the user press Alt while dismissing bitmapPrompt?
-				if (IJ.altKeyDown() && !IJ.macroRunning() &&
-						IJ.showMessageWithCancel("Sholll Analysis v"+ VERSION,
-							"Dismiss bitmap analysis and initiate CSV import?")) {
+				if (IJ.altKeyDown() && !IJ.macroRunning() && IJ.showMessageWithCancel("Sholll Analysis v" + VERSION,
+						"Dismiss bitmap analysis and initiate CSV import?")) {
 					isCSV = true;
 					IJ.setKeyDown(KeyEvent.VK_ALT);
 					this.run(arg);
@@ -415,51 +422,55 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final int hght = ip.getHeight();
 			final double dx, dy, dz, maxEndRadius;
 
-			dx = ((orthoChord && trimBounds && quadString.equals(QUAD_WEST)) || x<=wdth/2)
-				? (x-wdth)*vxWH : x*vxWH;
+			dx = ((orthoChord && trimBounds && quadString.equals(QUAD_WEST)) || x <= wdth / 2) ? (x - wdth) * vxWH
+					: x * vxWH;
 
-			dy = ((orthoChord && trimBounds && quadString.equals(QUAD_SOUTH)) || y<=hght/2)
-				? (y-hght)*vxWH : y*vxWH;
+			dy = ((orthoChord && trimBounds && quadString.equals(QUAD_SOUTH)) || y <= hght / 2) ? (y - hght) * vxWH
+					: y * vxWH;
 
-			dz = (z<=depth/2) ? (z-depth)*vxD : z*vxD;
+			dz = (z <= depth / 2) ? (z - depth) * vxD : z * vxD;
 
-			maxEndRadius = Math.sqrt(dx*dx + dy*dy + dz*dz);
-			if (Double.isNaN(startRadius)) startRadius = 0;
-			if (Double.isNaN(incStep)) incStep = 0;
+			maxEndRadius = Math.sqrt(dx * dx + dy * dy + dz * dz);
+			if (Double.isNaN(startRadius))
+				startRadius = 0;
+			if (Double.isNaN(incStep))
+				incStep = 0;
 			endRadius = Double.isNaN(endRadius) ? maxEndRadius : Math.min(endRadius, maxEndRadius);
 			stepRadius = Math.max(vxSize, incStep);
 
 			// Calculate how many samples will be taken
-			final int size = (int) ((endRadius-startRadius)/stepRadius)+1;
+			final int size = (int) ((endRadius - startRadius) / stepRadius) + 1;
 
 			// Exit if there are no samples
-			if (size<=1) {
+			if (size <= 1) {
 				sError("Invalid parameters: Starting radius must be smaller than\n"
-					+ "Ending radius and Radius step size must be within range!");
+						+ "Ending radius and Radius step size must be within range!");
 				return;
 			}
 
 			img.startTiming();
 			IJ.resetEscape();
 
-			// Create arrays for radii (in physical units) and intersection counts
+			// Create arrays for radii (in physical units) and intersection
+			// counts
 			radii = new double[size];
 			counts = new double[size];
 
 			for (int i = 0; i < size; i++) {
-				radii[i] = startRadius + i*stepRadius;
+				radii[i] = startRadius + i * stepRadius;
 			}
 
-			// Define boundaries of analysis according to orthogonal chords (if any)
-			final int xymaxradius = (int) Math.round(radii[size-1]/vxWH);
-			final int zmaxradius = (int) Math.round(radii[size-1]/vxD);
+			// Define boundaries of analysis according to orthogonal chords (if
+			// any)
+			final int xymaxradius = (int) Math.round(radii[size - 1] / vxWH);
+			final int zmaxradius = (int) Math.round(radii[size - 1] / vxD);
 
-			minX = Math.max(x-xymaxradius, 0);
-			maxX = Math.min(x+xymaxradius, wdth);
-			minY = Math.max(y-xymaxradius, 0);
-			maxY = Math.min(y+xymaxradius, hght);
-			minZ = Math.max(z-zmaxradius, 1);
-			maxZ = Math.min(z+zmaxradius, depth);
+			minX = Math.max(x - xymaxradius, 0);
+			maxX = Math.min(x + xymaxradius, wdth);
+			minY = Math.max(y - xymaxradius, 0);
+			maxY = Math.min(y + xymaxradius, hght);
+			minZ = Math.max(z - zmaxradius, 1);
+			maxZ = Math.min(z + zmaxradius, depth);
 
 			if (orthoChord && trimBounds) {
 				if (quadString.equals(QUAD_NORTH))
@@ -470,7 +481,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					minX = x;
 				else if (quadString.equals(QUAD_EAST))
 					maxX = x;
-				}
+			}
 
 			// 2D: Analyze the data and return intersection counts with nSpans
 			// per radius. 3D: Analysis without nSpans
@@ -490,7 +501,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Retrieve pairs of radii, counts for intersecting radii
 		final double[][] valuesN = getNonZeroValues(radii, counts);
 		final int trimmedCounts = valuesN.length;
-		if (trimmedCounts==0) {
+		if (trimmedCounts == 0) {
 			IJ.beep();
 			IJ.showProgress(0, 0);
 			IJ.showStatus("Error: All intersection counts were zero!");
@@ -506,7 +517,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double[][] valuesLOG = transformValues(valuesSLOG, false, false, true);
 		double[] fvaluesN = null;
 		double[] fvaluesNS = null;
-		//double[] fvaluesLOG = null;
+		// double[] fvaluesLOG = null;
 
 		// Create plots
 		if (shollN) {
@@ -535,8 +546,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final double dratio = getDeterminationRatio(valuesSLOG, valuesLOG);
 			statsTable.addValue("Determination ratio", dratio);
 			shollNS = false;
-			shollSLOG = (dratio>=1);
-			shollLOG = (dratio<1);
+			shollSLOG = (dratio >= 1);
+			shollLOG = (dratio < 1);
 
 		}
 
@@ -580,7 +591,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 						"log(" + distanceString + ")", "log(Inters./" + normalizerString + ")", valuesLOG);
 			}
 			if (fitCurve)
-				//fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG, statsTable, plotLOG);
+				// fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG,
+				// statsTable, plotLOG);
 				plotRegression(valuesLOG, plotLOG, statsTable, SHOLL_TYPES[SHOLL_LOG]);
 			if (!noPlots)
 				savePlot(plotLOG, SHOLL_LOG);
@@ -590,7 +602,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (!noTable) {
 			ResultsTable rt;
 			final String profileTable = imgTitle + "_Sholl-Profiles";
-			final TextWindow window = (TextWindow)WindowManager.getFrame(profileTable);
+			final TextWindow window = (TextWindow) WindowManager.getFrame(profileTable);
 			if (window == null)
 				rt = new ResultsTable();
 			else {
@@ -600,25 +612,27 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			rt.showRowNumbers(false);
 			rt.setPrecision(Options.getScientificNotationAwarePrecision());
-			for (int i=0; i <valuesN.length; i++) {
+			for (int i = 0; i < valuesN.length; i++) {
 				rt.incrementCounter();
 				rt.addValue("Radius", valuesN[i][0]);
 				rt.addValue("Inters.", valuesN[i][1]);
-				if (fvaluesN!=null) {
-					//rt.addValue("Radius (Polynomial fit)", valuesN[i][0]);
+				if (fvaluesN != null) {
+					// rt.addValue("Radius (Polynomial fit)", valuesN[i][0]);
 					rt.addValue("Inters. (Polynomial fit)", fvaluesN[i]);
 				}
-				rt.addValue("Inters./"+ normalizerString, valuesNS[i][1]);
-				if (fvaluesNS!=null) {
-					//rt.addValue("Radius (Power fit)", valuesNS[i][0]);
-					rt.addValue("Inters./"+ normalizerString +" (Power fit)", fvaluesNS[i]);
+				rt.addValue("Inters./" + normalizerString, valuesNS[i][1]);
+				if (fvaluesNS != null) {
+					// rt.addValue("Radius (Power fit)", valuesNS[i][0]);
+					rt.addValue("Inters./" + normalizerString + " (Power fit)", fvaluesNS[i]);
 				}
 				rt.addValue("log(Radius)", valuesLOG[i][0]);
-				rt.addValue("log(Inters./"+ normalizerString +")", valuesLOG[i][1]);
-				//if (fvaluesLOG!=null) {
-				//	rt.addValue("log(Radius) (Exponential fit)", valuesLOG[i][0]);
-				//	rt.addValue("log(Inters./"+ normalizerString +") (Exponential fit)", fvaluesLOG[i]);
-				//}
+				rt.addValue("log(Inters./" + normalizerString + ")", valuesLOG[i][1]);
+				// if (fvaluesLOG!=null) {
+				// rt.addValue("log(Radius) (Exponential fit)",
+				// valuesLOG[i][0]);
+				// rt.addValue("log(Inters./"+ normalizerString +") (Exponential
+				// fit)", fvaluesLOG[i]);
+				// }
 			}
 
 			if (validPath && save) {
@@ -626,7 +640,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					final String path = imgPath + profileTable;
 					rt.saveAs(path + Prefs.defaultResultsExtension());
 				} catch (final IOException e) {
-					IJ.log(">>>> An error occurred when saving "+ imgTitle +"'s profile(s):\n"+ e);
+					IJ.log(">>>> An error occurred when saving " + imgTitle + "'s profile(s):\n" + e);
 				}
 			}
 			if (!validPath || (validPath && !hideSaved))
@@ -635,8 +649,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		String exitmsg = "Done. ";
 
-		if (isCSV)
-			{ IJ.showStatus(exitmsg); return; }
+		if (isCSV) {
+			IJ.showStatus(exitmsg);
+			return;
+		}
 
 		// Create intersections mask if analyzed image remains available
 		if (mask && img.getWindow() != null) {
@@ -658,12 +674,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			} else if (shollNS && fittedData) {
 
 				maskimg = makeMask(img, imgTitle, fvaluesNS, x, y, cal, true);
-				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] +" (fitted)");
+				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] + " (fitted)");
 
 			} else if (shollNS) {
 
 				maskimg = makeMask(img, imgTitle, valuesNS, x, y, cal, true);
-				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] +" (sampled)");
+				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] + " (sampled)");
 
 			} else if (shollSLOG && fittedData) {
 
@@ -685,7 +701,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			} else if (shollSLOG) {
 
 				maskimg = makeMask(img, imgTitle, valuesSLOG, x, y, cal, true);
-				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] +" (sampled)");
+				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] + " (sampled)");
 
 			} else if (shollLOG && verbose) {
 
@@ -709,36 +725,36 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Performs curve fitting, adds the fitted curve to the Sholl plot and appends
-	 * or descriptors related with the fit to the summary table. Returns fitted
-	 * values or null if values.length is less than SMALLEST_DATASET
+	 * Performs curve fitting, adds the fitted curve to the Sholl plot and
+	 * appends descriptors related to the fit to the summary table. Returns
+	 * fitted values or null if values.length is less than SMALLEST_DATASET
 	 */
-	private static double[] getFittedProfile(final double[][] values, final int method,
-			final ResultsTable rt, final Plot plot) {
+	private static double[] getFittedProfile(final double[][] values, final int method, final ResultsTable rt,
+			final Plot plot) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
 		final double[] y = new double[size];
-		for (int i=0; i <size; i++) {
+		for (int i = 0; i < size; i++) {
 			x[i] = values[i][0];
 			y[i] = values[i][1];
 		}
 
 		// Define a global analysis title
-		final String longtitle = "Sholl Profile ("+ SHOLL_TYPES[method] +") for "+ imgTitle;
+		final String longtitle = "Sholl Profile (" + SHOLL_TYPES[method] + ") for " + imgTitle;
 
-		// Abort curve fitting when dealing with small datasets that are prone to
-		// inflated coefficients of determination
+		// Abort curve fitting when dealing with small datasets that are prone
+		// to inflated coefficients of determination
 		if (fitCurve && size <= SMALLEST_DATASET) {
-			IJ.log(longtitle +":\nCurve fitting not performed: Not enough data points\n"+
-					"At least "+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
+			IJ.log(longtitle + ":\nCurve fitting not performed: Not enough data points\n" + "At least "
+					+ (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 			return null;
 		}
 
-		 // Perform fitting
-		 final CurveFitter cf = new CurveFitter(x, y);
-		 //cf.setRestarts(4); // default: 2;
-		 //cf.setMaxIterations(50000); //default: 25000
+		// Perform fitting
+		final CurveFitter cf = new CurveFitter(x, y);
+		// cf.setRestarts(4); // default: 2;
+		// cf.setMaxIterations(50000); //default: 25000
 
 		if (method == SHOLL_N) {
 			if (DEGREES[polyChoice].startsWith("2")) {
@@ -758,8 +774,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			} else {
 				IJ.showStatus("Choosing polynomial of best fit...");
 				if (verbose)
-					IJ.log("\n*** Choosing polynomial of best fit for "+ imgTitle +"...");
-				cf.doFit(getBestPolyFit(x,y), false);
+					IJ.log("\n*** Choosing polynomial of best fit for " + imgTitle + "...");
+				cf.doFit(getBestPolyFit(x, y), false);
 			}
 		} else if (method == SHOLL_NS) {
 			cf.doFit(CurveFitter.POWER, false);
@@ -767,9 +783,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			cf.doFit(CurveFitter.EXP_WITH_OFFSET, false);
 		}
 
-		//IJ.showStatus("Curve fitter status: " + cf.getStatusString());
+		// IJ.showStatus("Curve fitter status: " + cf.getStatusString());
 		final double[] parameters = cf.getParams();
-		final int degree = cf.getNumParams()-1;
+		final int degree = cf.getNumParams() - 1;
 
 		// Get fitted data
 		final double[] fy = new double[size];
@@ -780,10 +796,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final StringBuffer plotLabel = new StringBuffer();
 
 		// Register quality of fit
-		plotLabel.append("R\u00B2= "+ IJ.d2s(cf.getRSquared(), 3));
+		plotLabel.append("R\u00B2= " + IJ.d2s(cf.getRSquared(), 3));
 
 		// Plot fitted curve
-		if (plot!=null) {
+		if (plot != null) {
 			plot.setColor(Color.BLUE);
 			plot.setLineWidth(2);
 			plot.addPoints(x, fy, PlotWindow.LINE);
@@ -791,10 +807,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		if (verbose) {
-			IJ.log("\n*** "+ longtitle +", fitting details:"+ cf.getResultString());
+			IJ.log("\n*** " + longtitle + ", fitting details:" + cf.getResultString());
 		}
 
-		if (method==SHOLL_N) {
+		if (method == SHOLL_N) {
 
 			double cv = 0d; // Polyn. regression: ordinate of maximum
 			double cr = 0d; // Polyn. regression: abscissa of maximum
@@ -802,18 +818,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			double rif = Double.NaN; // Polyn. regression: Ramification index
 
 			// Get coordinates of cv, the local maximum of polynomial. We'll
-			// iterate around the index of highest fitted value to retrieve values
-			// with a precision of 1/fMetricsPrecision of radius step size
+			// iterate around the index of highest fitted value to retrieve
+			// values with a precision of 1/fMetricsPrecision of radius step
+			// size
 			final int maxIdx = CurveFitter.getMax(fy);
-			final double crLeft = (x[Math.max(maxIdx-1, 0)] + x[maxIdx]) / 2;
-			final double crRight = (x[Math.min(maxIdx+1, size-1)] + x[maxIdx]) / 2;
-			final double crStep = (crRight-crLeft) / fMetricsPrecision;
+			final double crLeft = (x[Math.max(maxIdx - 1, 0)] + x[maxIdx]) / 2;
+			final double crRight = (x[Math.min(maxIdx + 1, size - 1)] + x[maxIdx]) / 2;
+			final double crStep = (crRight - crLeft) / fMetricsPrecision;
 			double crTmp, cvTmp;
 			for (int i = 0; i < fMetricsPrecision; i++) {
-				crTmp = crLeft + (i*crStep);
+				crTmp = crLeft + (i * crStep);
 				cvTmp = cf.f(parameters, crTmp);
-				if (cvTmp > cv)
-					{ cv = cvTmp; cr = crTmp; }
+				if (cvTmp > cv) {
+					cv = cvTmp;
+					cr = crTmp;
+				}
 			}
 
 			// Calculate mv, the mean value of the fitted polynomial between
@@ -832,7 +851,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			mv = (1 / (xRange[1] - xRange[0])) * mv;
 
 			// Highlight mean value on the plot
-			if (plot!=null) {
+			if (plot != null) {
 				plot.setLineWidth(1);
 				plot.setColor(Color.LIGHT_GRAY);
 				plot.drawLine(xRange[0], mv, xRange[1], mv);
@@ -841,13 +860,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// Calculate the "fitted" ramification index
 			if (inferPrimary)
 				rif = cv / y[0];
-			else if ( !(primaryBranches == 0 || Double.isNaN(primaryBranches)) )
+			else if (!(primaryBranches == 0 || Double.isNaN(primaryBranches)))
 				rif = cv / primaryBranches;
 
 			// Register parameters
-			plotLabel.append("\nNm= "+ IJ.d2s(cv, 2));
-			plotLabel.append("\nrc= "+ IJ.d2s(cr, 2));
-			plotLabel.append("\nNav= "+ IJ.d2s(mv, 2));
+			plotLabel.append("\nNm= " + IJ.d2s(cv, 2));
+			plotLabel.append("\nrc= " + IJ.d2s(cr, 2));
+			plotLabel.append("\nNav= " + IJ.d2s(mv, 2));
 			plotLabel.append("\n" + Sholl_Utils.ordinal(degree)).append(" degree");
 
 			rt.addValue("Critical value", cv);
@@ -864,7 +883,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		if (plot!=null && plotLabels)
+		if (plot != null && plotLabels)
 			Sholl_Utils.makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
 		rt.show(SHOLLTABLE);
 		return fy;
@@ -882,12 +901,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final int size = Math.min(xpoints.length, ypoints.length);
 		int i, j, nsize = 0;
 
-		for (i=0; i<size; i++)
-			{ if (xpoints[i]>0.0 && ypoints[i]>0.0) nsize++; }
+		for (i = 0; i < size; i++) {
+			if (xpoints[i] > 0.0 && ypoints[i] > 0.0)
+				nsize++;
+		}
 
 		final double[][] values = new double[nsize][2];
-		for (i=0, j=0; i<size; i++) {
-			if (xpoints[i]>0.0 && ypoints[i]>0.0) {
+		for (i = 0, j = 0; i < size; i++) {
+			if (xpoints[i] > 0.0 && ypoints[i] > 0.0) {
 				values[j][0] = xpoints[i];
 				values[j++][1] = ypoints[i];
 			}
@@ -896,7 +917,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return values;
 
 	}
-
 
 	/**
 	 * Obtains the "Determination Ratio", used to choose between semi-log and
@@ -910,7 +930,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double[] llx = new double[size];
 		final double[] lly = new double[size];
 
-		for (int i=0; i <size; i++) {
+		for (int i = 0; i < size; i++) {
 			slx[i] = semilog[i][0];
 			sly[i] = semilog[i][1];
 			llx[i] = loglog[i][0];
@@ -924,34 +944,35 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double rsqrd2 = cf2.getRSquared();
 
 		if (verbose) {
-			//final String norm = is3D ? NORMS3D[normChoice] : NORMS2D[normChoice];
-			IJ.log("\n*** Choosing normalization method for "+ imgTitle +"...");
-			IJ.log("Semi-log: R^2= "+ IJ.d2s(rsqrd1, 5) +"... "+ cf1.getStatusString());
-			IJ.log("Log-log: R^2= "+ IJ.d2s(rsqrd2, 5) +"... "+ cf2.getStatusString());
+			// final String norm = is3D ? NORMS3D[normChoice] :
+			// NORMS2D[normChoice];
+			IJ.log("\n*** Choosing normalization method for " + imgTitle + "...");
+			IJ.log("Semi-log: R^2= " + IJ.d2s(rsqrd1, 5) + "... " + cf1.getStatusString());
+			IJ.log("Log-log: R^2= " + IJ.d2s(rsqrd2, 5) + "... " + cf2.getStatusString());
 		}
 
-		return rsqrd1/Math.max(Double.MIN_VALUE,rsqrd2);
+		return rsqrd1 / Math.max(Double.MIN_VALUE, rsqrd2);
 
 	}
 
-
-	/** Guesses the polynomial of best fit by comparison of coefficient of determination */
+	/**
+	 * Guesses the polynomial of best fit by comparison of coefficient of
+	 * determination
+	 */
 	static private int getBestPolyFit(final double x[], final double[] y) {
 
-		final int[] polyList = { CurveFitter.POLY2, CurveFitter.POLY3,
-								 CurveFitter.POLY4, CurveFitter.POLY5,
-								 CurveFitter.POLY6, CurveFitter.POLY7,
-								 CurveFitter.POLY8 };
+		final int[] polyList = { CurveFitter.POLY2, CurveFitter.POLY3, CurveFitter.POLY4, CurveFitter.POLY5,
+				CurveFitter.POLY6, CurveFitter.POLY7, CurveFitter.POLY8 };
 
 		int bestFit = 0;
 		double bestRSquared = 0.0;
 		final double[] listRSquared = new double[polyList.length];
 
-		for (int i=0; i<polyList.length; i++) {
+		for (int i = 0; i < polyList.length; i++) {
 
 			final CurveFitter cf = new CurveFitter(x, y);
-			//cf.setRestarts(4); // default: 2;
-			//cf.setMaxIterations(50000); //default: 25000
+			// cf.setRestarts(4); // default: 2;
+			// cf.setMaxIterations(50000); //default: 25000
 			cf.doFit(polyList[i], false);
 			listRSquared[i] = cf.getRSquared();
 			if (listRSquared[i] > bestRSquared) {
@@ -959,8 +980,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				bestFit = i;
 			}
 			if (verbose)
-				IJ.log( CurveFitter.fitList[polyList[i]]
-						+": R^2= "+ IJ.d2s(listRSquared[i], 5) +"... "
+				IJ.log(CurveFitter.fitList[polyList[i]] + ": R^2= " + IJ.d2s(listRSquared[i], 5) + "... "
 						+ cf.getStatusString());
 
 		}
@@ -968,14 +988,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return polyList[bestFit];
 	}
 
-
 	/**
-	 * Creates the main dialog (csvPrompt imports tabular data). Returns false if
-	 * dialog was canceled or dialogItemChanged() if dialog was OKed. 
+	 * Creates the main dialog (csvPrompt imports tabular data). Returns false
+	 * if dialog was canceled or dialogItemChanged() if dialog was OKed.
 	 */
 	private boolean bitmapPrompt(final double chordAngle, final boolean is3D) {
 
-		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION);
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION);
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 42;
@@ -987,7 +1006,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addNumericField("Ending radius", endRadius, 2, 9, unit);
 		gd.addNumericField("Radius_step size", incStep, 2, 9, unit);
 
-		// If an orthogonal chord exists, prompt for hemicircle/hemisphere analysis
+		// If an orthogonal chord exists, prompt for hemicircle/hemisphere
+		// analysis
 		orthoChord = (chordAngle > -1 && chordAngle % 90 == 0);
 		if (orthoChord) {
 			if (chordAngle == 90.0) {
@@ -998,7 +1018,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				quads[1] = QUAD_SOUTH;
 			}
 			gd.setInsets(0, xIndent, 0);
-			gd.addCheckbox("Restrict analysis to hemi"+ (is3D ? "sphere:" : "circle:"), trimBounds);
+			gd.addCheckbox("Restrict analysis to hemi" + (is3D ? "sphere:" : "circle:"), trimBounds);
 			gd.setInsets(0, 0, 0);
 			gd.addChoice("_", quads, quads[quadChoice]);
 		}
@@ -1027,9 +1047,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// We'll use the "units" label of the GenericDialog's numeric field to
 		// provide some feedback on the usage of multi-point counters
-		// (http://imagej.net/Sholl#Startup_ROI). This is obviously extremely
-		// hacky, but we are already at the limit of customization allowed by
-		// GenericDialogs
+		// (http://imagej.net/Sholl_Analysis#Startup_ROI). This is obviously
+		// extremely hacky, but we are already at the limit of customization
+		// allowed by GenericDialogs
 		final String mpTip = (primaryFromPointRoi)
 				? "Multi-point [2-" + multipointCount + "] count: " + String.valueOf((int) primaryBranches)
 				: "(Multi-point counter absent)";
@@ -1047,25 +1067,24 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addCheckbox("Infer from starting radius", inferPrimary);
 		gd.setInsets(6, xIndent, 0);
 		gd.addCheckbox("Fit profile and compute descriptors", fitCurve);
-		gd.setInsets(3, 2*xIndent, 0);
+		gd.setInsets(3, 2 * xIndent, 0);
 		gd.addCheckbox("Show fitting details", verbose);
 
 		// Part IV: Sholl Methods
 		gd.setInsets(10, 0, 2);
 		gd.addHyperlinkMessage("IV. Sholl Methods:", headerFont, Color.BLACK, URL + "#Choice_of_Methods");
-		gd.setInsets(0, xIndent/2, 2);
+		gd.setInsets(0, xIndent / 2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Linear", shollN);
 		gd.setInsets(0, 0, 0);
 		gd.addChoice("Polynomial", DEGREES, DEGREES[polyChoice]);
 
-		gd.setInsets(8, xIndent/2, 2);
+		gd.setInsets(8, xIndent / 2, 2);
 		gd.addMessage("Normalized Profiles:");
 		gd.setInsets(0, xIndent, 0);
-		gd.addCheckboxGroup(2, 2,
-				new String[]{"Most informative", SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],SHOLL_TYPES[SHOLL_LOG]},
-				new boolean[]{chooseLog, shollNS, shollSLOG, shollLOG});
+		gd.addCheckboxGroup(2, 2, new String[] { "Most informative", SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],
+				SHOLL_TYPES[SHOLL_LOG] }, new boolean[] { chooseLog, shollNS, shollSLOG, shollLOG });
 		gd.setInsets(0, 0, 0);
 		if (is3D) {
 			gd.addChoice("Normalizer", NORMS3D, NORMS3D[normChoice]);
@@ -1083,7 +1102,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (validPath) {
 			gd.setInsets(0, xIndent, 0);
 			gd.addCheckbox("Save results in image directory", save);
-			gd.setInsets(0, 2*xIndent, 0);
+			gd.setInsets(0, 2 * xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		} else {
 			gd.setInsets(0, xIndent, 0);
@@ -1091,7 +1110,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					gd.getDisabledComponentColor());
 		}
 
-		// Add listener and scroll bars. Update prompt and status bar before displaying it
+		// Add listener and scroll bars. Update prompt and status bar before
+		// displaying it
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 
@@ -1114,21 +1134,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		this.ip.resetMinAndMax();
 		final double min = this.ip.getMin();
 		final double max = this.ip.getMax();
-		final double t1 = (min + (lowerT*255.0/(max-min)));
-		final double t2 = (min + (upperT*255.0/(max-min)));
+		final double t1 = (min + (lowerT * 255.0 / (max - min)));
+		final double t2 = (min + (upperT * 255.0 / (max - min)));
 
 		final byte[] r = new byte[256];
 		final byte[] g = new byte[256];
 		final byte[] b = new byte[256];
-		for (int i=0; i<256; i++) {
-			if (i>=t1 && i<=t2) {
-				r[i] = (byte)0;
-				g[i] = (byte)100;
-				b[i] = (byte)255;
+		for (int i = 0; i < 256; i++) {
+			if (i >= t1 && i <= t2) {
+				r[i] = (byte) 0;
+				g[i] = (byte) 100;
+				b[i] = (byte) 255;
 			} else {
-				r[i] = (byte)255;
-				g[i] = (byte)236;
-				b[i] = (byte)158;
+				r[i] = (byte) 255;
+				g[i] = (byte) 236;
+				b[i] = (byte) 158;
 			}
 		}
 		this.ip.setColorModel(new IndexColorModel(8, 256, r, g, b));
@@ -1139,8 +1159,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * Some users have been measuring the interstitial spaces between neuronal
 	 * processes rather than the processes themselves. This creates a warning
-	 * message while highlighting the arbor to remember the user that highlighted
-	 * pixels are the ones to be measured
+	 * message while highlighting the arbor to remember the user that
+	 * highlighted pixels are the ones to be measured
 	 */
 	private void offlineHelp(final GenericDialog parentDialog) {
 
@@ -1148,7 +1168,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final LUT lut = this.ip.getLut();
 		final int mode = this.ip.getLutUpdateMode();
 
-		// apply new LUT in new thread to provide a more responsive user interface
+		// apply new LUT in new thread to provide a more responsive user
+		// interface
 		final Thread newThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -1169,23 +1190,28 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		sb.append("Make sure you are sampling neuronal processes and not the interstitial spaces between them!");
 		sb.append("<br><br>");
 		sb.append("<b>Segmentation values:</b><br>");
-		sb.append("&emsp;Lower threshold (lowest intensity in arbor):&ensp<tt>").append( IJ.d2s(lowerT,1)).append("</tt><br>");
-		sb.append("&emsp;Upper threshold (brightest intensity in arbor):&ensp<tt>").append( IJ.d2s(upperT,1)).append("</tt><br>");
+		sb.append("&emsp;Lower threshold (lowest intensity in arbor):&ensp<tt>").append(IJ.d2s(lowerT, 1))
+				.append("</tt><br>");
+		sb.append("&emsp;Upper threshold (brightest intensity in arbor):&ensp<tt>").append(IJ.d2s(upperT, 1))
+				.append("</tt><br>");
 		sb.append("&emsp;Intensity at analysis center (x=").append(String.valueOf(x)).append(", y=")
 				.append(String.valueOf(y)).append(", z=").append(String.valueOf(z)).append("):&ensp<tt>")
-				.append(IJ.d2s(this.ip.get(x, y),1)).append("</tt>");
+				.append(IJ.d2s(this.ip.get(x, y), 1)).append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Image details:</b><br>");
 		sb.append("&emsp;Image type:&ensp;").append(String.valueOf(this.ip.getBitDepth())).append("-bit")
-				.append((is3D)?" (3D)":" (2D)").append("<br>");
+				.append((is3D) ? " (3D)" : " (2D)").append("<br>");
 		sb.append("&emsp;Binary image?&ensp;").append(String.valueOf(this.ip.isBinary())).append("</tt><br>");
-		sb.append("&emsp;Multi-channel image?&ensp;").append(String.valueOf(this.img.isComposite())).append("</tt><br>");
+		sb.append("&emsp;Multi-channel image?&ensp;").append(String.valueOf(this.img.isComposite()))
+				.append("</tt><br>");
 		sb.append("&emsp;Spatial units:&ensp;<tt>").append(unit).append("</tt><br>");
-		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>").append(String.valueOf(this.ip.isInvertedLut())).append("</tt><br>");
+		sb.append("&emsp;Inverted LUT (<i>Image>Lookup Tables>Invert LUT</i>)?&ensp<tt>")
+				.append(String.valueOf(this.ip.isInvertedLut())).append("</tt><br>");
 		sb.append("&emsp;Image saved locally?&ensp;").append(String.valueOf(validPath)).append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Analysis options:</b><br>");
-		sb.append("&emsp;Orthogonal restriction allowed?&ensp<tt>").append(String.valueOf(orthoChord)).append("</tt><br>");
+		sb.append("&emsp;Orthogonal restriction allowed?&ensp<tt>").append(String.valueOf(orthoChord))
+				.append("</tt><br>");
 		sb.append("&emsp;Repetead measures allowed?&ensp<tt>").append(String.valueOf(!is3D)).append("</tt><br>");
 		sb.append("&emsp;Noise supression allowed?&ensp<tt>").append(String.valueOf(is3D)).append("</tt><br>");
 		sb.append("&emsp;Saving options available?&ensp<tt>").append(String.valueOf(validPath)).append("</tt><br>");
@@ -1193,7 +1219,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				.append(String.valueOf(Math.max(0, multipointCount - 1))).append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Other settings:</b><br>");
-		sb.append("&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>").append(String.valueOf(Prefs.blackBackground)).append("</tt>");
+		sb.append("&emsp;Black background (<i>Process>Binary>Options...</i>)?&ensp<tt>")
+				.append(String.valueOf(Prefs.blackBackground)).append("</tt>");
 		sb.append("</div>");
 		sb.append("</html>");
 		new HTMLDialog(parentDialog, "Segmentation Details", sb.toString());
@@ -1208,8 +1235,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Retrieves values from the dialog, disabling dialog components that are
 	 * not applicable. Returns false if no analysis method was chosen
 	 *
-	 * @param gd reference to the GenericDialog
-	 * @param e the event generated by the user in the dialog
+	 * @param gd
+	 *            reference to the GenericDialog
+	 * @param e
+	 *            the event generated by the user in the dialog
 	 * @return true, if options are valid
 	 */
 	@Override
@@ -1228,8 +1257,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// options specific to bitmapPrompt();
 		Choice iequadChoice = null, iebinChoice = null;
-		
-		final Object source = (e==null) ? null : e.getSource();
+
+		final Object source = (e == null) ? null : e.getSource();
 		int checkboxCounter = 0;
 		int choiceCounter = 0;
 		int fieldCounter = 0;
@@ -1238,13 +1267,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			imgTitle = gd.getNextString();
 
-			// Get columns choices and ensure rColumn and cColumn are not the same
+			// Get columns choices and ensure rColumn and cColumn are not the
+			// same
 			rColumn = gd.getNextChoiceIndex();
 			cColumn = gd.getNextChoiceIndex();
-			final Choice ierColumn = (Choice)choices.elementAt(choiceCounter++);
-			final Choice iecColumn = (Choice)choices.elementAt(choiceCounter++);
-			if (rColumn==cColumn) {
-				final int newChoice = (rColumn<ierColumn.getItemCount()-1) ? rColumn+1 : 0;
+			final Choice ierColumn = (Choice) choices.elementAt(choiceCounter++);
+			final Choice iecColumn = (Choice) choices.elementAt(choiceCounter++);
+			if (rColumn == cColumn) {
+				final int newChoice = (rColumn < ierColumn.getItemCount() - 1) ? rColumn + 1 : 0;
 				if (source == ierColumn)
 					iecColumn.select(newChoice);
 				else if (source == iecColumn)
@@ -1255,30 +1285,30 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			checkboxCounter++;
 			is3D = gd.getNextBoolean();
 			checkboxCounter++;
-			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());
+			enclosingCutOff = (int) Math.max(1, gd.getNextNumber());
 			primaryBranches = gd.getNextNumber();
-			if (primaryBranches<=0)
+			if (primaryBranches <= 0)
 				primaryBranches = Double.NaN;
 			fieldCounter = 1;
-			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
+			ieprimaryBranches = (TextField) numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
-			ieinferPrimary = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieinferPrimary = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 
 			shollN = gd.getNextBoolean();
 			checkboxCounter++;
 			polyChoice = gd.getNextChoiceIndex();
-			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
+			iepolyChoice = (Choice) choices.elementAt(choiceCounter++);
 
 			chooseLog = gd.getNextBoolean();
-			iechooseLog = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			iechooseLog = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			shollNS = gd.getNextBoolean();
-			ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieshollNS = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			shollSLOG = gd.getNextBoolean();
-			ieshollSLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieshollSLOG = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			shollLOG = gd.getNextBoolean();
-			ieshollLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieshollLOG = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			normChoice = gd.getNextChoiceIndex();
-			ienormChoice = (Choice)choices.elementAt(choiceCounter++);
+			ienormChoice = (Choice) choices.elementAt(choiceCounter++);
 
 			verbose = gd.getNextBoolean();
 			checkboxCounter++;
@@ -1287,7 +1317,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				save = gd.getNextBoolean();
 				checkboxCounter++;
 				hideSaved = gd.getNextBoolean();
-				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				iehideSaved = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 				iehideSaved.setEnabled(save);
 			}
 
@@ -1295,15 +1325,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Part I: Definition of Shells
 			startRadius = Math.max(0, gd.getNextNumber());
-			//final TextField iestartRadius = (TextField)numericfields.elementAt(fieldCounter++);
+			// final TextField iestartRadius =
+			// (TextField)numericfields.elementAt(fieldCounter++);
 			fieldCounter++;
 			endRadius = Math.max(0, gd.getNextNumber());
-			final TextField ieendRadius = (TextField)numericfields.elementAt(fieldCounter++);
-			//fieldCounter++;
+			final TextField ieendRadius = (TextField) numericfields.elementAt(fieldCounter++);
+			// fieldCounter++;
 			incStep = Math.max(0, gd.getNextNumber());
-			//final TextField ieincStep = (TextField)numericfields.elementAt(fieldCounter++);
+			// final TextField ieincStep =
+			// (TextField)numericfields.elementAt(fieldCounter++);
 			fieldCounter++;
-			if (endRadius<=startRadius || endRadius<=incStep) {
+			if (endRadius <= startRadius || endRadius <= incStep) {
 				ieendRadius.setForeground(Color.RED);
 				IJ.showStatus("Error: Ending radius out of range!");
 				return false;
@@ -1317,8 +1349,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				quadChoice = gd.getNextChoiceIndex();
 				quadString = quads[quadChoice];
 				checkboxCounter++;
-				//final Checkbox ietrimBounds = (Checkbox)checkboxes.elementAt(checkboxCounter++);
-				iequadChoice = (Choice)choices.elementAt(choiceCounter++);
+				// final Checkbox ietrimBounds =
+				// (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				iequadChoice = (Choice) choices.elementAt(choiceCounter++);
 				iequadChoice.setEnabled(trimBounds);
 			}
 
@@ -1327,27 +1360,31 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				skipSingleVoxels = gd.getNextBoolean();
 				checkboxCounter++;
 			} else {
-				nSpans = Math.min(Math.max((int)gd.getNextNumber(), 1), 10);
+				nSpans = Math.min(Math.max((int) gd.getNextNumber(), 1), 10);
 				fieldCounter++;
 				binChoice = gd.getNextChoiceIndex();
-				iebinChoice = (Choice)choices.elementAt(choiceCounter++);
-				iebinChoice.setEnabled(nSpans>1);
+				iebinChoice = (Choice) choices.elementAt(choiceCounter++);
+				iebinChoice.setEnabled(nSpans > 1);
 			}
 
 			// Part III: Indices and Curve Fitting
-			enclosingCutOff = (int)Math.max(1, gd.getNextNumber());	 // will become zero if NaN
+			enclosingCutOff = (int) Math.max(1, gd.getNextNumber()); // will
+																		// become
+																		// zero
+																		// if
+																		// NaN
 			fieldCounter++;
 			primaryBranches = gd.getNextNumber();
-			if (primaryBranches<=0)
+			if (primaryBranches <= 0)
 				primaryBranches = Double.NaN;
-			ieprimaryBranches = (TextField)numericfields.elementAt(fieldCounter++);
+			ieprimaryBranches = (TextField) numericfields.elementAt(fieldCounter++);
 			inferPrimary = gd.getNextBoolean();
-			ieinferPrimary = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieinferPrimary = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 
 			fitCurve = gd.getNextBoolean();
 			checkboxCounter++;
 			verbose = gd.getNextBoolean();
-			final Checkbox ieverbose = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			final Checkbox ieverbose = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			ieverbose.setEnabled(fitCurve);
 
 			// Part IV: Sholl Methods
@@ -1355,29 +1392,29 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			checkboxCounter++;
 
 			polyChoice = gd.getNextChoiceIndex();
-			iepolyChoice = (Choice)choices.elementAt(choiceCounter++);
+			iepolyChoice = (Choice) choices.elementAt(choiceCounter++);
 
 			chooseLog = gd.getNextBoolean();
-			iechooseLog = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			iechooseLog = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			shollNS = gd.getNextBoolean();
-			ieshollNS = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieshollNS = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			shollSLOG = gd.getNextBoolean();
-			ieshollSLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieshollSLOG = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			shollLOG = gd.getNextBoolean();
-			ieshollLOG = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			ieshollLOG = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			normChoice = gd.getNextChoiceIndex();
-			ienormChoice = (Choice)choices.elementAt(choiceCounter++);
+			ienormChoice = (Choice) choices.elementAt(choiceCounter++);
 
 			// Part V: Mask and outputs
 			mask = gd.getNextBoolean();
-			iemask = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
 
 			if (validPath) {
 				save = gd.getNextBoolean();
 				checkboxCounter++;
 				hideSaved = gd.getNextBoolean();
-				iehideSaved = (Checkbox)checkboxes.elementAt(checkboxCounter++);
+				iehideSaved = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 				iehideSaved.setEnabled(save);
 			}
 
@@ -1385,7 +1422,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Disable fields common to both prompts
 		ieprimaryBranches.setEnabled(!inferPrimary);
-		iepolyChoice.setEnabled( fitCurve && shollN ); // fitCurve is true if isCSV
+		iepolyChoice.setEnabled(fitCurve && shollN); // fitCurve is true if
+														// isCSV
 		ieshollNS.setEnabled(!chooseLog);
 		ieshollSLOG.setEnabled(!chooseLog);
 		ieshollLOG.setEnabled(!chooseLog);
@@ -1398,21 +1436,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		String tipMsg = "NB: ";
 		if (!proceed)
 			tipMsg = "Error: At least one method needs to be chosen!";
-		if (source!=null) {
-			if (source==iequadChoice)
+		if (source != null) {
+			if (source == iequadChoice)
 				tipMsg += "The \"Restriction\" option requires an orthogonal line.";
-			else if (source==iebinChoice)
+			else if (source == iebinChoice)
 				tipMsg += "The \"Integration\" option is disabled with 3D images.";
-			else if (source==iepolyChoice)
+			else if (source == iepolyChoice)
 				tipMsg += "The BAR update site allows fitting to polynomials of higher order.";
-			else if (source==ienormChoice)
+			else if (source == ienormChoice)
 				tipMsg += "\"Annulus/Spherical shell\" requires non-continuous sampling.";
-			else if (source==iechooseLog || source==ieshollNS || source==ieshollSLOG || source==ieshollLOG)
+			else if (source == iechooseLog || source == ieshollNS || source == ieshollSLOG || source == ieshollLOG)
 				tipMsg += "Determination ratio chooses most informative method.";
-			else if (source==ieprimaryBranches || source==ieinferPrimary)
+			else if (source == ieprimaryBranches || source == ieinferPrimary)
 				tipMsg += "# Primary branches are used to calculate Schoenen indices.";
-			else if (source==iehideSaved)
-				tipMsg += "Saving path: "+ imgPath;
+			else if (source == iehideSaved)
+				tipMsg += "Saving path: " + imgPath;
 			else if (!isCSV) {
 				if (Double.isNaN(startRadius))
 					tipMsg += "Starting radius: 0   ";
@@ -1428,12 +1466,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/** Creates the dialog for tabular data (bitmapPrompt is the main prompt). */
+	/**
+	 * Creates the dialog for tabular data (bitmapPrompt is the main prompt).
+	 */
 	private boolean csvPrompt() {
 
-		if (!validTable(csvRT)) return false;
+		if (!validTable(csvRT))
+			return false;
 		final String[] headings = csvRT.getHeadings();
-		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION +" (Tabular Data)");
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION + " (Tabular Data)");
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 40;
@@ -1451,49 +1492,48 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Part II: Indices and Curve Fitting
 		gd.setInsets(15, 0, 2);
-		gd.addHyperlinkMessage("II. Descriptors and Ramification Indices:", headerFont, Color.BLACK, URL+"#Descriptors_and_Curve_Fitting");
+		gd.addHyperlinkMessage("II. Descriptors and Ramification Indices:", headerFont, Color.BLACK,
+				URL + "#Descriptors_and_Curve_Fitting");
 		gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
 		gd.addNumericField(" #_Primary branches", primaryBranches, 0);
-		gd.setInsets(0, 2*xIndent, 0);
+		gd.setInsets(0, 2 * xIndent, 0);
 		gd.addCheckbox("Infer from values in first row", inferPrimary);
 
 		// Part III: Sholl Methods
 		gd.setInsets(15, 0, 2);
-		gd.addHyperlinkMessage("III. Sholl Methods:", headerFont, Color.BLACK, URL+"#Choice_of_Methods");
-		gd.setInsets(0, xIndent/2, 2);
+		gd.addHyperlinkMessage("III. Sholl Methods:", headerFont, Color.BLACK, URL + "#Choice_of_Methods");
+		gd.setInsets(0, xIndent / 2, 2);
 		gd.addMessage("Profiles Without Normalization:");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Linear", shollN);
 		gd.setInsets(0, 0, 0);
 		gd.addChoice("Polynomial", DEGREES, DEGREES[polyChoice]);
 
-		gd.setInsets(8, xIndent/2, 2);
+		gd.setInsets(8, xIndent / 2, 2);
 		gd.addMessage("Normalized Profiles:");
 		gd.setInsets(0, xIndent, 0);
-		gd.addCheckboxGroup(2, 2,
-				new String[]{"Most informative", SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],SHOLL_TYPES[SHOLL_LOG]},
-				new boolean[]{chooseLog, shollNS, shollSLOG, shollLOG});
+		gd.addCheckboxGroup(2, 2, new String[] { "Most informative", SHOLL_TYPES[SHOLL_NS], SHOLL_TYPES[SHOLL_SLOG],
+				SHOLL_TYPES[SHOLL_LOG] }, new boolean[] { chooseLog, shollNS, shollSLOG, shollLOG });
 
 		final String[] norms = new String[NORMS3D.length];
-		for (int i=0; i<norms.length; i++) {
-			norms[i] = NORMS2D[i] +"/"+ NORMS3D[i];
+		for (int i = 0; i < norms.length; i++) {
+			norms[i] = NORMS2D[i] + "/" + NORMS3D[i];
 		}
 		gd.setInsets(2, 0, 0);
 		gd.addChoice("Normalizer", norms, norms[normChoice]);
 
 		gd.setInsets(15, 0, 2);
-		gd.addHyperlinkMessage("IV. Output Options:", headerFont, Color.BLACK, URL+"#Output_Options");
+		gd.addHyperlinkMessage("IV. Output Options:", headerFont, Color.BLACK, URL + "#Output_Options");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Show fitting details", verbose);
 		if (validPath) {
 			gd.setInsets(0, xIndent, 0);
 			gd.addCheckbox("Save results in directory of imported profile", save);
-			gd.setInsets(0, 2*xIndent, 0);
+			gd.setInsets(0, 2 * xIndent, 0);
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		} else {
 			gd.setInsets(0, xIndent, 0);
-			gd.addMessage("Saving options disabled. Path of data unknow...", null,
-					gd.getDisabledComponentColor());
+			gd.addMessage("Saving options disabled. Path of data unknow...", null, gd.getDisabledComponentColor());
 		}
 
 		Sholl_Utils.addCitationUrl(gd);
@@ -1512,13 +1552,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 	}
 
-	/** Checks if table is valid while warning user about it*/
+	/** Checks if table is valid while warning user about it */
 	private boolean validTable(final ResultsTable table) {
-		if (table==null) {
+		if (table == null) {
 			return false;
-		} else if (table.getHeadings().length<2 || table.getCounter()<2) {
-			lError("Profile in Results table does not contain enough data points.", "N.B. At least "
-					+ (SMALLEST_DATASET+1) +" pairs of values are required for curve fitting.");
+		} else if (table.getHeadings().length < 2 || table.getCounter() < 2) {
+			lError("Profile in Results table does not contain enough data points.",
+					"N.B. At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 			return false;
 		} else
 			return true;
@@ -1542,8 +1582,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            The image being analyzed
 	 * @return intersection counts (the linear profile of sampled data)
 	 */
-	static public synchronized double[] analyze3D(final int xc, final int yc, final int zc,
-			final double[] radii, final ImagePlus img) {
+	static public synchronized double[] analyze3D(final int xc, final int yc, final int zc, final double[] radii,
+			final ImagePlus img) {
 
 		int nspheres;
 
@@ -1562,21 +1602,25 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		for (int ithread = 0; ithread < threads.length; ithread++) {
 
-			final int chunkSize = (nspheres + n_cpus - 1) / n_cpus; // divide by threads rounded up.
+			final int chunkSize = (nspheres + n_cpus - 1) / n_cpus; // divide by
+																	// threads
+																	// rounded
+																	// up.
 			final int start = ithread * chunkSize;
 			final int end = Math.min(start + chunkSize, nspheres);
 
 			threads[ithread] = new Thread() {
 
+				@Override
 				public void run() {
 					for (int k = ai.getAndIncrement(); k < n_cpus; k = ai.getAndIncrement()) {
 
 						for (int s = start; s < end; s++) {
 							final int counter = getThreadedCounter();
-							IJ.showProgress(counter,nspheres);
+							IJ.showProgress(counter, nspheres);
 							IJ.showStatus("Sampling sphere " + (counter + 1) + "/" + nspheres + " (" + n_cpus
 									+ " threads). Press 'Esc' to abort...");
-							setThreadedCounter(counter+1);
+							setThreadedCounter(counter + 1);
 							if (IJ.escapePressed()) {
 								IJ.beep();
 								return;
@@ -1585,21 +1629,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 							// Initialize ArrayLists to hold surface points
 							final ArrayList<int[]> points = new ArrayList<int[]>();
 
-							// Restrain analysis to the smallest volume for this sphere
-							final int xmin = Math.max(xc - (int)Math.round(radii[s]/vxWH), minX);
-							final int ymin = Math.max(yc - (int)Math.round(radii[s]/vxWH), minY);
-							final int zmin = Math.max(zc - (int)Math.round(radii[s]/vxD), minZ);
-							final int xmax = Math.min(xc + (int)Math.round(radii[s]/vxWH), maxX);
-							final int ymax = Math.min(yc + (int)Math.round(radii[s]/vxWH), maxY);
-							final int zmax = Math.min(zc + (int)Math.round(radii[s]/vxD), maxZ);
+							// Restrain analysis to the smallest volume for this
+							// sphere
+							final int xmin = Math.max(xc - (int) Math.round(radii[s] / vxWH), minX);
+							final int ymin = Math.max(yc - (int) Math.round(radii[s] / vxWH), minY);
+							final int zmin = Math.max(zc - (int) Math.round(radii[s] / vxD), minZ);
+							final int xmax = Math.min(xc + (int) Math.round(radii[s] / vxWH), maxX);
+							final int ymax = Math.min(yc + (int) Math.round(radii[s] / vxWH), maxY);
+							final int zmax = Math.min(zc + (int) Math.round(radii[s] / vxD), maxZ);
 
 							try {
 								for (int z = zmin; z < zmax; z++) {
 									for (int y = ymin; y < ymax; y++) {
 										for (int x = xmin; x < xmax; x++) {
-											final double dx = Math.sqrt((x-xc) * vxWH * (x-xc) * vxWH
-													+ (y-yc) * vxWH * (y-yc) * vxWH
-													+ (z-zc) * vxD * (z-zc) * vxD);
+											final double dx = Math.sqrt((x - xc) * vxWH * (x - xc) * vxWH
+													+ (y - yc) * vxWH * (y - yc) * vxWH
+													+ (z - zc) * vxD * (z - zc) * vxD);
 											if (Math.abs(dx - radii[s]) < 0.5) {
 												final double value = stack.getVoxel(x, y, z);
 												if (value >= lowerT && value <= upperT && (!skipSingleVoxels
@@ -1611,8 +1656,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 									}
 								}
 
-								// We now have the the points intercepting the surface of this Sholl
-								// sphere. Lets check if their respective pixels are clustered
+								// We now have the the points intercepting the
+								// surface of this Sholl sphere. Lets check if
+								// their respective pixels are clustered
 								data[s] = count3Dgroups(points);
 
 							} catch (final Exception e) {
@@ -1621,11 +1667,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 								final PrintWriter pw = new PrintWriter(sw);
 								e.printStackTrace(pw);
 								final String spacer = "*** *** ***";
-								IJ.log(" \n"+spacer);
-								IJ.log("An error occurred while sampling shell " + (s + 1) +". We'll now do our\n"
+								IJ.log(" \n" + spacer);
+								IJ.log("An error occurred while sampling shell " + (s + 1) + ". We'll now do our\n"
 										+ "best to continue... Please include the following Exception\n"
 										+ "when reporting this bug (together with the info retrieved\n"
-										+ "from \"Plugins>Utilities>ImageJ Properties\"):\n \n"+ sw.toString());
+										+ "from \"Plugins>Utilities>ImageJ Properties\"):\n \n" + sw.toString());
 								IJ.log(spacer);
 								return;
 
@@ -1651,23 +1697,25 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		final int[][] neighboors = new int[6][3];
 
-		neighboors[0] = new int[]{x-1, y, z};
-		neighboors[1] = new int[]{x+1, y, z};
-		neighboors[2] = new int[]{x, y-1, z};
-		neighboors[3] = new int[]{x, y+1, z};
-		neighboors[4] = new int[]{x, y, z+1};
-		neighboors[5] = new int[]{x, y, z-1};
+		neighboors[0] = new int[] { x - 1, y, z };
+		neighboors[1] = new int[] { x + 1, y, z };
+		neighboors[2] = new int[] { x, y - 1, z };
+		neighboors[3] = new int[] { x, y + 1, z };
+		neighboors[4] = new int[] { x, y, z + 1 };
+		neighboors[5] = new int[] { x, y, z - 1 };
 
 		boolean clustered = false;
 		double value;
-		for (int i=0; i<neighboors.length; i++) {
+		for (int i = 0; i < neighboors.length; i++) {
 			try {
-				value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2] );
+				value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2]);
 				if (value >= lowerT && value <= upperT) {
 					clustered = true;
 					break;
 				}
-			} catch (IndexOutOfBoundsException ignored) { // Edge voxel: Neighborhood unknown.
+			} catch (final IndexOutOfBoundsException ignored) { // Edge voxel:
+																// Neighborhood
+																// unknown.
 				clustered = false;
 				break;
 			}
@@ -1696,18 +1744,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			grouping[i] = i + 1;
 
 		for (int i = 0; i < len; i++) {
-			//IJ.showProgress(i, len+1);
+			// IJ.showProgress(i, len+1);
 			for (int j = 0; j < len; j++) {
 				if (i == j)
 					continue;
 
-				// Compute the chessboard (Chebyshev) distance for this point. A chessboard
-				// distance of 1 in xy (lateral) underlies 8-connectivity within the plane.
-				// A distance of 1 in z (axial) underlies 26-connectivity in 3D
+				// Compute the chessboard (Chebyshev) distance for this point. A
+				// chessboard distance of 1 in xy (lateral) underlies
+				// 8-connectivity within the plane. A distance of 1 in z (axial)
+				// underlies 26-connectivity in 3D
 				final int lDist = Math.max(Math.abs(points.get(i)[0] - points.get(j)[0]),
-										Math.abs(points.get(i)[1] - points.get(j)[1]));
-				final int aDist = Math.max(Math.abs(points.get(i)[2] - points.get(j)[2]),lDist);
-				if ( (lDist*aDist<=1) && (grouping[i] != grouping[j]) ) {
+						Math.abs(points.get(i)[1] - points.get(j)[1]));
+				final int aDist = Math.max(Math.abs(points.get(i)[2] - points.get(j)[2]), lDist);
+				if ((lDist * aDist <= 1) && (grouping[i] != grouping[j])) {
 					source = grouping[i];
 					target = grouping[j];
 					for (int k = 0; k < len; k++)
@@ -1744,9 +1793,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            ImageProcessor of analyzed image
 	 * @return intersection counts (the linear profile of sampled data)
 	 */
-	static public double[] analyze2D(final int xc, final int yc,
-			final double[] radii, final double pixelSize, final int binsize,
-			final int bintype, final ImageProcessor ip) {
+	static public double[] analyze2D(final int xc, final int yc, final double[] radii, final double pixelSize,
+			final int binsize, final int bintype, final ImageProcessor ip) {
 
 		int i, j, k, rbin, sum, size;
 		int[] binsamples, pixels;
@@ -1756,18 +1804,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Create an array to hold the results
 		data = new double[size = radii.length];
 
-		// Create array for bin samples. Passed value of binsize must be at least 1
+		// Create array for bin samples. Passed value of binsize must be at
+		// least 1
 		binsamples = new int[binsize];
 
-		IJ.showStatus("Sampling "+ size +" radii, "+ binsize
-					+ " measurement(s) per radius. Press 'Esc' to abort...");
+		IJ.showStatus(
+				"Sampling " + size + " radii, " + binsize + " measurement(s) per radius. Press 'Esc' to abort...");
 
 		// Outer loop to control the analysis bins
 		for (i = 0; i < size; i++) {
 
 			// Retrieve the radius in pixel coordinates and set the largest
 			// radius of this bin span
-			rbin = (int) Math.round(radii[i]/pixelSize + binsize/2);
+			rbin = (int) Math.round(radii[i] / pixelSize + binsize / 2);
 
 			// Inner loop to gather samples for each bin
 			for (j = 0; j < binsize; j++) {
@@ -1783,7 +1832,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			IJ.showProgress(i, size * binsize);
 			if (IJ.escapePressed()) {
-				IJ.beep(); return data;
+				IJ.beep();
+				return data;
 			}
 
 			// Statistically combine bin data
@@ -1793,12 +1843,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					// Sort the bin data
 					Arrays.sort(binsamples);
 
-					// Pull out the median value: average the two middle values if no
-					// center exists otherwise pull out the center value
+					// Pull out the median value: average the two middle values
+					// if no center exists otherwise pull out the center value
 					if (binsize % 2 == 0)
-						data[i] = (binsamples[binsize/2] + binsamples[binsize/2 -1]) /2.0;
+						data[i] = (binsamples[binsize / 2] + binsamples[binsize / 2 - 1]) / 2.0;
 					else
-						data[i] = binsamples[binsize/2];
+						data[i] = binsamples[binsize / 2];
 
 				} else if (bintype == BIN_AVERAGE) {
 
@@ -1809,14 +1859,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 				} else if (bintype == BIN_MODE) {
 
-					// Mode: Find the value that appears most often. The first sampled value is used if no mode exists
+					// Mode: Find the value that appears most often. The first
+					// sampled value is used if no mode exists
 					int mode = 0, maxCount = 0;
 					for (int ma = 0; ma < binsize; ma++) {
 						int tempCount = 0;
 						for (int mb = 0; mb < binsize; mb++)
-							if (binsamples[mb] == binsamples[ma]) tempCount++;
-						if (tempCount > maxCount)
-							{ maxCount = tempCount; mode = binsamples[ma]; }
+							if (binsamples[mb] == binsamples[ma])
+								tempCount++;
+						if (tempCount > maxCount) {
+							maxCount = tempCount;
+							mode = binsamples[ma];
+						}
 					}
 					data[i] = mode;
 
@@ -1836,7 +1890,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * where adjacency is true for all eight neighboring positions around a
 	 * given pixel. Requires threshold values to be set beforehand using
 	 * {@link #setThreshold(int, int)}.
-	 * 
+	 *
 	 * Parameters: ip the image being analyzed points the x,y pixel positions
 	 * Returns: the masked pixel arrays
 	 *
@@ -1850,8 +1904,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            reference to the image being analyzed
 	 * @return the number of non-zero clusters
 	 */
-	static public int countTargetGroups(final int[] pixels, final int[][] rawpoints,
-			final ImageProcessor ip) {
+	static public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 
 		int i, j;
 		int[][] points;
@@ -1906,11 +1959,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 				// Compute the chessboard (Chebyshev) distance. A distance of 1
 				// underlies 8-connectivity
-				dx = Math.max( Math.abs(points[i][0] - points[j][0]),
-							Math.abs(points[i][1] - points[j][1]));
+				dx = Math.max(Math.abs(points[i][0] - points[j][0]), Math.abs(points[i][1] - points[j][1]));
 
 				// Should these two points be in the same group?
-				if ((dx==1) && (grouping[i] != grouping[j])) {
+				if ((dx == 1) && (grouping[i] != grouping[j])) {
 
 					// Record which numbers we're changing
 					source = grouping[i];
@@ -1933,9 +1985,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return groups;
 	}
 
-	/** Counts 1-pixel groups that exist solely on the edge of a "stair" of target pixels */
-	static private int countSinglePixels(final int[][] points, final int pointsLength,
-			final int[] grouping, final ImageProcessor ip) {
+	/**
+	 * Counts 1-pixel groups that exist solely on the edge of a "stair" of
+	 * target pixels
+	 */
+	static private int countSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
+			final ImageProcessor ip) {
 
 		int counts = 0;
 
@@ -1943,7 +1998,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Check for other members of this group
 			boolean multigroup = false;
-			for (int j=0; j<pointsLength; j++) {
+			for (int j = 0; j < pointsLength; j++) {
 				if (i == j)
 					continue;
 				if (grouping[i] == grouping[j]) {
@@ -1962,23 +2017,31 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Calculate the 8 neighbors surrounding this point
 			final int[][] testpoints = new int[8][2];
-			testpoints[0][0] = dx-1;	testpoints[0][1] = dy+1;
-			testpoints[1][0] = dx;		testpoints[1][1] = dy+1;
-			testpoints[2][0] = dx+1;	testpoints[2][1] = dy+1;
-			testpoints[3][0] = dx-1;	testpoints[3][1] = dy;
-			testpoints[4][0] = dx+1;	testpoints[4][1] = dy;
-			testpoints[5][0] = dx-1;	testpoints[5][1] = dy-1;
-			testpoints[6][0] = dx;		testpoints[6][1] = dy-1;
-			testpoints[7][0] = dx+1;	testpoints[7][1] = dy-1;
+			testpoints[0][0] = dx - 1;
+			testpoints[0][1] = dy + 1;
+			testpoints[1][0] = dx;
+			testpoints[1][1] = dy + 1;
+			testpoints[2][0] = dx + 1;
+			testpoints[2][1] = dy + 1;
+			testpoints[3][0] = dx - 1;
+			testpoints[3][1] = dy;
+			testpoints[4][0] = dx + 1;
+			testpoints[4][1] = dy;
+			testpoints[5][0] = dx - 1;
+			testpoints[5][1] = dy - 1;
+			testpoints[6][0] = dx;
+			testpoints[6][1] = dy - 1;
+			testpoints[7][0] = dx + 1;
+			testpoints[7][1] = dy - 1;
 
 			// Pull out the pixel values for these points
 			final int[] px = getPixels(ip, testpoints);
 
 			// Now perform the stair checks
-			if ((px[0]!=0 && px[1]!=0 && px[3]!=0 && px[4]==0 && px[6]==0 && px[7]==0) ||
-				(px[1]!=0 && px[2]!=0 && px[4]!=0 && px[3]==0 && px[5]==0 && px[6]==0) ||
-				(px[4]!=0 && px[6]!=0 && px[7]!=0 && px[0]==0 && px[1]==0 && px[3]==0) ||
-				(px[3]!=0 && px[5]!=0 && px[6]!=0 && px[1]==0 && px[2]==0 && px[4]==0))
+			if ((px[0] != 0 && px[1] != 0 && px[3] != 0 && px[4] == 0 && px[6] == 0 && px[7] == 0)
+					|| (px[1] != 0 && px[2] != 0 && px[4] != 0 && px[3] == 0 && px[5] == 0 && px[6] == 0)
+					|| (px[4] != 0 && px[6] != 0 && px[7] != 0 && px[0] == 0 && px[1] == 0 && px[3] == 0)
+					|| (px[3] != 0 && px[5] != 0 && px[6] != 0 && px[1] == 0 && px[2] == 0 && px[4] == 0))
 
 				counts++;
 
@@ -2004,14 +2067,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		int value;
 
-		// Initialize the array to hold the pixel values. Arrays of integral
-		// types have a default value of 0
+		// Initialize the array to hold the pixel values. int arrays are
+		// initialized to a default value of 0
 		final int[] pixels = new int[points.length];
 
 		// Put the pixel value for each circumference point in the pixel array
 		for (int i = 0; i < pixels.length; i++) {
 
-			// We already filtered out of bounds coordinates in getCircumferencePoints
+			// We already filtered out of bounds coordinates in
+			// getCircumferencePoints
 			value = ip.getPixel(points[i][0], points[i][1]);
 			if (value >= lowerT && value <= upperT)
 				pixels[i] = 1;
@@ -2037,7 +2101,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Initialize algorithm variables
 		int i = 0, x = 0, y = radius;
-		final int r = radius+1;
+		final int r = radius + 1;
 		int err = 0, errR, errD;
 
 		// Array to store first 1/8 of points relative to center
@@ -2063,7 +2127,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} while (x <= y);
 
 		// Create an array to hold the absolute coordinates
-		final int[][] points = new int[r*8][2];
+		final int[][] points = new int[r * 8][2];
 
 		// Loop through the relative circumference points
 		for (i = 0; i < r; i++) {
@@ -2076,14 +2140,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			points[i][0] = x + cx;
 			points[i][1] = y + cy;
 
-			// Use geometry to calculate remaining 7/8 of the circumference points
-			points[r*4-i-1][0] =  x + cx;	points[r*4-i-1][1] = -y + cy;
-			points[r*8-i-1][0] = -x + cx;	points[r*8-i-1][1] =  y + cy;
-			points[r*4+i]  [0] = -x + cx;	points[r*4+i]  [1] = -y + cy;
-			points[r*2-i-1][0] =  y + cx;	points[r*2-i-1][1] =  x + cy;
-			points[r*2+i]  [0] =  y + cx;	points[r*2+i]  [1] = -x + cy;
-			points[r*6+i]  [0] = -y + cx;	points[r*6+i]  [1] =  x + cy;
-			points[r*6-i-1][0] = -y + cx;	points[r*6-i-1][1] = -x + cy;
+			// Use geometry to calculate remaining 7/8 of the circumference
+			// points
+			points[r * 4 - i - 1][0] = x + cx;
+			points[r * 4 - i - 1][1] = -y + cy;
+			points[r * 8 - i - 1][0] = -x + cx;
+			points[r * 8 - i - 1][1] = y + cy;
+			points[r * 4 + i][0] = -x + cx;
+			points[r * 4 + i][1] = -y + cy;
+			points[r * 2 - i - 1][0] = y + cx;
+			points[r * 2 - i - 1][1] = x + cy;
+			points[r * 2 + i][0] = y + cx;
+			points[r * 2 + i][1] = -x + cy;
+			points[r * 6 + i][0] = -y + cx;
+			points[r * 6 + i][1] = x + cy;
+			points[r * 6 - i - 1][0] = -y + cx;
+			points[r * 6 - i - 1][1] = -x + cy;
 
 		}
 
@@ -2096,7 +2168,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			pxX = points[i][0];
 			pxY = points[i][1];
 
-			if ((i+1)%r!=0 && pxX>=minX && pxX<=maxX && pxY>=minY && pxY<=maxY)
+			if ((i + 1) % r != 0 && pxX >= minX && pxX <= maxX && pxY >= minY && pxY <= maxY)
 				count++;
 		}
 
@@ -2108,7 +2180,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			pxX = points[i][0];
 			pxY = points[i][1];
 
-			if ((i+1)%r!=0 && pxX>=minX && pxX<=maxX && pxY>=minY && pxY<=maxY) {
+			if ((i + 1) % r != 0 && pxX >= minX && pxX <= maxX && pxY >= minY && pxY <= maxY) {
 				refined[j][0] = pxX;
 				refined[j++][1] = pxY;
 
@@ -2149,10 +2221,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Creates a 2D Sholl heatmap by applying measured values to the foreground
 	 * pixels of a copy of the analyzed image
 	 */
-	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[] values,
-			final int xc, final int yc, final Calibration cal, final boolean floatProcessor) {
+	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[] values, final int xc, final int yc,
+			final Calibration cal, final boolean floatProcessor) {
 
-		if (values==null)
+		if (values == null)
 			return null;
 
 		ImageProcessor ip;
@@ -2169,19 +2241,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			ip = img.getProcessor();
 		}
 
-		// NB 16-bit image: Negative values will be set to 0
+		// NB: 16-bit image: Negative values will be set to 0
 		final ImageProcessor mp = (floatProcessor) ? new FloatProcessor(ip.getWidth(), ip.getHeight())
 				: new ShortProcessor(ip.getWidth(), ip.getHeight());
 
-		final int drawSteps = values.length; // endRadius may have never been reached (eg, if Esc was pressed)
-		final int firstRadius = (int) Math.round( startRadius/vxWH );
-		final int lastRadius = (int) Math.round( (startRadius + (drawSteps-1)*stepRadius)/vxWH) ;
-		final int drawWidth = (int) Math.round( (lastRadius-startRadius)/drawSteps );
+		// Retrieve drawing steps as endRadius may have never been reached (eg,
+		// if user interrupted analysis by pressing Esc)
+		final int drawSteps = values.length;
+		final int firstRadius = (int) Math.round(startRadius / vxWH);
+		final int lastRadius = (int) Math.round((startRadius + (drawSteps - 1) * stepRadius) / vxWH);
+		final int drawWidth = (int) Math.round((lastRadius - startRadius) / drawSteps);
 
 		for (int i = 0; i < drawSteps; i++) {
 
 			IJ.showProgress(i, drawSteps);
-			int drawRadius = firstRadius + (i*drawWidth);
+			int drawRadius = firstRadius + (i * drawWidth);
 
 			for (int j = 0; j < drawWidth; j++) {
 
@@ -2198,7 +2272,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Apply LUT
 		final double[] range = Tools.getMinMax(values);
-		//(new ContrastEnhancer()).stretchHistogram(mp, 0.35);
+		// (new ContrastEnhancer()).stretchHistogram(mp, 0.35);
 		mp.setMinAndMax(range[0], range[1]);
 		final int fcolor = (floatProcessor && range[1] < 0) ? Options.getMaskBackground() : -1;
 		final int bcolor = (fcolor == -1) ? Options.getMaskBackground() : -1;
@@ -2240,7 +2314,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		String exitmsg = "";
 		String tipMsg = "Run \"Image>Type>8/16-bit\" to change image type";
 
-		if (img==null) {
+		if (img == null) {
 			tipMsg = "Press \"Analyze Sample Image\" for a demo";
 			exitmsg = "There are no images open.";
 		} else {
@@ -2256,7 +2330,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 				ip = (img.isComposite()) ? img.getChannelProcessor() : img.getProcessor();
 				final double lower = ip.getMinThreshold();
-				if (lower!=ImageProcessor.NO_THRESHOLD) {
+				if (lower != ImageProcessor.NO_THRESHOLD) {
 					lowerT = lower;
 					upperT = ip.getMaxThreshold();
 				} else if (ip.isBinary()) { // binary images: background is zero
@@ -2271,11 +2345,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (!"".equals(exitmsg)) {
 			IJ.showStatus("Tip: " + tipMsg + "...");
-			lError(exitmsg, "This plugin requires a segmented arbor (2D/3D). Either:\n"
-						+ "	 - A binary image (Arbor: non-zero value)\n"
-						+ "	 - A thresholded grayscale image (8/16-bit)\n"
-						+ "	 NB: To threshold a multi-channel image, display it as\n"
-						+ "	        grayscale using \"Image>Color>Channels Tool...\"");
+			lError(exitmsg,
+					"This plugin requires a segmented arbor (2D/3D). Either:\n"
+							+ "	 - A binary image (Arbor: non-zero value)\n"
+							+ "	 - A thresholded grayscale image (8/16-bit)\n"
+							+ "	 NB: To threshold a multi-channel image, display it as\n"
+							+ "	        grayscale using \"Image>Color>Channels Tool...\"");
 			return null;
 		}
 
@@ -2298,6 +2373,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (isCSV) {
 			mi = new JMenuItem("Analyze Other Data...");
 			mi.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
 					gd.dispose();
@@ -2309,6 +2385,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else {
 			mi = new JMenuItem("Cf. Segmentation");
 			mi.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(final ActionEvent e) {
 					offlineHelp(gd);
 				}
@@ -2317,6 +2394,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		mi = new JMenuItem("Options...");
 		mi.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent e) {
 				IJ.doCommand("Metrics & Options...");
 			}
@@ -2325,18 +2403,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.addSeparator();
 		mi = new JMenuItem(isCSV ? "Analyze image..." : "Analyze Tabular Data...");
 		mi.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent e) {
 				gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
 				gd.dispose();
 				improveRecording();
-				run(isCSV?"":"csv");
-				//IJ.doCommand(isCSV ? "Sholl Analysis..." : "Sholl Analysis (Tabular Data)...");
+				run(isCSV ? "" : "csv");
+				// IJ.doCommand(isCSV ? "Sholl Analysis..." : "Sholl Analysis
+				// (Tabular Data)...");
 			}
 		});
 		popup.add(mi);
 		popup.addSeparator();
 		mi = new JMenuItem("Online documentation");
 		mi.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent e) {
 				IJ.runPlugIn("ij.plugin.BrowserLauncher", isCSV ? URL + "#Importing" : URL);
 			}
@@ -2344,6 +2425,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.add(mi);
 		mi = new JMenuItem("About...");
 		mi.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(final ActionEvent e) {
 				IJ.runPlugIn("sholl.Sholl_Utils", "about");
 			}
@@ -2358,49 +2440,52 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		Arrays.sort(array);
 		final double median;
 		if (size % 2 == 0)
-			median = (array[size/2] + array[size/2 -1])/2;
+			median = (array[size / 2] + array[size / 2 - 1]) / 2;
 		else
-			median = array[size/2];
+			median = array[size / 2];
 		return median;
 	}
 
 	/** Returns the Sholl Summary Table populated with profile statistics */
-	private ResultsTable createStatsTable(final String rowLabel, final int xc,
-			final int yc, final int zc, final double[][] values) {
+	private ResultsTable createStatsTable(final String rowLabel, final int xc, final int yc, final int zc,
+			final double[][] values) {
 
 		ResultsTable rt;
-		final TextWindow window = (TextWindow)WindowManager.getFrame(SHOLLTABLE);
+		final TextWindow window = (TextWindow) WindowManager.getFrame(SHOLLTABLE);
 		if (window == null)
 			rt = new ResultsTable();
 		else
 			rt = window.getTextPanel().getResultsTable();
 
-			double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
+		double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
 
 		// Retrieve simple statistics
 		final int size = values.length;
 		final double[] x = new double[size];
 		final double[] y = new double[size];
-		for (int i=0; i <size; i++) {
+		for (int i = 0; i < size; i++) {
 			x[i] = values[i][0];
 			y[i] = values[i][1];
-			if ( y[i] > maxIntersect )
-				{ maxIntersect = y[i]; maxR = x[i]; }
+			if (y[i] > maxIntersect) {
+				maxIntersect = y[i];
+				maxR = x[i];
+			}
 			if (y[i] >= enclosingCutOff)
 				enclosingR = x[i];
 			sumY += y[i];
 		}
 
-		// Calculate the smallest circle/sphere enclosing the arbor
-		//final double lastR = x[size-1];
-		//final double field = is3D ? Math.PI*4/3*lastR*lastR*lastR : Math.PI*lastR*lastR;
+//		// Calculate the smallest circle/sphere enclosing the arbor
+//		final double lastR = x[size - 1];
+//		final double field = is3D ? Math.PI * 4 / 3 * lastR * lastR * lastR : Math.PI * lastR * lastR;
 
-		// Calculate ramification index, the maximum of intersection divided by the n.
-		// of primary branches, assumed to be the n. intersections at starting radius
+		// Calculate ramification index, the maximum of intersection divided by
+		// the n. of primary branches, assumed to be the n. intersections at
+		// starting radius
 		final double ri;
 		if (inferPrimary)
 			ri = maxIntersect / y[0];
-		else if ( !(primaryBranches == 0 || Double.isNaN(primaryBranches)) )
+		else if (!(primaryBranches == 0 || Double.isNaN(primaryBranches)))
 			ri = maxIntersect / primaryBranches;
 		else
 			ri = Double.NaN;
@@ -2411,12 +2496,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if ((prefs & Options.DIRECTORY) != 0)
 			rt.addValue("Directory", (validPath) ? imgPath : "Unknown");
 		final String comment = Options.getCommentString();
-		if (comment!=null)
+		if (comment != null)
 			rt.addValue("Comment", comment);
 		if (img.isComposite())
-			rt.addValue("Channel", img.getChannel() );
+			rt.addValue("Channel", img.getChannel());
 		if ((prefs & Options.UNIT) != 0)
-			rt.addValue("Unit", unit );
+			rt.addValue("Unit", unit);
 		if ((prefs & Options.THRESHOLD) != 0) {
 			rt.addValue("Lower threshold", isCSV ? Double.NaN : lowerT);
 			rt.addValue("Upper threshold", isCSV ? Double.NaN : upperT);
@@ -2465,41 +2550,54 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
 			rt.addValue("Enclosing radius", enclosingR);
-		//rt.addValue("Enclosed field", field);
+		// rt.addValue("Enclosed field", field);
 		rt.show(SHOLLTABLE);
 		return rt;
 
 	}
 
 	/** Transforms data */
-	private static double[][] transformValues(final double[][] values, final boolean normY,
-			final boolean logY, final boolean logX) {
+	private static double[][] transformValues(final double[][] values, final boolean normY, final boolean logY,
+			final boolean logX) {
 
 		double x, y;
 		final double[][] transValues = new double[values.length][2];
 
-		for (int i=0; i<values.length; i++) {
+		for (int i = 0; i < values.length; i++) {
 
-			x = values[i][0]; y = values[i][1];
+			x = values[i][0];
+			y = values[i][1];
 
 			if (normY) {
-				if (normChoice==AREA_NORM) {
+				if (normChoice == AREA_NORM) {
 					if (is3D)
-						transValues[i][1] = y / (Math.PI * x*x*x * 4/3); // Volume of sphere
+						transValues[i][1] = y / (Math.PI * x * x * x * 4 / 3); // Volume
+																				// of
+																				// sphere
 					else
-						transValues[i][1] = y / (Math.PI * x*x); // Area of circle
-				} else if (normChoice==PERIMETER_NORM) {
+						transValues[i][1] = y / (Math.PI * x * x); // Area of
+																	// circle
+				} else if (normChoice == PERIMETER_NORM) {
 					if (is3D)
-						transValues[i][1] = y / (Math.PI * x*x * 4); // Surface area of sphere
+						transValues[i][1] = y / (Math.PI * x * x * 4); // Surface
+																		// area
+																		// of
+																		// sphere
 					else
-						transValues[i][1] = y / (Math.PI * x * 2); // Length of circumference
-				} else if (normChoice==ANNULUS_NORM) {
-					final double r1 = x - stepRadius/2;
-					final double r2 = x + stepRadius/2;
+						transValues[i][1] = y / (Math.PI * x * 2); // Length of
+																	// circumference
+				} else if (normChoice == ANNULUS_NORM) {
+					final double r1 = x - stepRadius / 2;
+					final double r2 = x + stepRadius / 2;
 					if (is3D)
-						transValues[i][1] = y / ( Math.PI * 4/3 * (r2*r2*r2 - r1*r1*r1) ); // Volume of spherical shell
+						transValues[i][1] = y / (Math.PI * 4 / 3 * (r2 * r2 * r2 - r1 * r1 * r1)); // Volume
+																									// of
+																									// spherical
+																									// shell
 					else
-						transValues[i][1] = y / ( Math.PI * (r2*r2 - r1*r1) ); // Area of annulus
+						transValues[i][1] = y / (Math.PI * (r2 * r2 - r1 * r1)); // Area
+																					// of
+																					// annulus
 				}
 			} else
 				transValues[i][1] = y;
@@ -2517,23 +2615,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/** Returns a plot with some axes customizations*/
-	private static Plot plotValues(final String title, final String xLabel,
-			final String yLabel, final double[][] xy) {
+	/** Returns a plot with some axes customizations */
+	private static Plot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
 
 		// Extract values
 		final int size = xy.length;
 		final double[] x0 = new double[size];
 		final double[] y0 = new double[size];
-		for (int i=0; i <size; i++) {
+		for (int i = 0; i < size; i++) {
 			x0[i] = xy[i][0];
 			y0[i] = xy[i][1];
 		}
 
 		// Create an empty plot
 		final double[] empty = null;
-		final int flags = Plot.X_FORCE2GRID + Plot.X_TICKS + Plot.X_NUMBERS
-						+ Plot.Y_FORCE2GRID + Plot.Y_TICKS + Plot.Y_NUMBERS;
+		final int flags = Plot.X_FORCE2GRID + Plot.X_TICKS + Plot.X_NUMBERS + Plot.Y_FORCE2GRID + Plot.Y_TICKS
+				+ Plot.Y_NUMBERS;
 		final Plot plot = new Plot(title, xLabel, yLabel, empty, empty, flags);
 
 		// Set limits
@@ -2550,27 +2647,23 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Sets plot limits imposing grid lines */
-	private static void setPlotLimits(final Plot plot,
-			final double[] xScale, final double[] yScale) {
+	private static void setPlotLimits(final Plot plot, final double[] xScale, final double[] yScale) {
 
 		final boolean gridState = PlotWindow.noGridLines;
 		PlotWindow.noGridLines = false;
-		//if (method==SHOLL_NS) {
-		//	plot.setLogScaleY();
-		//}
 		plot.setLimits(xScale[0], xScale[1], yScale[0], yScale[1]);
 		PlotWindow.noGridLines = gridState;
 
 	}
 
 	/** Calls plotRegression for both regressions as specified in Options */
-	private static void plotRegression(final double[][]values, final Plot plot,
-			final ResultsTable rt, final String method) {
+	private static void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt,
+			final String method) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
 		final double[] y = new double[size];
-		for (int i=0; i <size; i++) {
+		for (int i = 0; i < size; i++) {
 			x[i] = values[i][0];
 			y[i] = values[i][1];
 		}
@@ -2580,23 +2673,24 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-
-	/** Performs linear regression using the full range data or percentiles 10-90 */
-	private static void plotRegression(final double[] x, final double[] y, final boolean trim,
-			final Plot plot, final ResultsTable rt, final String method) {
+	/**
+	 * Performs linear regression using the full range data or percentiles 10-90
+	 */
+	private static void plotRegression(final double[] x, final double[] y, final boolean trim, final Plot plot,
+			final ResultsTable rt, final String method) {
 
 		final int size = x.length;
 		int start = 0;
-		int end = size-1;
+		int end = size - 1;
 
-		String labelSufix = " ("+ method +")";
+		String labelSufix = " (" + method + ")";
 
 		final CurveFitter cf;
 		if (trim) {
 
-			labelSufix += " [P10-P90]"; //"[P\u2081\u2080 - P\u2089\u2080]";
-			start = (int)(size*0.10);
-			end = end-start;
+			labelSufix += " [P10-P90]"; // "[P\u2081\u2080 - P\u2089\u2080]";
+			start = (int) (size * 0.10);
+			end = end - start;
 
 			// Do not proceed if there are not enough points
 			if (end <= SMALLEST_DATASET)
@@ -2613,23 +2707,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		cf.doFit(CurveFitter.STRAIGHT_LINE, false);
 		final double[] cfparam = cf.getParams();
-		//IJ.log("Curve fitter status: " + cf.getStatusString());
+		// IJ.log("Curve fitter status: " + cf.getStatusString());
 
 		if (verbose) {
-			IJ.log("\n*** "+ imgTitle +", regression details"
-				+ labelSufix + cf.getResultString());
+			IJ.log("\n*** " + imgTitle + ", regression details" + labelSufix + cf.getResultString());
 		}
 
-		final double k = -cfparam[1];	// slope
-		final double kIntercept = cfparam[0];	// y-intercept
-		final double kRSquared = cf.getRSquared();	// R^2
+		final double k = -cfparam[1]; // slope
+		final double kIntercept = cfparam[0]; // y-intercept
+		final double kRSquared = cf.getRSquared(); // R^2
 
-		rt.addValue("Regression coefficient"+ labelSufix, k);
-		rt.addValue("Regression intercept"+ labelSufix, kIntercept);
-		rt.addValue("Regression R^2"+ labelSufix, kRSquared);
+		rt.addValue("Regression coefficient" + labelSufix, k);
+		rt.addValue("Regression intercept" + labelSufix, kIntercept);
+		rt.addValue("Regression R^2" + labelSufix, kRSquared);
 		rt.show(SHOLLTABLE);
 
-		if (plot!=null) {
+		if (plot != null) {
 
 			final double x1 = x[start];
 			final double x2 = x[end];
@@ -2642,12 +2735,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.drawLine(x1, y1, x2, y2);
 			plot.setLineWidth(1);
 
-			Sholl_Utils.markPlotPoint(plot, new double[]{0, kIntercept}, color);
+			Sholl_Utils.markPlotPoint(plot, new double[] { 0, kIntercept }, color);
 			if (plotLabels) {
 				final StringBuffer label = new StringBuffer();
-				label.append("R\u00B2= "+ IJ.d2s(kRSquared, 3));
-				label.append("\nk= "+ IJ.d2s(k, -2));
-				label.append("\nIntercept= "+ IJ.d2s(kIntercept,2));
+				label.append("R\u00B2= " + IJ.d2s(kRSquared, 3));
+				label.append("\nk= " + IJ.d2s(k, -2));
+				label.append("\nIntercept= " + IJ.d2s(kIntercept, 2));
 				Sholl_Utils.makePlotLabel(plot, label.toString(), color);
 			}
 
@@ -2662,7 +2755,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.show();
 		if (validPath && save) {
 			Recorder.disablePathRecording();
-			final String path = imgPath + imgTitle +"_ShollPlot"+ SHOLL_TYPES[shollChoice] + ".png";
+			final String path = imgPath + imgTitle + "_ShollPlot" + SHOLL_TYPES[shollChoice] + ".png";
 			IJ.saveAs(plot.getImagePlus(), "png", path);
 		}
 
@@ -2672,14 +2765,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private void error(final String boldMsg, final String plainMsg, final boolean extended) {
 
 		if (IJ.macroRunning()) {
-			final String msg = boldMsg +"\n"+ plainMsg;
-			IJ.error("Sholl Analysis v"+ VERSION +" Error", msg);
+			final String msg = boldMsg + "\n" + plainMsg;
+			IJ.error("Sholl Analysis v" + VERSION + " Error", msg);
 		} else {
-			final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v"+ VERSION +" Error");
-			if (boldMsg!=null && !"".equals(boldMsg)) {
+			final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION + " Error");
+			if (boldMsg != null && !"".equals(boldMsg)) {
 				gd.addMessage(boldMsg, new Font("SansSerif", Font.BOLD, 12));
 			}
-			if (plainMsg!=null && !"".equals(plainMsg)) {
+			if (plainMsg != null && !"".equals(plainMsg)) {
 				gd.addMessage(plainMsg);
 			}
 			if (!isCSV) {
@@ -2693,7 +2786,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (extended) {
 				gd.addHelp(isCSV ? URL + "#Importing" : URL);
 				gd.setHelpLabel("Online Help");
-				gd.enableYesNoCancel("OK", (isCSV)?"Import Other Data":"Analyze Sample Image");
+				gd.enableYesNoCancel("OK", (isCSV) ? "Import Other Data" : "Analyze Sample Image");
 			}
 			gd.showDialog();
 			if (extended && !gd.wasOKed() && !gd.wasCanceled())
@@ -2705,7 +2798,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Re-runs the plugin with sample data */
 	private void retrieveSampleData() {
 		if (isCSV) {
-			if (Recorder.record) { // Ensure getTable() is not recorded multiple times
+			if (Recorder.record) { // Ensure getTable() is not recorded multiple
+									// times
 				Recorder.setCommand(Recorder.getCommand());
 				improveRecording();
 			}
@@ -2728,49 +2822,52 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Returns a filename that does not include extension */
 	private String trimExtension(String filename) {
 		final int index = filename.lastIndexOf(".");
-		if (index>-1)
+		if (index > -1)
 			filename = filename.substring(0, index);
 		return filename;
 	}
 
 	/**
-	 * Returns the mean, variance, skewness and kurtosis of an array of univariate
-	 * data. Code from ij.process.ByteStatistics
+	 * Returns the mean, variance, skewness and kurtosis of an array of
+	 * univariate data. Code from ij.process.ByteStatistics
 	 */
 	private final static double[] getMoments(final double values[]) {
 		final int npoints = values.length;
-		double v, v2, sum1=0.0, sum2=0.0, sum3=0.0, sum4=0.0;
-		for (int i=0; i<npoints; i++) {
+		double v, v2, sum1 = 0.0, sum2 = 0.0, sum3 = 0.0, sum4 = 0.0;
+		for (int i = 0; i < npoints; i++) {
 			v = values[i];
-			v2 = v*v;
+			v2 = v * v;
 			sum1 += v;
 			sum2 += v2;
-			sum3 += v*v2;
-			sum4 += v2*v2;
+			sum3 += v * v2;
+			sum4 += v2 * v2;
 		}
-		final double mean = sum1/npoints;
-		final double mean2 = mean*mean;
-		final double variance = sum2/npoints - mean2;
+		final double mean = sum1 / npoints;
+		final double mean2 = mean * mean;
+		final double variance = sum2 / npoints - mean2;
 		final double std = Math.sqrt(variance);
-		final double skewness = ((sum3 - 3.0*mean*sum2)/npoints + 2.0*mean*mean2)/(variance*std);
-		final double kurtosis = (((sum4 - 4.0*mean*sum3 + 6.0*mean2*sum2)/npoints - 3.0*mean2*mean2)/(variance*variance)-3.0);
+		final double skewness = ((sum3 - 3.0 * mean * sum2) / npoints + 2.0 * mean * mean2) / (variance * std);
+		final double kurtosis = (((sum4 - 4.0 * mean * sum3 + 6.0 * mean2 * sum2) / npoints - 3.0 * mean2 * mean2)
+				/ (variance * variance) - 3.0);
 		return new double[] { mean, variance, skewness, kurtosis };
 	}
 
 	/** Records IJ.setKeyDown(KeyEvent.VK_ALT); */
 	private static final void improveRecording() {
 		if (Recorder.record) {
-			String recordString = "// Recording Sholl Analysis version "+ VERSION +"\n"
-				+ "// Visit "+ URL +"#Batch_Processing for scripting tips\n";
+			String recordString = "// Recording Sholl Analysis version " + VERSION + "\n" + "// Visit " + URL
+					+ "#Batch_Processing for scripting tips\n";
 			final String cmd = Recorder.getCommand();
 			final String cmdOptions = Recorder.getCommandOptions();
 			if (cmd == null || cmdOptions == null) {
 				recordString += "// NB: Commands in the \"More\u00bb\" dropdown menu should be recorded from \"Analyze>Sholl>\"\n";
 			}
-			if (isCSV && (cmd!=null && !cmd.toLowerCase().contains("tabular"))) {
+			if (isCSV && (cmd != null && !cmd.toLowerCase().contains("tabular"))) {
 				recordString += "// NB: The \"Alt\" key modifier is no longer required: Run \"Sholl Analysis (Tabular Data)...\" instead\n";
-				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as of IJ.1.50
-					// NB: using hex values seems simpler as it works with JavaScript recording
+				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as
+												// of IJ.1.50
+					// NB: using hex values seems simpler as it works with
+					// JavaScript recording
 					recordString += "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);\n";
 				} else { // IJ macro language
 					recordString += "setKeyDown(\"alt\");\n";
@@ -2786,8 +2883,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @param noPlots
 	 *            If {@code true}, plugin will only output tables. If
-	 *            {@code false}, both tables and plots will be produced
-	 *            (the default)
+	 *            {@code false}, both tables and plots will be produced (the
+	 *            default)
 	 */
 	public static void setNoPlots(final boolean noPlots) {
 		Sholl_Analysis.noPlots = noPlots;
@@ -2798,9 +2895,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * (Summary table is still displayed).
 	 *
 	 * @param noTable
-	 *            If {@code true}, plugin will not output the
-	 *            "detailed table" containing all the retrieved profiles. Note
-	 *            that the Summary "Sholl Results" table is always displayed.
+	 *            If {@code true}, plugin will not output the "detailed table"
+	 *            containing all the retrieved profiles. Note that the Summary
+	 *            "Sholl Results" table is always displayed.
 	 *
 	 * @see #setNoPlots(boolean)
 	 */
@@ -2813,8 +2910,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * plots.
 	 *
 	 * @param plotLabels
-	 *            If {@code true}, plotting labels will be added, otherwise
-	 *            they will be omitted
+	 *            If {@code true}, plotting labels will be added, otherwise they
+	 *            will be omitted
 	 */
 	public static void setPlotLabels(final boolean plotLabels) {
 		Sholl_Analysis.plotLabels = plotLabels;
@@ -2836,8 +2933,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setNoPlots(boolean) setNoPlots()} to be called by
 	 * IJ macros using the
-	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
-	 * built-in macro function
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
+	 * call()</a> built-in macro function
 	 * </p>
 	 *
 	 * <p>
@@ -2849,8 +2946,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @param booleanString
 	 *            If {@code "true"}, plugin will only output tables. If
-	 *            {@code "false"}, both tables and plots will be produced
-	 *            (the default)
+	 *            {@code "false"}, both tables and plots will be produced (the
+	 *            default)
 	 */
 	public static void setNoPlots(final String booleanString) {
 		if (validateBooleanString(booleanString))
@@ -2861,8 +2958,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setNoTable(boolean) setNoTable()} to be called by
 	 * IJ macros using the
-	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
-	 * built-in macro function
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
+	 * call()</a> built-in macro function
 	 * </p>
 	 *
 	 * <p>
@@ -2873,9 +2970,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * </p>
 	 *
 	 * @param booleanString
-	 *            If {@code "true"}, plugin will not output the
-	 *            "detailed table" containing all the retrieved profiles. Note
-	 *            that the Summary "Sholl Results" table is always displayed.
+	 *            If {@code "true"}, plugin will not output the "detailed table"
+	 *            containing all the retrieved profiles. Note that the Summary
+	 *            "Sholl Results" table is always displayed.
 	 */
 	public static void setNoTable(final String booleanString) {
 		if (validateBooleanString(booleanString))
@@ -2886,8 +2983,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setPlotLabels(boolean) setPlotLabels()} to be
 	 * called by IJ macros using the
-	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
-	 * built-in macro function
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
+	 * call()</a> built-in macro function
 	 * </p>
 	 *
 	 * <p>
@@ -2909,8 +3006,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * <p>
 	 * Alternative to {@link #setPrecision(int) setPrecision()} to be called by
 	 * IJ macros using the
-	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">call()</a>
-	 * built-in macro function
+	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
+	 * call()</a> built-in macro function
 	 * </p>
 	 *
 	 * <p>
@@ -2948,7 +3045,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return valid;
 	}
 
-
 	/**
 	 * Prompts the user for tabular data, retrieved from several sources
 	 * including 1) Importing a new text/csv file; 2) Trying to import data from
@@ -2956,8 +3052,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * (Gaussian) values; or 4) any other {@link ij.measure.ResultsTable}
 	 * currently opened by ImageJ.
 	 *
-	 * @return A populated Results table or {@code null} if chosen source
-	 *         did not contain valid data.
+	 * @return A populated Results table or {@code null} if chosen source did
+	 *         not contain valid data.
 	 */
 	private ResultsTable getTable() {
 
@@ -2988,8 +3084,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final GenericDialog gd = new GenericDialog("Choose Sampled Profile");
 		final int cols = (tableTitles.size() < 18) ? 1 : 2;
 		final int rows = (tableTitles.size() % cols > 0) ? tableTitles.size() / cols + 1 : tableTitles.size() / cols;
-		gd.addRadioButtonGroup("Use tabular data of sampled profiles from:", tableTitles.toArray(new String[tableTitles.size()]), rows,
-				cols, tableTitles.get(0));
+		gd.addRadioButtonGroup("Use tabular data of sampled profiles from:",
+				tableTitles.toArray(new String[tableTitles.size()]), rows, cols, tableTitles.get(0));
 		// gd.hideCancelButton();
 		gd.showDialog();
 
@@ -2999,7 +3095,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else if (gd.wasOKed()) {
 
 			imgPath = null; // Path of dataset
-			validPath = false; // Path of dataset is accessible
+			validPath = false; // Path of dataset is not accessible
 			imgTitle = "Imported data"; // Dataset name
 			final String choice = gd.getNextRadioButton();
 

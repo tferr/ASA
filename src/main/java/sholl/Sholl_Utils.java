@@ -46,7 +46,6 @@ import ij.text.TextWindow;
 import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 
-
 /**
  * Utilities for {@link Sholl_Analysis}
  *
@@ -63,7 +62,7 @@ public class Sholl_Utils implements PlugIn {
 	 * This method is called when the plugin is loaded. <code>arg</code> is
 	 * specified in <code>plugins.config</code>. See
 	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
-	 * 
+	 *
 	 * @param arg
 	 *            If <code>about</code> the "About" dialog is displayed. If
 	 *            <code>sample</code>, a demo image suitable for Sholl analysis
@@ -79,24 +78,25 @@ public class Sholl_Utils implements PlugIn {
 
 	/**
 	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
-	 * 
+	 *
 	 * @return ddaC image, or null if image cannot be retrieved
 	 */
 	public static ImagePlus sampleImage() {
 		final InputStream is = Sholl_Utils.class.getResourceAsStream("/resources/ddaC.tif");
 		ImagePlus imp = null;
-		if (is!=null) {
+		if (is != null) {
 			final Opener opener = new Opener();
 			imp = opener.openTiff(is, "Drosophila_ddaC_Neuron.tif");
 		}
 		return imp;
 	}
- 
+
 	/** Displays the ddaC sample image and returns a reference to it */
 	static ImagePlus displaySample() {
 		final ImagePlus imp = sampleImage();
-		if (imp==null) {
-			IJ.showStatus("Error: Could not open ddaC.tif!"); IJ.beep();
+		if (imp == null) {
+			IJ.showStatus("Error: Could not open ddaC.tif!");
+			IJ.beep();
 		} else {
 			imp.show();
 		}
@@ -121,32 +121,32 @@ public class Sholl_Utils implements PlugIn {
 	static IndexColorModel matlabJetColorMap(final int backgroundGray, final int foregroundGray) {
 
 		// Initialize colors arrays (zero-filled by default)
-		final byte[] reds	= new byte[256];
+		final byte[] reds = new byte[256];
 		final byte[] greens = new byte[256];
-		final byte[] blues	= new byte[256];
+		final byte[] blues = new byte[256];
 
 		// Set greens, index 0-32; 224-255: 0
-		for( int i = 0; i < 256/4; i++ )		 // index 32-96
-			greens[i+256/8] = (byte)(i*255*4/256);
-		for( int i = 256*3/8; i < 256*5/8; ++i ) // index 96-160
-			greens[i] = (byte)255;
-		for( int i = 0; i < 256/4; i++ )		 // index 160-224
-			greens[i+256*5/8] = (byte)(255-(i*255*4/256));
+		for (int i = 0; i < 256 / 4; i++) // index 32-96
+			greens[i + 256 / 8] = (byte) (i * 255 * 4 / 256);
+		for (int i = 256 * 3 / 8; i < 256 * 5 / 8; ++i) // index 96-160
+			greens[i] = (byte) 255;
+		for (int i = 0; i < 256 / 4; i++) // index 160-224
+			greens[i + 256 * 5 / 8] = (byte) (255 - (i * 255 * 4 / 256));
 
 		// Set blues, index 224-255: 0
-		for(int i = 0; i < 256*7/8; i++)		 // index 0-224
-			blues[i] = greens[(i+256/4) % 256];
+		for (int i = 0; i < 256 * 7 / 8; i++) // index 0-224
+			blues[i] = greens[(i + 256 / 4) % 256];
 
 		// Set reds, index 0-32: 0
-		for(int i = 256/8; i < 256; i++)		 // index 32-255
-			reds[i] = greens[(i+256*6/8) % 256];
+		for (int i = 256 / 8; i < 256; i++) // index 32-255
+			reds[i] = greens[(i + 256 * 6 / 8) % 256];
 
 		// Set background and foreground colors
-		if (backgroundGray>=0) {
-			reds[0] = greens[0] = blues[0] = (byte)backgroundGray;
+		if (backgroundGray >= 0) {
+			reds[0] = greens[0] = blues[0] = (byte) backgroundGray;
 		}
-		if (foregroundGray>=0) {
-			reds[255] = greens[255] = blues[255] = (byte)foregroundGray;
+		if (foregroundGray >= 0) {
+			reds[255] = greens[255] = blues[255] = (byte) foregroundGray;
 		}
 
 		return new IndexColorModel(8, 256, reds, greens, blues);
@@ -155,7 +155,7 @@ public class Sholl_Utils implements PlugIn {
 
 	/** Displays the Sholl's plugin "about" info box */
 	private void showAbout() {
-		final String version = Sholl_Analysis.VERSION +" "+ BUILD;
+		final String version = Sholl_Analysis.VERSION + " " + BUILD;
 		final String summary = "Quantitative Sholl-based morphometry of untraced images";
 		final String authors1 = "Tiago Ferreira";
 		final String authors2 = "(Based on an initial implementation by Tom Maddock)";
@@ -194,10 +194,11 @@ public class Sholl_Utils implements PlugIn {
 			IJ.runPlugIn("ij.plugin.BrowserLauncher", SRC_URL);
 	}
 
-	/** Converts an integer to its ordinal (http://stackoverflow.com/a/6810409) */
+	/**
+	 * Converts an integer to its ordinal (http://stackoverflow.com/a/6810409)
+	 */
 	static String ordinal(final int i) {
-		final String[] sufixes = new String[] { "th", "st", "nd", "rd", "th",
-				"th", "th", "th", "th", "th" };
+		final String[] sufixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
 		switch (i % 100) {
 		case 11:
 		case 12:
@@ -211,7 +212,7 @@ public class Sholl_Utils implements PlugIn {
 
 	/** Allows users to visit the manuscript from a dialog prompt */
 	static final void addCitationUrl(final EnhancedGenericDialog gd) {
-		//gd.setInsets(10, 10, 0);
+		// gd.setInsets(10, 10, 0);
 		gd.addHyperlinkMessage(
 				"Please be so kind as to cite this program in your own\n"
 						+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)",
@@ -228,20 +229,19 @@ public class Sholl_Utils implements PlugIn {
 	 * @param ypoints
 	 *            Y coordinates of vertices
 	 * @return the centroid {x,y} coordinates
-	 * @see <a
-	 *      href="http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon">Centroid
-	 *      of polygon </a>
+	 * @see <a href="http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon">
+	 *      Centroid of polygon </a>
 	 */
 	public static double[] baryCenter(final double[] xpoints, final double[] ypoints) {
 
 		double area = 0, sumx = 0, sumy = 0;
-		for (int i=1; i<xpoints.length; i++) {
-			final double cfactor = (xpoints[i-1]*ypoints[i]) - (xpoints[i]*ypoints[i-1]);
-			sumx += (xpoints[i-1] + xpoints[i]) * cfactor;
-			sumy += (ypoints[i-1] + ypoints[i]) * cfactor;
-			area += cfactor/2;
+		for (int i = 1; i < xpoints.length; i++) {
+			final double cfactor = (xpoints[i - 1] * ypoints[i]) - (xpoints[i] * ypoints[i - 1]);
+			sumx += (xpoints[i - 1] + xpoints[i]) * cfactor;
+			sumy += (ypoints[i - 1] + ypoints[i]) * cfactor;
+			area += cfactor / 2;
 		}
-		return new double[] { sumx/(6*area), sumy/(6*area) };
+		return new double[] { sumx / (6 * area), sumy / (6 * area) };
 
 	}
 
@@ -263,12 +263,15 @@ public class Sholl_Utils implements PlugIn {
 
 		final ImageProcessor ip = plot.getProcessor();
 
-		int maxLength = 0; String maxLine = "";
+		int maxLength = 0;
+		String maxLine = "";
 		final String[] lines = Tools.split(label, "\n");
-		for (int i = 0; i<lines.length; i++) {
+		for (int i = 0; i < lines.length; i++) {
 			final int length = lines[i].length();
-			if (length>maxLength)
-				{ maxLength = length; maxLine = lines[i]; }
+			if (length > maxLength) {
+				maxLength = length;
+				maxLine = lines[i];
+			}
 		}
 
 		final Font font = new Font("Helvetica", Font.PLAIN, PlotWindow.fontSize);
@@ -289,18 +292,19 @@ public class Sholl_Utils implements PlugIn {
 		final double northWest = meanRoiValue(ip, xRight, yTop, textWidth, textHeight);
 		final double southEast = meanRoiValue(ip, xLeft, yBottom, textWidth, textHeight);
 		final double southWest = meanRoiValue(ip, xRight, yBottom, textWidth, textHeight);
-		final double pos = Math.max(Math.max(northEast, northWest), Math.max(southEast,southWest));
+		final double pos = Math.max(Math.max(northEast, northWest), Math.max(southEast, southWest));
 
 		ip.setColor(0);
 		plot.setColor(color);
-		// We'll draw the text so that multiple labels can be added without overlap
-		if (pos==northEast) {
+		// We'll draw the text so that multiple labels can be added without
+		// overlap
+		if (pos == northEast) {
 			ip.drawString(label, xLeft, yTop);
 			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yTop));
-		} else if (pos==northWest) {
+		} else if (pos == northWest) {
 			ip.drawString(label, xRight, yTop);
 			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yTop));
-		} else if (pos==southEast) {
+		} else if (pos == southEast) {
 			ip.drawString(label, xLeft, yBottom);
 			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yBottom));
 		} else {
@@ -311,8 +315,8 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/** Returns the mean value of a rectangular ROI */
-	private static double meanRoiValue(final ImageProcessor ip, final int x, final int y,
-			final int width, final int height) {
+	private static double meanRoiValue(final ImageProcessor ip, final int x, final int y, final int width,
+			final int height) {
 
 		ip.setRoi(x, y, width, height);
 		return ImageStatistics.getStatistics(ip, Measurements.MEAN, null).mean;
@@ -331,10 +335,9 @@ public class Sholl_Utils implements PlugIn {
 	 *            Sets the drawing color. This will not affect the drawing color
 	 *            for the next objects to be be added to the plot
 	 */
-	public static void markPlotPoint(final Plot plot, final double[] coordinates,
-			final Color color) {
+	public static void markPlotPoint(final Plot plot, final double[] coordinates, final Color color) {
 
-		if (coordinates==null)
+		if (coordinates == null)
 			return;
 		plot.setLineWidth(6); // default markSize: 5;
 		plot.setColor(color);
@@ -357,9 +360,9 @@ public class Sholl_Utils implements PlugIn {
 		try {
 			final Toolkit toolkit = Toolkit.getDefaultToolkit();
 			final Clipboard clipboard = toolkit.getSystemClipboard();
-			text = (String)clipboard.getData(DataFlavor.stringFlavor);
+			text = (String) clipboard.getData(DataFlavor.stringFlavor);
 		} catch (final Exception e) {
-			//if (IJ.debugMode) IJ.handleException(e);
+			// if (IJ.debugMode) IJ.handleException(e);
 		}
 		return text;
 	}

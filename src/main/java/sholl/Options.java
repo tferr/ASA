@@ -53,7 +53,6 @@ import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 import sholl.gui.EnhancedGenericDialog;
 
-
 /**
  * This class implements the "Sholl Options and Metrics" command.
  *
@@ -96,10 +95,9 @@ public class Options implements PlugIn {
 	private static int maskType = UNSET_PREFS;
 	private static String commentString = null;
 
-
 	/**
 	 * Debug helper
-	 * 
+	 *
 	 * @param args
 	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
 	 */
@@ -111,7 +109,7 @@ public class Options implements PlugIn {
 	 * This method is called when the plugin is loaded. <code>arg</code> is
 	 * specified in <code>plugins.config</code>. See
 	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
-	 * 
+	 *
 	 * @param arg
 	 *            If <code>reset</code> options and preferences are reset to
 	 *            defaults.
@@ -202,9 +200,9 @@ public class Options implements PlugIn {
 	private void resetOptions() {
 		// Reset Sholl metrics
 		Prefs.set(METRICS_KEY, null);
-		Prefs.set(METRICS_KEY+ ".comment", null);
+		Prefs.set(METRICS_KEY + ".comment", null);
 		Prefs.set(MASK_KEY, null);
-		Prefs.set(MASK_KEY+ ".type", null);
+		Prefs.set(MASK_KEY + ".type", null);
 		currentMetrics = UNSET_PREFS;
 		commentString = null;
 		maskBackground = UNSET_PREFS;
@@ -312,7 +310,7 @@ public class Options implements PlugIn {
 		gd.setInsets(0, 0, 0);
 		gd.addNumericField("Decimal places (0-9):", Analyzer.getPrecision(), 0, 4, "");
 		gd.setInsets(0, 70, 0);
-		gd.addCheckbox("Scientific notation", (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0);
+		gd.addCheckbox("Scientific notation", (Analyzer.getMeasurements() & Measurements.SCIENTIFIC_NOTATION) != 0);
 		gd.assignPopupToHelpButton(createOptionsMenu());
 		gd.enableYesNoCancel("OK", "Revert to Defaults");
 		gd.showDialog();
@@ -336,7 +334,7 @@ public class Options implements PlugIn {
 			setMaskType(gd.getNextChoiceIndex());
 
 			// IJ prefs
-			Prefs.setThreads((int)gd.getNextNumber());
+			Prefs.setThreads((int) gd.getNextNumber());
 			String extension = gd.getNextString();
 			if (!extension.startsWith("."))
 				extension = "." + extension;
@@ -351,21 +349,22 @@ public class Options implements PlugIn {
 		}
 	}
 
-
 	/** Creates optionsMenu */
 	private JPopupMenu createOptionsMenu() {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
 		mi = new JMenuItem("Plot Options...");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
 				IJ.doCommand("Plots...");
 			}
 		});
 		popup.add(mi);
 		mi = new JMenuItem("Input/Output Options...");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
 				IJ.doCommand("Input/Output...");
 			}
 		});
@@ -373,7 +372,8 @@ public class Options implements PlugIn {
 		popup.addSeparator();
 		mi = new JMenuItem("Help on Sholl metrics");
 		mi.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
 				IJ.runPlugIn("ij.plugin.BrowserLauncher", Sholl_Analysis.URL + "#Metrics");
 			}
 		});
@@ -383,7 +383,7 @@ public class Options implements PlugIn {
 
 	/** Retrieves precision according to Analyze>Set Measurements... */
 	static int getScientificNotationAwarePrecision() {
-		final boolean sNotation = (Analyzer.getMeasurements()&Measurements.SCIENTIFIC_NOTATION)!=0;
+		final boolean sNotation = (Analyzer.getMeasurements() & Measurements.SCIENTIFIC_NOTATION) != 0;
 		int precision = Analyzer.getPrecision();
 		if (sNotation)
 			precision = -precision;
