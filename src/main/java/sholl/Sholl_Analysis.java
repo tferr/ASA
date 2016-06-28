@@ -64,7 +64,6 @@ import ij.gui.PlotWindow;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
-import ij.gui.WaitForUserDialog;
 import ij.io.OpenDialog;
 import ij.measure.Calibration;
 import ij.measure.CurveFitter;
@@ -82,6 +81,7 @@ import ij.text.TextWindow;
 import ij.util.ThreadUtil;
 import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
+import sholl.gui.EnhancedWaitForUserDialog;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -349,25 +349,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 			vxSize = (is3D) ? Math.cbrt(vxWH * vxWH * vxD) : vxWH;
 
-			// Deal with ROI defining center of analysis
-			Roi roi = img.getRoi();
-			final boolean validRoi = roi != null && (roi.getType() == Roi.LINE || roi.getType() == Roi.POINT);
-
-			// If possible, prompt for a new ROI if nothing appropriate was
-			// found
-			if (!IJ.macroRunning() && !validRoi) {
-				img.killRoi();
-				Toolbar.getInstance().setTool("line");
-				final WaitForUserDialog wd = new WaitForUserDialog(
-						"Please define the largest Sholl radius by creating\n"
-								+ "a straight line starting at the center of analysis.\n"
-								+ "(Hold down \"Shift\" to draw an orthogonal radius)\n \n"
-								+ "Alternatively, define the focus of the arbor using\n" + "the Point Selection Tool.");
-				wd.show();
-				if (wd.escPressed())
-					return;
-				roi = img.getRoi();
-			}
+			// Retrieve ROI defining center of analysis
+			final Roi roi = getStartupROI();
 
 			// Straight line: get center coordinates, end radius and angle of
 			// chord.
@@ -725,6 +708,37 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		IJ.showProgress(0, 0);
 		IJ.showTime(img, img.getStartTime(), exitmsg);
 
+	}
+
+	/**
+	 * Tries to retrieve a valid startup ROI. Prompts the user for a new ROI if
+	 * nothing appropriate was found (if the plugin has not been called from a
+	 * macro or script).
+	 *
+	 * @return the startup ROI
+	 *
+	 * @see <a href= "http://imagej.net/Sholl_Analysis#Startup_ROI">Startup_ROI
+	 *      </a>
+	 */
+	private Roi getStartupROI() {
+		Roi roi = img.getRoi();
+		final boolean validRoi = roi != null && (roi.getType() == Roi.LINE || roi.getType() == Roi.POINT);
+		if (!IJ.macroRunning() && !validRoi) {
+			img.killRoi();
+			Toolbar.getInstance().setTool("line");
+			final EnhancedWaitForUserDialog wd = new EnhancedWaitForUserDialog(
+					"Please define the largest Sholl radius by creating\n"
+							+ "a straight line starting at the center of analysis.\n"
+							+ "(Hold down \"Shift\" to draw an orthogonal radius)\n \n"
+							+ "Alternatively, define the focus of the arbor using\n"
+							+ "the Point/Multi-point Selection Tool.");
+			wd.addHyperlink(URL + "#Startup_ROI");
+			wd.show();
+			if (wd.escPressed())
+				return null;
+			roi = img.getRoi();
+		}
+		return roi;
 	}
 
 	/**
