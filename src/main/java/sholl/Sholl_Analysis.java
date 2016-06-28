@@ -362,10 +362,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				y = chord.y1;
 				endRadius = vxSize * chord.getRawLength();
 				chordAngle = Math.abs(chord.getAngle(x, y, chord.x2, chord.y2));
-
-				// Point: Get center coordinates (x,y)
 				primaryFromPointRoi = false;
 				multipointCount = 0;
+
+				// Point: Get center coordinates (x,y)
 			} else if (roi != null && roi.getType() == Roi.POINT) {
 
 				final PointRoi point = (PointRoi) roi;
@@ -2797,7 +2797,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 			if (!isCSV) {
 				gd.addHyperlinkMessage(
-						"Alternatively, hold \"Alt\" [Sholl Analysis (Tabular Data)...] to:\n"
+						"Alternatively, run \"Sholl Analysis (Tabular Data)...\" to:\n"
 								+ "	 - Re-analyze data from previous runs\n"
 								+ "	 - Analyze profiles from Simple Neurite Tracer",
 						null, Color.DARK_GRAY, URL + "#Importing");
