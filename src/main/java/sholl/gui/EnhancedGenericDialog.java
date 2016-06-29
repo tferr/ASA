@@ -47,10 +47,10 @@ import ij.gui.GenericDialog;
 import ij.plugin.BrowserLauncher;
 
 /**
- * Enhances GenericDialog with a few additional including srollbars as soon as
- * the Dialog is too large to be displayed, ability to use the "help" button to
- * display a drop-down menu, and labels featuring clickable hyperlinks.
- * Customizations are ignored if running headless.
+ * Enhances GenericDialog with a few additional features, including scrollbars
+ * as soon as the Dialog is too large to be displayed, ability to use the "help"
+ * button to display a drop-down menu, and labels featuring clickable
+ * hyperlinks. Customizations are ignored if running headless.
  */
 public class EnhancedGenericDialog extends GenericDialog {
 	private static final long serialVersionUID = 1L;
@@ -143,7 +143,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	}
 
 	/**
-	 * Adds a "Help" button and attaches the specified listener to it. In IJ1
+	 * Adds a "Help" button and attaches the specified listener to it. In an IJ1
 	 * GenericDialog, event listeners triggered by the help button are only
 	 * notified when the "Cancel" button is hidden. This method overcomes that
 	 * limitation. NB: Actions triggered by menu items will not be macro
@@ -181,7 +181,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	/**
 	 * Adds a "Help" button and attaches the specified JPopupMenu to it. NB:
 	 * Actions triggered by menu items will not be macro recordable unless they
-	 * trigger e.g., {@link ij.IJ#doCommand(String ) IJ.doCommand()} calls.
+	 * trigger e.g., {@link ij.IJ#doCommand(String) IJ.doCommand()} calls.
 	 *
 	 * @param buttonLabel
 	 *            the label of the "Help" button.
@@ -225,8 +225,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 * Adds AWT scroll bars to the dialog before displaying it, when not running
 	 * headless. Scroll bars are only added if the largest dimension of the
 	 * Dialog reaches ~90% of the primary display as reported by
-	 * {@link ij.IJ#getScreenSize() IJ.getScreenSize()}. Dialog remains fully
-	 * recordable.
+	 * {@link IJ#getScreenSize()}. Dialog remains fully recordable.
 	 */
 	public void showScrollableDialog() {
 		if (!isHeadless())

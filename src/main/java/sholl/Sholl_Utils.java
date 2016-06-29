@@ -112,7 +112,7 @@ public class Sholl_Utils implements PlugIn {
 	 * @return The "Jet" LUT with the specified background entry
 	 * @see <a href=
 	 *      "https://list.nih.gov/cgi-bin/wa.exe?A2=IMAGEJ;c8cb4d8d.1306">Jerome
-	 *      Mutterer's alternative</a>
+	 *      Mutterer alternative</a>
 	 */
 	public static IndexColorModel matlabJetColorMap(final int backgroundGray) {
 		return matlabJetColorMap(backgroundGray, -1);
