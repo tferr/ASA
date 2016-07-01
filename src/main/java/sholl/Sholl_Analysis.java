@@ -1212,8 +1212,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		sb.append("&emsp;Upper threshold (brightest intensity in arbor):&ensp<tt>").append(IJ.d2s(upperT, 1))
 				.append("</tt><br>");
 		sb.append("&emsp;Intensity at analysis center (x=").append(String.valueOf(x)).append(", y=")
-				.append(String.valueOf(y)).append(", z=").append(String.valueOf(z)).append("):&ensp<tt>")
-				.append(IJ.d2s(this.ip.get(x, y), 1)).append("</tt>");
+				.append(String.valueOf(y)).append(", z=").append(String.valueOf(z)).append(", ch=")
+				.append(String.valueOf(channel)).append("):&ensp<tt>").append(IJ.d2s(this.ip.get(x, y), 1))
+				.append("</tt>");
 		sb.append("<br><br>");
 		sb.append("<b>Image details:</b><br>");
 		sb.append("&emsp;Image type:&ensp;").append(String.valueOf(this.ip.getBitDepth())).append("-bit")
