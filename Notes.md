@@ -11,15 +11,18 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
+* No major changes to report
+
+Release Builds
+--------------
+####Version 3.6.3 (July 2016)
+[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 * Improvements:
    * Support for multichannel (composite) images
    * Preference for preferred data type (sampled/fitted) when rendering Sholl masks
    * Masks can now be generated for normalized methods
 
-Release Builds
---------------
 ####Version 3.6.2 (May 2016)
-[![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 * Improvements:
    * Analysis of 3D images is now multithreaded. The number of threads can be set in _Metrics & Options..._
    * Fixed an exception triggered by IJ1.51a and later when sampling edge voxels
@@ -52,7 +55,6 @@ Release Builds
   About Sholl Analysis..._
 * More UI tweaks to ensure dialog prompts are more informative and display properly in Mac OS with
   Java 1.8
-
 
 ####Version 3.4.5 (June 2015)
  * UI Improvements:
@@ -242,8 +244,9 @@ Release Builds
 
 Wish List
 ---------
+  * ~~Allow analysis of multichannel images~~ ([Version 3.6.3](#version-363-july-2016))
+  * ~~Obtain a mask for non-linear methods~~ ([Version 3.6.3](#version-363-july-2016))
+  * ~~Speed up 3D analysis~~ ([Version 3.6.2](#version-362-may-2016))
   * ~~Allow manual counting of primary branches~~ ([Version 3.4.6](#version-346-february-2016))
   * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-july-2014))
-  * Allow analysis of multichannel images
   * Restrict analysis to area ROIs (rather than hemicircles/spheres?)
-  * Obtain a mask for every chosen method (slices of an ImageStack?)
