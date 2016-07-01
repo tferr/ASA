@@ -15,7 +15,7 @@ Development Builds
 
 Release Builds
 --------------
-####Version 3.6.3 (July 2016)
+####Version 3.6.4 (July 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 * Improvements:
    * Support for multichannel (composite) images
@@ -244,8 +244,8 @@ Release Builds
 
 Wish List
 ---------
-  * ~~Allow analysis of multichannel images~~ ([Version 3.6.3](#version-363-july-2016))
-  * ~~Obtain a mask for non-linear methods~~ ([Version 3.6.3](#version-363-july-2016))
+  * ~~Allow analysis of multichannel images~~ ([Version 3.6.4](#version-364-july-2016))
+  * ~~Obtain a mask for non-linear methods~~ ([Version 3.6.4](#version-364-july-2016))
   * ~~Speed up 3D analysis~~ ([Version 3.6.2](#version-362-may-2016))
   * ~~Allow manual counting of primary branches~~ ([Version 3.4.6](#version-346-february-2016))
   * ~~Fitting to polynomials of higher degree~~ ([Version 3.4.2](#version-342-july-2014))
