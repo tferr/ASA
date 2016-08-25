@@ -31,6 +31,11 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.IndexColorModel;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+
+import org.scijava.util.VersionUtils;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -55,7 +60,7 @@ import sholl.gui.EnhancedGenericDialog;
  */
 public class Sholl_Utils implements PlugIn {
 
-	private static final String BUILD = "2016.07";
+	private static final String BUILD = buildDate();
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 
 	/**
@@ -374,4 +379,40 @@ public class Sholl_Utils implements PlugIn {
 		else
 			return (TextWindow) f;
 	}
+
+	/**
+	 * Retrieves Sholl Analysis version
+	 *
+	 * @return the version or a non-empty place holder string if version could
+	 *         not be retrieved.
+	 *
+	 */
+	public static String version() {
+		final String VERSION = VersionUtils.getVersion(Sholl_Analysis.class);
+		return (VERSION == null) ? "X Dev" : VERSION;
+	}
+
+	/**
+	 * Retrieves Sholl Analysis implementation date
+	 *
+	 * @return the implementation date or an empty strong if date could not be
+	 *         retrieved.
+	 */
+	private static String buildDate() {
+		String BUILD_DATE = "";
+		final Class<Sholl_Analysis> clazz = Sholl_Analysis.class;
+		final String className = clazz.getSimpleName() + ".class";
+		final String classPath = clazz.getResource(className).toString();
+		final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+		try {
+			final Manifest manifest = new Manifest(new URL(manifestPath).openStream());
+			final Attributes attr = manifest.getMainAttributes();
+			BUILD_DATE = attr.getValue("Implementation-Date");
+			BUILD_DATE = BUILD_DATE.substring(0, BUILD_DATE.lastIndexOf("T"));
+		} catch (final Exception ignored) {
+			BUILD_DATE = "";
+		}
+		return BUILD_DATE;
+	}
+
 }
