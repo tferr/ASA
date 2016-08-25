@@ -649,17 +649,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			if (shollN && fittedData) {
 
-				maskimg = makeMask(img, imgTitle, fvaluesN, x, y, cal, false);
+				maskimg = makeMask(imgTitle, fvaluesN, x, y, cal, false);
 				maskimg.setProperty("Label", "Polynomial fit");
 
 			} else if (shollN) {
 
-				maskimg = makeMask(img, imgTitle, counts, x, y, cal, false);
+				maskimg = makeMask(imgTitle, counts, x, y, cal, false);
 				maskimg.setProperty("Label", "Sampled data");
 
 			} else if (shollNS && fittedData) {
 
-				maskimg = makeMask(img, imgTitle, fvaluesNS, x, y, cal, true);
+				maskimg = makeMask(imgTitle, fvaluesNS, x, y, cal, true);
 				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] + " (fitted)");
 
 			} else if (shollNS) {
@@ -677,7 +677,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					final double[] fvaluesSLOG = new double[valuesSLOG.length];
 					for (int i = 0; i < valuesSLOG.length; i++)
 						fvaluesSLOG[i] = valuesSLOG[i][0] * -k + b;
-					maskimg = makeMask(img, imgTitle, fvaluesSLOG, x, y, cal, true);
+					maskimg = makeMask(imgTitle, fvaluesSLOG, x, y, cal, true);
 					maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] + " (fitted)");
 				} catch (final IllegalArgumentException ignored) {
 					if (verbose)
@@ -2231,39 +2231,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double[] yvalues = new double[values.length];
 		for (int i = 0; i < values.length; i++)
 			yvalues[i] = values[i][1];
-		return makeMask(img, ttl, yvalues, xc, yc, cal, floatProcessor);
+		return makeMask(ttl, yvalues, xc, yc, cal, floatProcessor);
 	}
 
 	/**
 	 * Creates a 2D Sholl heatmap by applying measured values to the foreground
 	 * pixels of a copy of the analyzed image
 	 */
-	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[] values, final int xc, final int yc,
+	private ImagePlus makeMask(final String ttl, final double[] values, final int xc, final int yc,
 			final Calibration cal, final boolean floatProcessor) {
 
 		if (values == null)
 			return null;
 
-		ImageProcessor ip;
-
 		// Work on a stack projection when dealing with a volume
-		if (is3D) {
-			final ZProjector zp = new ZProjector(img);
-			zp.setMethod(ZProjector.MAX_METHOD);
-			zp.setStartSlice(minZ);
-			zp.setStopSlice(maxZ);
-			if (img.isComposite()) {
-				zp.doHyperStackProjection(false);
-				final ImagePlus projImp = zp.getProjection();
-				projImp.setC(channel);
-				ip = projImp.getChannelProcessor();
-			} else {
-				zp.doProjection();
-				ip = zp.getProjection().getProcessor();
-			}
-		} else {
-			ip = img.getProcessor();
-		}
+		if (is3D)
+			ip = projInputImg();
 
 		// NB: 16-bit image: Negative values will be set to 0
 		final ImageProcessor mp = (floatProcessor) ? new FloatProcessor(ip.getWidth(), ip.getHeight())
@@ -2314,6 +2297,30 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		return img2;
 
+	}
+
+	/**
+	 * Returns the MIP of input image according to analysis parameters
+	 * ({@code minZ}, {@code maxZ} and selected {@code channel})
+	 *
+	 * @return {@link ImageProcessor} of max Z-Projection
+	 */
+	private ImageProcessor projInputImg() {
+		ImageProcessor ip;
+		final ZProjector zp = new ZProjector(img);
+		zp.setMethod(ZProjector.MAX_METHOD);
+		zp.setStartSlice(minZ);
+		zp.setStopSlice(maxZ);
+		if (img.isComposite()) {
+			zp.doHyperStackProjection(false);
+			final ImagePlus projImp = zp.getProjection();
+			projImp.setC(channel);
+			ip = projImp.getChannelProcessor();
+		} else {
+			zp.doProjection();
+			ip = zp.getProjection().getProcessor();
+		}
+		return ip;
 	}
 
 	/**
