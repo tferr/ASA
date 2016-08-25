@@ -40,6 +40,7 @@ import org.scijava.util.VersionUtils;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.gui.HTMLDialog;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.io.Opener;
@@ -160,43 +161,47 @@ public class Sholl_Utils implements PlugIn {
 
 	/** Displays the Sholl's plugin "about" info box */
 	private void showAbout() {
+
 		final String version = Sholl_Analysis.VERSION + " " + BUILD;
-		final String summary = "Quantitative Sholl-based morphometry of untraced images";
-		final String authors1 = "Tiago Ferreira";
-		final String authors2 = "(Based on an initial implementation by Tom Maddock)";
+		final String header1 = "Sholl Analysis " + version;
+		final String header2 = "Quantitative Sholl-based morphometry of untraced images";
+		final String author = "Tiago Ferreira";
+		final String authorURL = "http://imagej.net/User:Tiago";
+		final String contributorsURL = SRC_URL + "/graphs/contributors";
+		final String releaseNotesURL = SRC_URL + "/blob/master/Notes.md#release-notes-for-sholl-analysis";
+		final String javadocsURL = "http://tferr.github.io/ASA/apidocs/";
+		final String forumURL = "http://forum.imagej.net/search?q=sholl";
+		final String msURL = "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html";
+		final String spacer = "&nbsp;&nbsp;|&nbsp;&nbsp;";
 
-		final String thanks = "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan\nPreibisch, "
-				+ "Bio-Formats team";
-
-		final Font plainf = new Font("SansSerif", Font.PLAIN, 12);
-		final Font boldf = new Font("SansSerif", Font.BOLD, 12);
-
-		final EnhancedGenericDialog gd = new EnhancedGenericDialog("About Sholl Analysis...");
-		gd.addMessage(summary, boldf);
-		gd.addMessage("Version", boldf);
-		gd.setInsets(0, 20, 0);
-		gd.addMessage(version, plainf);
-		gd.addMessage("Authors", boldf);
-		gd.setInsets(0, 20, 0);
-		gd.addHyperlinkMessage(authors1, plainf, Color.BLUE.darker(), "http://imagej.net/User:Tiago");
-		gd.setInsets(0, 20, 0);
-		gd.addMessage(authors2, plainf);
-		gd.addMessage("Special Thanks", boldf);
-		gd.setInsets(0, 20, 0);
-		gd.addMessage(thanks, plainf);
-		gd.setInsets(0, 20, 0);
-		Sholl_Utils.addCitationUrl(gd);
-		gd.enableYesNoCancel("API", "Source Code");
-		gd.addHelp(Sholl_Analysis.URL);
-		gd.setHelpLabel("User Manual");
-		gd.hideCancelButton(); // activate notifiers for help button
-		gd.showDialog();
-		if (gd.wasCanceled())
-			return;
-		else if (gd.wasOKed())
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", "http://tferr.github.io/ASA/apidocs/");
-		else
-			IJ.runPlugIn("ij.plugin.BrowserLauncher", SRC_URL);
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<html>");
+		sb.append("<div WIDTH=480>");
+		sb.append("<div align='center'>");
+		sb.append("<b>" + header1 + "</b><br>");
+		sb.append("<b>" + header2 + "</b><br>");
+		sb.append("<a href='" + authorURL + "'>" + author + "</a> and ");
+		sb.append("<a href='" + contributorsURL + "'>contributors</a>");
+		sb.append("</div>");
+		sb.append("<br><br>");
+		sb.append("Based on an initial implementation by Tom Maddock. Many thanks to "
+				+ "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan Preibisch "
+				+ "and Bio-Formats team for code snippets.");
+		sb.append("<br><br>");
+		sb.append("<b>Resources:</b><br>");
+		// sb.append("<a href='"+ msURL + "'>Manuscript</a>" + inLineSpacer);
+		sb.append("<a href='" + Sholl_Analysis.URL + "'>Documentation</a>" + spacer);
+		sb.append("<a href='" + forumURL + "'>Forum</a>" + spacer);
+		sb.append("<a href='" + releaseNotesURL + "'>Release Notes</a>" + spacer);
+		sb.append("<a href='" + SRC_URL + "'>Source</a>" + spacer);
+		sb.append("<a href='" + javadocsURL + "'>Javadoc</a>");
+		sb.append("<br><br>");
+		sb.append("<b>Citation:</b><br>");
+		sb.append("Ferreira et al. ");
+		sb.append("<a href='" + msURL + "'>Nat Methods 11, 982-4 (2014)</a>");
+		sb.append("</div>");
+		sb.append("</html>");
+		new HTMLDialog("About Sholl Analysis...", sb.toString());
 	}
 
 	/**
