@@ -15,8 +15,20 @@ Development Builds
 
 Release Builds
 --------------
-####Version 3.6.4 (July 2016)
+####Version 3.6.5 (August 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+
+* Improvements:
+   * Option to display sampling shells in the image overlay (2D images only)
+   * _More >> About & Resources..._ lists several online resources that complement the
+     [documentation page](http://imagej.net/Sholl) including the
+     [IJ Forum](http://forum.imagej.net/search?q=sholl)
+* The plugin now requires Java 8 and third party dependencies bundled with Fiji (i.e., it
+     requires an ImageJ installation subscribed to both the Java8 and the Fiji update site).
+     In other words, we will no longer support running the plugin outside Fiji: It is
+     becoming too cumbersome, and it is slowing down its modernization.
+
+####Version 3.6.4 (July 2016)
 * Improvements:
    * Support for multichannel (composite) images
    * Preference for preferred data type (sampled/fitted) when rendering Sholl masks
