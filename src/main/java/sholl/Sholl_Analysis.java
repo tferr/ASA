@@ -2215,6 +2215,23 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
+	 * Removes all ROIs stored the specified overlay that have been added by
+	 * {@link #overlayShells()}
+	 *
+	 * @param overlay
+	 *            the {@link ij.gui.Overlay Overlay} containing the sampling
+	 *            shells
+	 */
+	private void removeOverlayShells(final Overlay overlay) {
+		if (overlay != null) {
+			for (int i = overlay.size() - 1; i >= 0; i--) {
+				final String roiName = overlay.get(i).getName();
+				if (roiName.equals("center") || roiName.startsWith("r="))
+					overlay.remove(i);
+			}
+		}
+	}
+
 	/** Adds 2D sampling shells to the overlay of plugin's input image */
 	private void overlayShells() {
 
@@ -2223,6 +2240,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean newOverlay = overlay == null;
 		if (newOverlay)
 			overlay = new Overlay();
+		else
+			removeOverlayShells(overlay);
 
 		overlay.add(new PointRoi(x, y), "center");
 		for (final double r : radii) {
