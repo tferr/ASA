@@ -184,7 +184,8 @@ public class Sholl_Utils implements PlugIn {
 		sb.append("<a href='" + contributorsURL + "'>contributors</a>");
 		sb.append("</div>");
 		sb.append("<br><br>");
-		sb.append("Based on an initial implementation by Tom Maddock. Many thanks to "
+		sb.append("Released under <a href='https://opensource.org/licenses/GPL-3.0.html'>GPL-3.0</a>. ");
+		sb.append("Many thanks to Tom Maddock for writing version 1.0; "
 				+ "Johannes Schindelin, Wayne Rasband, Mark Longair, Stephan Preibisch "
 				+ "and Bio-Formats team for code snippets.");
 		sb.append("<br><br>");

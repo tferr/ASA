@@ -2454,7 +2454,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 		});
 		popup.add(mi);
-		mi = new JMenuItem("About...");
+		mi = new JMenuItem("About & Resources...");
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
