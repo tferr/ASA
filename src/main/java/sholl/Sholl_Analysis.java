@@ -35,6 +35,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Arc2D;
 import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
@@ -59,10 +60,13 @@ import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.gui.HTMLDialog;
 import ij.gui.Line;
+import ij.gui.OvalRoi;
+import ij.gui.Overlay;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
+import ij.gui.ShapeRoi;
 import ij.gui.Toolbar;
 import ij.io.OpenDialog;
 import ij.measure.Calibration;
@@ -2208,6 +2212,53 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Return the array
 		return refined;
 
+	}
+
+	/**
+	/** Adds 2D sampling shells to the overlay of plugin's input image */
+	private void overlayShells() {
+
+		final Calibration cal = img.getCalibration();
+		Overlay overlay = img.getOverlay();
+		final boolean newOverlay = overlay == null;
+		if (newOverlay)
+			overlay = new Overlay();
+
+		overlay.add(new PointRoi(x, y), "center");
+		for (final double r : radii) {
+			final double rawR = r / vxSize;
+			final Roi shell;
+
+			// TODO: Some sort of meridian geodesics overlay for 3D shells?
+			// https://en.wikipedia.org/wiki/Geodesics_on_an_ellipsoid
+
+			if (orthoChord && trimBounds) { // 2D analysis using semicircle
+											// shells
+				final Arc2D.Double arc = new Arc2D.Double();
+				if (quadString.equals(QUAD_NORTH))
+					arc.setArcByCenter(x, y, rawR, 0, 180, Arc2D.OPEN);
+				else if (quadString.equals(QUAD_SOUTH))
+					arc.setArcByCenter(x, y, rawR, -180, 180, Arc2D.OPEN);
+				else if (quadString.equals(QUAD_WEST))
+					arc.setArcByCenter(x, y, rawR, 90, -180, Arc2D.OPEN);
+				else if (quadString.equals(QUAD_EAST))
+					arc.setArcByCenter(x, y, rawR, -90, -180, Arc2D.OPEN);
+				else
+					throw new IllegalArgumentException("Invalid restriction choice: " + quadString);
+				shell = new ShapeRoi(arc);
+			} else { // 2D analysis using circular shells
+				shell = new OvalRoi(x - rawR, y - rawR, 2 * rawR, 2 * rawR);
+			}
+			// shell.setStrokeColor(Color.CYAN);
+			if (nSpans > 1)
+				shell.setStrokeWidth(nSpans);
+			overlay.add(shell, "r=" + IJ.d2s(r, 2) + cal.getUnit());
+		}
+
+		if (newOverlay)
+			img.setOverlay(overlay);
+		else
+			img.draw();
 	}
 
 	/**
