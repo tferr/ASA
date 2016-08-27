@@ -151,6 +151,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int polyChoice = DEGREES.length - 1;
 	private static boolean verbose;
 	private static boolean mask;
+	private static boolean overlayShells;
 	private static boolean save;
 	private static boolean isCSV = false;
 
@@ -709,6 +710,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
+		if (!is3D && overlayShells)
+			overlayShells();
+
 		IJ.showProgress(0, 0);
 		IJ.showTime(img, img.getStartTime(), exitmsg);
 
@@ -1118,6 +1122,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addHyperlinkMessage("V. Output Options:", headerFont, Color.BLACK, URL + "#Output_Options");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Create intersections mask", mask);
+		gd.setInsets(0, xIndent, 0);
+		gd.addCheckbox("Overlay sampling shells", overlayShells);
 
 		// Offer to save results if local image
 		if (validPath) {
@@ -1274,7 +1280,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// options common to bitmapPrompt() and csvPrompt()
 		final TextField ieprimaryBranches;
 		final Choice iepolyChoice, ienormChoice;
-		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask;
+		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, ieoverlay;
 		Checkbox iehideSaved = null;
 
 		// options specific to bitmapPrompt();
@@ -1431,6 +1437,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			mask = gd.getNextBoolean();
 			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
+			overlayShells = gd.getNextBoolean();
+			ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
+			ieoverlay.setEnabled(!is3D);
 
 			if (validPath) {
 				save = gd.getNextBoolean();
