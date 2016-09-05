@@ -4,10 +4,11 @@
 [![Latest Release](https://img.shields.io/github/release/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/releases)
 [![Issues](https://img.shields.io/github/issues/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/issues)
 [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e032f437a8ba44a6b4ff7cc9bdf8d978)](https://www.codacy.com/app/tferr/ASA?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tferr/ASA&amp;utm_campaign=Badge_Grade)
 
-A plugin for [ImageJ](http://imagej.net/)/[Fiji](http://fiji.sc/), the _de facto_ standard in
-scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from
-bitmap images.
+A plugin for [ImageJ](http://imagej.net/), the _de facto_ standard in scientific image
+processing, that uses automated  Sholl to perform neuronal morphometry directly from
+bitmap images. It is part of [Fiji](http://fiji.sc/).
 
 Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1244622/) is a
 method used by neuroanatomists to describe neuronal arbors. The plugin takes the original technique
@@ -46,10 +47,8 @@ that presents the software in greater detail.
 
 ##Installation
 If you use Fiji, you already have _Sholl Analysis_ installed and can start [using it](http://imagej.net/Sholl_Analysis#Usage)
-right away. If you are not using Fiji, download the latest stable binary from [imagej.net](http://imagej.net/Sholl_Analysis)
-or from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/) and drop
-it into the main ImageJ window (see the [documentation page](http://imagej.net/Sholl_Analysis#Non-Fiji_users)
-for further details). For information on _development builds_ see [Release Notes](./Notes.md#).
+right away. Binaries are available from the [documentation page](http://imagej.net/Sholl_Analysis)
+or from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/).
 
 
 ## Help?
