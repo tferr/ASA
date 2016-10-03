@@ -209,10 +209,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static boolean doSpikeSupression = true;
 
 	/* Parameters for tabular data */
-	private static ResultsTable csvRT;
-	private static int rColumn;
-	private static int cColumn;
-	private static boolean limitCSV;
+	private ResultsTable csvRT;
+	private int rColumn;
+	private int cColumn;
+	private boolean limitCSV;
+	private boolean validTabularInput;
 
 	private static double[] radii;
 	private static double[] counts;
@@ -3272,4 +3273,86 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static void setThreadedCounter(final int updatedCounter) {
 		progressCounter = updatedCounter;
 	}
+
+	/**
+	 * Runs the plugin in "tabular mode", without prompting the user for import
+	 * options. Does nothing if the specified table is {@code null} or if does
+	 * not contain the specified column indices. Table is expected to contain
+	 * valid data.
+	 *
+	 * @param rt
+	 *            the input {@link ResultsTable}
+	 * @param description
+	 *            the string used to label the analysis. If will be modified by
+	 *            {@link WindowManager#makeUniqueName(String) WindowManager} if
+	 *            the title of an existing image has the same value
+	 * @param rCol
+	 *            the index of the radii column
+	 * @param cCol
+	 *            the index of the intersections count column
+	 * @param threeD
+	 *            3D analysis?
+	 *
+	 * @see #validTable(ResultsTable)
+	 */
+	public void analyzeTabularInput(final ResultsTable rt, final String description, final int rCol, final int cCol,
+			final boolean threeD) {
+		if (rt != null && rt.columnExists(rCol) && rt.columnExists(cCol)) {
+			isCSV = true;
+			validTabularInput = true;
+			csvRT = rt;
+			imgTitle = WindowManager.makeUniqueName(description);
+			rColumn = rCol;
+			cColumn = cCol;
+			is3D = threeD;
+			limitCSV = false;
+			validPath = false;
+			imgPath = null;
+			run("csv");
+			csvRT = null;
+		} else
+			validTabularInput = false;
+	}
+
+	/**
+	 * Instructs the plugin to parse the specified file expected to contain a
+	 * sampled profile. Analysis is not headless (user is prompted for input
+	 * options and will be warned if file does not contain valid data).
+	 *
+	 * @param csvFile
+	 *            the input file expected to contain tabular data recognized by
+	 *            {@link ij.measure.ResultsTable}
+	 * @param rCol
+	 *            the index of the radii column
+	 * @param cCol
+	 *            the index of the intersections count column
+	 * @param threeD
+	 *            3D analysis?
+	 * @throws IOException
+	 *             if file could be opened.
+	 */
+	public void analyzeTabularInput(final File csvFile, final int rCol, final int cCol, final boolean threeD)
+			throws IOException {
+		csvRT = ResultsTable.open(csvFile.getAbsolutePath());
+		if (csvRT != null && csvRT.getCounter() > 2 && csvRT.columnExists(rCol) && csvRT.columnExists(cCol)) {
+			isCSV = true;
+			validTabularInput = true;
+			validPath = true;
+			imgPath = csvFile.getParent();
+			if (!imgPath.endsWith(File.separator))
+				imgPath += File.separator;
+			imgTitle = trimExtension(csvFile.getName());
+			rColumn = rCol;
+			cColumn = cCol;
+			is3D = threeD;
+			limitCSV = false;
+			run("csv");
+			csvRT = null;
+		} else {
+			lError("Profile could not be parsed or it does not contain enough data points.",
+					"N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
+			validTabularInput = false;
+		}
+	}
+
 }
