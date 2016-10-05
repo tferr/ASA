@@ -239,7 +239,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @param arg
 	 *            If {@code csv} the plugin is set for analysis of tabular data.
-	 *            If {@code sample}, the plugin runs on a demo image suitable.
+	 *            If {@code sample}, the plugin runs on a 2D demo image.
 	 */
 	@Override
 	public void run(final String arg) {
@@ -3281,10 +3281,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Runs the plugin in "tabular mode", without prompting the user for import
+	 * Instructs the plugin to parse the specified table expected to contain a
+	 * sampled profile. Analysis is not headless (user is prompted for input
 	 * options. Does nothing if the specified table is {@code null} or if does
-	 * not contain the specified column indices. Table is expected to contain
-	 * valid data.
+	 * not contain the specified column indices.
 	 *
 	 * @param rt
 	 *            the input {@link ResultsTable}
@@ -3326,8 +3326,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * options and will be warned if file does not contain valid data).
 	 *
 	 * @param csvFile
-	 *            the input file expected to contain tabular data recognized by
-	 *            {@link ij.measure.ResultsTable}
+	 *            the input file expected to contain tabular data in any of the
+	 *            formats recognized by {@link ij.measure.ResultsTable}
 	 * @param rCol
 	 *            the index of the radii column
 	 * @param cCol
@@ -3383,8 +3383,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * @return {@code true} if tabular data cannot proceed without an input
-	 *         table
+	 * @return {@code true} Can analysis of tabular data proceed without an
+	 *         input table?
 	 */
 	private boolean isTableRequired() {
 		return this.tableRequired;
@@ -3394,9 +3394,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param required
 	 *            if {@code false}, it is assumed that input data has been
 	 *            specified through API calls, and tabular data will proceed
-	 *            without input options
+	 *            without prompts for input options
 	 */
-	private void setIsTableRequired(boolean required) {
+	private void setIsTableRequired(final boolean required) {
 		this.tableRequired = required;
 		if (!required) {
 			this.limitCSV = false;
@@ -3405,8 +3405,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/**
 	 * @param nBranches
-	 *            the number of primary branches to be used in ramification
-	 *            indices
+	 *            the number of primary branches to be used in the calculation
+	 *            of ramification indices
 	 */
 	public void setPrimaryBranches(final double nBranches) {
 		primaryBranches = nBranches;
@@ -3436,7 +3436,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * @param label
 	 *            the label describing the analysis. It is used in the titles of
-	 *            frames of images
+	 *            frames and images when displaying results
 	 */
 	public void setDescription(final String label) {
 		imgTitle = label;
