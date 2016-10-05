@@ -3351,6 +3351,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		setIsTableRequired(true);
 	}
 
+	/**
+	 * Analyzes a sampled profile. Analysis is not headless (user is prompted
+	 * for analysis options and will be warned if file does not contain valid
+	 * data).
+	 *
+	 * @param distances
+	 *            the array containing radii
+	 * @param inters
+	 *            the array containing intersection counts
+	 * @param threeD
+	 *            3D profile?
+	 */
 	public void analyzeProfile(final double[] distances, final double[] inters, final boolean threeD) {
 		if (distances != null && inters != null) {
 			setIsTableRequired(false);
