@@ -214,6 +214,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private int cColumn;
 	private boolean limitCSV;
 	private boolean validTabularInput;
+	private boolean tableRequired = true;
 
 	private static double[] radii;
 	private static double[] counts;
@@ -3355,4 +3356,25 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 	}
 
+	/**
+	 * @return {@code true} if tabular data cannot proceed without an input
+	 *         table
+	 */
+	private boolean isTableRequired() {
+		return this.tableRequired;
+	}
+
+	/**
+	 * @param required
+	 *            if {@code false}, it is assumed that input data has been
+	 *            specified through API calls, and tabular data will proceed
+	 *            without input options
+	 */
+	private void setIsTableRequired(boolean required) {
+		this.tableRequired = required;
+		if (!required) {
+			this.validTabularInput = false;
+			this.limitCSV = false;
+		}
+	}
 }
