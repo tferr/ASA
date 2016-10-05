@@ -3406,6 +3406,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            of ramification indices
 	 */
 	public void setPrimaryBranches(final double nBranches) {
+		inferPrimary = false;
 		primaryBranches = nBranches;
 	}
 
