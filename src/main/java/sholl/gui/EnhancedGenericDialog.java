@@ -25,11 +25,9 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Panel;
@@ -44,7 +42,6 @@ import javax.swing.UIManager;
 
 import ij.IJ;
 import ij.gui.GenericDialog;
-import ij.plugin.BrowserLauncher;
 
 /**
  * Enhances GenericDialog with a few additional features, including scrollbars
@@ -99,42 +96,20 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 *            The URL to be opened by the default browser of the OS
 	 */
 	public void addHyperlinkMessage(final String text, final Font font, final Color color, final String url) {
-		if (isHeadless())
-			return;
 		super.addMessage(text, font, color);
-		final Component msgLabel = super.getMessage();
-		if (msgLabel != null && url != null) {
-			msgLabel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
-					try {
-						BrowserLauncher.openURL(url);
-					} catch (final Exception localException) {
-						IJ.error("" + localException);
-					}
-				}
+		Utils.addClickableURLtoLabel(super.getMessage(), url, color);
+	}
 
-				@Override
-				public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
-					msgLabel.setForeground(Color.BLUE);
-					msgLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-					// IJ.showStatus("Click to open URL...");
-				}
-
-				@Override
-				public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
-					msgLabel.setForeground(color);
-					msgLabel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-					// IJ.showStatus("");
-				}
-			});
-		}
+	/** Allows users to visit the manuscript from a dialog prompt */
+	public void addCitationMessage() {
+		super.addMessage(Utils.citationMsg(), null, Utils.infoColor());
+		Utils.addClickableURLtoLabel(super.getMessage(), Utils.citationURL(), Utils.infoColor());
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		final Object source = e.getSource();
-		if (!isHeadless() && source != null && labelOfHelpActionButton != null
+		if (!Utils.isHeadless() && source != null && labelOfHelpActionButton != null
 				&& source.toString().contains(labelOfHelpActionButton) && helpActionButtonListener != null) {
 			helpActionButtonListener.actionPerformed(e);
 		} else {
@@ -156,7 +131,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 *            the ActionListener monitoring action events
 	 */
 	public void assignListenerToHelpButton(final String buttonLabel, final ActionListener listener) {
-		if (!isHeadless() && buttonLabel != null && listener != null) {
+		if (!Utils.isHeadless() && buttonLabel != null && listener != null) {
 			super.addHelp("");
 			super.setHelpLabel(buttonLabel);
 			labelOfHelpActionButton = buttonLabel;
@@ -189,7 +164,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 *            the JPopupMenu to be attached to the "Help" button.
 	 */
 	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
-		if (!isHeadless() && buttonLabel != null && popupmenu != null) {
+		if (!Utils.isHeadless() && buttonLabel != null && popupmenu != null) {
 			// Ensure swing component is displayed with a java.awt look and feel
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -217,10 +192,6 @@ public class EnhancedGenericDialog extends GenericDialog {
 		}
 	}
 
-	private static boolean isHeadless() {
-		return GraphicsEnvironment.isHeadless();
-	}
-
 	/**
 	 * Adds AWT scroll bars to the dialog before displaying it, when not running
 	 * headless. Scroll bars are only added if the largest dimension of the
@@ -228,7 +199,7 @@ public class EnhancedGenericDialog extends GenericDialog {
 	 * {@link IJ#getScreenSize()}. Dialog remains fully recordable.
 	 */
 	public void showScrollableDialog() {
-		if (!isHeadless())
+		if (!Utils.isHeadless())
 			addScrollBars();
 		super.showDialog();
 	}
@@ -341,16 +312,4 @@ public class EnhancedGenericDialog extends GenericDialog {
 
 	}
 
-	/**
-	 * Returns the foreground color of disabled components.
-	 *
-	 * @return The {@link UIManager} foreground color of a disabled component.
-	 */
-	public Color getDisabledComponentColor() {
-		try {
-			return UIManager.getColor("CheckBox.disabledText");
-		} catch (final Exception ignored) {
-			return Color.GRAY;
-		}
-	}
 }

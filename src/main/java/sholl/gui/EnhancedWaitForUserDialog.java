@@ -21,16 +21,7 @@
  */
 package sholl.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.GraphicsEnvironment;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import ij.IJ;
 import ij.gui.WaitForUserDialog;
-import ij.plugin.BrowserLauncher;
 
 /**
  * Enhances WaitForUserDialog with a few additional features. Customizations are
@@ -57,39 +48,7 @@ public class EnhancedWaitForUserDialog extends WaitForUserDialog {
 	 *            The URL to be opened by the default browser of the OS
 	 */
 	public void addHyperlink(final String url) {
-		if (isHeadless())
-			return;
-		final Component msgLabel = super.label;
-		if (msgLabel != null && url != null) {
-			msgLabel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
-					try {
-						BrowserLauncher.openURL(url);
-					} catch (final Exception localException) {
-						IJ.error("" + localException);
-					}
-				}
-
-				@Override
-				public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
-					msgLabel.setForeground(Color.BLUE);
-					msgLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-					// IJ.showStatus("Click to open URL...");
-				}
-
-				@Override
-				public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
-					msgLabel.setForeground(Color.BLACK);
-					msgLabel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-					// IJ.showStatus("");
-				}
-			});
-		}
-	}
-
-	private static boolean isHeadless() {
-		return GraphicsEnvironment.isHeadless();
+		Utils.addClickableURLtoLabel(super.label, url, null);
 	}
 
 }

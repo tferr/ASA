@@ -1084,7 +1084,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			try { // Access "units" label
 				final Panel p = (Panel) gd.getComponent(gd.getComponentCount() - 1);
 				final Label l = (Label) p.getComponent(1);
-				l.setForeground(gd.getDisabledComponentColor());
+				l.setForeground(sholl.gui.Utils.getDisabledComponentColor());
 			} catch (final Exception ignored) {
 			}
 		}
@@ -1135,7 +1135,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else {
 			gd.setInsets(0, xIndent, 0);
 			gd.addMessage("Saving options disabled. Image is not saved locally...", null,
-					gd.getDisabledComponentColor());
+					sholl.gui.Utils.getDisabledComponentColor());
 		}
 
 		// Add listener and scroll bars. Update prompt and status bar before
@@ -1143,7 +1143,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 
-		Sholl_Utils.addCitationUrl(gd);
+		gd.addCitationMessage();
 		gd.assignPopupToHelpButton(createOptionsMenu(gd));
 		gd.showScrollableDialog();
 		if (gd.wasCanceled()) {
@@ -1571,10 +1571,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.addCheckbox("Do not display saved files", hideSaved);
 		} else {
 			gd.setInsets(0, xIndent, 0);
-			gd.addMessage("Saving options disabled. Path of data unknow...", null, gd.getDisabledComponentColor());
+			gd.addMessage("Saving options disabled. Path of data unknow...", null,
+					sholl.gui.Utils.getDisabledComponentColor());
 		}
 
-		Sholl_Utils.addCitationUrl(gd);
+		gd.addCitationMessage();
 		gd.assignPopupToHelpButton(createOptionsMenu(gd));
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
