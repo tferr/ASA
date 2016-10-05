@@ -213,7 +213,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private int rColumn;
 	private int cColumn;
 	private boolean limitCSV;
-	private boolean validTabularInput;
 	private boolean tableRequired = true;
 
 	private static double[] radii;
@@ -258,10 +257,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) {
 
-			if (isTableRequired() && csvRT==null)
+			if (isTableRequired() && csvRT==null) {
 				csvRT = getTable();
-			if (csvRT == null)
-				return;
+				if (csvRT == null)
+					return;
+			}
 
 			fitCurve = true; // The goal of CSV import is curve fitting
 
@@ -285,7 +285,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 			// Retrieve parameters from chosen columns
-			if (isTableRequired() && !validTabularInput) {
+			if (isTableRequired()) {
 				radii = csvRT.getColumnAsDoubles(rColumn);
 				counts = csvRT.getColumnAsDoubles(cColumn);
 				if (limitCSV) {
@@ -1294,7 +1294,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) { // csvPrompt()
 
-			if (isTableRequired() && !validTabularInput) {
+			if (isTableRequired()) {
 				imgTitle = gd.getNextString();
 
 				// Get columns choices and ensure rColumn and cColumn are not
@@ -1516,7 +1516,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Part I: Import options unless analyzeTabularInput() methods have
 		// been called
-		if (isTableRequired() && !validTabularInput) {
+		if (isTableRequired()) {
 			gd.addMessage("I. Results Table Import Options:", headerFont);
 			gd.addStringField("Name of dataset", imgTitle, 20);
 			final String[] headings = csvRT.getHeadings();
@@ -3305,7 +3305,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final boolean threeD) {
 		if (rt != null && rt.columnExists(rCol) && rt.columnExists(cCol)) {
 			isCSV = true;
-			validTabularInput = true;
+			setIsTableRequired(false);
 			csvRT = rt;
 			imgTitle = WindowManager.makeUniqueName(description);
 			rColumn = rCol;
@@ -3316,8 +3316,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			imgPath = null;
 			run("csv");
 			csvRT = null;
-		} else
-			validTabularInput = false;
+		}
+		setIsTableRequired(true);
 	}
 
 	/**
@@ -3342,7 +3342,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		csvRT = ResultsTable.open(csvFile.getAbsolutePath());
 		if (csvRT != null && csvRT.getCounter() > 2 && csvRT.columnExists(rCol) && csvRT.columnExists(cCol)) {
 			isCSV = true;
-			validTabularInput = true;
+			setIsTableRequired(false);
 			validPath = true;
 			imgPath = csvFile.getParent();
 			if (!imgPath.endsWith(File.separator))
@@ -3357,8 +3357,29 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else {
 			lError("Profile could not be parsed or it does not contain enough data points.",
 					"N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
-			validTabularInput = false;
 		}
+		setIsTableRequired(true);
+	}
+
+	public void analyzeProfile(final double[] distances, final double[] inters, final boolean threeD, final int nPrimaryBranches, final String analysisLabel)
+	{
+		if (distances != null && inters != null) {
+			setIsTableRequired(false);
+			radii = distances;
+			counts = inters;
+			isCSV = true;
+			csvRT = new ResultsTable();
+			validPath = false;
+			imgPath = null;
+			imgTitle = analysisLabel;
+			primaryBranches = nPrimaryBranches;
+			is3D = threeD;
+			run("csv");
+		} else {
+			lError("Profile could not be parsed or it does not contain enough data points.",
+					"N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
+		}
+		setIsTableRequired(true);
 	}
 
 	/**
@@ -3378,7 +3399,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private void setIsTableRequired(boolean required) {
 		this.tableRequired = required;
 		if (!required) {
-			this.validTabularInput = false;
 			this.limitCSV = false;
 		}
 	}
