@@ -45,15 +45,15 @@ import tracing.Simple_Neurite_Tracer;
 
 public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 
-	private static final int CENTER_OF_SOMA = 0;
-	private static final int START_FIRST_PRIMARY = 1;
+	private static final int START_FIRST_PRIMARY = 0;
+	private static final int CENTER_OF_SOMA = 1;
 	private static final int START_FIRST_AXON = 2;
 	private static final int START_FIRST_DENDRITE = 3;
 	private static final int START_FIRST_APICAL_DENDRITE = 4;
 	private static final int START_FIRST_CUSTOM = 5;
 	private static final int NO_CENTER_CHOICE = 6;
 	//NB: Indices of CENTER_CHOICES labels must reflect defined constants
-	private static final String[] CENTER_CHOICES = new String[] { "Center of soma", "Start of main path",
+	private static final String[] CENTER_CHOICES = new String[] { "Start of main path", "Center of soma",
 			"Start of main path: Axon", "Start of main path: (Basal) Dendrite", "Start of main path: Dendrite",
 			"Start of main path: Custom", "Choose manually" };
 
@@ -148,6 +148,9 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 				break;
 			case START_FIRST_CUSTOM:
 				shollCenter = getFirstPathPoint(primaryPaths, Path.SWC_CUSTOM);
+				break;
+			default:
+				IJ.log("[Bug]: Somehow center choice was not understood");
 				break;
 			}
 			if (shollCenter != null) {
@@ -265,7 +268,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		}
 	}
 
-	boolean expectedImageFile(final File file) {
+	private boolean expectedImageFile(final File file) {
 		final String[] knownImgExts = new String[] { ".tif", ".tiff" };
 		for (final String ext : knownImgExts)
 			if (file.getName().toLowerCase().endsWith(ext))
@@ -277,7 +280,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		return true;
 	}
 
-	boolean tracingsFile(final File file) {
+	private boolean tracingsFile(final File file) {
 		final String[] tracingsExts = new String[] { ".traces", ".swc" };
 		for (final String ext : tracingsExts)
 			if (file.getName().toLowerCase().endsWith(ext))
