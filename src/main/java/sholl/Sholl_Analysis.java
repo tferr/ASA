@@ -258,7 +258,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) {
 
-			csvRT = getTable();
+			if (isTableRequired() && csvRT==null)
+				csvRT = getTable();
 			if (csvRT == null)
 				return;
 
@@ -284,22 +285,23 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 			// Retrieve parameters from chosen columns
-			radii = csvRT.getColumnAsDoubles(rColumn);
-			counts = csvRT.getColumnAsDoubles(cColumn);
-			if (limitCSV) {
-				final TextPanel tp = Sholl_Utils.getTextWindow(imgTitle).getTextPanel();
-				final int startRow = tp.getSelectionStart();
-				final int endRow = tp.getSelectionEnd();
-				final boolean validRange = startRow != -1 && endRow != -1 && startRow != endRow;
-				if (validRange) {
-					radii = Arrays.copyOfRange(radii, startRow, endRow + 1);
-					counts = Arrays.copyOfRange(counts, startRow, endRow + 1);
-				} else {
-					IJ.log("*** Warning: " + imgTitle + "\n*** Option to restrict "
-							+ "analysis ignored: Not a valid selection of rows");
+			if (isTableRequired() && !validTabularInput) {
+				radii = csvRT.getColumnAsDoubles(rColumn);
+				counts = csvRT.getColumnAsDoubles(cColumn);
+				if (limitCSV) {
+					final TextPanel tp = Sholl_Utils.getTextWindow(imgTitle).getTextPanel();
+					final int startRow = tp.getSelectionStart();
+					final int endRow = tp.getSelectionEnd();
+					final boolean validRange = startRow != -1 && endRow != -1 && startRow != endRow;
+					if (validRange) {
+						radii = Arrays.copyOfRange(radii, startRow, endRow + 1);
+						counts = Arrays.copyOfRange(counts, startRow, endRow + 1);
+					} else {
+						IJ.log("*** Warning: " + imgTitle + "\n*** Option to restrict "
+								+ "analysis ignored: Not a valid selection of rows");
+					}
 				}
 			}
-
 			stepRadius = (radii.length > 1) ? radii[1] - radii[0] : Double.NaN;
 			startRadius = radii[0];
 			endRadius = radii[radii.length - 1];
@@ -1292,26 +1294,29 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) { // csvPrompt()
 
-			imgTitle = gd.getNextString();
+			if (isTableRequired() && !validTabularInput) {
+				imgTitle = gd.getNextString();
 
-			// Get columns choices and ensure rColumn and cColumn are not the
-			// same
-			rColumn = gd.getNextChoiceIndex();
-			cColumn = gd.getNextChoiceIndex();
-			final Choice ierColumn = (Choice) choices.elementAt(choiceCounter++);
-			final Choice iecColumn = (Choice) choices.elementAt(choiceCounter++);
-			if (rColumn == cColumn) {
-				final int newChoice = (rColumn < ierColumn.getItemCount() - 1) ? rColumn + 1 : 0;
-				if (source == ierColumn)
-					iecColumn.select(newChoice);
-				else if (source == iecColumn)
-					ierColumn.select(newChoice);
+				// Get columns choices and ensure rColumn and cColumn are not
+				// the same
+				rColumn = gd.getNextChoiceIndex();
+				cColumn = gd.getNextChoiceIndex();
+				final Choice ierColumn = (Choice) choices.elementAt(choiceCounter++);
+				final Choice iecColumn = (Choice) choices.elementAt(choiceCounter++);
+				if (rColumn == cColumn) {
+					final int newChoice = (rColumn < ierColumn.getItemCount() - 1) ? rColumn + 1 : 0;
+					if (source == ierColumn)
+						iecColumn.select(newChoice);
+					else if (source == iecColumn)
+						ierColumn.select(newChoice);
+				}
+
+				limitCSV = gd.getNextBoolean();
+				checkboxCounter++;
+				is3D = gd.getNextBoolean();
+				checkboxCounter++;
 			}
 
-			limitCSV = gd.getNextBoolean();
-			checkboxCounter++;
-			is3D = gd.getNextBoolean();
-			checkboxCounter++;
 			enclosingCutOff = (int) Math.max(1, gd.getNextNumber());
 			primaryBranches = gd.getNextNumber();
 			if (primaryBranches <= 0)
@@ -1501,27 +1506,30 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	private boolean csvPrompt() {
 
-		if (!validTable(csvRT))
+		if (isTableRequired() && !validTable(csvRT))
 			return false;
-		final String[] headings = csvRT.getHeadings();
-		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION + " (Tabular Data)");
 
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION + " (Tabular Data)");
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 40;
-
-		// Part I: Importing data
 		gd.setInsets(0, 0, 0);
-		gd.addMessage("I. Results Table Import Options:", headerFont);
-		gd.addStringField("Name of dataset", imgTitle, 20);
-		gd.addChoice("Distance column", headings, headings[0]);
-		gd.addChoice("Intersections column", headings, headings[1]);
-		gd.setInsets(0, xIndent, 0);
-		gd.addCheckbox("Restrict analysis to selected rows only (if any)", limitCSV);
-		gd.setInsets(0, xIndent, 0);
-		gd.addCheckbox("3D data? (uncheck if 2D profile)", is3D);
+
+		// Part I: Import options unless analyzeTabularInput() methods have
+		// been called
+		if (isTableRequired() && !validTabularInput) {
+			gd.addMessage("I. Results Table Import Options:", headerFont);
+			gd.addStringField("Name of dataset", imgTitle, 20);
+			final String[] headings = csvRT.getHeadings();
+			gd.addChoice("Distance column", headings, headings[0]);
+			gd.addChoice("Intersections column", headings, headings[1]);
+			gd.setInsets(0, xIndent, 0);
+			gd.addCheckbox("Restrict analysis to selected rows only (if any)", limitCSV);
+			gd.setInsets(0, xIndent, 0);
+			gd.addCheckbox("3D data? (uncheck if 2D profile)", is3D);
+			gd.setInsets(15, 0, 2);
+		}
 
 		// Part II: Indices and Curve Fitting
-		gd.setInsets(15, 0, 2);
 		gd.addHyperlinkMessage("II. Descriptors and Ramification Indices:", headerFont, Color.BLACK,
 				URL + "#Descriptors_and_Curve_Fitting");
 		gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
