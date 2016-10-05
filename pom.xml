@@ -95,5 +95,9 @@
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-common</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>Simple_Neurite_Tracer</artifactId>
+		</dependency>
 	</dependencies>
 </project>
