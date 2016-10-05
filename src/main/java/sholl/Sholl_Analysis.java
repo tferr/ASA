@@ -3288,10 +3288,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @param rt
 	 *            the input {@link ResultsTable}
-	 * @param description
-	 *            the string used to label the analysis. If will be modified by
-	 *            {@link WindowManager#makeUniqueName(String) WindowManager} if
-	 *            the title of an existing image has the same value
 	 * @param rCol
 	 *            the index of the radii column
 	 * @param cCol
@@ -3301,13 +3297,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *
 	 * @see #validTable(ResultsTable)
 	 */
-	public void analyzeTabularInput(final ResultsTable rt, final String description, final int rCol, final int cCol,
-			final boolean threeD) {
+	public void analyzeTabularInput(final ResultsTable rt, final int rCol, final int cCol, final boolean threeD) {
 		if (rt != null && rt.columnExists(rCol) && rt.columnExists(cCol)) {
 			isCSV = true;
 			setIsTableRequired(false);
 			csvRT = rt;
-			imgTitle = WindowManager.makeUniqueName(description);
 			rColumn = rCol;
 			cColumn = cCol;
 			is3D = threeD;
@@ -3343,15 +3337,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (csvRT != null && csvRT.getCounter() > 2 && csvRT.columnExists(rCol) && csvRT.columnExists(cCol)) {
 			isCSV = true;
 			setIsTableRequired(false);
-			validPath = true;
-			imgPath = csvFile.getParent();
-			if (!imgPath.endsWith(File.separator))
-				imgPath += File.separator;
-			imgTitle = trimExtension(csvFile.getName());
+			setExportPath(csvFile.getParent());
+			setDescription(trimExtension(csvFile.getName()));
 			rColumn = rCol;
 			cColumn = cCol;
 			is3D = threeD;
-			limitCSV = false;
 			run("csv");
 			csvRT = null;
 		} else {
@@ -3361,18 +3351,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		setIsTableRequired(true);
 	}
 
-	public void analyzeProfile(final double[] distances, final double[] inters, final boolean threeD, final int nPrimaryBranches, final String analysisLabel)
-	{
+	public void analyzeProfile(final double[] distances, final double[] inters, final boolean threeD) {
 		if (distances != null && inters != null) {
 			setIsTableRequired(false);
 			radii = distances;
 			counts = inters;
 			isCSV = true;
-			csvRT = new ResultsTable();
-			validPath = false;
-			imgPath = null;
-			imgTitle = analysisLabel;
-			primaryBranches = nPrimaryBranches;
+			csvRT = null;
 			is3D = threeD;
 			run("csv");
 		} else {
@@ -3440,6 +3425,21 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	public void setDescription(final String label) {
 		imgTitle = label;
+	}
+
+	/**
+	 * @param label
+	 *            the label describing the analysis. It is used in the titles of
+	 *            frames and images when displaying results
+	 * @param makeUnique
+	 *            if {@code true} and ImageJ is already displaying a window
+	 *            under the same label, a suffix ("-1", "-2", etc.) is appended
+	 *            to label to ensure it is unique
+	 */
+	public void setDescription(String label, final boolean makeUnique) {
+		if (makeUnique)
+			label = WindowManager.makeUniqueName(label);
+		setDescription(label);
 	}
 
 }
