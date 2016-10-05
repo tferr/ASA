@@ -81,17 +81,17 @@ public class EnhancedGenericDialog extends GenericDialog {
 	}
 
 	/**
-	 * Adds a functional URL consisting of one or more lines of text, which will
-	 * be displayed using the specified font and color.
+	 * Appends a message to the specified dialog consisting of one or more lines
+	 * of text, and assigns a functional URL to it.
 	 *
 	 * @param text
 	 *            The contents of the clickable label
 	 * @param font
-	 *            the label font. If <code>null</code>, the GenericDialog's
-	 *            default font is used
+	 *            the label font. If {@code null}, the GenericDialog's default
+	 *            font is used
 	 * @param color
-	 *            the label color. If <code>null</code>, the GenericDialog's
-	 *            default foreground color is used
+	 *            the label color. If {@code null}, the GenericDialog's default
+	 *            foreground color is used
 	 * @param url
 	 *            The URL to be opened by the default browser of the OS
 	 */

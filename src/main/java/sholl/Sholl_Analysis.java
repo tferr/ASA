@@ -917,10 +917,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Remove zeros from data. Zero intersections are problematic for logs and
-	 * polynomial fits Long stretches of zeros (e.g., caused by discontinuous
-	 * arbors) often cause sharp "bumps" on the fitted curve. Setting zeros to
-	 * NaN is not option as it would impact the CurveFitter.
+	 * Remove zeros and Not-a-Number (NaN) values from data. Zero intersections
+	 * are problematic for logs and polynomial fits. Long stretches of zeros
+	 * (e.g., caused by discontinuous arbors) often cause sharp "bumps" on the
+	 * fitted curve. Setting zeros to NaN is not option as it would impact the
+	 * CurveFitter.
 	 */
 	private double[][] getNonZeroValues(final double[] xpoints, final double[] ypoints) {
 
