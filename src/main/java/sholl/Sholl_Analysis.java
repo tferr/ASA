@@ -3402,4 +3402,44 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			this.limitCSV = false;
 		}
 	}
+
+	/**
+	 * @param nBranches
+	 *            the number of primary branches to be used in ramification
+	 *            indices
+	 */
+	public void setPrimaryBranches(final double nBranches) {
+		primaryBranches = nBranches;
+	}
+
+	/**
+	 * @param exportDir
+	 *            The path to the directory where results should be saved.
+	 *            {@code null} allowed.
+	 */
+	public void setExportPath(String exportDir) {
+		if (exportDir != null && !exportDir.isEmpty() && !exportDir.endsWith(File.separator))
+			exportDir += File.separator;
+		final File dir = new File(exportDir);
+		validPath = dir.exists() && dir.isDirectory();
+		imgPath = exportDir;
+	}
+
+	/**
+	 * @param verbose
+	 *            Whether details on curve fitting should be displayed
+	 */
+	public void setVerbose(final boolean verbose) {
+		Sholl_Analysis.verbose = verbose;
+	}
+
+	/**
+	 * @param label
+	 *            the label describing the analysis. It is used in the titles of
+	 *            frames of images
+	 */
+	public void setDescription(final String label) {
+		imgTitle = label;
+	}
+
 }
