@@ -1535,7 +1535,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addNumericField("Enclosing radius cutoff", enclosingCutOff, 0, 6, "intersection(s)");
 		gd.addNumericField(" #_Primary branches", primaryBranches, 0);
 		gd.setInsets(0, 2 * xIndent, 0);
-		gd.addCheckbox("Infer from values in first row", inferPrimary);
+		gd.addCheckbox("Infer from starting radius", inferPrimary);
 
 		// Part III: Sholl Methods
 		gd.setInsets(15, 0, 2);
@@ -1595,7 +1595,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (table == null) {
 			return false;
 		} else if (table.getHeadings().length < 2 || table.getCounter() < 2) {
-			lError("Profile in Results table does not contain enough data points.",
+			lError("Profile does not contain enough data points.",
 					"N.B. At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 			return false;
 		} else
