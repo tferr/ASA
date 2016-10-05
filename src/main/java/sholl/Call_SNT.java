@@ -183,11 +183,13 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		gd = new EnhancedGenericDialogPlus("Sholl Analysis v" + Sholl_Utils.version());
 		gd.addFileField("Image:", imgPath, 35);
 		gd.addFileField("Traces/SWC file:", tracesPath, 35);
-		gd.addChoice("Center of analysis", CENTER_CHOICES, CENTER_CHOICES[CENTER_OF_SOMA]);
+		gd.addChoice("Center of analysis", CENTER_CHOICES, CENTER_CHOICES[centerChoice]);
 		gd.addCheckbox("Use three pane view", !single_pane);
 		gd.addCheckbox("Use 3D viewer", use3Dviewer);
 		gd.addMessage(defaultInfoMsg );
 		infoMsg = (Label) gd.getMessage();
+		gd.setInsets(10,70,0);
+		gd.addCitationMessage();
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		gd.showDialog();
