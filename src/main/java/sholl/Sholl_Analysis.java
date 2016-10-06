@@ -3415,10 +3415,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * @param exportDir
 	 *            The path to the directory where results should be saved.
-	 *            {@code null} allowed.
+	 *            {@code null} not allowed.
 	 */
 	public void setExportPath(String exportDir) {
-		if (exportDir != null && !exportDir.isEmpty() && !exportDir.endsWith(File.separator))
+		if (exportDir==null)
+			return;
+		if (!exportDir.isEmpty() && !exportDir.endsWith(File.separator))
 			exportDir += File.separator;
 		final File dir = new File(exportDir);
 		validPath = dir.exists() && dir.isDirectory();
