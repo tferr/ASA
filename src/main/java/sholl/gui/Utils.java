@@ -25,9 +25,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 
 import ij.IJ;
@@ -80,6 +83,28 @@ public class Utils {
 		} catch (final Exception ignored) {
 			return Color.GRAY;
 		}
+	}
+
+	public static JMenuItem menuItemTrigerringURL(final String label, final String URL) {
+		final JMenuItem mi = new JMenuItem(label);
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				IJ.runPlugIn("ij.plugin.BrowserLauncher", URL);
+			}
+		});
+		return mi;
+	}
+
+	public static JMenuItem menuItemTrigerringResources() {
+		final JMenuItem mi = new JMenuItem("About & Resources...");
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				IJ.runPlugIn(sholl.Sholl_Utils.class.getName(), "about");
+			}
+		});
+		return mi;
 	}
 
 	/**

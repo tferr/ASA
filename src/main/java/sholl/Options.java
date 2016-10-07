@@ -370,13 +370,7 @@ public class Options implements PlugIn {
 		});
 		popup.add(mi);
 		popup.addSeparator();
-		mi = new JMenuItem("Help on Sholl metrics");
-		mi.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				IJ.runPlugIn("ij.plugin.BrowserLauncher", Sholl_Analysis.URL + "#Metrics");
-			}
-		});
+		mi = Utils.menuItemTrigerringURL("Help on Sholl metrics", Sholl_Analysis.URL + "#Metrics");
 		popup.add(mi);
 		return popup;
 	}
