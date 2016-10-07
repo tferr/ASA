@@ -283,7 +283,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 						radii = Arrays.copyOfRange(radii, startRow, endRow + 1);
 						counts = Arrays.copyOfRange(counts, startRow, endRow + 1);
 					} else {
-						IJ.log("*** Warning: " + imgTitle + "\n*** Option to restrict "
+						IJ.log("*** Warning: " + getDescription() + "\n*** Option to restrict "
 								+ "analysis ignored: Not a valid selection of rows");
 					}
 				}
@@ -293,14 +293,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			endRadius = radii[radii.length - 1];
 			if (normChoice == NORMS3D.length - 1 && (Double.isNaN(stepRadius) || stepRadius <= 0)) {
 				final String msg = (is3D) ? NORMS3D[normChoice] : NORMS2D[normChoice];
-				IJ.log("*** Warning: " + imgTitle + "\n*** Could not determine" + " radius step size: " + msg
+				IJ.log("*** Warning: " + getDescription() + "\n*** Could not determine" + " radius step size: " + msg
 						+ " normalizations will not be relevant");
 			}
 
 			// "Reset" all variables that relate only to bitmap analysis
-			x = (int) Double.NaN;
-			y = (int) Double.NaN;
-			z = (int) Double.NaN;
 			channel = (int) Double.NaN;
 			incStep = Double.NaN;
 			cal = null;
@@ -325,7 +322,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// NB: Removing spaces could disrupt unique filenames: eg "test
 			// 01.tif" and "test 02.tif" would both be treated as "test" by
 			// img.getShortTitle()
-			imgTitle = trimExtension(img.getTitle());
+			setDescription(trimExtension(img.getTitle()), false);
 
 			// Get image calibration. Stacks are likely to have anisotropic
 			// voxels with large z-steps. It is unlikely that lateral dimensions
@@ -478,7 +475,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Retrieve stats on sampled data
-		final ResultsTable statsTable = createStatsTable(imgTitle, x, y, z, valuesN);
+		final ResultsTable statsTable = createStatsTable(getDescription(), x, y, z, valuesN);
 
 		// Transform and fit data
 		final double[][] valuesNS = transformValues(valuesN, true, false, false);
@@ -494,7 +491,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotN = null;
 			} else {
-				plotN = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_N] + ") for " + imgTitle,
+				plotN = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_N] + ") for " + getDescription(),
 						is3D ? "3D distance (" + unit + ")" : "2D distance (" + unit + ")", "N. of Intersections",
 						valuesN);
 			}
@@ -528,7 +525,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotNS = null;
 			} else {
-				plotNS = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_NS] + ") for " + imgTitle,
+				plotNS = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_NS] + ") for " + getDescription(),
 						distanceString + " (" + unit + ")", "Inters./" + normalizerString, valuesNS);
 			}
 			if (fitCurve)
@@ -542,7 +539,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotSLOG = null;
 			} else {
-				plotSLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_SLOG] + ") for " + imgTitle,
+				plotSLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_SLOG] + ") for " + getDescription(),
 						distanceString + " (" + unit + ")", "log(Inters./" + normalizerString + ")", valuesSLOG);
 			}
 			if (fitCurve)
@@ -556,7 +553,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (noPlots) {
 				plotLOG = null;
 			} else {
-				plotLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_LOG] + ") for " + imgTitle,
+				plotLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_LOG] + ") for " + getDescription(),
 						"log(" + distanceString + ")", "log(Inters./" + normalizerString + ")", valuesLOG);
 			}
 			if (fitCurve)
@@ -570,7 +567,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (!noTable) {
 			ResultsTable rt;
-			final String profileTable = imgTitle + "_Sholl-Profiles";
+			final String profileTable = getDescription() + "_Sholl-Profiles";
 			final TextWindow window = (TextWindow) WindowManager.getFrame(profileTable);
 			if (window == null)
 				rt = new ResultsTable();
@@ -609,7 +606,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					final String path = imgPath + profileTable;
 					rt.saveAs(path + Prefs.defaultResultsExtension());
 				} catch (final IOException e) {
-					IJ.log(">>>> An error occurred when saving " + imgTitle + "'s profile(s):\n" + e);
+					IJ.log(">>>> An error occurred when saving " + getDescription() + "'s profile(s):\n" + e);
 				}
 			}
 			if (!validPath || (validPath && !hideSaved))
@@ -632,22 +629,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			if (shollN && fittedData) {
 
-				maskimg = makeMask(imgTitle, fvaluesN, x, y, cal, false);
+				maskimg = makeMask(getDescription(), fvaluesN, x, y, cal, false);
 				maskimg.setProperty("Label", "Polynomial fit");
 
 			} else if (shollN) {
 
-				maskimg = makeMask(imgTitle, counts, x, y, cal, false);
+				maskimg = makeMask(getDescription(), counts, x, y, cal, false);
 				maskimg.setProperty("Label", "Sampled data");
 
 			} else if (shollNS && fittedData) {
 
-				maskimg = makeMask(imgTitle, fvaluesNS, x, y, cal, true);
+				maskimg = makeMask(getDescription(), fvaluesNS, x, y, cal, true);
 				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] + " (fitted)");
 
 			} else if (shollNS) {
 
-				maskimg = makeMask(img, imgTitle, valuesNS, x, y, cal, true);
+				maskimg = makeMask(img, getDescription(), valuesNS, x, y, cal, true);
 				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] + " (sampled)");
 
 			} else if (shollSLOG && fittedData) {
@@ -660,7 +657,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					final double[] fvaluesSLOG = new double[valuesSLOG.length];
 					for (int i = 0; i < valuesSLOG.length; i++)
 						fvaluesSLOG[i] = valuesSLOG[i][0] * -k + b;
-					maskimg = makeMask(imgTitle, fvaluesSLOG, x, y, cal, true);
+					maskimg = makeMask(getDescription(), fvaluesSLOG, x, y, cal, true);
 					maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] + " (fitted)");
 				} catch (final IllegalArgumentException ignored) {
 					if (verbose)
@@ -669,7 +666,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			} else if (shollSLOG) {
 
-				maskimg = makeMask(img, imgTitle, valuesSLOG, x, y, cal, true);
+				maskimg = makeMask(img, getDescription(), valuesSLOG, x, y, cal, true);
 				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] + " (sampled)");
 
 			} else if (shollLOG && verbose) {
@@ -744,7 +741,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Define a global analysis title
-		final String longtitle = "Sholl Profile (" + SHOLL_TYPES[method] + ") for " + imgTitle;
+		final String longtitle = "Sholl Profile (" + SHOLL_TYPES[method] + ") for " + getDescription();
 
 		// Abort curve fitting when dealing with small datasets that are prone
 		// to inflated coefficients of determination
@@ -777,9 +774,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			} else {
 				IJ.showStatus("Choosing polynomial of best fit...");
 				if (verbose)
-					IJ.log("\n*** Choosing polynomial of best fit for " + imgTitle + "...");
+					IJ.log("\n*** Choosing polynomial of best fit for " + getDescription() + "...");
 				cf.doFit(getBestPolyFit(x, y), false);
 			}
+
 		} else if (method == SHOLL_NS) {
 			cf.doFit(CurveFitter.POWER, false);
 		} else if (method == SHOLL_LOG) {
@@ -950,7 +948,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (verbose) {
 			// final String norm = is3D ? NORMS3D[normChoice] :
 			// NORMS2D[normChoice];
-			IJ.log("\n*** Choosing normalization method for " + imgTitle + "...");
+			IJ.log("\n*** Choosing normalization method for " + getDescription() + "...");
 			IJ.log("Semi-log: R^2= " + IJ.d2s(rsqrd1, 5) + "... " + cf1.getStatusString());
 			IJ.log("Log-log: R^2= " + IJ.d2s(rsqrd2, 5) + "... " + cf2.getStatusString());
 		}
@@ -1273,7 +1271,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (isCSV) { // csvPrompt()
 
 			if (isTableRequired()) {
-				imgTitle = gd.getNextString();
+				setDescription(gd.getNextString(), false);
 
 				// Get columns choices and ensure rColumn and cColumn are not
 				// the same
@@ -1496,7 +1494,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// been called
 		if (isTableRequired()) {
 			gd.addMessage("I. Results Table Import Options:", headerFont);
-			gd.addStringField("Name of dataset", imgTitle, 20);
+			gd.addStringField("Name of dataset", getDescription(), 20);
 			final String[] headings = csvRT.getHeadings();
 			gd.addChoice("Distance column", headings, headings[0]);
 			gd.addChoice("Intersections column", headings, headings[1]);
@@ -2803,7 +2801,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// IJ.log("Curve fitter status: " + cf.getStatusString());
 
 		if (verbose) {
-			IJ.log("\n*** " + imgTitle + ", regression details" + labelSufix + cf.getResultString());
+			IJ.log("\n*** " + getDescription() + ", regression details" + labelSufix + cf.getResultString());
 		}
 
 		final double k = -cfparam[1]; // slope
@@ -2848,7 +2846,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.show();
 		if (validPath && save) {
 			Recorder.disablePathRecording();
-			final String path = imgPath + imgTitle + "_ShollPlot" + SHOLL_TYPES[shollChoice] + ".png";
+			final String path = imgPath + getDescription() + "_ShollPlot" + SHOLL_TYPES[shollChoice] + ".png";
 			IJ.saveAs(plot.getImagePlus(), "png", path);
 		}
 
@@ -3177,9 +3175,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		} else if (gd.wasOKed()) {
 
-			imgPath = null; // Path of dataset
-			validPath = false; // Path of dataset is not accessible
-			imgTitle = "Imported data"; // Dataset name
+			setExportPath(null);
+			setDescription("Imported data", false);
 			final String choice = gd.getNextRadioButton();
 
 			if (choice.equals("External file...")) {
@@ -3187,11 +3184,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				try {
 					rt = ResultsTable.open("");
 					if (rt != null && validTable(rt)) {
-						validPath = true;
-						imgPath = OpenDialog.getLastDirectory();
-						imgTitle = WindowManager.makeUniqueName(OpenDialog.getLastName());
+						setExportPath(OpenDialog.getLastDirectory());
+						setDescription(OpenDialog.getLastName(), true);
 						if (!IJ.macroRunning()) // no need to display table
-							rt.show(imgTitle);
+							rt.show(getDescription());
 					}
 				} catch (final IOException e) {
 					lError("", e.getMessage());
@@ -3213,9 +3209,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 						out.close();
 						rt = ResultsTable.open(temp.getAbsolutePath());
 						if (validTable(rt)) {
-							imgTitle = WindowManager.makeUniqueName("Clipboard Data");
+							setDescription("Clipboard Data", true);
 							if (!IJ.macroRunning()) // no need to display table
-								rt.show(imgTitle);
+								rt.show(getDescription());
 						} else {
 							lError("", error);
 							return null;
@@ -3229,10 +3225,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 				rt = tables.get(tableTitles.indexOf(choice));
 				if (rt == null)
-					lError("", imgTitle + " is no longer available.");
+					lError("", getDescription() + " is no longer available.");
 				else if (validTable(rt))
-					imgTitle = choice;
-
+					setDescription(choice, false);
 			}
 
 		}
@@ -3385,8 +3380,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            {@code null} not allowed.
 	 */
 	public void setExportPath(String exportDir) {
-		if (exportDir==null)
+		if (exportDir==null) {
+			validPath = false;
 			return;
+		}
 		if (!exportDir.isEmpty() && !exportDir.endsWith(File.separator))
 			exportDir += File.separator;
 		final File dir = new File(exportDir);
@@ -3406,10 +3403,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param label
 	 *            the label describing the analysis. It is used in the titles of
 	 *            frames and images when displaying results
-	 */
-	public void setDescription(final String label) {
-		imgTitle = label;
-	}
 
 	/**
 	 * @param label
@@ -3423,7 +3416,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	public void setDescription(String label, final boolean makeUnique) {
 		if (makeUnique)
 			label = WindowManager.makeUniqueName(label);
-		setDescription(label);
+		imgTitle = label;
+	}
+
+	/**
+	 * @return the label describing the analysis
+	 */
+	public static String getDescription() {
+		return imgTitle;
 	}
 
 }
