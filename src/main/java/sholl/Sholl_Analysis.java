@@ -253,7 +253,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else
 			img = WindowManager.getCurrentImage();
 		final Calibration cal;
-		isCSV = IJ.altKeyDown() || arg.equalsIgnoreCase("csv");
+		isCSV = arg.equalsIgnoreCase("csv");
 
 		if (isCSV) {
 
@@ -265,23 +265,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			fitCurve = true; // The goal of CSV import is curve fitting
 
-			// Update parameters for CSV data with user input. Reset the state
-			// of the Alt key modifier in case user wants to access bitmapPrompt
-			// by Alt-canceling the dialog. This does not apply when the user
-			// Alt- clicks on the button that triggers retrieveSampleData()
-			if (!IJ.macroRunning())
-				IJ.setKeyUp(KeyEvent.VK_ALT);
+			// Update parameters for CSV data with user input.
 			if (!csvPrompt()) {
-
-				// Did the user press Alt while dismissing csvPrompt()?
-				if (IJ.altKeyDown() && !IJ.macroRunning() && IJ.showMessageWithCancel("Sholll Analysis v" + VERSION,
-						"Dismiss CSV import and initiate bitmap analysis?")) {
-					isCSV = false;
-					IJ.setKeyUp(KeyEvent.VK_ALT);
-					this.run(arg);
-				}
 				return;
-
 			}
 
 			// Retrieve parameters from chosen columns
@@ -289,7 +275,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				radii = csvRT.getColumnAsDoubles(rColumn);
 				counts = csvRT.getColumnAsDoubles(cColumn);
 				if (limitCSV) {
-					final TextPanel tp = Sholl_Utils.getTextWindow(imgTitle).getTextPanel();
+					final TextPanel tp = Sholl_Utils.getTextWindow(getDescription()).getTextPanel();
 					final int startRow = tp.getSelectionStart();
 					final int endRow = tp.getSelectionEnd();
 					final boolean validRange = startRow != -1 && endRow != -1 && startRow != endRow;
@@ -397,16 +383,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// find out if analysis will be restricted to a hemicircle /
 			// hemisphere
 			if (!bitmapPrompt(chordAngle, is3D)) {
-
-				// Did the user press Alt while dismissing bitmapPrompt?
-				if (IJ.altKeyDown() && !IJ.macroRunning() && IJ.showMessageWithCancel("Sholll Analysis v" + VERSION,
-						"Dismiss bitmap analysis and initiate CSV import?")) {
-					isCSV = true;
-					IJ.setKeyDown(KeyEvent.VK_ALT);
-					this.run(arg);
-				}
 				return;
-
 			}
 
 			// Impose valid parameters
@@ -2976,18 +2953,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final String cmd = Recorder.getCommand();
 			final String cmdOptions = Recorder.getCommandOptions();
 			if (cmd == null || cmdOptions == null) {
-				recordString += "// NB: Commands in the \"More\u00bb\" dropdown menu should be recorded from \"Analyze>Sholl>\"\n";
-			}
-			if (isCSV && (cmd != null && !cmd.toLowerCase().contains("tabular"))) {
-				recordString += "// NB: The \"Alt\" key modifier is no longer required: Run \"Sholl Analysis (Tabular Data)...\" instead\n";
-				if (Recorder.scriptMode()) { // JavaScript, BeanShell or Java as
-												// of IJ.1.50
-					// NB: using hex values seems simpler as it works with
-					// JavaScript recording
-					recordString += "IJ.setKeyDown(0x12); //IJ.setKeyDown(KeyEvent.VK_ALT);\n";
-				} else { // IJ macro language
-					recordString += "setKeyDown(\"alt\");\n";
-				}
+				recordString += "// NB: Commands dismissing prompts (such the ones in the \"More\u00bb\" dropdown menu)\n"
+						+ "// may cause errors. Refrain from using them when using the Recorder\n";
 			}
 			Recorder.recordString(recordString);
 		}
