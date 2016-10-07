@@ -34,7 +34,7 @@ import ij.Prefs;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.gui.WaitForUserDialog;
-import sholl.gui.EnhancedGenericDialogPlus;
+import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.Utils;
 import tracing.NearPoint;
 import tracing.Path;
@@ -57,7 +57,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			"Start of main path: Axon", "Start of main path: (Basal) Dendrite", "Start of main path: Dendrite",
 			"Start of main path: Custom", "Choose manually" };
 
-	private EnhancedGenericDialogPlus gd;
+	private EnhancedGenericDialog gd;
 	private int centerChoice;
 	private static boolean use3Dviewer;
 	private static String imgPath;
@@ -183,7 +183,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 	private boolean showDialog() {
 		if (imgPath == null || tracesPath == null || imgPath.isEmpty() || tracesPath.isEmpty())
 			guessInitialPaths();
-		gd = new EnhancedGenericDialogPlus("Sholl Analysis v" + Sholl_Utils.version());
+		gd = new EnhancedGenericDialog("Sholl Analysis v" + Sholl_Utils.version());
 		gd.addFileField("Image:", imgPath, 35);
 		gd.addFileField("Traces/SWC file:", tracesPath, 35);
 		gd.addChoice("Center of analysis", CENTER_CHOICES, CENTER_CHOICES[centerChoice]);

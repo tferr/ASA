@@ -40,8 +40,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 
+import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
-import ij.gui.GenericDialog;
 
 /**
  * Enhances GenericDialog with a few additional features, including scrollbars
@@ -49,7 +49,7 @@ import ij.gui.GenericDialog;
  * button to display a drop-down menu, and labels featuring clickable
  * hyperlinks. Customizations are ignored if running headless.
  */
-public class EnhancedGenericDialog extends GenericDialog {
+public class EnhancedGenericDialog extends GenericDialogPlus {
 	private static final long serialVersionUID = 1L;
 
 	private String labelOfHelpActionButton = null;
