@@ -1,6 +1,6 @@
 /*
  * #%L
- * hIPNAT plugins for Fiji distribution of ImageJ
+ * Sholl_Analysis plugin for ImageJ
  * %%
  * Copyright (C) 2016 Tiago Ferreira
  * %%
