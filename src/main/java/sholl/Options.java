@@ -52,6 +52,7 @@ import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 import sholl.gui.EnhancedGenericDialog;
+import sholl.gui.Utils;
 
 /**
  * This class implements the "Sholl Options and Metrics" command.
@@ -59,6 +60,9 @@ import sholl.gui.EnhancedGenericDialog;
  * @author Tiago Ferreira
  */
 public class Options implements PlugIn {
+
+	/** The Menu entry of this plugin as specified in plugins.config **/
+	public static final String OPTIONS_CMDLABEL = "Metrics & Options...";
 
 	/* Columns in "Sholl Results" table */
 	static final int DIRECTORY = 1;

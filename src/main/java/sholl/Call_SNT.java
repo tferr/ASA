@@ -23,10 +23,15 @@ package sholl;
 
 import java.awt.AWTEvent;
 import java.awt.Label;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import ij.IJ;
 import ij.Macro;
@@ -193,6 +198,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		infoMsg = (Label) gd.getMessage();
 		gd.setInsets(10,70,0);
 		gd.addCitationMessage();
+		gd.assignPopupToHelpButton(createMenu());
 		gd.addDialogListener(this);
 		dialogItemChanged(gd, null);
 		gd.showDialog();
@@ -202,6 +208,32 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		single_pane = !gd.getNextBoolean();
 		use3Dviewer = gd.getNextBoolean();
 		return gd.wasOKed();
+	}
+
+	/** Creates optionsMenu */
+	private JPopupMenu createMenu() {
+		final JPopupMenu popup = new JPopupMenu();
+		JMenuItem mi;
+		mi = new JMenuItem(Options.OPTIONS_CMDLABEL);
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final Thread newThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						IJ.doCommand(Options.OPTIONS_CMDLABEL);
+					}
+				});
+				newThread.start();
+			}
+		});
+		popup.add(mi);
+		popup.addSeparator();
+		mi = Utils.menuItemTrigerringURL("Online Documentation", Sholl_Analysis.URL + "#Traces");
+		popup.add(mi);
+		mi = sholl.gui.Utils.menuItemTrigerringResources();
+		popup.add(mi);
+		return popup;
 	}
 
 	@Override
