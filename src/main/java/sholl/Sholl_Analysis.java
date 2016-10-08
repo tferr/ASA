@@ -2911,9 +2911,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				Recorder.setCommand(Recorder.getCommand());
 				improveRecording();
 			}
-			this.run("csv");
+			runInTabularMode(true);
 		} else {
-			this.run("sample");
+			run("sample");
 		}
 	}
 
@@ -3280,7 +3280,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	public void analyzeTabularInput(final ResultsTable rt, final int rCol, final int cCol, final boolean threeD) {
 		if (rt != null && rt.columnExists(rCol) && rt.columnExists(cCol)) {
-			isCSV = true;
 			setIsTableRequired(false);
 			csvRT = rt;
 			rColumn = rCol;
@@ -3289,7 +3288,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			limitCSV = false;
 			validPath = false;
 			imgPath = null;
-			run("csv");
+			runInTabularMode(false);
 			csvRT = null;
 		}
 		setIsTableRequired(true);
@@ -3316,14 +3315,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			throws IOException {
 		csvRT = ResultsTable.open(csvFile.getAbsolutePath());
 		if (csvRT != null && csvRT.getCounter() > 2 && csvRT.columnExists(rCol) && csvRT.columnExists(cCol)) {
-			isCSV = true;
 			setIsTableRequired(false);
 			setExportPath(csvFile.getParent());
-			setDescription(trimExtension(csvFile.getName()));
+			setDescription(trimExtension(csvFile.getName()), false);
 			rColumn = rCol;
 			cColumn = cCol;
 			is3D = threeD;
-			run("csv");
+			runInTabularMode(false);
 			csvRT = null;
 		} else {
 			lError("Profile could not be parsed or it does not contain enough data points.",
@@ -3349,15 +3347,27 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			setIsTableRequired(false);
 			radii = distances;
 			counts = inters;
-			isCSV = true;
-			csvRT = null;
 			is3D = threeD;
-			run("csv");
+			runInTabularMode(true);
 		} else {
 			lError("Profile could not be parsed or it does not contain enough data points.",
 					"N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 		}
 		setIsTableRequired(true);
+	}
+
+	private void runInTabularMode(boolean discardExistingInputTable) {
+		isCSV = true;
+		if (discardExistingInputTable) {
+			csvRT = null;
+			limitCSV = false;
+		}
+		run("csv");
+	}
+
+	private void runInBitmapMode() {
+		isCSV = false;
+		run("");
 	}
 
 	/**
