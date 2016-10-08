@@ -2900,11 +2900,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Re-runs the plugin with sample data */
 	private void retrieveSampleData() {
 		if (isCSV) {
-			if (Recorder.record) { // Ensure getTable() is not recorded multiple
-									// times
-				Recorder.setCommand(Recorder.getCommand());
-				improveRecording();
-			}
+			if (Recorder.record)
+				Recorder.setCommand(null);
 			runInTabularMode(true);
 		} else {
 			run("sample");
@@ -3211,6 +3208,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				if (clipboard.isEmpty()) {
 					rt = null;
 					lError("", error);
+					if (Recorder.record)
+						Recorder.setCommand(null);
 				} else {
 					try {
 						final File temp = File.createTempFile("IJclipboard", ".txt");
