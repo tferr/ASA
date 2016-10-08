@@ -2492,7 +2492,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				disposeForRerun(gd);
+				gd.disposeWithouRecording();
 				runInBitmapMode();
 			}
 		});
@@ -2502,7 +2502,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				disposeForRerun(gd);
+				gd.disposeWithouRecording();
 				runInTabularMode(true);
 			}
 		});
@@ -2512,7 +2512,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				disposeForRerun(gd);
+				gd.disposeWithouRecording();
 				IJ.runPlugIn(sholl.Call_SNT.class.getName(), "");
 			}
 		});
@@ -2537,12 +2537,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi = sholl.gui.Utils.menuItemTrigerringResources();
 		popup.add(mi);
 		return popup;
-	}
-
-	private void disposeForRerun(final GenericDialog dialog) {
-		dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
-		dialog.dispose();
-		improveRecording();
 	}
 
 	/** Retrieves the median of an array */

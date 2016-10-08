@@ -42,6 +42,7 @@ import javax.swing.UIManager;
 
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
+import ij.plugin.frame.Recorder;
 
 /**
  * Enhances GenericDialog with a few additional features, including scrollbars
@@ -202,6 +203,13 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 		if (!Utils.isHeadless())
 			addScrollBars();
 		super.showDialog();
+	}
+
+	/** Closes the dialog without Recording the command. */
+	public void disposeWithouRecording() {
+		dispose();
+		if (Recorder.record)
+			Recorder.setCommand(null);
 	}
 
 	/**
