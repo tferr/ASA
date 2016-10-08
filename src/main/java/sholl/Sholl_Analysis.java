@@ -2464,19 +2464,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
-		if (isCSV) {
-			mi = new JMenuItem("Analyze Other Data...");
-			mi.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
-					gd.dispose();
-					improveRecording();
-					run("csv");
-				}
-			});
-			popup.add(mi);
-		} else {
+		boolean analyzingImage = !isCSV;
+		boolean analyzingTable = isCSV && isTableRequired();
+		boolean analyzingTraces = isCSV && !isTableRequired();
+
+		if (analyzingImage) {
 			mi = new JMenuItem("Cf. Segmentation");
 			mi.addActionListener(new ActionListener() {
 				@Override
@@ -2485,47 +2477,72 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				}
 			});
 			popup.add(mi);
+			popup.addSeparator();
 		}
 		mi = new JMenuItem("Options...");
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				IJ.doCommand("Metrics & Options...");
+				IJ.doCommand(Options.OPTIONS_CMDLABEL);
 			}
 		});
 		popup.add(mi);
 		popup.addSeparator();
-		mi = new JMenuItem(isCSV ? "Analyze image..." : "Analyze Tabular Data...");
+		mi = new JMenuItem("Analyze image...");
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				gd.dispatchEvent(new WindowEvent(gd, WindowEvent.WINDOW_CLOSING));
-				gd.dispose();
-				improveRecording();
-				run(isCSV ? "" : "csv");
-				// IJ.doCommand(isCSV ? "Sholl Analysis..." : "Sholl Analysis
-				// (Tabular Data)...");
+				disposeForRerun(gd);
+				runInBitmapMode();
 			}
 		});
+		mi.setEnabled(!analyzingImage);
+		popup.add(mi);
+		mi = new JMenuItem(analyzingTable?"Replace input data":"Analyze sampled profile...");
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				disposeForRerun(gd);
+				runInTabularMode(true);
+			}
+		});
+		mi.setEnabled(!analyzingTraces);
+		popup.add(mi);
+		mi = new JMenuItem("Analyze traced cells...");
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				disposeForRerun(gd);
+				IJ.runPlugIn(sholl.Call_SNT.class.getName(), "");
+			}
+		});
+		mi.setEnabled(!analyzingTraces);
 		popup.add(mi);
 		popup.addSeparator();
 		mi = new JMenuItem("Online documentation");
+		String anchor;
+		if (analyzingTable)
+			anchor = "#Importing";
+		else if (analyzingTraces)
+			anchor = "#Traces";
+		else
+			anchor = "";
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				IJ.runPlugIn("ij.plugin.BrowserLauncher", isCSV ? URL + "#Importing" : URL);
+				IJ.runPlugIn(ij.plugin.BrowserLauncher.class.getName(), URL + anchor);
 			}
 		});
 		popup.add(mi);
-		mi = new JMenuItem("About & Resources...");
-		mi.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				IJ.runPlugIn("sholl.Sholl_Utils", "about");
-			}
-		});
+		mi = sholl.gui.Utils.menuItemTrigerringResources();
 		popup.add(mi);
 		return popup;
+	}
+
+	private void disposeForRerun(final GenericDialog dialog) {
+		dialog.dispatchEvent(new WindowEvent(dialog, WindowEvent.WINDOW_CLOSING));
+		dialog.dispose();
+		improveRecording();
 	}
 
 	/** Retrieves the median of an array */
