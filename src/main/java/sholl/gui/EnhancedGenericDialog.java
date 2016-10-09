@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
@@ -207,6 +208,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 
 	/** Closes the dialog without Recording the command. */
 	public void disposeWithouRecording() {
+		this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		dispose();
 		if (Recorder.record)
 			Recorder.setCommand(null);
