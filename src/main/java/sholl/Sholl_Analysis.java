@@ -156,7 +156,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static boolean isCSV = false;
 
 	/* Common variables */
-	private static String unit = "pixels";
+	private String unit = "pixels";
 	private static double vxSize = 1;
 	private static double vxWH = 1;
 	private static double vxD = 1;
@@ -177,7 +177,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int minX, maxX;
 	private static int minY, maxY;
 	private static int minZ, maxZ;
-	private static int x, y, z, channel;
+	private int x;
+	private int y;
+	private int z;
+	private static int channel;
 
 	/* Parameters for 3D analysis */
 	private static boolean skipSingleVoxels = false;
@@ -331,10 +334,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (cal.scaled()) {
 				vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
 				vxD = cal.pixelDepth;
-				unit = cal.getUnits();
+				setUnit(cal.getUnits());
 			} else {
 				vxWH = vxD = 1;
-				unit = "pixels";
+				setUnit("pixels");
 			}
 			vxSize = (is3D) ? Math.cbrt(vxWH * vxWH * vxD) : vxWH;
 
@@ -2265,7 +2268,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// shell.setStrokeColor(Color.CYAN);
 			if (nSpans > 1)
 				shell.setStrokeWidth(nSpans);
-			overlay.add(shell, "r=" + IJ.d2s(r, 2) + cal.getUnit());
+			overlay.add(shell, "r=" + IJ.d2s(r, 2) + unit);
 		}
 
 		if (newOverlay)
@@ -2609,10 +2612,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.addValue("Lower threshold", isCSV ? Double.NaN : lowerT);
 			rt.addValue("Upper threshold", isCSV ? Double.NaN : upperT);
 		}
-		if ((prefs & Options.CENTER) != 0) {
-			rt.addValue("X center (px)", isCSV ? Double.NaN : xc);
-			rt.addValue("Y center (px)", isCSV ? Double.NaN : yc);
-			rt.addValue("Z center (slice)", isCSV ? Double.NaN : zc);
+		if ((prefs & Options.CENTER) != 0 && !isCenterUnknown()) {
+			rt.addValue("X center (px)", xc);
+			rt.addValue("Y center (px)", yc);
+			rt.addValue("Z center (slice)", zc);
 		}
 		if ((prefs & Options.STARTING_RADIUS) != 0)
 			rt.addValue("Starting radius", startRadius);
