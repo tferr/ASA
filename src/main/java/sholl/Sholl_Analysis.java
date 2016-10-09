@@ -300,11 +300,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 						+ " normalizations will not be relevant");
 			}
 
-			// "Reset" all variables that relate only to bitmap analysis
-			channel = (int) Double.NaN;
-			incStep = Double.NaN;
 			cal = null;
-			unit = "N.A.";
 
 		} else {
 
@@ -3244,6 +3240,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 
 		}
+
+		// We haven't extracted other info from the table. Let's "reset" it here
+		incStep = Double.NaN;
+		setCenterUnknown();
+		setUnit("N.A.");
 
 		return rt;
 
