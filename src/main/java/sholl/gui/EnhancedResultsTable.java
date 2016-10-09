@@ -14,6 +14,7 @@ import ij.plugin.MeasurementsWriter;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 
+/** Slight improvements to {@link ij.measure.ResultsTable} */
 public class EnhancedResultsTable extends ResultsTable {
 
 	private static boolean unsavedMeasurements;
@@ -24,12 +25,24 @@ public class EnhancedResultsTable extends ResultsTable {
 		listenerAdded = false;
 	}
 
+	/**
+	 * Calls the default {@code incrementCounter()} while monitoring unsaved
+	 * measurements
+	 */
 	@Override
 	public synchronized void incrementCounter() {
 		super.incrementCounter();
 		unsavedMeasurements = true;
 	}
 
+	/**
+	 * Calls the default {@code show()} method while attaching a WindowListener
+	 * used to prompt users to save unsaved measurements when closing
+	 * (non-programmatically) the ResultsTable window
+	 *
+	 * @param windowTitle
+	 *            the title of the window displaying the ResultsTable
+	 */
 	@Override
 	public void show(final String windowTitle) {
 
