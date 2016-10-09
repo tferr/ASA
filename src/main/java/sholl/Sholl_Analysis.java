@@ -327,7 +327,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// voxels with large z-steps. It is unlikely that lateral dimensions
 			// will differ
 			cal = img.getCalibration();
-			if (cal.scaled()) {
+			if (cal!=null && cal.scaled()) {
 				vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
 				vxD = cal.pixelDepth;
 				setUnit(cal.getUnits());
