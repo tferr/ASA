@@ -3446,4 +3446,37 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return imgTitle;
 	}
 
+	/**
+	 * Sets the analysis center.
+	 *
+	 * @param xc
+	 *            the x coordinate (in pixels)
+	 * @param yc
+	 *            the y coordinate (in pixels)
+	 * @param zc
+	 *            the z coordinate (slice number)
+	 */
+	public void setCenter(int xc, int yc, int zc) {
+		this.x = xc;
+		this.y = yc;
+		this.z = zc;
+	}
+
+	private void setCenterUnknown() {
+		setCenter(-1, -1, -1);
+	}
+
+	boolean isCenterUnknown() {
+		return (this.x == -1 && this.y == -1 && this.z == -1);
+	}
+
+	/**
+	 * Sets the unit for sampling distances.
+	 *
+	 * @param unit
+	 *            the physical unit, e.g., "mm"
+	 */
+	public void setUnit(final String unit) {
+		this.unit = unit;
+	}
 }
