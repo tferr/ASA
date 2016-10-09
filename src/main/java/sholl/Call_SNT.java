@@ -231,7 +231,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		popup.addSeparator();
 		mi = Utils.menuItemTrigerringURL("Online Documentation", Sholl_Analysis.URL + "#Traces");
 		popup.add(mi);
-		mi = sholl.gui.Utils.menuItemTrigerringResources();
+		mi = sholl.gui.Utils.menuItemTriggeringResources();
 		popup.add(mi);
 		return popup;
 	}

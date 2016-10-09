@@ -96,7 +96,7 @@ public class Utils {
 		return mi;
 	}
 
-	public static JMenuItem menuItemTrigerringResources() {
+	public static JMenuItem menuItemTriggeringResources() {
 		final JMenuItem mi = new JMenuItem("About & Resources...");
 		mi.addActionListener(new ActionListener() {
 			@Override

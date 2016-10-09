@@ -2534,7 +2534,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 		});
 		popup.add(mi);
-		mi = sholl.gui.Utils.menuItemTrigerringResources();
+		mi = sholl.gui.Utils.menuItemTriggeringResources();
 		popup.add(mi);
 		return popup;
 	}
