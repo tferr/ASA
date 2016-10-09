@@ -613,6 +613,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				rt.show(profileTable);
 		}
 
+		statsTable.show(SHOLLTABLE);
 		String exitmsg = "Done. ";
 
 		if (isCSV) {
@@ -886,7 +887,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (plot != null && plotLabels)
 			Sholl_Utils.makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
-		rt.show(SHOLLTABLE);
+
 		return fy;
 
 	}
@@ -2653,7 +2654,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
 			rt.addValue("Enclosing radius", enclosingR);
 		// rt.addValue("Enclosed field", field);
-		rt.show(SHOLLTABLE);
+
 		return rt;
 
 	}
@@ -2822,7 +2823,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		rt.addValue("Regression coefficient" + labelSufix, k);
 		rt.addValue("Regression intercept" + labelSufix, kIntercept);
 		rt.addValue("Regression R^2" + labelSufix, kRSquared);
-		rt.show(SHOLLTABLE);
 
 		if (plot != null) {
 
