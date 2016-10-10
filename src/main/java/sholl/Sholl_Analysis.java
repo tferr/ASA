@@ -2482,7 +2482,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				IJ.doCommand(Options.OPTIONS_CMDLABEL);
+				IJ.doCommand(Options.COMMAND_LABEL);
 			}
 		});
 		popup.add(mi);

@@ -214,7 +214,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 	private JPopupMenu createMenu() {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
-		mi = new JMenuItem(Options.OPTIONS_CMDLABEL);
+		mi = new JMenuItem(Options.COMMAND_LABEL);
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
