@@ -85,6 +85,7 @@ import ij.text.TextWindow;
 import ij.util.ThreadUtil;
 import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
+import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
 
 /**
@@ -474,7 +475,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Retrieve stats on sampled data
-		final ResultsTable statsTable = createStatsTable(getDescription(), x, y, z, valuesN);
+		final EnhancedResultsTable statsTable = createStatsTable(getDescription(), x, y, z, valuesN);
 
 		// Transform and fit data
 		final double[][] valuesNS = transformValues(valuesN, true, false, false);
@@ -2552,15 +2553,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Returns the Sholl Summary Table populated with profile statistics */
-	private ResultsTable createStatsTable(final String rowLabel, final int xc, final int yc, final int zc,
+	private EnhancedResultsTable createStatsTable(final String rowLabel, final int xc, final int yc, final int zc,
 			final double[][] values) {
 
-		ResultsTable rt;
+		EnhancedResultsTable rt;
 		final TextWindow window = (TextWindow) WindowManager.getFrame(SHOLLTABLE);
 		if (window == null)
-			rt = new ResultsTable();
+			rt = new EnhancedResultsTable();
 		else
-			rt = window.getTextPanel().getResultsTable();
+			rt = (EnhancedResultsTable) window.getTextPanel().getResultsTable();
 		rt.setNaNEmptyCells(true);
 
 		double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
