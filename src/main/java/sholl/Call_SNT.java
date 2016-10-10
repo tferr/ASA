@@ -65,7 +65,6 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 
 	private EnhancedGenericDialog gd;
 	private int centerChoice;
-	private static boolean use3Dviewer;
 	private static String imgPath;
 	private static String tracesPath;
 	private static Label infoMsg;
@@ -97,7 +96,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		String options = "imagefilename=[" + imgPath + "] tracesfilename=[" + tracesPath + "]";
 		if (!single_pane)
 			options += " use_three_pane";
-		if (haveJava3D() && use3Dviewer)
+		if (haveJava3D() && use3DViewer)
 			options += " choice=[Create New 3D Viewer]";
 		options += " resampling=1";
 
@@ -199,7 +198,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		gd.addFileField("Traces/SWC file:", tracesPath, 35);
 		gd.addChoice("Center of analysis", CENTER_CHOICES, CENTER_CHOICES[centerChoice]);
 		gd.addCheckbox("Use three pane view", !single_pane);
-		gd.addCheckbox("Use 3D viewer", use3Dviewer);
+		gd.addCheckbox("Use 3D viewer", use3DViewer);
 		gd.addMessage(defaultInfoMsg);
 		infoMsg = (Label) gd.getMessage();
 		gd.setInsets(10, 70, 0);
@@ -212,7 +211,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			return false;
 		centerChoice = gd.getNextChoiceIndex();
 		single_pane = !gd.getNextBoolean();
-		use3Dviewer = gd.getNextBoolean();
+		use3DViewer = gd.getNextBoolean();
 		return gd.wasOKed();
 	}
 
