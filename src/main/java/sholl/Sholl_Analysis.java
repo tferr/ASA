@@ -2497,7 +2497,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				runInBitmapMode();
 			}
 		});
-		mi.setEnabled(!analyzingImage);
+		mi.setEnabled(analyzingTable);
 		popup.add(mi);
 		mi = new JMenuItem(analyzingTable?"Replace input data":"Analyze sampled profile...");
 		mi.addActionListener(new ActionListener() {
@@ -2605,9 +2605,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.addValue("Channel", channel);
 		if ((prefs & Options.UNIT) != 0)
 			rt.addValue("Unit", unit);
-		if ((prefs & Options.THRESHOLD) != 0) {
-			rt.addValue("Lower threshold", isCSV ? Double.NaN : lowerT);
-			rt.addValue("Upper threshold", isCSV ? Double.NaN : upperT);
+		if (!isCSV && (prefs & Options.THRESHOLD) != 0) {
+			rt.addValue("Lower threshold", lowerT);
+			rt.addValue("Upper threshold", upperT);
 		}
 		if ((prefs & Options.CENTER) != 0 && !isCenterUnknown()) {
 			rt.addValue("X center (px)", xc);
@@ -2878,11 +2878,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				gd.addMessage(plainMsg);
 			}
 			if (!isCSV) {
-				gd.addHyperlinkMessage(
-						"Alternatively, run \"Sholl Analysis (Tabular Data)...\" to:\n"
-								+ "	 - Re-analyze data from previous runs\n"
-								+ "	 - Analyze profiles from Simple Neurite Tracer",
-						null, Color.DARK_GRAY, URL + "#Importing");
+				gd.addHyperlinkMessage("Alternatively, use the other commands in the \"Analysis>\n"
+						+ "Sholl>\" menu to re-analyze data from previous runs or\n"
+						+ "tracings from reconstructed cells", null, Color.DARK_GRAY,
+						URL + "#Importing");
 			}
 			gd.hideCancelButton();
 			if (extended) {
@@ -2960,7 +2959,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final String cmdOptions = Recorder.getCommandOptions();
 			if (cmd == null || cmdOptions == null) {
 				recordString += "// NB: Commands dismissing prompts (such the ones in the \"More\u00bb\" dropdown menu)\n"
-						+ "// may cause errors. Refrain from using them when using the Recorder\n";
+						+ "// may not be recorded properly. Please minimize their when recording complex macros\n";
 			}
 			Recorder.recordString(recordString);
 		}
