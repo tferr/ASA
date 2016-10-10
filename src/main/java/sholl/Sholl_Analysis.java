@@ -2950,7 +2950,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return new double[] { mean, variance, skewness, kurtosis };
 	}
 
-	/** Records IJ.setKeyDown(KeyEvent.VK_ALT); */
+	/** Customizes macro recordings */
 	private static final void improveRecording() {
 		if (Recorder.record) {
 			String recordString = "// Recording Sholl Analysis version " + VERSION + "\n" + "// Visit " + URL
@@ -3391,7 +3391,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * @param nBranches
 	 *            the number of primary branches to be used in the calculation
-	 *            of ramification indices
+	 *            of ramification indices. Must be greater than 0.
 	 */
 	public void setPrimaryBranches(final double nBranches) {
 		if (Double.isNaN(nBranches) && nBranches<=0)
@@ -3429,15 +3429,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param label
 	 *            the label describing the analysis. It is used in the titles of
 	 *            frames and images when displaying results
-
-	/**
-	 * @param label
-	 *            the label describing the analysis. It is used in the titles of
-	 *            frames and images when displaying results
 	 * @param makeUnique
 	 *            if {@code true} and ImageJ is already displaying a window
-	 *            under the same label, a suffix ("-1", "-2", etc.) is appended
-	 *            to label to ensure it is unique
+	 *            using the same label as title, a suffix ("-1", "-2", etc.) is
+	 *            appended to label to ensure it is unique
 	 */
 	public void setDescription(String label, final boolean makeUnique) {
 		if (makeUnique)
