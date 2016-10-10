@@ -372,8 +372,7 @@ public class Sholl_Utils implements PlugIn {
 		final Frame f = WindowManager.getFrame(windowtitle);
 		if (f == null || !(f instanceof TextWindow))
 			return null;
-		else
-			return (TextWindow) f;
+		return (TextWindow) f;
 	}
 
 	/**

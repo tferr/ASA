@@ -1346,9 +1346,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				ieendRadius.setForeground(Color.RED);
 				IJ.showStatus("Error: Ending radius out of range!");
 				return false;
-			} else {
-				ieendRadius.setForeground(Color.BLACK);
 			}
+			ieendRadius.setForeground(Color.BLACK);
 
 			// Orthogonal chord options
 			if (orthoChord) {
@@ -2228,10 +2227,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private void overlayShells() {
 
 		Overlay overlay = img.getOverlay();
-		final boolean newOverlay = overlay == null;
-		if (newOverlay)
+		boolean newOverlay = false;
+		if (overlay == null) {
 			overlay = new Overlay();
-		else
+			newOverlay = true;
+		} else
 			removeOverlayShells(overlay);
 
 		overlay.add(new PointRoi(x, y), "center");
