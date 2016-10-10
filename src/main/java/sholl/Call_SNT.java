@@ -112,7 +112,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		Macro.setOptions(thread, null);
 
 		if (centerChoice == NO_CENTER_CHOICE) {
-			helpPrompt("Manual selection of Center", "");
+			helpPrompt("Manual Selection of Center", "");
 			return;
 		}
 
@@ -164,7 +164,8 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 				new ShollAnalysisDialog("Sholl analysis for tracing of " + this.getImagePlus().getTitle(),
 						shollCenter.x, shollCenter.y, shollCenter.z, pathAndFillManager, this.getImagePlus());
 			} else {
-				helpPrompt("Error: Invalid Center", "No points associated with " + CENTER_CHOICES[centerChoice]);
+				helpPrompt("Center Point Not Found",
+						"No points associated with \"" + CENTER_CHOICES[centerChoice] + "\".");
 				return;
 			}
 		}
@@ -178,11 +179,15 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		return null;
 	}
 
-	private void helpPrompt(final String promptTitle, String mainMsg) {
-		final String msg = "TBD";
-		if (!mainMsg.isEmpty())
-			mainMsg += "\n \n" + msg;
-		final WaitForUserDialog wd = new WaitForUserDialog(promptTitle, mainMsg);
+	private void helpPrompt(final String promptTitle, final String mainMsg) {
+		String modKey = IJ.isMacOSX() ? "Alt" : "Ctrl";
+		modKey += "+Shift";
+		final String instructions = "To manually select the focal point:\n"
+				+ "    1. Mouse over the path of interest and press \"G\" to activate it\n"
+				+ "    2. Press \"" + modKey + "\" to select the point along the path\n"
+				+ "    3. Press \"" + modKey + "+A\" to initiate Sholl analysis";
+		final WaitForUserDialog wd = new WaitForUserDialog(promptTitle,
+				mainMsg + (mainMsg.isEmpty() ? "" : "\n \n") + instructions);
 		wd.show();
 	}
 
