@@ -33,8 +33,6 @@ import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
 import java.awt.geom.Arc2D;
 import java.awt.image.IndexColorModel;
 import java.io.File;
@@ -261,7 +259,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) {
 
-			if (isTableRequired() && csvRT==null) {
+			if (isTableRequired() && csvRT == null) {
 				csvRT = getTable();
 				if (csvRT == null)
 					return;
@@ -328,7 +326,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// voxels with large z-steps. It is unlikely that lateral dimensions
 			// will differ
 			cal = img.getCalibration();
-			if (cal!=null && cal.scaled()) {
+			if (cal != null && cal.scaled()) {
 				vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
 				vxD = cal.pixelDepth;
 				setUnit(cal.getUnits());
@@ -1642,7 +1640,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 							}
 
 							// Initialize ArrayLists to hold surface points
-							final ArrayList<int[]> points = new ArrayList<int[]>();
+							final ArrayList<int[]> points = new ArrayList<>();
 
 							// Restrain analysis to the smallest volume for this
 							// sphere
@@ -2465,9 +2463,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private JPopupMenu createOptionsMenu(final EnhancedGenericDialog gd) {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem mi;
-		boolean analyzingImage = !isCSV;
-		boolean analyzingTable = isCSV && isTableRequired();
-		boolean analyzingTraces = isCSV && !isTableRequired();
+		final boolean analyzingImage = !isCSV;
+		final boolean analyzingTable = isCSV && isTableRequired();
+		final boolean analyzingTraces = isCSV && !isTableRequired();
 
 		if (analyzingImage) {
 			mi = new JMenuItem("Cf. Segmentation");
@@ -2499,7 +2497,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		});
 		mi.setEnabled(analyzingTable);
 		popup.add(mi);
-		mi = new JMenuItem(analyzingTable?"Replace input data":"Analyze sampled profile...");
+		mi = new JMenuItem(analyzingTable ? "Replace input data" : "Analyze sampled profile...");
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -2880,8 +2878,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (!isCSV) {
 				gd.addHyperlinkMessage("Alternatively, use the other commands in the \"Analysis>\n"
 						+ "Sholl>\" menu to re-analyze data from previous runs or\n"
-						+ "tracings from reconstructed cells", null, Color.DARK_GRAY,
-						URL + "#Importing");
+						+ "tracings from reconstructed cells", null, Color.DARK_GRAY, URL + "#Importing");
 			}
 			gd.hideCancelButton();
 			if (extended) {
@@ -2890,8 +2887,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				gd.enableYesNoCancel("OK", (isCSV) ? "Import Other Data" : "Analyze Sample Image");
 			}
 			gd.showDialog();
-			if (extended && !gd.wasOKed() && !gd.wasCanceled())
+			if (extended && !gd.wasOKed() && !gd.wasCanceled()) {
 				retrieveSampleData();
+			}
 		}
 
 	}
@@ -3146,8 +3144,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ResultsTable getTable() {
 
 		ResultsTable rt = null;
-		final ArrayList<ResultsTable> tables = new ArrayList<ResultsTable>();
-		final ArrayList<String> tableTitles = new ArrayList<String>();
+		final ArrayList<ResultsTable> tables = new ArrayList<>();
+		final ArrayList<String> tableTitles = new ArrayList<>();
 
 		final Frame[] windows = WindowManager.getNonImageWindows();
 		TextWindow rtWindow;
@@ -3185,7 +3183,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			setExportPath(null);
 			setDescription("Imported data", false);
 			final String choice = gd.getNextRadioButton();
-
 			if (choice.equals("External file...")) {
 
 				try {
@@ -3353,7 +3350,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		setIsTableRequired(true);
 	}
 
-	private void runInTabularMode(boolean discardExistingInputTable) {
+	private void runInTabularMode(final boolean discardExistingInputTable) {
 		isCSV = true;
 		if (discardExistingInputTable) {
 			csvRT = null;
@@ -3394,7 +3391,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            of ramification indices. Must be greater than 0.
 	 */
 	public void setPrimaryBranches(final double nBranches) {
-		if (Double.isNaN(nBranches) && nBranches<=0)
+		if (Double.isNaN(nBranches) && nBranches <= 0)
 			return;
 		inferPrimary = false;
 		primaryBranches = nBranches;
@@ -3406,7 +3403,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            {@code null} not allowed.
 	 */
 	public void setExportPath(String exportDir) {
-		if (exportDir==null) {
+		if (exportDir == null) {
 			validPath = false;
 			return;
 		}
@@ -3457,7 +3454,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param zc
 	 *            the z coordinate (slice number)
 	 */
-	public void setCenter(int xc, int yc, int zc) {
+	public void setCenter(final int xc, final int yc, final int zc) {
 		this.x = xc;
 		this.y = yc;
 		this.z = zc;
