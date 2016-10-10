@@ -2,7 +2,7 @@
  * #%L
  * Sholl_Analysis plugin for ImageJ
  * %%
- * Copyright (C) 2005 - 2016 Tiago Ferreira
+ * Copyright (C) 2016 Tiago Ferreira
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -58,7 +58,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 	private static final int START_FIRST_APICAL_DENDRITE = 4;
 	private static final int START_FIRST_CUSTOM = 5;
 	private static final int NO_CENTER_CHOICE = 6;
-	//NB: Indices of CENTER_CHOICES labels must reflect defined constants
+	// NB: Indices of CENTER_CHOICES labels must reflect defined constants
 	private static final String[] CENTER_CHOICES = new String[] { "Start of main path", "Center of soma",
 			"Start of main path: Axon", "Start of main path: (Basal) Dendrite", "Start of main path: Dendrite",
 			"Start of main path: Custom", "Choose manually" };
@@ -80,7 +80,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 
 	private static String getDefaultInfoMessage() {
 		if (haveJava3D())
-			return "Simple Neurite Tracer v"+ SimpleNeuriteTracer.PLUGIN_VERSION +" detected";
+			return "Simple Neurite Tracer v" + SimpleNeuriteTracer.PLUGIN_VERSION + " detected";
 		return "Warning: 3D Viewer not available. Please check your installation";
 	}
 
@@ -125,7 +125,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 				shollCenter = pathAndFillManager.getPath(0).getPointInImage(0);
 				break;
 			case CENTER_OF_SOMA:
-				final ArrayList<PointInImage> somaPoints = new ArrayList<PointInImage>();
+				final ArrayList<PointInImage> somaPoints = new ArrayList<>();
 				for (final Path p : primaryPaths) {
 					if (p.getSWCType() == Path.SWC_SOMA) {
 						for (int i = 0; i < p.size(); i++)
@@ -139,7 +139,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 					}
 					final NearPoint np = pathAndFillManager.nearestPointOnAnyPath(sumx / somaPoints.size(),
 							sumy / somaPoints.size(), sumz / somaPoints.size(), this.getStackDiagonalLength());
-					if (np!=null && np.getPath()!=null)
+					if (np != null && np.getPath() != null)
 						shollCenter = np.getPath().getPointInImage((np.getPath().size() - 1) / 2);
 				}
 				break;
@@ -195,9 +195,9 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		gd.addChoice("Center of analysis", CENTER_CHOICES, CENTER_CHOICES[centerChoice]);
 		gd.addCheckbox("Use three pane view", !single_pane);
 		gd.addCheckbox("Use 3D viewer", use3Dviewer);
-		gd.addMessage(defaultInfoMsg );
+		gd.addMessage(defaultInfoMsg);
 		infoMsg = (Label) gd.getMessage();
-		gd.setInsets(10,70,0);
+		gd.setInsets(10, 70, 0);
 		gd.addCitationMessage();
 		gd.assignPopupToHelpButton(createMenu());
 		gd.addDialogListener(this);

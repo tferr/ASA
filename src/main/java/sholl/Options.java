@@ -21,7 +21,7 @@
  */
 package sholl;
 
-/* Copyright 2010-2016 Tiago Ferreira
+/* Copyright 2016 Tiago Ferreira
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -401,4 +401,5 @@ public class Options implements PlugIn {
 			precision = -precision;
 		return precision;
 	}
+
 }
