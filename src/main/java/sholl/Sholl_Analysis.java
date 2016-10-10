@@ -3394,6 +3394,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            of ramification indices
 	 */
 	public void setPrimaryBranches(final double nBranches) {
+		if (Double.isNaN(nBranches) && nBranches<=0)
+			return;
 		inferPrimary = false;
 		primaryBranches = nBranches;
 	}
