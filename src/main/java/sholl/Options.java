@@ -305,7 +305,7 @@ public class Options implements PlugIn {
 
 		// Metrics (columns of Sholl Results table)
 		gd.setInsets(0, 0, 0);
-		gd.addMessage("Include in Sholl Results:", font);
+		gd.addMessage("Sholl Results Table:", font);
 		gd.setInsets(0, 0, 0);
 		gd.addCheckboxGroup(8, 2, labels, states);
 		gd.addStringField("Append comment:", getCommentString(), 20);

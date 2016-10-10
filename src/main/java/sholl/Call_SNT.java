@@ -39,6 +39,7 @@ import ij.Prefs;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.gui.WaitForUserDialog;
+import ij.plugin.frame.Recorder;
 import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.Utils;
 import tracing.NearPoint;
@@ -221,7 +222,11 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 				final Thread newThread = new Thread(new Runnable() {
 					@Override
 					public void run() {
-						IJ.doCommand(Options.OPTIONS_CMDLABEL);
+						if (Recorder.record)
+							Recorder.setCommand(Options.COMMAND_LABEL);
+						IJ.runPlugIn(Options.class.getName(), Options.SKIP_BITMAP_OPTIONS_LABEL);
+						if (Recorder.record)
+							Recorder.saveCommand();
 					}
 				});
 				newThread.start();
