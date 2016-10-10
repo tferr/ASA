@@ -643,7 +643,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			} else if (shollNS) {
 
-				maskimg = makeMask(img, getDescription(), valuesNS, x, y, cal, true);
+				maskimg = makeMask(getDescription(), valuesNS, x, y, cal, true);
 				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_NS] + " (sampled)");
 
 			} else if (shollSLOG && fittedData) {
@@ -665,7 +665,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			} else if (shollSLOG) {
 
-				maskimg = makeMask(img, getDescription(), valuesSLOG, x, y, cal, true);
+				maskimg = makeMask(getDescription(), valuesSLOG, x, y, cal, true);
 				maskimg.setProperty("Label", SHOLL_TYPES[SHOLL_SLOG] + " (sampled)");
 
 			} else if (shollLOG && verbose) {
@@ -2227,7 +2227,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/** Adds 2D sampling shells to the overlay of plugin's input image */
 	private void overlayShells() {
 
-		final Calibration cal = img.getCalibration();
 		Overlay overlay = img.getOverlay();
 		final boolean newOverlay = overlay == null;
 		if (newOverlay)
@@ -2288,8 +2287,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		Sholl_Analysis.upperT = upper;
 	}
 
-	private ImagePlus makeMask(final ImagePlus img, final String ttl, final double[][] values, final int xc,
-			final int yc, final Calibration cal, final boolean floatProcessor) {
+	private ImagePlus makeMask(final String ttl, final double[][] values, final int xc, final int yc,
+			final Calibration cal, final boolean floatProcessor) {
 		final double[] yvalues = new double[values.length];
 		for (int i = 0; i < values.length; i++)
 			yvalues[i] = values[i][1];
