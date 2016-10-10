@@ -64,6 +64,11 @@ public class Options implements PlugIn {
 	/** The Menu entry of this plugin as specified in plugins.config **/
 	public static final String OPTIONS_CMDLABEL = "Metrics & Options...";
 
+	/** Argument for {@link #run(String)} **/
+	static final String SKIP_BITMAP_OPTIONS_LABEL = "skip-bitmap";
+	/** Argument for {@link #run(String)} **/
+	static final String RESET_OPTIONS_LABEL = "reset";
+
 	/* Columns in "Sholl Results" table */
 	static final int DIRECTORY = 1;
 	static final int UNIT = 2;
@@ -99,6 +104,8 @@ public class Options implements PlugIn {
 	private static int maskType = UNSET_PREFS;
 	private static String commentString = null;
 
+	private static boolean skipBitmapOptions;
+
 	/**
 	 * Debug helper
 	 *
@@ -110,20 +117,23 @@ public class Options implements PlugIn {
 	}
 
 	/**
-	 * This method is called when the plugin is loaded. <code>arg</code> is
-	 * specified in <code>plugins.config</code>. See
-	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
+	 * This method is called when the plugin is loaded. {@code arg} can be
+	 * specified in {@code plugins.config}.
 	 *
 	 * @param arg
-	 *            If <code>reset</code> options and preferences are reset to
-	 *            defaults.
+	 *            If {@link #RESET_OPTIONS_LABEL} options and preferences are
+	 *            reset to defaults. If {@link #SKIP_BITMAP_OPTIONS_LABEL}
+	 *            options specific to bitmap analysis are not displayed in GUI
+	 *            when displaying prompt.
 	 */
 	@Override
 	public void run(final String arg) {
-		if (arg.equals("reset"))
+		if (arg.equals(RESET_OPTIONS_LABEL)) {
 			resetOptions();
-		else
-			promptForOptions();
+			return;
+		}
+		skipBitmapOptions = arg.equals(SKIP_BITMAP_OPTIONS_LABEL);
+		promptForOptions();
 	}
 
 	private static int getDefaultMetrics() {
@@ -301,10 +311,12 @@ public class Options implements PlugIn {
 		gd.addStringField("Append comment:", getCommentString(), 20);
 
 		// Intersections mask
-		gd.setInsets(15, 0, 0);
-		gd.addMessage("Intersections mask:", font);
-		gd.addSlider("  Background (grayscale):", 0, 255, getMaskBackground());
-		gd.addChoice("Preferred data:", MASK_TYPES, MASK_TYPES[getMaskType()]);
+		if (!skipBitmapOptions) {
+			gd.setInsets(15, 0, 0);
+			gd.addMessage("Intersections mask:", font);
+			gd.addSlider("  Background (grayscale):", 0, 255, getMaskBackground());
+			gd.addChoice("Preferred data:", MASK_TYPES, MASK_TYPES[getMaskType()]);
+		}
 
 		// Include IJ preferences for convenience
 		gd.setInsets(15, 0, 2);
@@ -334,8 +346,10 @@ public class Options implements PlugIn {
 			}
 			Prefs.set(METRICS_KEY, currentMetrics);
 			setCommentString(gd.getNextString());
-			setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
-			setMaskType(gd.getNextChoiceIndex());
+			if (!skipBitmapOptions) {
+				setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
+				setMaskType(gd.getNextChoiceIndex());
+			}
 
 			// IJ prefs
 			Prefs.setThreads((int) gd.getNextNumber());
