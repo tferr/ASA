@@ -93,6 +93,8 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			return;
 		}
 
+		IJ.showStatus("Waiting for SNT to load the data. Please wait...");
+
 		String options = "imagefilename=[" + imgPath + "] tracesfilename=[" + tracesPath + "]";
 		if (!single_pane)
 			options += " use_three_pane";
