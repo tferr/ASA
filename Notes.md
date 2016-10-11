@@ -15,9 +15,16 @@ Development Builds
 
 Release Builds
 --------------
-####Version 3.6.5 (August 2016)
+####Version 3.6.6 (October 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+* New Features:
+   * Implemented the _Analyze>Sholl>Sholl (Tracings)..._ command that performs the analysis
+     on Simple Neurite Tracer `.traces`/`.swc` files directly.
+   * The plugin can now be called directly from Simple Neurite Tracer.
+* Improvements:
+   * Tables with unsaved data can now be saved before dismissal
 
+####Version 3.6.5 (August 2016)
 * Improvements:
    * Option to display sampling shells in the image overlay (2D images only)
    * _More >> About & Resources..._ lists several online resources that complement the
