@@ -1101,17 +1101,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Overlay sampling shells", overlayShells);
 
-		// Offer to save results if local image
-		if (validPath) {
-			gd.setInsets(0, xIndent, 0);
-			gd.addCheckbox("Save results in image directory", save);
-			gd.setInsets(0, 2 * xIndent, 0);
-			gd.addCheckbox("Do not display saved files", hideSaved);
-		} else {
-			gd.setInsets(0, xIndent, 0);
-			gd.addMessage("Saving options disabled. Image is not saved locally...", null,
-					sholl.gui.Utils.getDisabledComponentColor());
-		}
+		// Offer to save results
+		gd.setInsets(0, xIndent, 0);
+		gd.addCheckbox("Save results to:", save);
+		gd.setInsets(-5, 0, 0);
+		gd.addDirectoryField("Directory", imgPath, 15);
+		gd.setInsets(0, 2 * xIndent, 0);
+		gd.addCheckbox("Do not display saved files", hideSaved);
 
 		// Add listener and scroll bars. Update prompt and status bar before
 		// displaying it
@@ -1538,16 +1534,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.addHyperlinkMessage("IV. Output Options:", headerFont, Color.BLACK, URL + "#Output_Options");
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Show fitting details", verbose);
-		if (validPath) {
-			gd.setInsets(0, xIndent, 0);
-			gd.addCheckbox("Save results in directory of imported profile", save);
-			gd.setInsets(0, 2 * xIndent, 0);
-			gd.addCheckbox("Do not display saved files", hideSaved);
-		} else {
-			gd.setInsets(0, xIndent, 0);
-			gd.addMessage("Saving options disabled. Path of data unknow...", null,
-					sholl.gui.Utils.getDisabledComponentColor());
-		}
+
+		gd.setInsets(0, xIndent, 0);
+		gd.addCheckbox("Save results to:", save);
+		gd.setInsets(-5, 0, 0);
+		gd.addDirectoryField("Directory", imgPath, 15);
+		gd.setInsets(0, 2 * xIndent, 0);
+		gd.addCheckbox("Do not display saved files", hideSaved);
 
 		gd.addCitationMessage();
 		gd.assignPopupToHelpButton(createOptionsMenu(gd));
