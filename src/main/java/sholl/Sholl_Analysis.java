@@ -1270,6 +1270,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			if (isTableRequired()) {
 				setDescription(gd.getNextString(), false);
+				strFieldCounter++;
 
 				// Get columns choices and ensure rColumn and cColumn are not
 				// the same
