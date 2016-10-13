@@ -83,7 +83,7 @@ public class Utils {
 			final String cmdOptions = Recorder.getCommandOptions();
 			if (cmd == null || cmdOptions == null) {
 				recordString += "// NB: Commands dismissing prompts (such the ones in the \"More\u00bb\" dropdown menu) may not\n"
-						+ "// not record properly. You may need to repeat recording if recorded instruction is invalid\n";
+						+ "// record properly. You may need to repeat recording if recorded instruction is invalid\n";
 			}
 			Recorder.recordString(recordString);
 		}

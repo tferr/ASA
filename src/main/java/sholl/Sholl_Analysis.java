@@ -1424,6 +1424,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		iesave.setEnabled(validPath);
 		ieimgPath.setEnabled(save);
 		iehideSaved.setEnabled(save);
+		ieimgPath.setForeground(validPath?Color.BLACK:Color.RED);
 		ieprimaryBranches.setEnabled(!inferPrimary);
 		iepolyChoice.setEnabled(fitCurve && shollN); // fitCurve is true if
 														// isCSV
@@ -1436,7 +1437,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean proceed = (shollN || shollNS || shollSLOG || shollLOG || chooseLog);
 
 		// Provide some interactive feedback (of sorts)
-		String tipMsg = "NB: ";
+		String tipMsg = "";
 		if (!proceed)
 			tipMsg = "Error: At least one method needs to be chosen!";
 		if (source != null) {
