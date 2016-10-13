@@ -1,8 +1,7 @@
 ##Release Notes for [Sholl Analysis](http://imagej.net/Sholl)
 
-The latest [release build](#release-builds) is available through the Fiji Updater or from the [plugin's
-webpage](http://imagej.net/Sholl). [Development builds](#development-builds) may have new
-features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. They are
+The latest [release build](#release-builds) is available through the Fiji Updater. [Development builds](#development-builds) may have new
+features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. A release is
 pushed to the Fiji Updater once new features mature and no major issues are found. Pre-compiled
 binaries (and respective sources) of the versions listed here can be downloaded from
 [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/) or from the
@@ -15,36 +14,37 @@ Development Builds
 
 Release Builds
 --------------
-####Version 3.6.6 (October 2016)
+####Version 3.6.7 (October 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
-* New Features:
-   * Implemented the _Analyze>Sholl>Sholl (Tracings)..._ command that performs the analysis
-     on Simple Neurite Tracer `.traces`/`.swc` files directly.
-   * The plugin can now be called directly from Simple Neurite Tracer.
-* Improvements:
-   * Tables with unsaved data can now be saved before dismissal
+
+* Fixed an issue that did not allow _Analyze>Sholl>Sholl (Tracings)..._ to be macro recordable
+* Results files can be saved in any directory, not just the input one
+* _Analyze>Sholl>Metrics & Options..._ now includes settings for output files
+
+####Version 3.6.6 (October 2016)
+* Implemented the _Analyze>Sholl>Sholl (Tracings)..._ command that performs the analysis
+  on Simple Neurite Tracer `.traces`/`.swc` files directly.
+* The plugin can now be called directly from Simple Neurite Tracer.
+* Tables with unsaved data can now be saved before dismissal
 
 ####Version 3.6.5 (August 2016)
-* Improvements:
-   * Option to display sampling shells in the image overlay (2D images only)
-   * _More >> About & Resources..._ lists several online resources that complement the
-     [documentation page](http://imagej.net/Sholl) including the
-     [IJ Forum](http://forum.imagej.net/search?q=sholl)
+* Option to display sampling shells in the image overlay (2D images only)
+* _More >> About & Resources..._ lists several online resources that complement the
+  [documentation page](http://imagej.net/Sholl) including the
+  [IJ Forum](http://forum.imagej.net/search?q=sholl)
 * The plugin now requires Java 8 and third party dependencies bundled with Fiji (i.e., it
-     requires an ImageJ installation subscribed to both the Java8 and the Fiji update site).
-     In other words, we will no longer support running the plugin outside Fiji: It is
-     becoming too cumbersome, and it is slowing down its modernization.
+  requires an ImageJ installation subscribed to both the Java8 and the Fiji update site).
+  In other words, we will no longer support running the plugin outside Fiji: It is
+  becoming too cumbersome, and it is slowing down its modernization.
 
 ####Version 3.6.4 (July 2016)
-* Improvements:
-   * Support for multichannel (composite) images
-   * Preference for preferred data type (sampled/fitted) when rendering Sholl masks
-   * Masks can now be generated for normalized methods
+* Support for multichannel (composite) images
+* Preference for preferred data type (sampled/fitted) when rendering Sholl masks
+* Masks can now be generated for normalized methods
 
 ####Version 3.6.2 (May 2016)
-* Improvements:
-   * Analysis of 3D images is now multithreaded. The number of threads can be set in _Metrics & Options..._
-   * Fixed an exception triggered by IJ1.51a and later when sampling edge voxels
+* Analysis of 3D images is now multithreaded. The number of threads can be set in _Metrics & Options..._
+* Fixed an exception triggered by IJ1.51a and later when sampling edge voxels
 * Bugs Fixed:
    * 3D sampling could be shifted by one voxel in Z
    * _Reset_ option in _Metrics & Options..._ command did not reset all of global preferences
