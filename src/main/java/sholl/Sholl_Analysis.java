@@ -98,8 +98,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	static final String VERSION = Sholl_Utils.version();
-	static final String URL = "http://imagej.net/Sholl_Analysis";
+	public static final String VERSION = Sholl_Utils.version();
+	public static final String URL = "http://imagej.net/Sholl_Analysis";
 
 	/* Sholl Type Definitions */
 	private static final String[] SHOLL_TYPES = { "Linear", "Linear-norm", "Semi-log", "Log-log" };
@@ -1120,7 +1120,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
-			improveRecording();
+			sholl.gui.Utils.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else { // User pressed any other button
 			return false;
@@ -1549,7 +1549,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled())
 			return false;
 		else if (gd.wasOKed()) {
-			improveRecording();
+			sholl.gui.Utils.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else {
 			return false;
@@ -2936,21 +2936,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final double kurtosis = (((sum4 - 4.0 * mean * sum3 + 6.0 * mean2 * sum2) / npoints - 3.0 * mean2 * mean2)
 				/ (variance * variance) - 3.0);
 		return new double[] { mean, variance, skewness, kurtosis };
-	}
-
-	/** Customizes macro recordings */
-	private static final void improveRecording() {
-		if (Recorder.record) {
-			String recordString = "// Recording Sholl Analysis version " + VERSION + "\n" + "// Visit " + URL
-					+ "#Batch_Processing for scripting tips\n";
-			final String cmd = Recorder.getCommand();
-			final String cmdOptions = Recorder.getCommandOptions();
-			if (cmd == null || cmdOptions == null) {
-				recordString += "// NB: Commands dismissing prompts (such the ones in the \"More\u00bb\" dropdown menu)\n"
-						+ "// may not be recorded properly. Please minimize their when recording complex macros\n";
-			}
-			Recorder.recordString(recordString);
-		}
 	}
 
 	/**

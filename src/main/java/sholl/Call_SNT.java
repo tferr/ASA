@@ -212,7 +212,11 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
-		return gd.wasOKed();
+		else if (gd.wasOKed()) {
+			sholl.gui.Utils.improveRecording();
+			return dialogItemChanged(gd, null);
+		}
+		return false;
 	}
 
 	/** Creates optionsMenu */

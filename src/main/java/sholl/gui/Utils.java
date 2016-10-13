@@ -35,6 +35,8 @@ import javax.swing.UIManager;
 
 import ij.IJ;
 import ij.plugin.BrowserLauncher;
+import ij.plugin.frame.Recorder;
+import sholl.Sholl_Analysis;
 
 /** Provides customizations for ImageJ dialogs when not running headless. */
 public class Utils {
@@ -70,6 +72,21 @@ public class Utils {
 				// IJ.showStatus("");
 			}
 		});
+	}
+
+	/** Customizes macro recordings */
+	public static final void improveRecording() {
+		if (Recorder.record) {
+			String recordString = "// Recording Sholl Analysis version " + Sholl_Analysis.VERSION + "\n" + "// Visit "
+					+ Sholl_Analysis.URL + "#Batch_Processing for scripting tips\n";
+			final String cmd = Recorder.getCommand();
+			final String cmdOptions = Recorder.getCommandOptions();
+			if (cmd == null || cmdOptions == null) {
+				recordString += "// NB: Commands dismissing prompts (such the ones in the \"More\u00bb\" dropdown menu) may not\n"
+						+ "// not record properly. You may need to repeat recording if recorded instruction is invalid\n";
+			}
+			Recorder.recordString(recordString);
+		}
 	}
 
 	/**
