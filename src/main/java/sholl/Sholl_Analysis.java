@@ -2977,56 +2977,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/**
 	 * <p>
-	 * Alternative to {@link #setNoPlots(boolean) setNoPlots()} to be called by
-	 * IJ macros using the
-	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
-	 * call()</a> built-in macro function
-	 * </p>
-	 *
-	 * <p>
-	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
-	 * tables will be displayed). An error message is displayed in the IJ Log
-	 * window if {@code booleanString} can not be parsed. Usage example:
-	 * {@code call("sholl.Sholl_Analysis.setNoPlots", "false");}
-	 * </p>
-	 *
-	 * @param booleanString
-	 *            If {@code "true"}, plugin will only output tables. If
-	 *            {@code "false"}, both tables and plots will be produced (the
-	 *            default)
-	 */
-	public static void setNoPlots(final String booleanString) {
-		if (validateBooleanString(booleanString))
-			Sholl_Analysis.noPlots = Boolean.valueOf(booleanString);
-	}
-
-	/**
-	 * <p>
-	 * Alternative to {@link #setNoTable(boolean) setNoTable()} to be called by
-	 * IJ macros using the
-	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
-	 * call()</a> built-in macro function
-	 * </p>
-	 *
-	 * <p>
-	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output.
-	 * An error message is displayed in the IJ Log window if
-	 * {@code booleanString} can not be parsed. Usage example:
-	 * {@code call("sholl.Sholl_Analysis.setNoTable", "false");}
-	 * </p>
-	 *
-	 * @param booleanString
-	 *            If {@code "true"}, plugin will not output the "detailed table"
-	 *            containing all the retrieved profiles. Note that the Summary
-	 *            "Sholl Results" table is always displayed.
-	 */
-	public static void setNoTable(final String booleanString) {
-		if (validateBooleanString(booleanString))
-			Sholl_Analysis.noTable = Boolean.valueOf(booleanString);
-	}
-
-	/**
-	 * <p>
 	 * Alternative to {@link #setPlotLabels(boolean) setPlotLabels()} to be
 	 * called by IJ macros using the
 	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
