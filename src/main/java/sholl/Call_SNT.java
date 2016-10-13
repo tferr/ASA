@@ -211,9 +211,6 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		gd.showDialog();
 		if (gd.wasCanceled())
 			return false;
-		centerChoice = gd.getNextChoiceIndex();
-		single_pane = !gd.getNextBoolean();
-		use3DViewer = gd.getNextBoolean();
 		return gd.wasOKed();
 	}
 
@@ -252,6 +249,9 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		boolean enableOK = true;
 		imgPath = normalizedPath(gd.getNextString());
 		tracesPath = normalizedPath(gd.getNextString());
+		centerChoice = gd.getNextChoiceIndex();
+		single_pane = !gd.getNextBoolean();
+		use3DViewer = gd.getNextBoolean();
 		String warning = "";
 		if (containsIllegalChars(imgPath) || containsIllegalChars(tracesPath)) {
 			enableOK = false;
