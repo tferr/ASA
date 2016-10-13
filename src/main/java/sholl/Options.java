@@ -232,73 +232,82 @@ public class Options implements PlugIn {
 	private void promptForOptions() {
 
 		currentMetrics = getMetrics();
-		final String[] labels = new String[16];
-		final int[] items = new int[16];
-		final boolean[] states = new boolean[16];
+		final int bitmapOptions = 2;
+		int nOptions = 16;
+		if (skipBitmapOptions)
+			nOptions -= bitmapOptions;
+		final String[] labels = new String[nOptions];
+		final int[] items = new int[nOptions];
+		final boolean[] states = new boolean[nOptions];
+		int idx = 0;
 
-		items[0] = DIRECTORY;
-		labels[0] = "Image directory";
-		states[0] = (currentMetrics & DIRECTORY) != 0;
+		items[idx] = DIRECTORY;
+		labels[idx] = "Image / Input directory";
+		states[idx++] = (currentMetrics & DIRECTORY) != 0;
 
-		items[1] = UNIT;
-		labels[1] = "Spatial unit";
-		states[1] = (currentMetrics & UNIT) != 0;
+		items[idx] = UNIT;
+		labels[idx] = "Spatial unit";
+		states[idx++] = (currentMetrics & UNIT) != 0;
 
-		items[2] = THRESHOLD;
-		labels[2] = "Threshold levels";
-		states[2] = (currentMetrics & THRESHOLD) != 0;
+		if (!skipBitmapOptions) {
+			items[idx] = THRESHOLD;
+			labels[idx] = "Threshold levels";
+			states[idx++] = (currentMetrics & THRESHOLD) != 0;
+		}
 
-		items[3] = CENTER;
-		labels[3] = "Center of analysis";
-		states[3] = (currentMetrics & CENTER) != 0;
+		items[idx] = CENTER;
+		labels[idx] = "Center of analysis";
+		states[idx++] = (currentMetrics & CENTER) != 0;
 
-		items[4] = STARTING_RADIUS;
-		labels[4] = "Starting radius";
-		states[4] = (currentMetrics & STARTING_RADIUS) != 0;
+		items[idx] = STARTING_RADIUS;
+		labels[idx] = "Starting radius";
+		states[idx++] = (currentMetrics & STARTING_RADIUS) != 0;
 
-		items[5] = RADIUS_STEP;
-		labels[5] = "Radius step size";
-		states[5] = (currentMetrics & RADIUS_STEP) != 0;
+		items[idx] = RADIUS_STEP;
+		labels[idx] = "Radius step size";
+		states[idx++] = (currentMetrics & RADIUS_STEP) != 0;
 
-		items[6] = SAMPLES_PER_RADIUS;
-		labels[6] = "Samples per radius";
-		states[6] = (currentMetrics & SAMPLES_PER_RADIUS) != 0;
+		if (!skipBitmapOptions) {
+			items[idx] = SAMPLES_PER_RADIUS;
+			labels[idx] = "Samples per radius";
+			states[idx++] = (currentMetrics & SAMPLES_PER_RADIUS) != 0;
+		}
 
-		items[7] = ENCLOSING_RADIUS;
-		labels[7] = "Enclosing radius";
-		states[7] = (currentMetrics & ENCLOSING_RADIUS) != 0;
+		items[idx] = ENCLOSING_RADIUS;
+		labels[idx] = "Enclosing radius";
+		states[idx++] = (currentMetrics & ENCLOSING_RADIUS) != 0;
 
-		items[8] = INTERSECTING_RADII;
-		labels[8] = "Intersecting radii";
-		states[8] = (currentMetrics & INTERSECTING_RADII) != 0;
+		items[idx] = INTERSECTING_RADII;
+		labels[idx] = "Intersecting radii";
+		states[idx++] = (currentMetrics & INTERSECTING_RADII) != 0;
 
-		items[9] = SUM_INTERS;
-		labels[9] = "Sum of intersections";
-		states[9] = (currentMetrics & SUM_INTERS) != 0;
+		items[idx] = SUM_INTERS;
+		labels[idx] = "Sum of intersections";
+		states[idx++] = (currentMetrics & SUM_INTERS) != 0;
 
-		items[10] = MEAN_INTERS;
-		labels[10] = "Mean n. of intersections";
-		states[10] = (currentMetrics & MEAN_INTERS) != 0;
+		items[idx] = MEAN_INTERS;
+		labels[idx] = "Mean n. of intersections";
+		states[idx++] = (currentMetrics & MEAN_INTERS) != 0;
 
-		items[11] = MEDIAN_INTERS;
-		labels[11] = "Median n. of intersections";
-		states[11] = (currentMetrics & MEDIAN_INTERS) != 0;
+		items[idx] = MEDIAN_INTERS;
+		labels[idx] = "Median n. of intersections";
+		states[idx++] = (currentMetrics & MEDIAN_INTERS) != 0;
 
-		items[12] = SKEWNESS;
-		labels[12] = "Skewness";
-		states[12] = (currentMetrics & SKEWNESS) != 0;
+		items[idx] = SKEWNESS;
+		labels[idx] = "Skewness";
+		states[idx++] = (currentMetrics & SKEWNESS) != 0;
 
-		items[13] = KURTOSIS;
-		labels[13] = "Kurtosis";
-		states[13] = (currentMetrics & KURTOSIS) != 0;
+		items[idx] = KURTOSIS;
+		labels[idx] = "Kurtosis";
+		states[idx++] = (currentMetrics & KURTOSIS) != 0;
 
-		items[14] = CENTROID;
-		labels[14] = "Centroid";
-		states[14] = (currentMetrics & CENTROID) != 0;
+		items[idx] = CENTROID;
+		labels[idx] = "Centroid";
+		states[idx++] = (currentMetrics & CENTROID) != 0;
 
-		items[15] = P1090_REGRESSION;
-		labels[15] = "P10-P90 regression";
-		states[15] = (currentMetrics & P1090_REGRESSION) != 0;
+		items[idx] = P1090_REGRESSION;
+		labels[idx] = "P10-P90 regression";
+		states[idx++] = (currentMetrics & P1090_REGRESSION) != 0;
 
 		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Metrics and Options");
 		final Font font = new Font("SansSerif", Font.BOLD, 12);
@@ -307,7 +316,7 @@ public class Options implements PlugIn {
 		gd.setInsets(0, 0, 0);
 		gd.addMessage("Sholl Results Table:", font);
 		gd.setInsets(0, 0, 0);
-		gd.addCheckboxGroup(8, 2, labels, states);
+		gd.addCheckboxGroup(nOptions/2, 2, labels, states);
 		gd.addStringField("Append comment:", getCommentString(), 20);
 
 		// Intersections mask
@@ -336,10 +345,8 @@ public class Options implements PlugIn {
 		} else if (gd.wasOKed()) {
 
 			// Sholl prefs
-			boolean b = false;
-			for (int i = 0; i < labels.length; i++) {
-				b = gd.getNextBoolean();
-				if (b)
+			for (int i = 0; i < nOptions; i++) {
+				if (gd.getNextBoolean())
 					currentMetrics |= items[i];
 				else
 					currentMetrics &= ~items[i];
@@ -362,7 +369,7 @@ public class Options implements PlugIn {
 
 		} else {
 			if (Recorder.record)
-				Recorder.recordOption("reset");
+				Recorder.recordOption(RESET_OPTIONS_LABEL);
 			resetOptions();
 		}
 	}
