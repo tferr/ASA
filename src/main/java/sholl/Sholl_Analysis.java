@@ -1246,14 +1246,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// components of GenericDialog
 		final Vector<?> numericfields = gd.getNumericFields();
+		final Vector<?> stringfields = gd.getStringFields();
+
 		final Vector<?> choices = gd.getChoices();
 		final Vector<?> checkboxes = gd.getCheckboxes();
 
 		// options common to bitmapPrompt() and csvPrompt()
-		final TextField ieprimaryBranches;
+		final TextField ieprimaryBranches, ieimgPath;
 		final Choice iepolyChoice, ienormChoice;
-		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, ieoverlay;
-		Checkbox iehideSaved = null;
+		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, ieoverlay, iesave,
+				iehideSaved;
 
 		// options specific to bitmapPrompt();
 		Choice iequadChoice = null, iebinChoice = null;
@@ -1261,7 +1263,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final Object source = (e == null) ? null : e.getSource();
 		int checkboxCounter = 0;
 		int choiceCounter = 0;
-		int fieldCounter = 0;
+		int numFieldCounter = 0;
+		int strFieldCounter = 0;
 
 		if (isCSV) { // csvPrompt()
 
@@ -1292,8 +1295,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			primaryBranches = gd.getNextNumber();
 			if (primaryBranches <= 0)
 				primaryBranches = Double.NaN;
-			fieldCounter = 1;
-			ieprimaryBranches = (TextField) numericfields.elementAt(fieldCounter++);
+			numFieldCounter = 1;
+			ieprimaryBranches = (TextField) numericfields.elementAt(numFieldCounter++);
 			inferPrimary = gd.getNextBoolean();
 			ieinferPrimary = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 
@@ -1316,28 +1319,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			verbose = gd.getNextBoolean();
 			checkboxCounter++;
 
-			if (validPath) {
-				save = gd.getNextBoolean();
-				checkboxCounter++;
-				hideSaved = gd.getNextBoolean();
-				iehideSaved = (Checkbox) checkboxes.elementAt(checkboxCounter++);
-				iehideSaved.setEnabled(save);
-			}
-
 		} else { // bitmapPrompt()
 
 			// Part I: Definition of Shells
 			startRadius = Math.max(0, gd.getNextNumber());
 			// final TextField iestartRadius =
 			// (TextField)numericfields.elementAt(fieldCounter++);
-			fieldCounter++;
+			numFieldCounter++;
 			endRadius = Math.max(0, gd.getNextNumber());
-			final TextField ieendRadius = (TextField) numericfields.elementAt(fieldCounter++);
+			final TextField ieendRadius = (TextField) numericfields.elementAt(numFieldCounter++);
 			// fieldCounter++;
 			incStep = Math.max(0, gd.getNextNumber());
 			// final TextField ieincStep =
 			// (TextField)numericfields.elementAt(fieldCounter++);
-			fieldCounter++;
+			numFieldCounter++;
 			if (endRadius <= startRadius || endRadius <= incStep) {
 				ieendRadius.setForeground(Color.RED);
 				IJ.showStatus("Error: Ending radius out of range!");
@@ -1363,7 +1358,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				checkboxCounter++;
 			} else {
 				nSpans = Math.min(Math.max((int) gd.getNextNumber(), 1), 10);
-				fieldCounter++;
+				numFieldCounter++;
 				binChoice = gd.getNextChoiceIndex();
 				iebinChoice = (Choice) choices.elementAt(choiceCounter++);
 				iebinChoice.setEnabled(nSpans > 1);
@@ -1375,11 +1370,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 																		// zero
 																		// if
 																		// NaN
-			fieldCounter++;
+			numFieldCounter++;
 			primaryBranches = gd.getNextNumber();
 			if (primaryBranches <= 0)
 				primaryBranches = Double.NaN;
-			ieprimaryBranches = (TextField) numericfields.elementAt(fieldCounter++);
+			ieprimaryBranches = (TextField) numericfields.elementAt(numFieldCounter++);
 			inferPrimary = gd.getNextBoolean();
 			ieinferPrimary = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 
@@ -1415,17 +1410,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			ieoverlay.setEnabled(!is3D);
 
-			if (validPath) {
-				save = gd.getNextBoolean();
-				checkboxCounter++;
-				hideSaved = gd.getNextBoolean();
-				iehideSaved = (Checkbox) checkboxes.elementAt(checkboxCounter++);
-				iehideSaved.setEnabled(save);
-			}
-
 		}
 
+		// Retrieve fields common to both prompts
+		save = gd.getNextBoolean();
+		iesave = (Checkbox) checkboxes.elementAt(checkboxCounter++);
+		setExportPath(gd.getNextString());
+		ieimgPath = (TextField) stringfields.elementAt(strFieldCounter++);
+		hideSaved = gd.getNextBoolean();
+		iehideSaved = (Checkbox) checkboxes.elementAt(checkboxCounter++);
+
 		// Disable fields common to both prompts
+		iesave.setEnabled(validPath);
+		ieimgPath.setEnabled(save);
+		iehideSaved.setEnabled(save);
 		ieprimaryBranches.setEnabled(!inferPrimary);
 		iepolyChoice.setEnabled(fitCurve && shollN); // fitCurve is true if
 														// isCSV
