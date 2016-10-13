@@ -85,6 +85,7 @@ import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
+import sholl.gui.Utils;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -1425,9 +1426,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Disable fields common to both prompts
 		iesave.setEnabled(validPath);
-		ieimgPath.setEnabled(save);
+		//ieimgPath.setEnabled(save);
 		iehideSaved.setEnabled(save);
-		ieimgPath.setForeground(validPath?Color.BLACK:Color.RED);
+		Color pathFieldForeground = Color.BLACK;
+		if (!save)
+			pathFieldForeground = Utils.getDisabledComponentColor();
+		if(!validPath)
+			pathFieldForeground = Color.RED;
+		ieimgPath.setForeground(pathFieldForeground);
 		ieprimaryBranches.setEnabled(!inferPrimary);
 		iepolyChoice.setEnabled(fitCurve && shollN); // fitCurve is true if
 														// isCSV
