@@ -2472,7 +2472,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				IJ.doCommand(Options.COMMAND_LABEL);
+				final Thread newThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						if (Recorder.record)
+							Recorder.setCommand(Options.COMMAND_LABEL);
+						IJ.runPlugIn(Options.class.getName(), analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
+						if (Recorder.record)
+							Recorder.saveCommand();
+					}
+				});
+				newThread.start();
 			}
 		});
 		popup.add(mi);
