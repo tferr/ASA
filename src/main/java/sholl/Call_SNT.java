@@ -247,12 +247,27 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 
 	@Override
 	public boolean dialogItemChanged(final GenericDialog arg0, final AWTEvent event) {
-		boolean enableOK = true;
+
+		// The 'Browse...' action will call OpenDialog that is macro recordable
+		// and will always generate the same (non-unique) command option 'key='.
+		// We'll need to nullify such calls or he Recorder will keep complaining
+		// every time the 'Browse...' button is pressed
+		if (Recorder.record && event != null && event.toString().contains("textfield")) {
+			final String commandName = Recorder.getCommand();
+			final String commandOptions = Recorder.getCommandOptions();
+			if (commandName != null && commandOptions != null && commandOptions.contains("browse")) {
+				Recorder.setCommand(commandName);
+				return true;
+			}
+		}
+
 		imgPath = normalizedPath(gd.getNextString());
 		tracesPath = normalizedPath(gd.getNextString());
 		centerChoice = gd.getNextChoiceIndex();
 		single_pane = !gd.getNextBoolean();
 		use3DViewer = gd.getNextBoolean();
+
+		boolean enableOK = true;
 		String warning = "";
 		if (containsIllegalChars(imgPath) || containsIllegalChars(tracesPath)) {
 			enableOK = false;
