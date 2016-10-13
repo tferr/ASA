@@ -2509,17 +2509,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.add(mi);
 		popup.addSeparator();
 		mi = new JMenuItem("Online documentation");
-		String anchor;
-		if (analyzingTable)
-			anchor = "#Importing";
-		else if (analyzingTraces)
-			anchor = "#Traces";
-		else
-			anchor = "";
 		mi.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				IJ.runPlugIn(ij.plugin.BrowserLauncher.class.getName(), URL + anchor);
+				IJ.runPlugIn(ij.plugin.BrowserLauncher.class.getName(), URL);
 			}
 		});
 		popup.add(mi);
