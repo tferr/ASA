@@ -440,4 +440,43 @@ public class Options implements PlugIn {
 		return precision;
 	}
 
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
+	 * tables will be displayed).
+	 *
+	 * @param noPlots
+	 *            If {@code true}, plugin will only output tables. If
+	 *            {@code false}, both tables and plots will be produced (the
+	 *            default)
+	 */
+	public static void setNoPlots(final boolean noPlots) {
+		currentMetrics = getMetrics();
+		if (noPlots)
+			currentMetrics |= NO_PLOTS;
+		else
+			currentMetrics &= ~NO_PLOTS;
+		Prefs.set(METRICS_KEY, currentMetrics);
+	}
+
+	/**
+	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output
+	 * (Summary table is still displayed).
+	 *
+	 * @param noTable
+	 *            If {@code true}, plugin will not output the "detailed table"
+	 *            containing all the retrieved profiles. Note that the Summary
+	 *            "Sholl Results" table is always displayed.
+	 *
+	 * @see #setNoPlots(boolean)
+	 */
+	public static void setNoTable(final boolean noTable) {
+		currentMetrics = getMetrics();
+		if (noTable)
+			currentMetrics |= NO_TABLE;
+		else
+			currentMetrics &= ~NO_TABLE;
+		Prefs.set(METRICS_KEY, currentMetrics);
+	}
+
 }

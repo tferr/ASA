@@ -2944,34 +2944,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
-	 * tables will be displayed).
-	 *
-	 * @param noPlots
-	 *            If {@code true}, plugin will only output tables. If
-	 *            {@code false}, both tables and plots will be produced (the
-	 *            default)
-	 */
-	public static void setNoPlots(final boolean noPlots) {
-		Sholl_Analysis.noPlots = noPlots;
-	}
-
-	/**
-	 * Instructs {@link Sholl_Analysis} to exclude detailed table from output
-	 * (Summary table is still displayed).
-	 *
-	 * @param noTable
-	 *            If {@code true}, plugin will not output the "detailed table"
-	 *            containing all the retrieved profiles. Note that the Summary
-	 *            "Sholl Results" table is always displayed.
-	 *
-	 * @see #setNoPlots(boolean)
-	 */
-	public static void setNoTable(final boolean noTable) {
-		Sholl_Analysis.noTable = noTable;
-	}
-
-	/**
 	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
 	 * plots.
 	 *
