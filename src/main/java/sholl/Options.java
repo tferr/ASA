@@ -87,6 +87,8 @@ public class Options implements PlugIn {
 	static final int KURTOSIS = 16384;
 	static final int CENTROID = 0x8000;
 	static final int P1090_REGRESSION = 0x10000;
+	static final int NO_PLOTS = 0x20000;
+	static final int NO_TABLE = 0x40000;
 
 	private final static String METRICS_KEY = "sholl.metrics";
 
@@ -309,6 +311,20 @@ public class Options implements PlugIn {
 		labels[idx] = "P10-P90 regression";
 		states[idx++] = (currentMetrics & P1090_REGRESSION) != 0;
 
+		// Output options
+		final int outputOptions = 2;
+		final String[] outputLabels = new String[outputOptions];
+		final int[] outputItems = new int[outputOptions];
+		final boolean[] outputStates = new boolean[outputOptions];
+		idx = 0;
+
+		outputItems[idx] = NO_PLOTS;
+		outputLabels[idx] = "Do_not_generate_plots";
+		outputStates[idx++] = (currentMetrics & NO_PLOTS) != 0;
+		outputItems[idx] = NO_TABLE;
+		outputLabels[idx] = "Do_not_generate_detailed_table";
+		outputStates[idx++] = (currentMetrics & NO_TABLE) != 0;
+
 		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Metrics and Options");
 		final Font font = new Font("SansSerif", Font.BOLD, 12);
 
@@ -316,8 +332,14 @@ public class Options implements PlugIn {
 		gd.setInsets(0, 0, 0);
 		gd.addMessage("Sholl Results Table:", font);
 		gd.setInsets(0, 0, 0);
-		gd.addCheckboxGroup(nOptions/2, 2, labels, states);
+		gd.addCheckboxGroup(nOptions / 2, 2, labels, states);
 		gd.addStringField("Append comment:", getCommentString(), 20);
+
+		// Output files
+		gd.setInsets(15, 0, 0);
+		gd.addMessage("Output Files:", font);
+		gd.setInsets(0, 0, 0);
+		gd.addCheckboxGroup(outputOptions, 1, outputLabels, outputStates);
 
 		// Intersections mask
 		if (!skipBitmapOptions) {
@@ -344,15 +366,24 @@ public class Options implements PlugIn {
 			return;
 		} else if (gd.wasOKed()) {
 
-			// Sholl prefs
+			// Sholl Table prefs
 			for (int i = 0; i < nOptions; i++) {
 				if (gd.getNextBoolean())
 					currentMetrics |= items[i];
 				else
 					currentMetrics &= ~items[i];
 			}
-			Prefs.set(METRICS_KEY, currentMetrics);
 			setCommentString(gd.getNextString());
+
+			// Output prefs
+			for (int i = 0; i < outputOptions; i++) {
+				if (gd.getNextBoolean())
+					currentMetrics |= outputItems[i];
+				else
+					currentMetrics &= ~outputItems[i];
+			}
+			Prefs.set(METRICS_KEY, currentMetrics);
+
 			if (!skipBitmapOptions) {
 				setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));
 				setMaskType(gd.getNextChoiceIndex());
