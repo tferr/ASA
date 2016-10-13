@@ -484,6 +484,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// double[] fvaluesLOG = null;
 
 		// Create plots
+		noPlots = ((prefs & Options.NO_PLOTS) != 0);
 		if (shollN) {
 			final Plot plotN;
 			if (noPlots) {
@@ -563,6 +564,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
+		noTable = ((prefs & Options.NO_TABLE) != 0);
 		if (!noTable) {
 			ResultsTable rt;
 			final String profileTable = getDescription() + "_Sholl-Profiles";
