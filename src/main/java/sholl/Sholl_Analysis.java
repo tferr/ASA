@@ -3319,7 +3319,18 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            The path to the directory where results should be saved.
 	 *            {@code null} not allowed.
 	 */
-	public void setExportPath(String exportDir) {
+	public void setExportPath(final String exportDir) {
+		setExportPath(exportDir, true);
+	}
+
+	/**
+	 * @param exportDir
+	 *            The path to the directory where results should be saved.
+	 *            {@code null} not allowed.
+	 * @param displaySavedFiles
+	 *            If saved plots and tables should be displayed.
+	 */
+	public void setExportPath(String exportDir, final boolean displaySavedFiles) {
 		if (exportDir == null) {
 			validPath = false;
 			return;
@@ -3328,7 +3339,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			exportDir += File.separator;
 		final File dir = new File(exportDir);
 		validPath = dir.exists() && dir.isDirectory();
+		save = validPath;
 		imgPath = exportDir;
+		hideSaved = !displaySavedFiles;
+
 	}
 
 	/**
