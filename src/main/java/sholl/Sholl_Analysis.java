@@ -230,6 +230,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
 	 *
 	 * @param arg
+	 *            If {@code image}, the plugin runs in "bitmap mode"
 	 *            If {@code csv} the plugin is set for analysis of tabular data.
 	 *            If {@code sample}, the plugin runs on a 2D demo image.
 	 */
@@ -242,8 +243,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				sError("Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
 				return;
 			}
-		} else
+		} else if (arg.equalsIgnoreCase("image")) {
+			interactiveMode = true;
 			img = WindowManager.getCurrentImage();
+		}
+
 		final Calibration cal;
 		isCSV = arg.equalsIgnoreCase("csv");
 
