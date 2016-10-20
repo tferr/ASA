@@ -195,7 +195,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
-	/* Advanced options that can be set using the API */
+	/* Advanced options and flags for API usage */
+	private boolean interactiveMode = true; // Display prompts?
 	static boolean plotLabels = true; // Describe fitted curves in plots?
 	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum &
 											// local max
@@ -248,7 +249,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (isCSV) {
 
-			if (isTableRequired() && csvRT == null) {
+			if (interactiveMode && isTableRequired() && csvRT == null) {
 				csvRT = getTable();
 				if (csvRT == null)
 					return;
@@ -986,6 +987,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	private boolean bitmapPrompt(final double chordAngle, final boolean is3D) {
 
+		if (!interactiveMode)
+			return true;
+
 		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION);
 
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
@@ -1472,6 +1476,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	private boolean csvPrompt() {
 
+		if (!interactiveMode)
+			return true;
 		if (isTableRequired() && !validTable(csvRT))
 			return false;
 
@@ -3318,6 +3324,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	public void setVerbose(final boolean verbose) {
 		Sholl_Analysis.verbose = verbose;
+	}
+
+	/**
+	 * @param interactive
+	 *            Whether prompts should be displayed prior to analysis
+	 */
+	public void setInteractiveMode(final boolean interactive) {
+		this.interactiveMode = interactive;
 	}
 
 	/**
