@@ -2908,7 +2908,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/** Simple error message */
 	private void sError(final String msg) {
-		error("", msg, false);
+		if(interactiveMode)
+			error("", msg, false);
+		else
+			IJ.log("[ERROR] "+ msg);
 	}
 
 	/** Extended error message */
@@ -3226,8 +3229,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			runInTabularMode(false);
 			csvRT = null;
 		} else {
-			lError("Profile could not be parsed or it does not contain enough data points.",
-					"N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
+			sError("Profile could not be parsed or it does not contain enough data points.\n"
+					+ "N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 		}
 		setIsTableRequired(true);
 	}
@@ -3252,8 +3255,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			is3D = threeD;
 			runInTabularMode(true);
 		} else {
-			lError("Profile could not be parsed or it does not contain enough data points.",
-					"N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
+			sError("Profile could not be parsed.");
 		}
 		setIsTableRequired(true);
 	}
