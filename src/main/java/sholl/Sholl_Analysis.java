@@ -197,8 +197,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int nSpans = 1;
 
 	/* Advanced options that can be set using the API */
-	static boolean noPlots = false; // Exclude plots from output?
-	static boolean noTable = false; // Exclude detailed table from output?
 	static boolean plotLabels = true; // Describe fitted curves in plots?
 	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum &
 											// local max
@@ -485,7 +483,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// double[] fvaluesLOG = null;
 
 		// Create plots
-		noPlots = ((prefs & Options.NO_PLOTS) != 0);
+		final boolean noPlots = ((prefs & Options.NO_PLOTS) != 0);
 		if (shollN) {
 			final Plot plotN;
 			if (noPlots) {
@@ -565,7 +563,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		noTable = ((prefs & Options.NO_TABLE) != 0);
+		final boolean noTable = ((prefs & Options.NO_TABLE) != 0);
 		if (!noTable) {
 			ResultsTable rt;
 			final String profileTable = getDescription() + "_Sholl-Profiles";
