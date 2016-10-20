@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import fiji.Debug;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -223,15 +222,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImageProcessor ip;
 	private static int progressCounter;
 
-	/**
-	 * Debug helper
-	 *
-	 * @param args
-	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
-	 */
-	public static void main(final String[] args) {
-		Debug.run("Sholl Analysis...", "");
-	}
 
 	/**
 	 * This method is called when the plugin is loaded. {@code arg} is specified
