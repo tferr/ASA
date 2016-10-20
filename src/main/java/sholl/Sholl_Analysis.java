@@ -2215,10 +2215,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            shells
 	 */
 	private void removeOverlayShells(final Overlay overlay) {
-		if (overlay != null) {
+		if (overlay != null && overlay.size() > 0) {
 			for (int i = overlay.size() - 1; i >= 0; i--) {
 				final String roiName = overlay.get(i).getName();
-				if (roiName.equals("center") || roiName.startsWith("r="))
+				if (roiName != null && (roiName.equals("center") || roiName.startsWith("r=")))
 					overlay.remove(i);
 			}
 		}
