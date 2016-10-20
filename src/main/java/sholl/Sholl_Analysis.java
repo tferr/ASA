@@ -1602,6 +1602,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Create an array to hold results
 		final double[] data = new double[nspheres = radii.length];
 
+		// Set max dimensions if we've been called outside the main run() method
+		if (maxX == 0 && maxY == 0 && minZ == 0) {
+			maxX = (int) Math.min(xc + radii[nspheres - 1], img.getWidth());
+			maxY = (int) Math.min(yc + radii[nspheres - 1], img.getHeight());
+			maxZ = (int) Math.min(zc + radii[nspheres - 1], img.getNSlices());
+		}
+
 		// Get Image Stack
 		final ImageStack stack = (img.isComposite()) ? ChannelSplitter.getChannel(img, channel) : img.getStack();
 
