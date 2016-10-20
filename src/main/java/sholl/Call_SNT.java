@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -376,7 +377,10 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 	 * We'll need to remove those to avoid I/O errors.
 	 */
 	private String normalizedPath(final String path) {
-		return path.replaceAll("\\" + File.separator + "+", File.separator);
+		// This is way to simplistic: See
+		// chase-seibert.github.io/blog/2009/04/10/java-replaceall-fileseparator.html
+		return path.replaceAll(Matcher.quoteReplacement(File.separator) + "+",
+				Matcher.quoteReplacement(File.separator));
 	}
 
 }
