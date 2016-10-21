@@ -36,6 +36,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Arc2D;
 import java.awt.image.IndexColorModel;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -3042,9 +3043,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * Prompts the user for tabular data, retrieved from several sources
 	 * including 1) Importing a new text/csv file; 2) Trying to import data from
-	 * the system clipboard; 3) Importing a demo dataset populated by random
-	 * (Gaussian) values; or 4) any other {@link ij.measure.ResultsTable}
-	 * currently opened by ImageJ.
+	 * the system clipboard; or 3) any other {@link ResultsTable} currently
+	 * opened by ImageJ.
 	 *
 	 * @return A populated Results table or {@code null} if chosen source did
 	 *         not contain valid data.
@@ -3118,6 +3118,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					try {
 						final File temp = File.createTempFile("IJclipboard", ".txt");
 						temp.deleteOnExit();
+						@SuppressWarnings("resource")
 						final PrintStream out = new PrintStream(temp.getAbsolutePath());
 						out.println(clipboard);
 						out.close();
@@ -3130,7 +3131,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 							lError("", error);
 							return null;
 						}
-					} catch (final IOException ignored) {
+					} catch (final IllegalArgumentException | IOException | SecurityException ignored) {
 						rt = null;
 						lError("", "Could not extract tabular data from clipboard.");
 					}
