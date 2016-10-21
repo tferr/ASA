@@ -301,7 +301,8 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			infoMsg.setText("Error: " + warning);
 		} else {
 			infoMsg.setForeground(Utils.infoColor());
-			infoMsg.setText(defaultInfoMsg);
+			infoMsg.setText((imgPath.toLowerCase().endsWith("if")) ? defaultInfoMsg
+					: "Warning: Currently some non-TIFF files are not supported");
 		}
 		return enableOK;
 	}
