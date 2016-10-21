@@ -116,6 +116,12 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		thread.setName(thread_name);
 		Macro.setOptions(thread, null);
 
+		if (pathAndFillManager == null) {
+			throw new RuntimeException("Connection with Simple Neurite Tracer failed.\n"
+					+ "Perhaps specified image was not loaded? If this is a bug please report it at https://forum.imagej.net.\n"
+					+ "Specified arguments:\n" + options);
+		}
+
 		if (centerChoice == NO_CENTER_CHOICE) {
 			helpPrompt("Manual Selection of Center", "");
 			return;
