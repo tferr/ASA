@@ -70,6 +70,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 	private static String tracesPath;
 	private static Label infoMsg;
 	private static final String defaultInfoMsg = getDefaultInfoMessage();
+	private static final String LOAD_DIRECTORY_KEY = "tracing.Simple_Neurite_Tracer.lastTracesLoadDirectory";
 	private static boolean debug = false;
 
 	public static void main(final String[] args) {
@@ -93,6 +94,8 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			IJ.error("Error", "Invalid image or invalid Traces/SWC file\n \n" + imgPath + "\n" + tracesPath);
 			return;
 		}
+
+		Prefs.set(LOAD_DIRECTORY_KEY, new File(tracesPath).getParent()); //tracesPath cannot be null at this point
 
 		IJ.showStatus("Waiting for SNT to load the data. Please wait...");
 
@@ -305,7 +308,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 	}
 
 	private void guessInitialPaths() {
-		final String lastDirPath = Prefs.get("tracing.Simple_Neurite_Tracer.lastTracesLoadDirectory", null);
+		final String lastDirPath = Prefs.get(LOAD_DIRECTORY_KEY, null);
 		if (lastDirPath != null && !lastDirPath.isEmpty()) {
 			final File lastDir = new File(lastDirPath);
 			final File[] tracing_files = lastDir.listFiles(new FileFilter() {
