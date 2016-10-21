@@ -187,11 +187,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Parameters for 2D analysis */
 	private static final String[] BIN_TYPES = { "Mean", "Median", "Mode" };
 	/** Flag for integration of repeated measures (2D analysis): average */
-	private static final int BIN_AVERAGE = 0;
+	public static final int BIN_AVERAGE = 0;
 	/** Flag for integration of repeated measures (2D analysis): median */
-	private static final int BIN_MEDIAN = 1;
+	public static final int BIN_MEDIAN = 1;
 	/** Flag for integration of repeated measures (2D analysis): mode */
-	private static final int BIN_MODE = 2;
+	public static final int BIN_MODE = 2;
 	private static int binChoice = BIN_AVERAGE;
 	private static int nSpans = 1;
 
@@ -724,7 +724,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * appends descriptors related to the fit to the summary table. Returns
 	 * fitted values or null if values.length is less than SMALLEST_DATASET
 	 */
-	private static double[] getFittedProfile(final double[][] values, final int method, final ResultsTable rt,
+	private double[] getFittedProfile(final double[][] values, final int method, final ResultsTable rt,
 			final Plot plot) {
 
 		final int size = values.length;
@@ -1593,6 +1593,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param img
 	 *            The image being analyzed
 	 * @return intersection counts (the linear profile of sampled data)
+	 * @see #setInteractiveMode(boolean)
 	 */
 	static public synchronized double[] analyze3D(final int xc, final int yc, final int zc, final double[] radii,
 			final ImagePlus img) {
@@ -1805,13 +1806,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the number of samples to be retrieved at each radius
 	 * @param bintype
 	 *            flag for integration of multiple samples:
-	 *            {@value #BIN_AVERAGE}, {@value #BIN_MEDIAN} or
-	 *            {@value #BIN_MODE}
+	 *            {@link #BIN_AVERAGE}, {@link #BIN_MEDIAN} or {@link #BIN_MODE}
 	 * @param ip
 	 *            ImageProcessor of analyzed image
 	 * @return intersection counts (the linear profile of sampled data)
+	 * @see #setInteractiveMode(boolean)
 	 */
-	static public double[] analyze2D(final int xc, final int yc, final double[] radii, final double pixelSize,
+	public double[] analyze2D(final int xc, final int yc, final double[] radii, final double pixelSize,
 			final int binsize, final int bintype, final ImageProcessor ip) {
 
 		int i, j, k, rbin, sum, size;
@@ -1909,9 +1910,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * given pixel. Requires threshold values to be set beforehand using
 	 * {@link #setThreshold(int, int)}.
 	 *
-	 * Parameters: ip the image being analyzed points the x,y pixel positions
-	 * Returns: the masked pixel arrays
-	 *
 	 * @param pixels
 	 *            the array containing the masked pixels (1: foreground,
 	 *            0:background) as returned by
@@ -1919,7 +1917,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param rawpoints
 	 *            the x,y pixel positions
 	 * @param ip
-	 *            reference to the image being analyzed
+	 *            reference to the 2D image being analyzed
 	 * @return the number of non-zero clusters
 	 */
 	static public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
@@ -1947,13 +1945,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * For a given set of points of a segmented 2D image, counts how many groups
 	 * (clusters) of 8-connected pixels exist within the set. Requires threshold
-	 * values to be set beforehand using {@link #setThreshold(int, int)
-	 * setThreshol()}.
+	 * values to be set beforehand using {@link #setThreshold(int, int)}.
 	 *
 	 * @param points
 	 *            the x,y pixel positions
 	 * @param ip
-	 *            the image being analyzed
+	 *            the 2D image being analyzed
 	 * @return the number of detected clusters
 	 * @see #countSinglePixels
 	 */
@@ -2115,7 +2112,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the circumference radius
 	 * @return the circumference points
 	 */
-	static public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
+	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
 
 		// Initialize algorithm variables
 		int i = 0, x = 0, y = radius;
@@ -2960,40 +2957,36 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
-	 * plots.
+	 * Controls the inclusion of fitting details in Sholl plots.
 	 *
 	 * @param plotLabels
-	 *            If {@code true}, plotting labels will be added, otherwise they
-	 *            will be omitted
+	 *            If {@code true}, plotting labels will be added to plots when
+	 *            performing curve fitting
 	 */
-	public static void setPlotLabels(final boolean plotLabels) {
+	public void setPlotLabels(final boolean plotLabels) {
 		Sholl_Analysis.plotLabels = plotLabels;
 	}
 
 	/**
-	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
-	 * from fitted data, such as Nav and Nm.
+	 * Sets the precision used to calculate metrics from fitted data, such as
+	 * Nav and Nm.
 	 *
 	 * @param precision
 	 *            The precision value as a fraction of radius step size. Eg,
 	 *            {@code 100} sets accuracy to radiusStepSize/100
 	 */
-	public static void setPrecision(final int precision) {
+	public void setPrecision(final int precision) {
 		Sholl_Analysis.fMetricsPrecision = precision;
 	}
 
 	/**
-	 * <p>
 	 * Alternative to {@link #setPlotLabels(boolean) setPlotLabels()} to be
 	 * called by IJ macros using the
 	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
 	 * call()</a> built-in macro function
-	 * </p>
 	 *
 	 * <p>
-	 * Instructs {@link Sholl_Analysis} to display fitting details in Sholl
-	 * plots. An error message is displayed in the IJ Log window if
+	 * An error message is displayed in the IJ Log window if
 	 * {@code booleanString} can not be parsed. Usage example:
 	 * {@code call("sholl.Sholl_Analysis.setPlotLabels", "false");}
 	 * </p>
@@ -3007,17 +3000,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * <p>
 	 * Alternative to {@link #setPrecision(int) setPrecision()} to be called by
 	 * IJ macros using the
 	 * <a href="http://imagej.nih.gov/ij/developer/macro/functions.html#call">
 	 * call()</a> built-in macro function
-	 * </p>
 	 *
 	 * <p>
-	 * Sets the precision used by {@link Sholl_Analysis} to calculate metrics
-	 * from fitted data, such as Nav and Nm. An error message is displayed in
-	 * the IJ Log window if {@code intString} is invalid. Usage example:
+	 * An error message is displayed in the IJ Log window if {@code intString}
+	 * is invalid. Usage example:
 	 * {@code call("sholl.Sholl_Analysis.setPrecision", "1000");}
 	 * </p>
 	 *
@@ -3175,9 +3165,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/**
 	 * Instructs the plugin to parse the specified table expected to contain a
-	 * sampled profile. Analysis is not headless (user is prompted for input
-	 * options. Does nothing if the specified table is {@code null} or if does
-	 * not contain the specified column indices.
+	 * sampled profile. Does nothing if the specified table does not contain the
+	 * specified column indices.
 	 *
 	 * @param rt
 	 *            the input {@link ResultsTable}
@@ -3189,6 +3178,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            3D analysis?
 	 *
 	 * @see #validTable(ResultsTable)
+	 * @see #setInteractiveMode(boolean)
 	 */
 	public void analyzeTabularInput(final ResultsTable rt, final int rCol, final int cCol, final boolean threeD) {
 		if (rt != null && rt.columnExists(rCol) && rt.columnExists(cCol)) {
@@ -3208,8 +3198,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/**
 	 * Instructs the plugin to parse the specified file expected to contain a
-	 * sampled profile. Analysis is not headless (user is prompted for input
-	 * options and will be warned if file does not contain valid data).
+	 * sampled profile.
 	 *
 	 * @param csvFile
 	 *            the input file expected to contain tabular data in any of the
@@ -3222,6 +3211,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            3D analysis?
 	 * @throws IOException
 	 *             if file could be opened.
+	 * @see #setInteractiveMode(boolean)
 	 */
 	public void analyzeTabularInput(final File csvFile, final int rCol, final int cCol, final boolean threeD)
 			throws IOException {
@@ -3243,9 +3233,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Analyzes a sampled profile. Analysis is not headless (user is prompted
-	 * for analysis options and will be warned if file does not contain valid
-	 * data).
+	 * Analyzes a sampled profile.
 	 *
 	 * @param distances
 	 *            the array containing radii
@@ -3253,6 +3241,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the array containing intersection counts
 	 * @param threeD
 	 *            3D profile?
+	 * @see #setInteractiveMode(boolean)
 	 */
 	public void analyzeProfile(final double[] distances, final double[] inters, final boolean threeD) {
 		if (distances != null && inters != null) {
@@ -3318,6 +3307,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param exportDir
 	 *            The path to the directory where results should be saved.
 	 *            {@code null} not allowed.
+	 * @see #setExportPath(String, boolean)
 	 */
 	public void setExportPath(final String exportDir) {
 		setExportPath(exportDir, true);
@@ -3326,7 +3316,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * @param exportDir
 	 *            The path to the directory where results should be saved.
-	 *            {@code null} not allowed.
+	 *            {@code null} not allowed. Files will only be saved if the
+	 *            specified path is valid.
 	 * @param displaySavedFiles
 	 *            If saved plots and tables should be displayed.
 	 */
@@ -3342,7 +3333,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		save = validPath;
 		imgPath = exportDir;
 		hideSaved = !displaySavedFiles;
-
 	}
 
 	/**
@@ -3354,14 +3344,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
+	 * Instructs the plugin to run in headless mode or with user interaction.
+	 *
 	 * @param interactive
-	 *            Whether prompts should be displayed prior to analysis
+	 *            Whether dialog prompts should be displayed to collect input
+	 *            from the user
 	 */
 	public void setInteractiveMode(final boolean interactive) {
 		this.interactiveMode = interactive;
 	}
 
 	/**
+	 * Associates the analysis with an identifier.
+	 *
 	 * @param label
 	 *            the label describing the analysis. It is used in the titles of
 	 *            frames and images when displaying results
