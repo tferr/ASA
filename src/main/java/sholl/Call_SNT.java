@@ -104,6 +104,8 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			options += " use_three_pane";
 		if (haveJava3D() && use3DViewer)
 			options += " choice=[Create New 3D Viewer]";
+		else
+			options += " choice=[No 3D view]";
 		options += " resampling=1";
 
 		// Set options for current thread before running Simple_Neurite_Tracer.
@@ -210,7 +212,7 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 		gd.addFileField("Image:", imgPath, 35);
 		gd.addFileField("Traces/SWC file:", tracesPath, 35);
 		gd.addChoice("Center of analysis", CENTER_CHOICES, CENTER_CHOICES[centerChoice]);
-		gd.addCheckbox("Use_three_pane view", !single_pane);
+		gd.addCheckbox("Use_three_pane view", single_pane);
 		gd.addCheckbox("Use_3D_viewer", use3DViewer);
 		gd.addMessage(defaultInfoMsg);
 		infoMsg = (Label) gd.getMessage();
