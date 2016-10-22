@@ -100,7 +100,17 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 
 		IJ.showStatus("Waiting for SNT to load the data. Please wait...");
 
-		String options = "imagefilename=[" + imgPath + "] tracesfilename=[" + tracesPath + "]";
+		/*
+		 * SNT will use BatchOpener that is highly restrictive (tiff files plus
+		 * a couple of clsm proprietary formats). We want to allow SWC files
+		 * obtained outside IJ, so it is benefitial to allow any format
+		 * recognized by IJ and bio-formats. Rather than passing the image as a
+		 * macro argument, to be handled BatchOpener, we'll simply open it now
+		 * and let SNT retrieve it as the active image.
+		 */
+		IJ.openImage(imgPath).show();
+		//String options = "imagefilename=[" + imgPath + "]";
+		String options = " tracesfilename=[" + tracesPath + "]";
 		if (!single_pane)
 			options += " use_three_pane";
 		if (haveJava3D() && use3DViewer)
