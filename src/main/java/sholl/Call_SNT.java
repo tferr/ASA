@@ -22,6 +22,7 @@
 package sholl;
 
 import java.awt.AWTEvent;
+import java.awt.EventQueue;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -174,8 +175,16 @@ public class Call_SNT extends Simple_Neurite_Tracer implements DialogListener {
 			}
 			if (shollCenter != null) {
 				xy_tracer_canvas.getTracerPlugin().clickForTrace(shollCenter.x, shollCenter.y, shollCenter.z, false);
-				new ShollAnalysisDialog("Sholl analysis for tracing of " + this.getImagePlus().getTitle(),
-						shollCenter.x, shollCenter.y, shollCenter.z, pathAndFillManager, this.getImagePlus());
+				final ShollAnalysisDialog sad = new ShollAnalysisDialog(
+						"Sholl analysis for " + new File(tracesPath).getName(), shollCenter.x, shollCenter.y,
+						shollCenter.z, pathAndFillManager, this.getImagePlus());
+				EventQueue.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						if (sad.isShowing())
+							sad.actionPerformed(new ActionEvent(sad, ActionEvent.ACTION_PERFORMED, "analyze"));
+					}
+				});
 			} else {
 				helpPrompt("Center Point Not Found",
 						"No points associated with \"" + CENTER_CHOICES[centerChoice] + "\".");
