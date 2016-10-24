@@ -1490,7 +1490,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (isTableRequired() && !validTable(csvRT))
 			return false;
 
-		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION + " (Tabular Data)");
+		final EnhancedGenericDialog gd = new EnhancedGenericDialog("Sholl Analysis v" + VERSION);
 		final Font headerFont = new Font("SansSerif", Font.BOLD, 12);
 		final int xIndent = 40;
 		gd.setInsets(0, 0, 0);
