@@ -14,9 +14,18 @@ Development Builds
 
 Release Builds
 --------------
-####Version 3.6.7 (October 2016)
+####Version 3.6.8 (October 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 
+* Bug fixes ([#18](https://github.com/tferr/ASA/issues/18), [#19](https://github.com/tferr/ASA/issues/19))
+* Allow plugin to run headless ([example](http://imagej.net/Sholl_Analysis#Advanced_Usage))
+* The _Analyze>Sholl>Sholl (Tracings)..._ plugin is now part of [SNT](https://github.com/fiji/Simple_Neurite_Tracer) to allow:
+   * Loading of tracings without associated image
+   * Perform filtering by SWC labels
+   * Allow true batch analysis of traced data
+* Updated [documentation page](http://imagej.net/Sholl) to reflect v3.6 changes
+
+####Version 3.6.7 (October 2016)
 * Fixed an issue that did not allow _Analyze>Sholl>Sholl (Tracings)..._ to be macro recordable
 * Results files can be saved in any directory, not just the input one
 * _Analyze>Sholl>Metrics & Options..._ now includes settings for output files
