@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Arc2D;
 import java.awt.image.IndexColorModel;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -197,10 +196,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private int nSpans = 1;
 
 	/* Advanced options and flags for API usage */
-	private boolean interactiveMode = true; // Display prompts?
-	private static boolean plotLabels = true; // Describe fitted curves in plots?
-	private static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum &
-											// local max
+	/* Display prompts? */
+	private boolean interactiveMode = true;
+	/* Describe fitted curves in plots? */
+	private static boolean plotLabels = true;
+	/* How many discretization steps for Riemann sum & local max? */
+	private static int fMetricsPrecision = 1000;
 
 	// If the edge of a group of pixels lies tangent to the sampling circle,
 	// multiple intersections with that circle will be counted. With this flag
@@ -224,16 +225,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImageProcessor ip;
 	private static int progressCounter;
 
-
 	/**
 	 * This method is called when the plugin is loaded. {@code arg} is specified
 	 * in {@code plugins.config}. See
 	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
 	 *
 	 * @param arg
-	 *            If {@code image}, the plugin runs in "bitmap mode"
-	 *            If {@code csv} the plugin is set for analysis of tabular data.
-	 *            If {@code sample}, the plugin runs on a 2D demo image.
+	 *            If {@code image}, the plugin runs in "bitmap mode" If
+	 *            {@code csv} the plugin is set for analysis of tabular data. If
+	 *            {@code sample}, the plugin runs on a 2D demo image.
 	 */
 	@Override
 	public void run(final String arg) {
@@ -1423,12 +1423,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		// Disable fields common to both prompts
 		iesave.setEnabled(validPath);
-		//ieimgPath.setEnabled(save);
+		// ieimgPath.setEnabled(save);
 		iehideSaved.setEnabled(save);
 		Color pathFieldForeground = Color.BLACK;
 		if (!save)
 			pathFieldForeground = Utils.getDisabledComponentColor();
-		if(!validPath)
+		if (!validPath)
 			pathFieldForeground = Color.RED;
 		ieimgPath.setForeground(pathFieldForeground);
 		ieprimaryBranches.setEnabled(!inferPrimary);
@@ -2764,8 +2764,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Calls plotRegression for both regressions as specified in Options */
-	private void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt,
-			final String method) {
+	private void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt, final String method) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
@@ -2913,10 +2912,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/** Simple error message */
 	private void sError(final String msg) {
-		if(interactiveMode)
+		if (interactiveMode)
 			error("", msg, false);
 		else
-			IJ.log("[ERROR] "+ msg);
+			IJ.log("[ERROR] " + msg);
 	}
 
 	/** Extended error message */
