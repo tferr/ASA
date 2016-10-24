@@ -271,6 +271,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (isTableRequired()) {
 				radii = csvRT.getColumnAsDoubles(rColumn);
 				counts = csvRT.getColumnAsDoubles(cColumn);
+				if (radii == null || counts == null) {
+					sError("Chosen columns are empty");
+					return;
+				}
 				if (limitCSV) {
 					final TextPanel tp = Sholl_Utils.getTextWindow(getDescription()).getTextPanel();
 					final int startRow = tp.getSelectionStart();
