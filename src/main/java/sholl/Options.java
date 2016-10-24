@@ -62,10 +62,10 @@ import sholl.gui.Utils;
 public class Options implements PlugIn {
 
 	/** The Menu entry of this plugin as specified in plugins.config **/
-	static final String COMMAND_LABEL = "Metrics & Options...";
+	public static final String COMMAND_LABEL = "Metrics & Options...";
 
 	/** Argument for {@link #run(String)} **/
-	static final String SKIP_BITMAP_OPTIONS_LABEL = "skip-bitmap";
+	public static final String SKIP_BITMAP_OPTIONS_LABEL = "skip-bitmap";
 	/** Argument for {@link #run(String)} **/
 	static final String RESET_OPTIONS_LABEL = "reset";
 
