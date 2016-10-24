@@ -284,8 +284,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 								+ "analysis ignored: Not a valid selection of rows");
 					}
 				}
+				stepRadius = (radii.length > 1) ? radii[1] - radii[0] : Double.NaN;
 			}
-			stepRadius = (radii.length > 1) ? radii[1] - radii[0] : Double.NaN;
 			startRadius = radii[0];
 			endRadius = radii[radii.length - 1];
 			if (normChoice == NORMS3D.length - 1 && (Double.isNaN(stepRadius) || stepRadius <= 0)) {
@@ -3176,7 +3176,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the index of the intersections count column
 	 * @param threeD
 	 *            3D analysis?
-	 *
+	 * @see #setStepRadius(double)
 	 * @see #validTable(ResultsTable)
 	 * @see #setInteractiveMode(boolean)
 	 */
@@ -3212,6 +3212,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @throws IOException
 	 *             if file could be opened.
 	 * @see #setInteractiveMode(boolean)
+	 * @see #setStepRadius(double)
 	 */
 	public void analyzeTabularInput(final File csvFile, final int rCol, final int cCol, final boolean threeD)
 			throws IOException {
@@ -3410,5 +3411,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	public void setUnit(final String unit) {
 		this.unit = unit;
+	}
+
+	/**
+	 * Sets the radius step size (shell spacing).
+	 *
+	 * @param stepRadius
+	 *            the step size in physical units
+	 */
+	public void setStepRadius(final double stepRadius) {
+		this.stepRadius = stepRadius;
 	}
 }
