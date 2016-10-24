@@ -119,71 +119,71 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final int AREA_NORM = 0;
 	private static final int PERIMETER_NORM = 1;
 	private static final int ANNULUS_NORM = 2;
-	private static int normChoice;
+	private int normChoice;
 
 	/* Ramification Indices */
-	private static double primaryBranches = Double.NaN;
-	private static boolean inferPrimary;
-	private static boolean primaryFromPointRoi = false;
-	private static int multipointCount;
+	private double primaryBranches = Double.NaN;
+	private boolean inferPrimary;
+	private boolean primaryFromPointRoi = false;
+	private int multipointCount;
 
 	/* Curve Fitting, Results and Descriptors */
-	private static boolean fitCurve = true;
+	private boolean fitCurve = true;
 	private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree",
 			"7th degree", "8th degree", "Best fitting degree" };
 	private static final int SMALLEST_DATASET = 6;
 	private static final String SHOLLTABLE = "Sholl Results";
-	private static double[] centroid = null;
-	private static int enclosingCutOff = 1;
-	private static boolean chooseLog = true;
+	private double[] centroid = null;
+	private int enclosingCutOff = 1;
+	private boolean chooseLog = true;
 
 	/* Image path and Output Options */
-	private static boolean validPath;
-	private static boolean hideSaved;
-	private static String imgPath;
-	private static String imgTitle;
+	private boolean validPath;
+	private boolean hideSaved;
+	private String imgPath;
+	private String imgTitle;
 
 	/* Default parameters and input values */
-	private static double startRadius = 10.0;
-	private static double endRadius = 100.0;
-	private static double stepRadius = 1;
-	private static double incStep = 0;
-	private static int polyChoice = DEGREES.length - 1;
-	private static boolean verbose;
-	private static boolean mask;
-	private static boolean overlayShells;
-	private static boolean save;
-	private static boolean isCSV = false;
+	private double startRadius = 10.0;
+	private double endRadius = 100.0;
+	private double stepRadius = 1;
+	private double incStep = 0;
+	private int polyChoice = DEGREES.length - 1;
+	private boolean verbose;
+	private boolean mask;
+	private boolean overlayShells;
+	private boolean save;
+	private boolean isCSV;
 
 	/* Common variables */
 	private String unit = "pixels";
-	private static double vxSize = 1;
-	private static double vxWH = 1;
-	private static double vxD = 1;
-	private static boolean is3D;
-	private static double lowerT;
-	private static double upperT;
+	private double vxSize = 1;
+	private double vxWH = 1;
+	private double vxD = 1;
+	private boolean is3D;
+	private double lowerT;
+	private double upperT;
 
 	/* Boundaries and center of analysis */
-	private static boolean orthoChord = false;
-	private static boolean trimBounds;
-	private static String[] quads = new String[2];
+	private boolean orthoChord = false;
+	private boolean trimBounds;
+	private final String[] quads = new String[2];
 	private static final String QUAD_NORTH = "Above line";
 	private static final String QUAD_SOUTH = "Below line";
 	private static final String QUAD_EAST = "Left of line";
 	private static final String QUAD_WEST = "Right of line";
-	private static String quadString = "None";
-	private static int quadChoice;
-	private static int minX, maxX;
-	private static int minY, maxY;
-	private static int minZ, maxZ;
+	private String quadString = "None";
+	private int quadChoice;
+	private int minX, maxX;
+	private int minY, maxY;
+	private int minZ, maxZ;
 	private int x;
 	private int y;
 	private int z;
-	private static int channel;
+	private int channel;
 
 	/* Parameters for 3D analysis */
-	private static boolean skipSingleVoxels = false;
+	private boolean skipSingleVoxels = false;
 
 	/* Parameters for 2D analysis */
 	private static final String[] BIN_TYPES = { "Mean", "Median", "Mode" };
@@ -193,13 +193,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	public static final int BIN_MEDIAN = 1;
 	/** Flag for integration of repeated measures (2D analysis): mode */
 	public static final int BIN_MODE = 2;
-	private static int binChoice = BIN_AVERAGE;
-	private static int nSpans = 1;
+	private int binChoice = BIN_AVERAGE;
+	private int nSpans = 1;
 
 	/* Advanced options and flags for API usage */
 	private boolean interactiveMode = true; // Display prompts?
-	static boolean plotLabels = true; // Describe fitted curves in plots?
-	static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum &
+	private static boolean plotLabels = true; // Describe fitted curves in plots?
+	private static int fMetricsPrecision = 1000; // Discretization steps, Riemann sum &
 											// local max
 
 	// If the edge of a group of pixels lies tangent to the sampling circle,
@@ -217,9 +217,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private boolean limitCSV;
 	private boolean tableRequired = true;
 
-	private static double[] radii;
-	private static double[] counts;
-	private static int prefs;
+	private double[] radii;
+	private double[] counts;
+	private int prefs;
 	private ImagePlus img;
 	private ImageProcessor ip;
 	private static int progressCounter;
@@ -920,7 +920,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Obtains the "Determination Ratio", used to choose between semi-log and
 	 * log-log methods: (R^2 semi-log regression)/(R^2 log-log regression)
 	 */
-	static private double getDeterminationRatio(final double semilog[][], final double[][] loglog) {
+	private double getDeterminationRatio(final double semilog[][], final double[][] loglog) {
 
 		final int size = semilog.length;
 		final double[] slx = new double[size];
@@ -957,7 +957,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Guesses the polynomial of best fit by comparison of coefficient of
 	 * determination
 	 */
-	static private int getBestPolyFit(final double x[], final double[] y) {
+	private int getBestPolyFit(final double x[], final double[] y) {
 
 		final int[] polyList = { CurveFitter.POLY2, CurveFitter.POLY3, CurveFitter.POLY4, CurveFitter.POLY5,
 				CurveFitter.POLY6, CurveFitter.POLY7, CurveFitter.POLY8 };
@@ -1596,7 +1596,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return intersection counts (the linear profile of sampled data)
 	 * @see #setInteractiveMode(boolean)
 	 */
-	static public synchronized double[] analyze3D(final int xc, final int yc, final int zc, final double[] radii,
+	public synchronized double[] analyze3D(final int xc, final int yc, final int zc, final double[] radii,
 			final ImagePlus img) {
 
 		int nspheres;
@@ -1713,7 +1713,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Returns true if at least one of the 6-neighboring voxels of this position
 	 * is thresholded and if position does not correspond to an edge voxel.
 	 */
-	static private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
+	private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
 
 		final int[][] neighboors = new int[6][3];
 
@@ -1754,7 +1754,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the the x,y,z voxel positions
 	 * @return the number of detected clusters
 	 */
-	static public int count3Dgroups(final ArrayList<int[]> points) {
+	public int count3Dgroups(final ArrayList<int[]> points) {
 
 		int target, source, groups, len;
 
@@ -1921,7 +1921,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            reference to the 2D image being analyzed
 	 * @return the number of non-zero clusters
 	 */
-	static public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
+	public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 
 		int i, j;
 		int[][] points;
@@ -1955,7 +1955,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the number of detected clusters
 	 * @see #countSinglePixels
 	 */
-	static public int countGroups(final int[][] points, final ImageProcessor ip) {
+	public int countGroups(final int[][] points, final ImageProcessor ip) {
 
 		int i, j, k, target, source, groups, len, dx;
 
@@ -2005,7 +2005,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Counts 1-pixel groups that exist solely on the edge of a "stair" of
 	 * target pixels
 	 */
-	static private int countSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
+	private int countSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
 			final ImageProcessor ip) {
 
 		int counts = 0;
@@ -2079,7 +2079,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the x,y pixel positions
 	 * @return the masked pixel arrays
 	 */
-	static public int[] getPixels(final ImageProcessor ip, final int[][] points) {
+	public int[] getPixels(final ImageProcessor ip, final int[][] points) {
 
 		int value;
 
@@ -2287,8 +2287,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the upper threshol value
 	 */
 	public void setThreshold(final int lower, final int upper) {
-		Sholl_Analysis.lowerT = lower;
-		Sholl_Analysis.upperT = upper;
+		this.lowerT = lower;
+		this.upperT = upper;
 	}
 
 	private ImagePlus makeMask(final String ttl, final double[][] values, final int xc, final int yc,
@@ -2664,7 +2664,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Transforms data */
-	private static double[][] transformValues(final double[][] values, final boolean normY, final boolean logY,
+	private double[][] transformValues(final double[][] values, final boolean normY, final boolean logY,
 			final boolean logX) {
 
 		double x, y;
@@ -2764,7 +2764,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Calls plotRegression for both regressions as specified in Options */
-	private static void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt,
+	private void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt,
 			final String method) {
 
 		final int size = values.length;
@@ -2783,7 +2783,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * Performs linear regression using the full range data or percentiles 10-90
 	 */
-	private static void plotRegression(final double[] x, final double[] y, final boolean trim, final Plot plot,
+	private void plotRegression(final double[] x, final double[] y, final boolean trim, final Plot plot,
 			final ResultsTable rt, final String method) {
 
 		final int size = x.length;
@@ -2855,7 +2855,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Saves plot according to imgPath */
-	private static void savePlot(final Plot plot, final int shollChoice) {
+	private void savePlot(final Plot plot, final int shollChoice) {
 
 		if (!validPath || (validPath && !hideSaved))
 			plot.show();
@@ -3341,7 +3341,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            Whether details on curve fitting should be displayed
 	 */
 	public void setVerbose(final boolean verbose) {
-		Sholl_Analysis.verbose = verbose;
+		this.verbose = verbose;
 	}
 
 	/**
@@ -3375,7 +3375,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * @return the label describing the analysis
 	 */
-	public static String getDescription() {
+	public String getDescription() {
 		return imgTitle;
 	}
 
