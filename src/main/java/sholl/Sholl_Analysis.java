@@ -2529,7 +2529,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				gd.disposeWithouRecording();
-				IJ.runPlugIn(sholl.Call_SNT.class.getName(), "");
+				IJ.runPlugIn("Sholl Analysis (Tracings)...", "");
 			}
 		});
 		mi.setEnabled(!analyzingTraces);
