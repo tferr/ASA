@@ -2529,19 +2529,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				gd.disposeWithouRecording();
-				IJ.runPlugIn("Sholl Analysis (Tracings)...", "");
+				IJ.runPlugIn("tracing.ShollAnalysisPlugin","");//FIXME will break if ShollAnalysisPlugin changes path
 			}
 		});
 		mi.setEnabled(!analyzingTraces);
 		popup.add(mi);
 		popup.addSeparator();
-		mi = new JMenuItem("Online documentation");
-		mi.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				IJ.runPlugIn(ij.plugin.BrowserLauncher.class.getName(), URL);
-			}
-		});
+		mi = new JMenuItem();
+		mi = sholl.gui.Utils.menuItemTrigerringURL("Online documentation", URL);
 		popup.add(mi);
 		mi = sholl.gui.Utils.menuItemTriggeringResources();
 		popup.add(mi);
