@@ -10,7 +10,7 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* No major changes to report
+* Fixed non-responsive commands in contextual menu
 
 Release Builds
 --------------
