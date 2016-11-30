@@ -10,13 +10,15 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 Development Builds
 ------------------
-* Fixed non-responsive commands in contextual menu
+* No major changes to report
 
 Release Builds
 --------------
-####Version 3.6.8 (October 2016)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+####Version 3.6.9 (October 2016)
+* Fixed non-responsive commands in contextual menu
 
+####Version 3.6.8 (October 2016)
 * Bug fixes ([#18](https://github.com/tferr/ASA/issues/18), [#19](https://github.com/tferr/ASA/issues/19))
 * Allow plugin to run headless ([example](http://imagej.net/Sholl_Analysis#Advanced_Usage))
 * The _Analyze>Sholl>Sholl (Tracings)..._ plugin is now part of [SNT](https://github.com/fiji/Simple_Neurite_Tracer) to allow:
