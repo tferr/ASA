@@ -3115,7 +3115,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					try {
 						final File temp = File.createTempFile("IJclipboard", ".txt");
 						temp.deleteOnExit();
-						@SuppressWarnings("resource")
 						final PrintStream out = new PrintStream(temp.getAbsolutePath());
 						out.println(clipboard);
 						out.close();
