@@ -107,10 +107,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final int SHOLL_NS = 1;
 	private static final int SHOLL_SLOG = 2;
 	private static final int SHOLL_LOG = 3;
-	private static boolean shollN = true;
-	private static boolean shollNS = false;
-	private static boolean shollSLOG = true;
-	private static boolean shollLOG = false;
+	private boolean shollN = true;
+	private boolean shollNS = false;
+	private boolean shollSLOG = true;
+	private boolean shollLOG = false;
 
 	/* Data Normalization */
 	private static final String[] NORMS2D = { "Area", "Perimeter", "Annulus" };
@@ -2545,7 +2545,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Retrieves the median of an array */
-	private static double getMedian(final double[] array) {
+	private double getMedian(final double[] array) {
 		final int size = array.length;
 		Arrays.sort(array);
 		final double median;
@@ -2723,7 +2723,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Returns a plot with some axes customizations */
-	private static Plot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
+	private Plot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
 
 		// Extract values
 		final int size = xy.length;
@@ -2754,7 +2754,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Sets plot limits imposing grid lines */
-	private static void setPlotLimits(final Plot plot, final double[] xScale, final double[] yScale) {
+	private void setPlotLimits(final Plot plot, final double[] xScale, final double[] yScale) {
 
 		final boolean gridState = PlotWindow.noGridLines;
 		PlotWindow.noGridLines = false;
@@ -2935,7 +2935,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Returns the mean, variance, skewness and kurtosis of an array of
 	 * univariate data. Code from ij.process.ByteStatistics
 	 */
-	private final static double[] getMoments(final double values[]) {
+	private double[] getMoments(final double values[]) {
 		final int npoints = values.length;
 		double v, v2, sum1 = 0.0, sum2 = 0.0, sum3 = 0.0, sum4 = 0.0;
 		for (int i = 0; i < npoints; i++) {
@@ -3155,11 +3155,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	private static int getThreadedCounter() {
+	private int getThreadedCounter() {
 		return progressCounter;
 	}
 
-	private static void setThreadedCounter(final int updatedCounter) {
+	private void setThreadedCounter(final int updatedCounter) {
 		progressCounter = updatedCounter;
 	}
 
