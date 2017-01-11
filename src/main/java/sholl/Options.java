@@ -87,7 +87,6 @@ public class Options implements PlugIn {
 	static final int KURTOSIS = 16384;
 	static final int CENTROID = 0x8000;
 	static final int P1090_REGRESSION = 0x10000;
-	static final int NO_PLOTS = 0x20000;
 	static final int NO_TABLE = 0x40000;
 
 	private final static String METRICS_KEY = "sholl.metrics";
@@ -100,10 +99,20 @@ public class Options implements PlugIn {
 	private final static int DEFAULT_MASK_BACKGROUND = 228;
 	private final static int DEFAULT_MASK_TYPE = SAMPLED_MASK;
 
+	/* Sholl plots */
+	static final int ALL_PLOTS = 0;
+	static final int ONLY_LINEAR_PLOT = 1;
+	static final int NO_PLOTS = 2;
+	private static final String[] PLOT_OUTPUTS = new String[] { "All chosen methods", "Only linear profile",
+			"No plots" };
+	private final static String PLOT_OUTPUT_KEY = "sholl.plots";
+	private final static int DEFAULT_PLOT_OUTPUT = ALL_PLOTS;
+
 	private final static int UNSET_PREFS = -1;
 	private static int currentMetrics = UNSET_PREFS;
 	private static int maskBackground = UNSET_PREFS;
 	private static int maskType = UNSET_PREFS;
+	private static int plotOutputType = UNSET_PREFS;
 	private static String commentString = null;
 
 	private static boolean skipBitmapOptions;
@@ -186,6 +195,30 @@ public class Options implements PlugIn {
 		if (maskType == UNSET_PREFS)
 			maskType = Prefs.getInt(MASK_KEY + ".type", DEFAULT_MASK_TYPE);
 		return maskType;
+	}
+
+	/**
+	 * Sets the flag for output plots.
+	 *
+	 * @param output
+	 *            the output flag. Either Options.ALL_PLOTS,
+	 *            Options.ONLY_LINEAR_PLOT or Options.NO_PLOTS
+	 */
+	private void setPlotOutput(final int output) {
+		Prefs.set(PLOT_OUTPUT_KEY + ".out", output);
+		plotOutputType = output;
+	}
+
+	/**
+	 * Returns the flag for outputPlots.
+	 *
+	 * @return the output flag. Either Options.ALL_PLOTS,
+	 *         Options.ONLY_LINEAR_PLOT or Options.NO_PLOTS
+	 */
+	static int getPlotOutput() {
+		if (plotOutputType == UNSET_PREFS)
+			plotOutputType = Prefs.getInt(PLOT_OUTPUT_KEY + ".out", DEFAULT_PLOT_OUTPUT);
+		return plotOutputType;
 	}
 
 	/**
@@ -312,15 +345,12 @@ public class Options implements PlugIn {
 		states[idx++] = (currentMetrics & P1090_REGRESSION) != 0;
 
 		// Output options
-		final int outputOptions = 2;
+		final int outputOptions = 1;
 		final String[] outputLabels = new String[outputOptions];
 		final int[] outputItems = new int[outputOptions];
 		final boolean[] outputStates = new boolean[outputOptions];
 		idx = 0;
 
-		outputItems[idx] = NO_PLOTS;
-		outputLabels[idx] = "Do_not_generate_plots";
-		outputStates[idx++] = (currentMetrics & NO_PLOTS) != 0;
 		outputItems[idx] = NO_TABLE;
 		outputLabels[idx] = "Do_not_generate_detailed_table";
 		outputStates[idx++] = (currentMetrics & NO_TABLE) != 0;
@@ -338,8 +368,8 @@ public class Options implements PlugIn {
 		// Output files
 		gd.setInsets(15, 0, 0);
 		gd.addMessage("Output Files:", font);
-		gd.setInsets(0, 0, 0);
 		gd.addCheckboxGroup(outputOptions, 1, outputLabels, outputStates);
+		gd.addChoice("Plots to be generated:", PLOT_OUTPUTS, PLOT_OUTPUTS[getPlotOutput()]);
 
 		// Intersections mask
 		if (!skipBitmapOptions) {
@@ -383,6 +413,9 @@ public class Options implements PlugIn {
 					currentMetrics &= ~outputItems[i];
 			}
 			Prefs.set(METRICS_KEY, currentMetrics);
+
+			// Output prefs II: plot options
+			setPlotOutput(gd.getNextChoiceIndex());
 
 			if (!skipBitmapOptions) {
 				setMaskBackground(Math.min(Math.max((int) gd.getNextNumber(), 0), 255));

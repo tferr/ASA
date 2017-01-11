@@ -483,7 +483,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// double[] fvaluesLOG = null;
 
 		// Create plots
-		final boolean noPlots = ((prefs & Options.NO_PLOTS) != 0);
+		final boolean noPlots = Options.getPlotOutput() == Options.NO_PLOTS;
+		final boolean onlyLinearPlot = Options.getPlotOutput() == Options.ONLY_LINEAR_PLOT;
 		if (shollN) {
 			final Plot plotN;
 			if (noPlots) {
@@ -520,7 +521,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		if (shollNS) {
 			final Plot plotNS;
-			if (noPlots) {
+			if (noPlots || onlyLinearPlot) {
 				plotNS = null;
 			} else {
 				plotNS = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_NS] + ") for " + getDescription(),
@@ -528,13 +529,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 			if (fitCurve)
 				fvaluesNS = getFittedProfile(valuesNS, SHOLL_NS, statsTable, plotNS);
-			if (!noPlots)
+			if (!noPlots && !onlyLinearPlot)
 				savePlot(plotNS, SHOLL_NS);
 
 		}
 		if (shollSLOG) {
 			final Plot plotSLOG;
-			if (noPlots) {
+			if (noPlots || onlyLinearPlot) {
 				plotSLOG = null;
 			} else {
 				plotSLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_SLOG] + ") for " + getDescription(),
@@ -542,13 +543,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			}
 			if (fitCurve)
 				plotRegression(valuesSLOG, plotSLOG, statsTable, SHOLL_TYPES[SHOLL_SLOG]);
-			if (!noPlots)
+			if (!noPlots && !onlyLinearPlot)
 				savePlot(plotSLOG, SHOLL_SLOG);
 
 		}
 		if (shollLOG) {
 			final Plot plotLOG;
-			if (noPlots) {
+			if (noPlots || onlyLinearPlot) {
 				plotLOG = null;
 			} else {
 				plotLOG = plotValues("Sholl profile (" + SHOLL_TYPES[SHOLL_LOG] + ") for " + getDescription(),
@@ -558,7 +559,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				// fvaluesLOG = getFittedProfile(valuesLOG, SHOLL_LOG,
 				// statsTable, plotLOG);
 				plotRegression(valuesLOG, plotLOG, statsTable, SHOLL_TYPES[SHOLL_LOG]);
-			if (!noPlots)
+			if (!noPlots && !onlyLinearPlot)
 				savePlot(plotLOG, SHOLL_LOG);
 
 		}
