@@ -200,9 +200,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Display prompts? */
 	private boolean interactiveMode = true;
 	/* Describe fitted curves in plots? */
-	private static boolean plotLabels = true;
+	private boolean plotLabels = true;
 	/* How many discretization steps for Riemann sum & local max? */
-	private static int fMetricsPrecision = 1000;
+	private int fMetricsPrecision = 1000;
 
 	// If the edge of a group of pixels lies tangent to the sampling circle,
 	// multiple intersections with that circle will be counted. With this flag
@@ -472,8 +472,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			return;
 		}
 
+		if (statsTable == null)
+			initializeStatsTable();
 		// Retrieve stats on sampled data
-		initializeStatsTable();
 		populateStatsTable(getDescription(), x, y, z, valuesN);
 
 		// Transform and fit data
@@ -2562,11 +2563,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return median;
 	}
 
-	private void initializeStatsTable() {
-		if (statsTable == null) {
-			statsTable = new EnhancedResultsTable();
-			statsTable.setNaNEmptyCells(true);
-		}
+	private static void initializeStatsTable() {
+		statsTable = new EnhancedResultsTable();
+		statsTable.setNaNEmptyCells(true);
 	}
 
 	/** Populates the Sholl Summary Table with profile statistics */
@@ -2967,7 +2966,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            performing curve fitting
 	 */
 	public void setPlotLabels(final boolean plotLabels) {
-		Sholl_Analysis.plotLabels = plotLabels;
+		this.plotLabels = plotLabels;
 	}
 
 	/**
@@ -2979,7 +2978,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            {@code 100} sets accuracy to radiusStepSize/100
 	 */
 	public void setPrecision(final int precision) {
-		Sholl_Analysis.fMetricsPrecision = precision;
+		fMetricsPrecision = precision;
 	}
 
 	/**
@@ -2997,9 +2996,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param booleanString
 	 *            If {@code "true"}, plotting labels will be added.
 	 */
-	public static void setPlotLabels(final String booleanString) {
+	public void setPlotLabels(final String booleanString) {
 		if (validateBooleanString(booleanString))
-			Sholl_Analysis.plotLabels = Boolean.valueOf(booleanString);
+			this.plotLabels = Boolean.valueOf(booleanString);
 	}
 
 	/**
@@ -3019,9 +3018,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            step size. Eg, {@code "100"} sets accuracy to
 	 *            radiusStepSize/100
 	 */
-	public static void setPrecision(final String intString) {
+	public void setPrecision(final String intString) {
 		if (validateIntString(intString))
-			Sholl_Analysis.fMetricsPrecision = Integer.parseInt(intString);
+			this.fMetricsPrecision = Integer.parseInt(intString);
 	}
 
 	private static boolean validateBooleanString(final String string) {
@@ -3432,7 +3431,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the "Sholl Results" table
 	 */
 	public EnhancedResultsTable getShollTable() {
-		initializeStatsTable();
+		if (statsTable == null)
+			initializeStatsTable();
 		return statsTable;
 	}
 }

@@ -115,7 +115,7 @@ public class Options implements PlugIn {
 	private static int plotOutputType = UNSET_PREFS;
 	private static String commentString = null;
 
-	private static boolean skipBitmapOptions;
+	private boolean skipBitmapOptions;
 
 	/**
 	 * Debug helper
