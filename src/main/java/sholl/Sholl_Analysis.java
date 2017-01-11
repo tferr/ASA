@@ -3421,4 +3421,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	public void setStepRadius(final double stepRadius) {
 		this.stepRadius = stepRadius;
 	}
+
+	/**
+	 * Returns a reference to the plugin's "Sholl Results" table, displaying
+	 * summary statistics.
+	 *
+	 * @return the "Sholl Results" table
+	 */
+	public EnhancedResultsTable getShollTable() {
+		initializeStatsTable();
+		return statsTable;
+	}
 }
