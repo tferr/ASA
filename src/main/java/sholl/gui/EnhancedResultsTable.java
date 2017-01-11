@@ -38,12 +38,13 @@ import ij.text.TextWindow;
 /** Slight improvements to {@link ij.measure.ResultsTable} */
 public class EnhancedResultsTable extends ResultsTable {
 
-	private static boolean unsavedMeasurements;
-	private static boolean listenerAdded;
+	private boolean unsavedMeasurements;
+	private boolean listenerAdded;
+	private boolean isShowing;
+	private String title;
 
 	public EnhancedResultsTable() {
 		super();
-		listenerAdded = false;
 	}
 
 	/**
@@ -53,7 +54,7 @@ public class EnhancedResultsTable extends ResultsTable {
 	@Override
 	public synchronized void incrementCounter() {
 		super.incrementCounter();
-		unsavedMeasurements = true;
+		setUnsavedMeasurements(true);
 	}
 
 	/**
@@ -76,20 +77,64 @@ public class EnhancedResultsTable extends ResultsTable {
 			return;
 		window.addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(final WindowEvent e) {
+			public void windowDeactivated(final WindowEvent e) {
+				final TextWindow tw = (TextWindow) e.getWindow();
+				if (tw != null)
+					title = tw.getTitle();
+			}
 
-				final TextPanel tp = getPanel(windowTitle);
-				final int counter = getCounter();
-				final int lineCount = tp != null ? tp.getLineCount() : 0;
-				final ImageJ ij = IJ.getInstance();
-				final boolean macro = (IJ.macroRunning()) || Interpreter.isBatchMode();
-				if (counter > 0 && lineCount > 0 && unsavedMeasurements && !macro && ij != null && !ij.quitting()) {
-					promptForSave(windowTitle);
+			@Override
+			public void windowClosed(final WindowEvent e) {
+				isShowing = false;
+			}
+
+			@Override
+			public void windowClosing(final WindowEvent e) {
+				try {
+					final TextWindow tw = (TextWindow) e.getWindow();
+					final EnhancedResultsTable ert = (EnhancedResultsTable) tw.getTextPanel().getResultsTable();
+					if (!(ert.getUnsavedMeasurements() && ert.getCounter() > 0))
+						return;
+					final ImageJ ij = IJ.getInstance();
+					final boolean macro = (IJ.macroRunning()) || Interpreter.isBatchMode();
+					if (!macro && ij != null && !ij.quitting()) {
+						promptForSave(windowTitle);
+					}
+				} catch (final Exception exc) {
+					IJ.log(">>>> An error occurred when closing table:\n" + exc);
 				}
 			}
 
 		});
 		listenerAdded = true;
+		isShowing = true;
+	}
+
+	/**
+	 * Updates the ResultsTable and displays it in its own window if this
+	 * ResultsTable is already being displayed, otherwise displays the contents
+	 * of this ResultsTable in new window with the specified title.
+	 *
+	 * @param fallBackTitle
+	 *            The window title of the new TextWindow to be opened if current
+	 *            table is not being displayed
+	 *
+	 */
+	public void update(final String fallBackTitle) {
+		if (title != null && isShowing()) {
+			listenerAdded = true;
+			show(title);
+		} else {
+			listenerAdded = false;
+			show(fallBackTitle);
+		}
+	}
+
+	@Override
+	public boolean save(final String path) {
+		final boolean result = super.save(path);
+		setUnsavedMeasurements(!result);
+		return result;
 	}
 
 	private synchronized boolean promptForSave(final String tableTitle) {
@@ -101,14 +146,13 @@ public class EnhancedResultsTable extends ResultsTable {
 		gd.setOKLabel("Yes. Save to...");
 		gd.showDialog();
 		if (gd.wasOKed() && (new MeasurementsWriter()).save("")) {
-			unsavedMeasurements = false;
-			return true;
+			setUnsavedMeasurements(false);
 		}
 		return false;
 	}
 
 	TextWindow getWindow(final String title) {
-		return (TextWindow) WindowManager.getFrame(title);
+		return (TextWindow) WindowManager.getWindow(title);
 	}
 
 	TextPanel getPanel(final String title) {
@@ -116,6 +160,18 @@ public class EnhancedResultsTable extends ResultsTable {
 		if (window == null)
 			return null;
 		return window.getTextPanel();
+	}
+
+	public void setUnsavedMeasurements(final boolean unsavedMeasurements) {
+		this.unsavedMeasurements = unsavedMeasurements;
+	}
+
+	private boolean getUnsavedMeasurements() {
+		return unsavedMeasurements;
+	}
+
+	public boolean isShowing() {
+		return isShowing;
 	}
 
 }
