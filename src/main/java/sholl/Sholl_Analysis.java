@@ -578,17 +578,22 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			final EnhancedResultsTable rt = new EnhancedResultsTable();
 			rt.showRowNumbers(false);
 			rt.setPrecision(Options.getScientificNotationAwarePrecision());
-			for (int i = 0; i < valuesN.length; i++) {
+			rt.setNaNEmptyCells(true);
+			final int lastNonZeroIdx = valuesN.length -1;
+			for (int i = 0; i < radii.length; i++) {
 				rt.incrementCounter();
-				rt.addValue("Radius", valuesN[i][0]);
-				rt.addValue("Inters.", valuesN[i][1]);
+				rt.addValue("Radius", radii[i]);
+				rt.addValue("Inters.", counts[i]);
+				if (i > lastNonZeroIdx)
+					continue;
 				if (fvaluesN != null) {
-					// rt.addValue("Radius (Polynomial fit)", valuesN[i][0]);
-					rt.addValue("Inters. (Polynomial fit)", fvaluesN[i]);
+					rt.addValue("Radius (Polyn. fit)", valuesN[i][0]);
+					rt.addValue("Inters. (Polyn. fit)", fvaluesN[i]);
 				}
+				rt.addValue("Radius (norm)" + normalizerString, valuesNS[i][0]);
 				rt.addValue("Inters./" + normalizerString, valuesNS[i][1]);
 				if (fvaluesNS != null) {
-					// rt.addValue("Radius (Power fit)", valuesNS[i][0]);
+					rt.addValue("Radius (Power fit)", valuesNS[i][0]);
 					rt.addValue("Inters./" + normalizerString + " (Power fit)", fvaluesNS[i]);
 				}
 				rt.addValue("log(Radius)", valuesLOG[i][0]);
