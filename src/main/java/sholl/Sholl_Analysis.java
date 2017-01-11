@@ -131,7 +131,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree",
 			"7th degree", "8th degree", "Best fitting degree" };
 	private static final int SMALLEST_DATASET = 6;
-	private static final String SHOLLTABLE = "Sholl Results";
+	private static EnhancedResultsTable statsTable;
+	private final String STATS_TABLE_TITLE = "Sholl Results";
 	private double[] centroid = null;
 	private int enclosingCutOff = 1;
 	private boolean chooseLog = true;
@@ -472,7 +473,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// Retrieve stats on sampled data
-		final EnhancedResultsTable statsTable = createStatsTable(getDescription(), x, y, z, valuesN);
+		initializeStatsTable();
+		populateStatsTable(getDescription(), x, y, z, valuesN);
 
 		// Transform and fit data
 		final double[][] valuesNS = transformValues(valuesN, true, false, false);
@@ -613,7 +615,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				rt.show(profileTable);
 		}
 
-		statsTable.show(SHOLLTABLE);
+		statsTable.update(STATS_TABLE_TITLE);
 		String exitmsg = "Done. ";
 
 		if (isCSV) {
@@ -2556,17 +2558,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		return median;
 	}
 
-	/** Returns the Sholl Summary Table populated with profile statistics */
-	private EnhancedResultsTable createStatsTable(final String rowLabel, final int xc, final int yc, final int zc,
-			final double[][] values) {
+	private void initializeStatsTable() {
+		if (statsTable == null) {
+			statsTable = new EnhancedResultsTable();
+			statsTable.setNaNEmptyCells(true);
+		}
+	}
 
-		EnhancedResultsTable rt;
-		final TextWindow window = (TextWindow) WindowManager.getFrame(SHOLLTABLE);
-		if (window == null)
-			rt = new EnhancedResultsTable();
-		else
-			rt = (EnhancedResultsTable) window.getTextPanel().getResultsTable();
-		rt.setNaNEmptyCells(true);
+	/** Populates the Sholl Summary Table with profile statistics */
+	private void populateStatsTable(final String rowLabel, final int xc, final int yc, final int zc,
+			final double[][] values) {
 
 		double sumY = 0, maxIntersect = 0, maxR = 0, enclosingR = Double.NaN;
 
@@ -2597,69 +2598,67 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		else
 			ri = Double.NaN;
 
-		rt.incrementCounter();
-		rt.setPrecision(Options.getScientificNotationAwarePrecision());
-		rt.addValue("Image", rowLabel);
+		statsTable.incrementCounter();
+		statsTable.setPrecision(Options.getScientificNotationAwarePrecision());
+		statsTable.addValue("Image", rowLabel);
 		if ((prefs & Options.DIRECTORY) != 0)
-			rt.addValue("Directory", (validPath) ? imgPath : "Unknown");
+			statsTable.addValue("Directory", (validPath) ? imgPath : "Unknown");
 		final String comment = Options.getCommentString();
 		if (comment != null)
-			rt.addValue("Comment", comment);
+			statsTable.addValue("Comment", comment);
 		if (!isCSV && img != null && img.isComposite())
-			rt.addValue("Channel", channel);
+			statsTable.addValue("Channel", channel);
 		if ((prefs & Options.UNIT) != 0)
-			rt.addValue("Unit", unit);
+			statsTable.addValue("Unit", unit);
 		if (!isCSV && (prefs & Options.THRESHOLD) != 0) {
-			rt.addValue("Lower threshold", lowerT);
-			rt.addValue("Upper threshold", upperT);
+			statsTable.addValue("Lower threshold", lowerT);
+			statsTable.addValue("Upper threshold", upperT);
 		}
 		if ((prefs & Options.CENTER) != 0 && !isCenterUnknown()) {
-			rt.addValue("X center (px)", xc);
-			rt.addValue("Y center (px)", yc);
-			rt.addValue("Z center (slice)", zc);
+			statsTable.addValue("X center (px)", xc);
+			statsTable.addValue("Y center (px)", yc);
+			statsTable.addValue("Z center (slice)", zc);
 		}
 		if ((prefs & Options.STARTING_RADIUS) != 0)
-			rt.addValue("Starting radius", startRadius);
+			statsTable.addValue("Starting radius", startRadius);
 		if ((prefs & Options.ENDING_RADIUS) != 0)
-			rt.addValue("Ending radius", endRadius);
+			statsTable.addValue("Ending radius", endRadius);
 		if ((prefs & Options.RADIUS_STEP) != 0)
-			rt.addValue("Radius step", stepRadius);
+			statsTable.addValue("Radius step", stepRadius);
 		if ((prefs & Options.SAMPLES_PER_RADIUS) != 0)
-			rt.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
+			statsTable.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
 		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
-			rt.addValue("Enclosing radius cutoff", enclosingCutOff);
-		rt.addValue("I branches (user)", (inferPrimary) ? Double.NaN : primaryBranches);
-		rt.addValue("I branches (inferred)", (inferPrimary) ? y[0] : Double.NaN);
+			statsTable.addValue("Enclosing radius cutoff", enclosingCutOff);
+		statsTable.addValue("I branches (user)", (inferPrimary) ? Double.NaN : primaryBranches);
+		statsTable.addValue("I branches (inferred)", (inferPrimary) ? y[0] : Double.NaN);
 		if ((prefs & Options.INTERSECTING_RADII) != 0)
-			rt.addValue("Intersecting radii", size);
+			statsTable.addValue("Intersecting radii", size);
 		if ((prefs & Options.SUM_INTERS) != 0)
-			rt.addValue("Sum inters.", sumY);
+			statsTable.addValue("Sum inters.", sumY);
 
 		// Calculate skewness and kurtosis of sampled data (linear Sholl);
 		final double[] moments = getMoments(y);
 		if ((prefs & Options.MEAN_INTERS) != 0)
-			rt.addValue("Mean inters.", moments[0]);
+			statsTable.addValue("Mean inters.", moments[0]);
 		if ((prefs & Options.MEDIAN_INTERS) != 0)
-			rt.addValue("Median inters.", getMedian(y));
+			statsTable.addValue("Median inters.", getMedian(y));
 		if ((prefs & Options.SKEWNESS) != 0)
-			rt.addValue("Skewness (sampled)", moments[2]);
+			statsTable.addValue("Skewness (sampled)", moments[2]);
 		if ((prefs & Options.KURTOSIS) != 0)
-			rt.addValue("Kurtosis (sampled)", moments[3]);
-		rt.addValue("Max inters.", maxIntersect);
-		rt.addValue("Max inters. radius", maxR);
-		rt.addValue("Ramification index (sampled)", ri);
+			statsTable.addValue("Kurtosis (sampled)", moments[3]);
+		statsTable.addValue("Max inters.", maxIntersect);
+		statsTable.addValue("Max inters. radius", maxR);
+		statsTable.addValue("Ramification index (sampled)", ri);
 
 		// Calculate the 'center of mass' for the sampled curve (linear Sholl);
 		if ((prefs & Options.CENTROID) != 0) {
 			centroid = Sholl_Utils.baryCenter(x, y);
-			rt.addValue("Centroid radius", centroid[0]);
-			rt.addValue("Centroid value", centroid[1]);
+			statsTable.addValue("Centroid radius", centroid[0]);
+			statsTable.addValue("Centroid value", centroid[1]);
 		}
 		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
-			rt.addValue("Enclosing radius", enclosingR);
+			statsTable.addValue("Enclosing radius", enclosingR);
 		// rt.addValue("Enclosed field", field);
-
-		return rt;
 
 	}
 
