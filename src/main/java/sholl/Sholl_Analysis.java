@@ -568,16 +568,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		final boolean noTable = ((prefs & Options.NO_TABLE) != 0);
 		if (!noTable) {
-			ResultsTable rt;
+
+			// If re-running over the same image, dispose unsaved table from previous runs
 			final String profileTable = getDescription() + "_Sholl-Profiles";
 			final TextWindow window = (TextWindow) WindowManager.getFrame(profileTable);
-			if (window == null)
-				rt = new ResultsTable();
-			else {
-				rt = window.getTextPanel().getResultsTable();
-				rt.reset();
-			}
+			if (window != null)
+				window.close(false);
 
+			final EnhancedResultsTable rt = new EnhancedResultsTable();
 			rt.showRowNumbers(false);
 			rt.setPrecision(Options.getScientificNotationAwarePrecision());
 			for (int i = 0; i < valuesN.length; i++) {
@@ -607,12 +605,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				try {
 					final String path = imgPath + profileTable;
 					rt.saveAs(path + Prefs.defaultResultsExtension());
+					rt.setUnsavedMeasurements(false);
 				} catch (final IOException e) {
 					IJ.log(">>>> An error occurred when saving " + getDescription() + "'s profile(s):\n" + e);
 				}
 			}
 			if (!validPath || (validPath && !hideSaved))
-				rt.show(profileTable);
+				rt.update(profileTable);
 		}
 
 		statsTable.update(STATS_TABLE_TITLE);
