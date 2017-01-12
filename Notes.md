@@ -15,6 +15,12 @@ Development Builds
 Release Builds
 --------------
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+####Version 3.6.10 (January 2017)
+* Report sampled distances with zero-intersections ([discussion](http://forum.imagej.net/t/sholl-analysis-circle-help/1564/9?u=tferr))
+* Add option to display only linear profiles
+* Improved the detection of unsaved data in tables
+* Fixed several issues that did not allow the plugin to recognize the "Sholl Results" table after it had been renamed
+
 ####Version 3.6.9 (October 2016)
 * Fixed non-responsive commands in contextual menu
 
