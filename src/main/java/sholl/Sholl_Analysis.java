@@ -472,7 +472,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			return;
 		}
 
-		if (statsTable == null)
+		if (statsTable == null || !statsTable.isShowing())
 			initializeStatsTable();
 		// Retrieve stats on sampled data
 		populateStatsTable(getDescription(), x, y, z, valuesN);
@@ -580,7 +580,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.showRowNumbers(false);
 			rt.setPrecision(Options.getScientificNotationAwarePrecision());
 			rt.setNaNEmptyCells(true);
-			final int lastNonZeroIdx = valuesN.length -1;
+			final int lastNonZeroIdx = valuesN.length - 1;
 			for (int i = 0; i < radii.length; i++) {
 				rt.incrementCounter();
 				rt.addValue("Radius", radii[i]);
@@ -3425,13 +3425,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Returns a reference to the plugin's "Sholl Results" table, displaying
+	 * Returns a reference to the plugin's "Sholl Results" table displaying
 	 * summary statistics.
 	 *
 	 * @return the "Sholl Results" table
 	 */
 	public EnhancedResultsTable getShollTable() {
-		if (statsTable == null)
+		if (statsTable == null || !statsTable.isShowing())
 			initializeStatsTable();
 		return statsTable;
 	}
