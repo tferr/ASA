@@ -58,6 +58,15 @@ public class EnhancedResultsTable extends ResultsTable {
 	}
 
 	/**
+	 * Deletes the specified row and setting the unsaved measurements flag.
+	 */
+	@Override
+	public synchronized void deleteRow(final int row) {
+		super.deleteRow(row);
+		setUnsavedMeasurements(true);
+	}
+
+	/**
 	 * Calls the default {@code show()} method while attaching a WindowListener
 	 * used to prompt users to save unsaved measurements when closing
 	 * (non-programmatically) the ResultsTable window
