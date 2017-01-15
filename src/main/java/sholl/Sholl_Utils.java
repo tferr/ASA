@@ -87,7 +87,7 @@ public class Sholl_Utils implements PlugIn {
 	 * @return ddaC image, or null if image cannot be retrieved
 	 */
 	public static ImagePlus sampleImage() {
-		final InputStream is = Sholl_Utils.class.getResourceAsStream("/resources/ddaC.tif");
+		final InputStream is = Sholl_Utils.class.getResourceAsStream("/images/ddaC.tif");
 		ImagePlus imp = null;
 		if (is != null) {
 			final Opener opener = new Opener();
