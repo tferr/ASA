@@ -11,3 +11,4 @@ Thumbs.db
 .checkstyle
 .project
 .settings/
+.pydevproject
