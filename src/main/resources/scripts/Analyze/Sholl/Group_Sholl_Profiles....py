@@ -86,7 +86,10 @@ def main():
     for f_idx, f in enumerate(files):
 
         filename = os.path.basename(f)
-        log("Parsing file %s: %s..." % (f_idx+1, filename))
+        log("Parsing file %s: %s" % (f_idx+1, filename))
+        if os.path.isdir(f):
+            log("Skipping... file is directory.", "warn")
+            continue
 
         with open(f, 'rU') as inf:
 
@@ -129,7 +132,6 @@ def main():
               " settings or check the Console for details." % len(files))
         return
 
-    log("No more files to parse...")
     data_identifier = "Col#%s [%s]" % ( ycol_idx1based, glob_pattern)
 
     if output_type in "Merged data Both":
