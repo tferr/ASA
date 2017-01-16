@@ -285,29 +285,9 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 			}
 		};
 
-		// Tweak for Mac OS (mainly 10.9/10.10): The background of ScrollPane
-		// does not match that of ij.gui.GenericDialog, i.e.,
-		// SystemColor.control. Imposing SystemColor.control is not reliable as
-		// it appears to be always Color.WHITE in Java 7 and higher. On the
-		// other hand, using UIManager to retrieve control color seems to work
-		// consistently across platforms:
-		// nadeausoftware.com/articles/2010/07/java_tip_systemcolors_mac_os_x_user_interface_themes
-		final Color background = javax.swing.UIManager.getColor("control");
-		newPane.setBackground(background);
-		scroll.setBackground(background);
 		scroll.add(newPane);
 		scroll.validate();
 		scroll.setScrollPosition(0, 0);
-		// Create an "awt border" around the scrollpanel in cases where such
-		// border is absent Platforms tested: Ubuntu: Open JDK7,8, Windows XP:
-		// Sun JDK7, Mac OS: Sun JDK7,8
-		final Panel borderPanel = new Panel();
-		if (IJ.isMacOSX() && IJ.isJava17()) {
-			final float hsbVals[] = Color.RGBtoHSB(background.getRed(), background.getGreen(), background.getBlue(),
-					null);
-			borderPanel.setBackground(Color.getHSBColor(hsbVals[0], hsbVals[1], 0.92f * hsbVals[2]));
-		}
-		borderPanel.add(scroll);
 
 		// ensure constraints
 		final GridBagConstraints constraints = new GridBagConstraints();
@@ -318,7 +298,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 		layout.setConstraints(scroll, constraints);
 
 		// add scroll pane to original container
-		this.add(borderPanel);
+		this.add(scroll);
 
 	}
 
