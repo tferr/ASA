@@ -15,7 +15,7 @@ Development Builds
 Release Builds
 --------------
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
-####Version 3.6.11 (January 2017)
+####Version 3.6.12 (January 2017)
 * Implemented the _Analyze>Sholl>Group Sholl Profiles..._ command
 * All settings are now remembered across restarts
 * Fixed an issue in which output files were saved when a valid path was provided
