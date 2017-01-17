@@ -42,6 +42,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -128,7 +130,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Curve Fitting, Results and Descriptors */
 	private boolean fitCurve = true;
-	private static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree",
+	protected static final String[] DEGREES = { "2nd degree", "3rd degree", "4th degree", "5th degree", "6th degree",
 			"7th degree", "8th degree", "Best fitting degree" };
 	private static final int SMALLEST_DATASET = 6;
 	private static EnhancedResultsTable statsTable;
@@ -219,12 +221,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private boolean limitCSV;
 	private boolean tableRequired = true;
 
+	/* Preferences */
+	private Options options;
+	private int metrics;
+
 	private double[] radii;
 	private double[] counts;
-	private int prefs;
 	private ImagePlus img;
 	private ImageProcessor ip;
 	private static int progressCounter;
+
 
 	/**
 	 * This method is called when the plugin is loaded. {@code arg} is specified
@@ -252,6 +258,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		final Calibration cal;
 		isCSV = arg.equalsIgnoreCase("csv");
+
+		options = new Options(true);
+		options.setSkipBitmapOptions(isCSV);
+		metrics = options.getMetrics();
+		if (!IJ.macroRunning())
+			setParametersFromPreferences();
 
 		if (isCSV) {
 
@@ -412,6 +424,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				return;
 			}
 
+			if (!IJ.macroRunning())
+				saveParametersToPreferences();
 			img.startTiming();
 			IJ.resetEscape();
 
@@ -459,9 +473,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		IJ.showStatus("Preparing Results...");
 
-		// Retrieve preferences
-		prefs = Options.getMetrics();
-
 		// Retrieve pairs of radii, counts for intersecting radii
 		final double[][] valuesN = getNonZeroValues(radii, counts);
 		final int trimmedCounts = valuesN.length;
@@ -486,8 +497,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// double[] fvaluesLOG = null;
 
 		// Create plots
-		final boolean noPlots = Options.getPlotOutput() == Options.NO_PLOTS;
-		final boolean onlyLinearPlot = Options.getPlotOutput() == Options.ONLY_LINEAR_PLOT;
+		final boolean noPlots = options.getPlotOutput() == Options.NO_PLOTS;
+		final boolean onlyLinearPlot = options.getPlotOutput() == Options.ONLY_LINEAR_PLOT;
 		if (shollN) {
 			final Plot plotN;
 			if (noPlots) {
@@ -567,7 +578,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		final boolean noTable = ((prefs & Options.NO_TABLE) != 0);
+		final boolean noTable = ((metrics & Options.NO_TABLE) != 0);
 		if (!noTable) {
 
 			// If re-running over the same image, dispose unsaved table from previous runs
@@ -578,7 +589,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			final EnhancedResultsTable rt = new EnhancedResultsTable();
 			rt.showRowNumbers(false);
-			rt.setPrecision(Options.getScientificNotationAwarePrecision());
+			rt.setPrecision(options.getScientificNotationAwarePrecision());
 			rt.setNaNEmptyCells(true);
 			final int lastNonZeroIdx = valuesN.length - 1;
 			for (int i = 0; i < radii.length; i++) {
@@ -632,7 +643,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (mask && img.getWindow() != null) {
 
 			IJ.showStatus("Preparing intersections mask...");
-			final boolean fittedData = Options.getMaskType() == Options.FITTED_MASK && fitCurve;
+			final boolean fittedData = options.getMaskType() == Options.FITTED_MASK && fitCurve;
 			ImagePlus maskimg = null;
 
 			if (shollN && fittedData) {
@@ -956,9 +967,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			rt.addValue("Mean value", mv);
 			rt.addValue("Ramification index (fit)", rif);
 			final double[] moments = getMoments(fy);
-			if ((prefs & Options.SKEWNESS) != 0)
+			if ((metrics & Options.SKEWNESS) != 0)
 				rt.addValue("Skewness (fit)", moments[2]);
-			if ((prefs & Options.KURTOSIS) != 0)
+			if ((metrics & Options.KURTOSIS) != 0)
 				rt.addValue("Kurtosis (fit)", moments[3]);
 			rt.addValue("Polyn. degree", degree);
 			rt.addValue("Polyn. R^2", cf.getRSquared());
@@ -2430,8 +2441,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Apply LUT
 		final double[] range = Tools.getMinMax(values);
 		final boolean logMask = floatProcessor && range[1] < 0;
-		final int fcolor = (logMask) ? Options.getMaskBackground() : -1;
-		final int bcolor = (fcolor == -1) ? Options.getMaskBackground() : -1;
+		final int fcolor = (logMask) ? options.getMaskBackground() : -1;
+		final int bcolor = (fcolor == -1) ? options.getMaskBackground() : -1;
 		mp.setColorModel(Sholl_Utils.matlabJetColorMap(bcolor, fcolor));
 		mp.setMinAndMax(logMask ? range[0] : 0, range[1]);
 
@@ -2575,7 +2586,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					public void run() {
 						if (Recorder.record)
 							Recorder.setCommand(Options.COMMAND_LABEL);
-						IJ.runPlugIn(Options.class.getName(), analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
+						//IJ.runPlugIn(Options.class.getName(), analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
+						options.run(analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
 						if (Recorder.record)
 							Recorder.saveCommand();
 					}
@@ -2675,64 +2687,64 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			ri = Double.NaN;
 
 		statsTable.incrementCounter();
-		statsTable.setPrecision(Options.getScientificNotationAwarePrecision());
+		statsTable.setPrecision(options.getScientificNotationAwarePrecision());
 		statsTable.addValue("Image", rowLabel);
-		if ((prefs & Options.DIRECTORY) != 0)
+		if ((metrics & Options.DIRECTORY) != 0)
 			statsTable.addValue("Directory", (validPath) ? imgPath : "Unknown");
-		final String comment = Options.getCommentString();
+		final String comment = options.getCommentString();
 		if (comment != null)
 			statsTable.addValue("Comment", comment);
 		if (!isCSV && img != null && img.isComposite())
 			statsTable.addValue("Channel", channel);
-		if ((prefs & Options.UNIT) != 0)
+		if ((metrics & Options.UNIT) != 0)
 			statsTable.addValue("Unit", unit);
-		if (!isCSV && (prefs & Options.THRESHOLD) != 0) {
+		if (!isCSV && (metrics & Options.THRESHOLD) != 0) {
 			statsTable.addValue("Lower threshold", lowerT);
 			statsTable.addValue("Upper threshold", upperT);
 		}
-		if ((prefs & Options.CENTER) != 0 && !isCenterUnknown()) {
+		if ((metrics & Options.CENTER) != 0 && !isCenterUnknown()) {
 			statsTable.addValue("X center (px)", xc);
 			statsTable.addValue("Y center (px)", yc);
 			statsTable.addValue("Z center (slice)", zc);
 		}
-		if ((prefs & Options.STARTING_RADIUS) != 0)
+		if ((metrics & Options.STARTING_RADIUS) != 0)
 			statsTable.addValue("Starting radius", startRadius);
-		if ((prefs & Options.ENDING_RADIUS) != 0)
+		if ((metrics & Options.ENDING_RADIUS) != 0)
 			statsTable.addValue("Ending radius", endRadius);
-		if ((prefs & Options.RADIUS_STEP) != 0)
+		if ((metrics & Options.RADIUS_STEP) != 0)
 			statsTable.addValue("Radius step", stepRadius);
-		if ((prefs & Options.SAMPLES_PER_RADIUS) != 0)
+		if ((metrics & Options.SAMPLES_PER_RADIUS) != 0)
 			statsTable.addValue("Samples/radius", (isCSV || is3D) ? 1 : nSpans);
-		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
+		if ((metrics & Options.ENCLOSING_RADIUS) != 0)
 			statsTable.addValue("Enclosing radius cutoff", enclosingCutOff);
 		statsTable.addValue("I branches (user)", (inferPrimary) ? Double.NaN : primaryBranches);
 		statsTable.addValue("I branches (inferred)", (inferPrimary) ? y[0] : Double.NaN);
-		if ((prefs & Options.INTERSECTING_RADII) != 0)
+		if ((metrics & Options.INTERSECTING_RADII) != 0)
 			statsTable.addValue("Intersecting radii", size);
-		if ((prefs & Options.SUM_INTERS) != 0)
+		if ((metrics & Options.SUM_INTERS) != 0)
 			statsTable.addValue("Sum inters.", sumY);
 
 		// Calculate skewness and kurtosis of sampled data (linear Sholl);
 		final double[] moments = getMoments(y);
-		if ((prefs & Options.MEAN_INTERS) != 0)
+		if ((metrics & Options.MEAN_INTERS) != 0)
 			statsTable.addValue("Mean inters.", moments[0]);
-		if ((prefs & Options.MEDIAN_INTERS) != 0)
+		if ((metrics & Options.MEDIAN_INTERS) != 0)
 			statsTable.addValue("Median inters.", getMedian(y));
-		if ((prefs & Options.SKEWNESS) != 0)
+		if ((metrics & Options.SKEWNESS) != 0)
 			statsTable.addValue("Skewness (sampled)", moments[2]);
-		if ((prefs & Options.KURTOSIS) != 0)
+		if ((metrics & Options.KURTOSIS) != 0)
 			statsTable.addValue("Kurtosis (sampled)", moments[3]);
 		statsTable.addValue("Max inters.", maxIntersect);
 		statsTable.addValue("Max inters. radius", maxR);
 		statsTable.addValue("Ramification index (sampled)", ri);
 
 		// Calculate the 'center of mass' for the sampled curve (linear Sholl);
-		if ((prefs & Options.CENTROID) != 0) {
+		if ((metrics & Options.CENTROID) != 0) {
 			centroid = Sholl_Utils.baryCenter(x, y);
 			statsTable.addValue("Centroid radius", centroid[0]);
 			statsTable.addValue("Centroid value", centroid[1]);
 		}
-		if ((prefs & Options.ENCLOSING_RADIUS) != 0)
+		if ((metrics & Options.ENCLOSING_RADIUS) != 0)
 			statsTable.addValue("Enclosing radius", enclosingR);
 		// rt.addValue("Enclosed field", field);
 
@@ -2849,7 +2861,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			y[i] = values[i][1];
 		}
 		plotRegression(x, y, false, plot, rt, method);
-		if ((prefs & Options.P1090_REGRESSION) != 0)
+		if ((metrics & Options.P1090_REGRESSION) != 0)
 			plotRegression(x, y, true, plot, rt, method);
 
 	}
