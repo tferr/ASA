@@ -701,6 +701,79 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
+	private void saveParametersToPreferences() {
+
+		final HashMap<Integer, Boolean> boolPrefs = new HashMap<>();
+		boolPrefs.put(Options.TRIM_BOUNDS, trimBounds);
+		boolPrefs.put(Options.INFER_PRIMARY, inferPrimary);
+		boolPrefs.put(Options.CURVE_FITTING, fitCurve);
+		boolPrefs.put(Options.VERBOSE, verbose);
+		boolPrefs.put(Options.SHOLL_N, shollN);
+		boolPrefs.put(Options.SHOLL_NS, shollNS);
+		boolPrefs.put(Options.SHOLL_SLOG, shollSLOG);
+		boolPrefs.put(Options.SHOLL_LOG, shollLOG);
+		boolPrefs.put(Options.GUESS_LOG_METHOD, chooseLog);
+		boolPrefs.put(Options.SHOW_MASK, mask);
+		boolPrefs.put(Options.OVERLAY_SHELLS, overlayShells);
+		boolPrefs.put(Options.SAVE_FILES, save);
+		boolPrefs.put(Options.HIDE_SAVED_FILES, hideSaved);
+		boolPrefs.put(Options.SKIP_SINGLE_VOXELS, skipSingleVoxels);
+
+		int prefs = options.getBooleanPrefs();
+		for (final Entry<Integer, Boolean> entry : boolPrefs.entrySet()) {
+			final int key = entry.getKey();
+			if (entry.getValue())
+				prefs |= key;
+			else
+				prefs &= ~key;
+		}
+		options.setBooleanPrefs(prefs);
+		options.setStringPreference(Options.START_RADIUS_KEY, String.format("%.2f", startRadius));
+		options.setStringPreference(Options.END_RADIUS_KEY, String.format("%.2f", endRadius));
+		options.setStringPreference(Options.STEP_SIZE_KEY, String.format("%.2f", incStep));
+		options.setStringPreference(Options.NSAMPLES_KEY, nSpans);
+		options.setStringPreference(Options.INTEGRATION_KEY, binChoice);
+		options.setStringPreference(Options.ENCLOSING_RADIUS_KEY, enclosingCutOff);
+		options.setStringPreference(Options.PRIMARY_BRANCHES_KEY, String.format("%.0f", incStep));
+		options.setStringPreference(Options.POLYNOMIAL_INDEX_KEY, polyChoice);
+		options.setStringPreference(Options.NORMALIZER_INDEX_KEY, normChoice);
+		if (orthoChord)
+			options.setStringPreference(Options.QUAD_CHOICE_KEY, quadChoice);
+		if (validPath)
+			options.setStringPreference(Options.SAVE_DIR_KEY, imgPath);
+		options.saveStringPreferences();
+	}
+
+	private void setParametersFromPreferences() {
+		final int prefs = options.getBooleanPrefs();
+		trimBounds = (prefs & Options.TRIM_BOUNDS) != 0;
+		inferPrimary = (prefs & Options.INFER_PRIMARY) != 0;
+		fitCurve = (prefs & Options.CURVE_FITTING) != 0;
+		verbose = (prefs & Options.VERBOSE) != 0;
+		shollN = (prefs & Options.SHOLL_N) != 0;
+		shollNS = (prefs & Options.SHOLL_NS) != 0;
+		shollSLOG = (prefs & Options.SHOLL_SLOG) != 0;
+		shollLOG = (prefs & Options.SHOLL_LOG) != 0;
+		chooseLog = (prefs & Options.GUESS_LOG_METHOD) != 0;
+		mask = (prefs & Options.SHOW_MASK) != 0;
+		overlayShells = (prefs & Options.OVERLAY_SHELLS) != 0;
+		save = (prefs & Options.SAVE_FILES) != 0;
+		hideSaved = (prefs & Options.HIDE_SAVED_FILES) != 0;
+		skipSingleVoxels = (prefs & Options.SKIP_SINGLE_VOXELS) != 0;
+
+		startRadius = options.getDoubleFromHashMap(Options.START_RADIUS_KEY, 10.0);
+		endRadius = options.getDoubleFromHashMap(Options.END_RADIUS_KEY, 100.0);
+		incStep = options.getDoubleFromHashMap(Options.STEP_SIZE_KEY, 0);
+		quadChoice = options.getIntFromHashMap(Options.QUAD_CHOICE_KEY, 0);
+		nSpans = options.getIntFromHashMap(Options.NSAMPLES_KEY, 1);
+		binChoice = options.getIntFromHashMap(Options.INTEGRATION_KEY, BIN_AVERAGE);
+		enclosingCutOff = options.getIntFromHashMap(Options.ENCLOSING_RADIUS_KEY, 1);
+		primaryBranches = options.getDoubleFromHashMap(Options.PRIMARY_BRANCHES_KEY, Double.NaN);
+		polyChoice = options.getIntFromHashMap(Options.POLYNOMIAL_INDEX_KEY, DEGREES.length - 1);
+		normChoice = options.getIntFromHashMap(Options.NORMALIZER_INDEX_KEY, 0);
+		imgPath = options.getStringFromHashMap(Options.SAVE_DIR_KEY, null);
+	}
+
 	/**
 	 * Tries to retrieve a valid startup ROI. Prompts the user for a new ROI if
 	 * nothing appropriate was found (if the plugin has not been called from a
