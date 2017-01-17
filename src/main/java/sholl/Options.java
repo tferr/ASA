@@ -252,6 +252,7 @@ public class Options implements PlugIn {
 		Prefs.set(METRICS_KEY + ".comment", null);
 		Prefs.set(MASK_KEY, null);
 		Prefs.set(MASK_KEY + ".type", null);
+		setPlotOutput(DEFAULT_PLOT_OUTPUT);
 		currentMetrics = UNSET_PREFS;
 		commentString = null;
 		maskBackground = UNSET_PREFS;
