@@ -8,13 +8,13 @@
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<version>26.1.1</version>
+		<version>26.1.2</version>
 		<relativePath />
 	</parent>
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>3.6.11-SNAPSHOT</version>
+	<version>3.6.11</version>
 
 	<name>Sholl Analysis</name>
 	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images and traces from Simple Neurite Tracer</description>
