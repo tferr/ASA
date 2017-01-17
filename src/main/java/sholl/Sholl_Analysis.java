@@ -3332,7 +3332,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			exportDir += File.separator;
 		final File dir = new File(exportDir);
 		validPath = dir.exists() && dir.isDirectory();
-		save = validPath;
+		if (!validPath)
+			save = false;
 		imgPath = exportDir;
 		hideSaved = !displaySavedFiles;
 	}
