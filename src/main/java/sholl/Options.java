@@ -40,6 +40,8 @@ package sholl;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -63,7 +65,6 @@ public class Options implements PlugIn {
 
 	/** The Menu entry of this plugin as specified in plugins.config **/
 	public static final String COMMAND_LABEL = "Metrics & Options...";
-
 	/** Argument for {@link #run(String)} **/
 	public static final String SKIP_BITMAP_OPTIONS_LABEL = "skip-bitmap";
 	/** Argument for {@link #run(String)} **/
@@ -88,8 +89,41 @@ public class Options implements PlugIn {
 	static final int CENTROID = 0x8000;
 	static final int P1090_REGRESSION = 0x10000;
 	static final int NO_TABLE = 0x40000;
-
 	private final static String METRICS_KEY = "sholl.metrics";
+
+	/* Boolean preferences */
+	static final int TRIM_BOUNDS = 1;
+	static final int INFER_PRIMARY = 2;
+	static final int CURVE_FITTING = 4;
+	static final int VERBOSE = 8;
+	static final int SHOLL_N = 16;
+	static final int SHOLL_NS = 32;
+	static final int SHOLL_SLOG = 64;
+	static final int SHOLL_LOG = 128;
+	static final int GUESS_LOG_METHOD = 256;
+	static final int SHOW_MASK = 512;
+	static final int OVERLAY_SHELLS = 1024;
+	static final int SAVE_FILES = 2048;
+	static final int HIDE_SAVED_FILES = 4096;
+	static final int SKIP_SINGLE_VOXELS = 8192;
+	private final static String PREFS_KEY = "sholl.prefs";
+
+	/* Non-Boolean preferences */
+	protected HashMap<String, String> stringPrefs;
+	static final String START_RADIUS_KEY = "A";
+	static final String END_RADIUS_KEY = "B";
+	static final String STEP_SIZE_KEY = "C";
+	static final String NSAMPLES_KEY = "D";
+	static final String INTEGRATION_KEY = "E";
+	static final String ENCLOSING_RADIUS_KEY = "F";
+	static final String PRIMARY_BRANCHES_KEY = "G";
+	static final String POLYNOMIAL_INDEX_KEY = "H";
+	static final String NORMALIZER_INDEX_KEY = "I";
+	static final String SAVE_DIR_KEY = "J";
+	static final String QUAD_CHOICE_KEY = "K";
+	final static String HASHMAP_KEY = "sholl.map";
+	final private String HASHMAP_DELIMITER = "|";
+	private String hashMapString;
 
 	/* Sholl mask */
 	static final int SAMPLED_MASK = 0;
@@ -110,12 +144,27 @@ public class Options implements PlugIn {
 
 	private final static int UNSET_PREFS = -1;
 	private static int currentMetrics = UNSET_PREFS;
+	private static int currentBooleanPrefs = UNSET_PREFS;
 	private static int maskBackground = UNSET_PREFS;
 	private static int maskType = UNSET_PREFS;
 	private static int plotOutputType = UNSET_PREFS;
 	private static String commentString = null;
 
 	private boolean skipBitmapOptions;
+	private final boolean instanceAttatchedToPlugin;
+
+	public Options(final boolean attachInstanceToPlugin) {
+		this.instanceAttatchedToPlugin = attachInstanceToPlugin;
+		currentMetrics = getMetrics();
+		currentBooleanPrefs = getBooleanPrefs();
+		commentString = getCommentString();
+		plotOutputType = getPlotOutput();
+		loadStringPreferences();
+	}
+
+	public Options() {
+		this(false);
+	}
 
 	/**
 	 * Debug helper
@@ -124,7 +173,7 @@ public class Options implements PlugIn {
 	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
 	 */
 	public static void main(final String[] args) {
-		Debug.run("Metrics & Options...", "");
+		Debug.run(COMMAND_LABEL, "");
 	}
 
 	/**
@@ -143,20 +192,38 @@ public class Options implements PlugIn {
 			resetOptions();
 			return;
 		}
-		skipBitmapOptions = arg.equals(SKIP_BITMAP_OPTIONS_LABEL);
+		setSkipBitmapOptions(arg.equals(SKIP_BITMAP_OPTIONS_LABEL));
 		promptForOptions();
 	}
 
-	private static int getDefaultMetrics() {
+	protected static int getDefaultMetrics() {
 		return UNIT + THRESHOLD + CENTER + STARTING_RADIUS + ENDING_RADIUS + RADIUS_STEP + SAMPLES_PER_RADIUS
 				+ ENCLOSING_RADIUS + INTERSECTING_RADII + SUM_INTERS + MEAN_INTERS + MEDIAN_INTERS + SKEWNESS + KURTOSIS
 				+ CENTROID + P1090_REGRESSION;
 	}
 
-	static int getMetrics() {
-		if (currentMetrics == UNSET_PREFS)
-			currentMetrics = Prefs.getInt(METRICS_KEY, getDefaultMetrics());
+	protected int getMetrics() {
+		if (currentMetrics == UNSET_PREFS) {
+			// Somehow Prefs.getInt() fails. We'll cast from double instead
+			currentMetrics = (int) Prefs.get(METRICS_KEY, getDefaultMetrics());
+		}
 		return currentMetrics;
+	}
+
+	private static int getSMetrics() {
+		return new Options().getMetrics();
+	}
+
+	protected int getDefaultBooleanPrefs() {
+		return INFER_PRIMARY + CURVE_FITTING + SHOLL_N + GUESS_LOG_METHOD;
+	}
+
+	protected int getBooleanPrefs() {
+		if (currentBooleanPrefs == UNSET_PREFS) {
+			// Somehow Prefs.getInt() fails. We'll cast from double instead
+			currentBooleanPrefs = (int) Prefs.get(PREFS_KEY, getDefaultBooleanPrefs());
+		}
+		return currentBooleanPrefs;
 	}
 
 	/**
@@ -166,9 +233,11 @@ public class Options implements PlugIn {
 	 *         Sholl mask's LUT image
 	 * @see Sholl_Utils#matlabJetColorMap(int)
 	 */
-	static int getMaskBackground() {
-		if (maskBackground == UNSET_PREFS)
-			maskBackground = Prefs.getInt(MASK_KEY, DEFAULT_MASK_BACKGROUND);
+	protected int getMaskBackground() {
+		if (maskBackground == UNSET_PREFS) {
+			// Somehow Prefs.getInt() fails. We'll cast from double instead
+			maskBackground = (int) Prefs.get(MASK_KEY, DEFAULT_MASK_BACKGROUND);
+		}
 		return maskBackground;
 	}
 
@@ -180,7 +249,7 @@ public class Options implements PlugIn {
 	 *            the LUT of the Sholl mask image
 	 * @see Sholl_Utils#matlabJetColorMap(int)
 	 */
-	private void setMaskBackground(final int grayLevel) {
+	protected void setMaskBackground(final int grayLevel) {
 		Prefs.set(MASK_KEY, grayLevel);
 		maskBackground = grayLevel;
 	}
@@ -191,9 +260,11 @@ public class Options implements PlugIn {
 	 * @return the type of mask. Either Options.SAMPLED_MASK or
 	 *         Options.FITTED_MASK.
 	 */
-	static int getMaskType() {
-		if (maskType == UNSET_PREFS)
-			maskType = Prefs.getInt(MASK_KEY + ".type", DEFAULT_MASK_TYPE);
+	protected int getMaskType() {
+		if (maskType == UNSET_PREFS) {
+			// Somehow Prefs.getInt() fails. We'll cast from double instead
+			maskType = (int) Prefs.get(MASK_KEY + ".type", DEFAULT_MASK_TYPE);
+		}
 		return maskType;
 	}
 
@@ -204,7 +275,7 @@ public class Options implements PlugIn {
 	 *            the output flag. Either Options.ALL_PLOTS,
 	 *            Options.ONLY_LINEAR_PLOT or Options.NO_PLOTS
 	 */
-	private void setPlotOutput(final int output) {
+	protected void setPlotOutput(final int output) {
 		Prefs.set(PLOT_OUTPUT_KEY + ".out", output);
 		plotOutputType = output;
 	}
@@ -215,10 +286,16 @@ public class Options implements PlugIn {
 	 * @return the output flag. Either Options.ALL_PLOTS,
 	 *         Options.ONLY_LINEAR_PLOT or Options.NO_PLOTS
 	 */
-	static int getPlotOutput() {
-		if (plotOutputType == UNSET_PREFS)
-			plotOutputType = Prefs.getInt(PLOT_OUTPUT_KEY + ".out", DEFAULT_PLOT_OUTPUT);
+	protected int getPlotOutput() {
+		if (plotOutputType == UNSET_PREFS) {
+			plotOutputType = (int) Prefs.get(PLOT_OUTPUT_KEY + ".out", DEFAULT_PLOT_OUTPUT);
+		}
 		return plotOutputType;
+	}
+
+	protected void setBooleanPrefs(final int newValue) {
+		Prefs.set(PREFS_KEY, newValue);
+		currentBooleanPrefs = newValue;
 	}
 
 	/**
@@ -228,18 +305,18 @@ public class Options implements PlugIn {
 	 *            the type of mask. Either Options.SAMPLED_MASK or
 	 *            Options.FITTED_MASK.
 	 */
-	private void setMaskType(final int type) {
+	protected void setMaskType(final int type) {
 		Prefs.set(MASK_KEY + ".type", type);
 		maskType = type;
 	}
 
-	static String getCommentString() {
+	protected String getCommentString() {
 		if (commentString == null)
 			commentString = Prefs.getString(METRICS_KEY + ".comment", null);
 		return commentString;
 	}
 
-	private void setCommentString(String comment) {
+	protected void setCommentString(String comment) {
 		if (comment.trim().isEmpty())
 			comment = null;
 		Prefs.set(METRICS_KEY + ".comment", comment);
@@ -247,7 +324,14 @@ public class Options implements PlugIn {
 	}
 
 	private void resetOptions() {
-		// Reset Sholl metrics
+
+		// Reset plugin parameters
+		Prefs.set(PREFS_KEY, null);
+		currentBooleanPrefs = UNSET_PREFS;
+		Prefs.set(HASHMAP_KEY, null);
+		hashMapString = "";
+
+		// Reset Sholl metrics and output options
 		Prefs.set(METRICS_KEY, null);
 		Prefs.set(METRICS_KEY + ".comment", null);
 		Prefs.set(MASK_KEY, null);
@@ -257,12 +341,14 @@ public class Options implements PlugIn {
 		commentString = null;
 		maskBackground = UNSET_PREFS;
 		maskType = UNSET_PREFS;
+
 		// Reset Analyzer prefs
 		Analyzer.setPrecision(3);
 		Analyzer.setMeasurement(Measurements.SCIENTIFIC_NOTATION, false);
 		// Reset other global IJ prefs
 		Prefs.setThreads(Runtime.getRuntime().availableProcessors());
 		Prefs.set("options.ext", null);
+
 	}
 
 	private void promptForOptions() {
@@ -436,6 +522,10 @@ public class Options implements PlugIn {
 			if (Recorder.record)
 				Recorder.recordOption(RESET_OPTIONS_LABEL);
 			resetOptions();
+			if (instanceAttatchedToPlugin) {
+				IJ.showMessage("Settings Successfully Reset",
+						"   You should now close the main prompt and\nre-run the plugin for new settings to take effect.");
+			}
 		}
 	}
 
@@ -460,20 +550,23 @@ public class Options implements PlugIn {
 		});
 		popup.add(mi);
 		popup.addSeparator();
-		mi = Utils.menuItemTrigerringURL("Help on Sholl metrics", Sholl_Analysis.URL + "#Metrics");
+		mi = Utils.menuItemTrigerringURL("Help on Sholl Metrics", Sholl_Analysis.URL + "#Metrics");
 		popup.add(mi);
 		return popup;
 	}
 
-	/** Retrieves precision according to Analyze>Set Measurements... */
-	static int getScientificNotationAwarePrecision() {
+	/**
+	 * Retrieves precision according to {@code Analyze>Set Measurements...}
+	 *
+	 * @return the number of decimal digits to be used in tables
+	 */
+	protected int getScientificNotationAwarePrecision() {
 		final boolean sNotation = (Analyzer.getMeasurements() & Measurements.SCIENTIFIC_NOTATION) != 0;
 		int precision = Analyzer.getPrecision();
 		if (sNotation)
 			precision = -precision;
 		return precision;
 	}
-
 
 	/**
 	 * Instructs {@link Sholl_Analysis} to exclude plots from output (only
@@ -485,7 +578,7 @@ public class Options implements PlugIn {
 	 *            default)
 	 */
 	public static void setNoPlots(final boolean noPlots) {
-		currentMetrics = getMetrics();
+		currentMetrics = getSMetrics();
 		if (noPlots)
 			currentMetrics |= NO_PLOTS;
 		else
@@ -505,12 +598,93 @@ public class Options implements PlugIn {
 	 * @see #setNoPlots(boolean)
 	 */
 	public static void setNoTable(final boolean noTable) {
-		currentMetrics = getMetrics();
+		currentMetrics = getSMetrics();
 		if (noTable)
 			currentMetrics |= NO_TABLE;
 		else
 			currentMetrics &= ~NO_TABLE;
 		Prefs.set(METRICS_KEY, currentMetrics);
+	}
+
+	public void setSkipBitmapOptions(final boolean skipBitmapOptions) {
+		this.skipBitmapOptions = skipBitmapOptions;
+	}
+
+	private void loadStringPreferences() {
+		stringPrefs = new HashMap<>();
+		hashMapString = Prefs.get(HASHMAP_KEY, "");
+		stringPrefs.put(START_RADIUS_KEY, getValueFromHashMapString(START_RADIUS_KEY, Double.toString(10)));
+		stringPrefs.put(END_RADIUS_KEY, getValueFromHashMapString(END_RADIUS_KEY, Double.toString(100)));
+		stringPrefs.put(STEP_SIZE_KEY, getValueFromHashMapString(STEP_SIZE_KEY, Double.toString(0)));
+		stringPrefs.put(NSAMPLES_KEY, getValueFromHashMapString(NSAMPLES_KEY, Integer.toString(1)));
+		stringPrefs.put(INTEGRATION_KEY,
+				getValueFromHashMapString(INTEGRATION_KEY, Integer.toString(Sholl_Analysis.BIN_AVERAGE)));
+		stringPrefs.put(ENCLOSING_RADIUS_KEY, getValueFromHashMapString(ENCLOSING_RADIUS_KEY, Integer.toString(1)));
+		stringPrefs.put(PRIMARY_BRANCHES_KEY,
+				getValueFromHashMapString(PRIMARY_BRANCHES_KEY, Double.toString(Double.NaN)));
+		stringPrefs.put(POLYNOMIAL_INDEX_KEY,
+				getValueFromHashMapString(POLYNOMIAL_INDEX_KEY, Integer.toString(Sholl_Analysis.DEGREES.length - 1)));
+		stringPrefs.put(NORMALIZER_INDEX_KEY, getValueFromHashMapString(NORMALIZER_INDEX_KEY, Integer.toString(0)));
+		stringPrefs.put(SAVE_DIR_KEY, getValueFromHashMapString(SAVE_DIR_KEY, ""));
+		stringPrefs.put(QUAD_CHOICE_KEY, getValueFromHashMapString(QUAD_CHOICE_KEY, Integer.toString(0)));
+
+	}
+
+	protected void setStringPreference(final String key, final double value) {
+		stringPrefs.put(key, Double.toString(value));
+	}
+
+	protected void setStringPreference(final String key, final int value) {
+		stringPrefs.put(key, Integer.toString(value));
+	}
+
+	protected void setStringPreference(final String key, final String value) {
+		stringPrefs.put(key, value);
+	}
+
+	protected void saveStringPreferences() {
+		if (stringPrefs.isEmpty()) {
+			// remove entry from Prefs file;
+			Prefs.set(HASHMAP_KEY, null);
+			return;
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (final Entry<String, String> entry : stringPrefs.entrySet()) {
+			sb.append(entry.getKey()).append(entry.getValue()).append(HASHMAP_DELIMITER);
+		}
+		Prefs.set(HASHMAP_KEY, sb.toString());
+	}
+
+	private String getValueFromHashMapString(final String key, final String defaultValue) {
+		final int start_index = hashMapString.indexOf(key) + key.length();
+		final int end_index = hashMapString.indexOf(HASHMAP_DELIMITER, start_index);
+		try {
+			return hashMapString.substring(start_index, end_index);
+		} catch (final IndexOutOfBoundsException ignored) {
+			return defaultValue;
+		}
+	}
+
+	protected int getIntFromHashMap(final String key, final int defaultValue) {
+		final String value = stringPrefs.get(key);
+		try {
+			return Integer.valueOf(value);
+		} catch (final NumberFormatException ignored) {
+			return defaultValue;
+		}
+	}
+
+	protected double getDoubleFromHashMap(final String key, final double defaultValue) {
+		final String value = getValueFromHashMapString(key, Double.toString(defaultValue));
+		try {
+			return Double.valueOf(value);
+		} catch (final NumberFormatException ignored) {
+			return defaultValue;
+		}
+	}
+
+	protected String getStringFromHashMap(final String key, final String defaultValue) {
+		return getValueFromHashMapString(key, defaultValue);
 	}
 
 }
