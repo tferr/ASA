@@ -2,7 +2,7 @@
 # @File(label="Input directory", style="directory", description="The directory containing the files to be parsed") dir
 # @String(label="Filename contains", value="", description="<html>Only files containing this string will be considered.<br>Leave blank to consider all files. Glob patterns accepted.") pattern
 # @String(label="File extension", choices={".csv",".txt",".xls",".ods", "any extension"}, description="<html>The extension of the files to be parsed.") extension
-# @Integer(label="X-values column", min=1, value="1", description="<html>The position of the column containing the distances shared by all profiles.<br>It will be retrieved from the <b>first file</b> found in the directory.") xcol_idx1based
+# @Integer(label="X-values column", min=1, value="1", description="<html>The position of the column containing the distances shared by all profiles.<br>It will be retrieved from the <b>first valid file</b> found in the directory.") xcol_idx1based
 # @Integer(label="Y-values column", min=1,value="2", description="<html>The position of the column containing the Y-values to be agregated.<br>It will be extracted from all files.") ycol_idx1based
 # @String(label="Output Table(s)", choices={"Merged data", "Row statistics", "Both"}, style="radioButtonHorizontal", description="<html><i>Merged data</i>: Places each file's Y-column into a common file.<br><i>Row statistics:</i> Retrieves mean±SD for each X-value. A plot is also obtained") output_type
 # @Boolean(label="Log progress", value=false, description="<html>Display warnings and errors in Console") verbose
