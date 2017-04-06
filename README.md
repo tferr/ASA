@@ -1,6 +1,6 @@
 # [Sholl Analysis](http://imagej.net/Sholl)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
-[![Jenkins](http://img.shields.io/jenkins/s/http/jenkins.imagej.net/Sholl-Analysis.svg?style=flat-square)](http://jenkins.imagej.net/job/Sholl-Analysis/)
+[![Travis](https://travis-ci.org/tferr/ASA.svg?branch-master)](https://travis-ci.org/tferr/ASA)
 [![Latest Release](https://img.shields.io/github/release/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/releases)
 [![Issues](https://img.shields.io/github/issues/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/issues)
 [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
@@ -48,7 +48,7 @@ that presents the software in greater detail.
 ##Installation
 If you use Fiji, you already have _Sholl Analysis_ installed and can start [using it](http://imagej.net/Sholl_Analysis#Usage)
 right away. Binaries are available from the [documentation page](http://imagej.net/Sholl_Analysis)
-or from [jenkins.imagej.net](http://jenkins.imagej.net/job/Sholl-Analysis/lastStableBuild/).
+or from the [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~ca.mcgill~Sholl_Analysis~~~).
 
 
 ## Help?
