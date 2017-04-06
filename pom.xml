@@ -6,9 +6,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>sc.fiji</groupId>
-		<artifactId>pom-fiji</artifactId>
-		<version>26.1.1</version>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>14.0.0</version>
 		<relativePath />
 	</parent>
 
@@ -20,6 +20,17 @@
 	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images and traces from Simple Neurite Tracer</description>
 	<url>http://imagej.net/Sholl</url>
 	<inceptionYear>2005</inceptionYear>
+	<organization>
+		<name>Fiji</name>
+		<url>https://fiji.sc/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>GNU General Public License v3+</name>
+			<url>https://www.gnu.org/licenses/gpl.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<developers>
 		<developer>
@@ -58,6 +69,13 @@
 		</contributor>
 	</contributors>
 
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
 	<scm>
 		<connection>scm:git:git://github.com/tferr/ASA</connection>
 		<developerConnection>scm:git:git@github.com:tferr/ASA</developerConnection>
@@ -72,6 +90,13 @@
 		<system>Jenkins</system>
 		<url>http://jenkins.imagej.net/job/Sholl-Analysis/</url>
 	</ciManagement>
+
+	<properties>
+		<package-name>sholl</package-name>
+		<license.licenseName>gpl_v3</license.licenseName>
+		<license.copyrightOwners>Tiago Ferreira.</license.copyrightOwners>
+		<license.projectName>Sholl Analysis plugin for ImageJ.</license.projectName>
+	</properties>
 
 	<repositories>
 		<repository>
