@@ -259,7 +259,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final Calibration cal;
 		isCSV = arg.equalsIgnoreCase("csv");
 
-		options = new Options(true);
+		options = getOptions();
 		options.setSkipBitmapOptions(isCSV);
 		metrics = options.getMetrics();
 		if (!IJ.macroRunning())
@@ -710,6 +710,24 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		IJ.showProgress(0, 0);
 		IJ.showTime(img, img.getStartTime(), exitmsg);
 
+	}
+
+	private Options getOptions() {
+		if (options == null)
+			options = new Options(true);
+		return options;
+	}
+
+	/**
+	 * Assigns options to the plugin.
+	 *
+	 * @param options
+	 *            the {@link Options} instance use to customize the plugin's
+	 *            output.
+	 */
+	public void setOptions(final Options options) {
+		options.instanceAttatchedToPlugin = true;
+		this.options = options;
 	}
 
 	private void saveParametersToPreferences() {

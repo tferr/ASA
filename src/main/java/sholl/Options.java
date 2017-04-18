@@ -71,41 +71,41 @@ public class Options implements PlugIn {
 	static final String RESET_OPTIONS_LABEL = "reset";
 
 	/* Columns in "Sholl Results" table */
-	static final int DIRECTORY = 1;
-	static final int UNIT = 2;
-	static final int THRESHOLD = 4;
-	static final int CENTER = 8;
-	static final int STARTING_RADIUS = 16;
-	static final int ENDING_RADIUS = 32;
-	static final int RADIUS_STEP = 64;
-	static final int SAMPLES_PER_RADIUS = 128;
-	static final int ENCLOSING_RADIUS = 256;
-	static final int INTERSECTING_RADII = 512;
-	static final int SUM_INTERS = 1024;
-	static final int MEAN_INTERS = 2048;
-	static final int MEDIAN_INTERS = 4096;
-	static final int SKEWNESS = 8192;
-	static final int KURTOSIS = 16384;
-	static final int CENTROID = 0x8000;
-	static final int P1090_REGRESSION = 0x10000;
-	static final int NO_TABLE = 0x40000;
+	public static final int DIRECTORY = 1;
+	public static final int UNIT = 2;
+	public static final int THRESHOLD = 4;
+	public static final int CENTER = 8;
+	public static final int STARTING_RADIUS = 16;
+	public static final int ENDING_RADIUS = 32;
+	public static final int RADIUS_STEP = 64;
+	public static final int SAMPLES_PER_RADIUS = 128;
+	public static final int ENCLOSING_RADIUS = 256;
+	public static final int INTERSECTING_RADII = 512;
+	public static final int SUM_INTERS = 1024;
+	public static final int MEAN_INTERS = 2048;
+	public static final int MEDIAN_INTERS = 4096;
+	public static final int SKEWNESS = 8192;
+	public static final int KURTOSIS = 16384;
+	public static final int CENTROID = 0x8000;
+	public static final int P1090_REGRESSION = 0x10000;
+	public static final int NO_TABLE = 0x40000;
 	private final static String METRICS_KEY = "sholl.metrics";
 
 	/* Boolean preferences */
-	static final int TRIM_BOUNDS = 1;
-	static final int INFER_PRIMARY = 2;
-	static final int CURVE_FITTING = 4;
-	static final int VERBOSE = 8;
-	static final int SHOLL_N = 16;
-	static final int SHOLL_NS = 32;
-	static final int SHOLL_SLOG = 64;
-	static final int SHOLL_LOG = 128;
-	static final int GUESS_LOG_METHOD = 256;
-	static final int SHOW_MASK = 512;
-	static final int OVERLAY_SHELLS = 1024;
-	static final int SAVE_FILES = 2048;
-	static final int HIDE_SAVED_FILES = 4096;
-	static final int SKIP_SINGLE_VOXELS = 8192;
+	public static final int TRIM_BOUNDS = 1;
+	public static final int INFER_PRIMARY = 2;
+	public static final int CURVE_FITTING = 4;
+	public static final int VERBOSE = 8;
+	public static final int SHOLL_N = 16;
+	public static final int SHOLL_NS = 32;
+	public static final int SHOLL_SLOG = 64;
+	public static final int SHOLL_LOG = 128;
+	public static final int GUESS_LOG_METHOD = 256;
+	public static final int SHOW_MASK = 512;
+	public static final int OVERLAY_SHELLS = 1024;
+	public static final int SAVE_FILES = 2048;
+	public static final int HIDE_SAVED_FILES = 4096;
+	public static final int SKIP_SINGLE_VOXELS = 8192;
 	private final static String PREFS_KEY = "sholl.prefs";
 
 	/* Non-Boolean preferences */
@@ -121,6 +121,8 @@ public class Options implements PlugIn {
 	static final String NORMALIZER_INDEX_KEY = "I";
 	static final String SAVE_DIR_KEY = "J";
 	static final String QUAD_CHOICE_KEY = "K";
+	// TODO: static final String LIMIT_CSV_KEY = "L";
+
 	final static String HASHMAP_KEY = "sholl.map";
 	final private String HASHMAP_DELIMITER = "|";
 	private String hashMapString;
@@ -134,9 +136,9 @@ public class Options implements PlugIn {
 	private final static int DEFAULT_MASK_TYPE = SAMPLED_MASK;
 
 	/* Sholl plots */
-	static final int ALL_PLOTS = 0;
-	static final int ONLY_LINEAR_PLOT = 1;
-	static final int NO_PLOTS = 2;
+	public static final int ALL_PLOTS = 0;
+	public static final int ONLY_LINEAR_PLOT = 1;
+	public static final int NO_PLOTS = 2;
 	private static final String[] PLOT_OUTPUTS = new String[] { "All chosen methods", "Only linear profile",
 			"No plots" };
 	private final static String PLOT_OUTPUT_KEY = "sholl.plots";
@@ -151,7 +153,7 @@ public class Options implements PlugIn {
 	private static String commentString = null;
 
 	private boolean skipBitmapOptions;
-	private final boolean instanceAttatchedToPlugin;
+	protected boolean instanceAttatchedToPlugin;
 
 	public Options(final boolean attachInstanceToPlugin) {
 		this.instanceAttatchedToPlugin = attachInstanceToPlugin;
@@ -275,7 +277,7 @@ public class Options implements PlugIn {
 	 *            the output flag. Either Options.ALL_PLOTS,
 	 *            Options.ONLY_LINEAR_PLOT or Options.NO_PLOTS
 	 */
-	protected void setPlotOutput(final int output) {
+	public void setPlotOutput(final int output) {
 		Prefs.set(PLOT_OUTPUT_KEY + ".out", output);
 		plotOutputType = output;
 	}
@@ -577,6 +579,7 @@ public class Options implements PlugIn {
 	 *            {@code false}, both tables and plots will be produced (the
 	 *            default)
 	 */
+	@Deprecated
 	public static void setNoPlots(final boolean noPlots) {
 		currentMetrics = getSMetrics();
 		if (noPlots)
@@ -584,6 +587,20 @@ public class Options implements PlugIn {
 		else
 			currentMetrics &= ~NO_PLOTS;
 		Prefs.set(METRICS_KEY, currentMetrics);
+	}
+
+	public void setMetric(final int key, final boolean value) {
+		if (value)
+			currentMetrics |= key;
+		else
+			currentMetrics &= ~key;
+	}
+
+	public void setPromptChoice(final int key, final boolean value) {
+		if (value)
+			currentBooleanPrefs |= key;
+		else
+			currentBooleanPrefs &= ~key;
 	}
 
 	/**
@@ -597,6 +614,7 @@ public class Options implements PlugIn {
 	 *
 	 * @see #setNoPlots(boolean)
 	 */
+	@Deprecated
 	public static void setNoTable(final boolean noTable) {
 		currentMetrics = getSMetrics();
 		if (noTable)
