@@ -87,8 +87,8 @@
 		<url>https://github.com/tferr/ASA/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/Sholl-Analysis/</url>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/tferr/ASA</url>
 	</ciManagement>
 
 	<properties>
