@@ -14,8 +14,8 @@ import csv, glob, os
 from collections import defaultdict
 
 from ij.gui import Plot
-from ij.measure import ResultsTable
-from java.awt import Color
+from sholl.gui import EnhancedResultsTable
+
 
 def log(msg, level = "info"):
     if verbose:
@@ -136,7 +136,7 @@ def main():
 
     if output_type in "Merged data Both":
         log("Building table with merged Y-data...")
-        table = ResultsTable()
+        table = EnhancedResultsTable()
         table.showRowNumbers(False)
         table.setNaNEmptyCells(False)
         for x in xvalues:
@@ -156,7 +156,7 @@ def main():
         for row_key, row_values in list_of_rows.iteritems():
             row_stats[row_key] = (mean(row_values), stdev(row_values), len(row_values))
 
-        table = ResultsTable()
+        table = EnhancedResultsTable()
         table.showRowNumbers(True)
         table.setNaNEmptyCells(True)
         for x in xvalues:
@@ -168,10 +168,11 @@ def main():
             table.setValue("N", int(key), value[2])
         table.show("Stats%s" % data_identifier)
 
-        plot = Plot("Plot of Means", reference_xheader, "Mean"+ u'\u00B1' +"SD")
-        plot.setColor(Color.BLUE)
+        plot = Plot("Plot of Means", reference_xheader, "N. of intersections")
+        plot.setLegend("Mean"+ u'\u00B1' +"SD", Plot.LEGEND_TRANSPARENT + Plot.AUTO_POSITION)
+        plot.setColor("cyan", "blue")
         plot.addPoints(table.getColumn(0), table.getColumn(1),
-                       table.getColumn(2), Plot.LINE, data_identifier)
+                       table.getColumn(2), Plot.CONNECTED_CIRCLES, data_identifier)
         plot.show()
 
     log("Parsing concluded.")
