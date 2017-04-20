@@ -10,20 +10,26 @@ A plugin for [ImageJ](http://imagej.net/), the _de facto_ standard in scientific
 processing, that uses automated  Sholl to perform neuronal morphometry directly from
 bitmap images. It is part of [Fiji](http://fiji.sc/).
 
-Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1244622/) is a
-method used by neuroanatomists to describe neuronal arbors. The plugin takes the original technique
-beyond conventional approaches, offering major advantages over other implementations:
+Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1244622/)
+is a method used by neuroanatomists to describe neuronal arbors. The plugin takes the
+original technique beyond conventional approaches, offering major advantages over other
+implementations:
 
- * It does not require previous tracing of the arbor (although analysis can be applied to previously
-   traced arbors)
- * It combines curve fitting with several methods to automatically retrieve quantitative descriptors
-   from sampled data
- * It allows continuous and repeated sampling around user-defined foci
+* It can perform the analysis in either 2D or 3D from three distinct sources:
+  1. Segmented images, allowing continuous or repeated sampling. In this mode analysis
+     does not require previous tracing of the arbor
+  1. Traced data (SWC, eSWC or [SNT](https://imagej.net/SNT) traces files)
+  1. Tabular data (CSV and related files)
+* It combines curve fitting with several methods to automatically retrieve quantitative
+  descriptors from sampled data (currently ~20 metrics)
+* Allows analysis of sub-compartments centered on user-defined foci
+* It is scriptable and capable of batch processing
 
-Why _ASA_? Throughout 2012 the plugin was [temporarily](SHA:1fdf4992b748ef8678f57601f2739473e40718c9)
-called _Advanced Sholl Analysis_, hence the acronym
+Why _ASA_? Throughout 2012 the plugin was temporarily called _Advanced Sholl Analysis_,
+hence the acronym
 
-##Publication
+
+## Publication
 This program is described in [Nature methods](http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html).
 Please cite it if you use it in your own research:
 
@@ -31,21 +37,18 @@ Please cite it if you use it in your own research:
   [Neuronal morphometry directly from bitmap images](http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html),
   Nature Methods 11(10): 982–984, 2014
 
-The manuscript uses _Sholl Analysis_ to describe and classify morphologically challenging cells and
-is accompanied by a [Supplementary Note](http://www.nature.com/nmeth/journal/v11/n10/extref/nmeth.3125-S1.pdf)
+The manuscript uses _Sholl Analysis_ to describe and classify morphologically challenging
+cells and is accompanied by a [Supplementary Note](http://www.nature.com/nmeth/journal/v11/n10/extref/nmeth.3125-S1.pdf)
 that presents the software in greater detail.
 
-##Resources
+
+## Resources
  - [Documentation page](http://imagej.net/Sholl)
  - [Release Notes](./Notes.md)
  - [API (Javadocs)](http://tferr.github.io/ASA/apidocs/)
- - Complementary routines provided by [IJ BAR](https://github.com/tferr/Scripts#ij-bar) and its
-   [update site](http://imagej.net/BAR#Installation):
-   - Routines for [Bitmap Morphometry](https://github.com/tferr/Scripts#neuronal-morphometry)
-   - Routines for [Data Analysis](https://github.com/tferr/Scripts#data-analysis)
 
 
-##Installation
+## Installation
 If you use Fiji, you already have _Sholl Analysis_ installed and can start [using it](http://imagej.net/Sholl_Analysis#Usage)
 right away. Binaries are available from the [documentation page](http://imagej.net/Sholl_Analysis)
 or from the [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~ca.mcgill~Sholl_Analysis~~~).
@@ -64,10 +67,9 @@ or from the [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~
       and [Bug reporting best practices](http://imagej.net/Bug_reporting_best_practices). Then, you can either:
       * [Open an issue](https://github.com/tferr/ASA/issues) on this repository
       * Report it on the [ImageJ forum](http://forum.imagej.net)
-      * Use Fiji's [Report a Bug](http://imagej.net/Report_a_Bug) command
 
 
-##License
+## License
 This program is free software: you can redistribute them and/or modify them under the terms of the
 [GNU General Public License](http://www.gnu.org/licenses/gpl.txt) as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later version.
