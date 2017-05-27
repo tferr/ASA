@@ -199,6 +199,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	public static final int BIN_MODE = 2;
 	private int binChoice = BIN_AVERAGE;
 	private int nSpans = 1;
+	public static final int MAX_N_SPANS = 10;
 
 	/* Advanced options and flags for API usage */
 	/* Display prompts? */
@@ -584,7 +585,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean noTable = ((metrics & Options.NO_TABLE) != 0);
 		if (!noTable) {
 
-			// If re-running over the same image, dispose unsaved table from previous runs
+			// If re-running over the same image, dispose unsaved table from
+			// previous runs
 			final String profileTable = getDescription() + "_Sholl-Profiles";
 			final TextWindow window = (TextWindow) WindowManager.getFrame(profileTable);
 			if (window != null)
@@ -1152,7 +1154,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			gd.setInsets(10, 0, 2);
 			gd.addHyperlinkMessage("II. Multiple Samples per Radius:", headerFont, Color.BLACK,
 					URL + "#Multiple_Samples_and_Noise_Reduction");
-			gd.addSlider("#_Samples", 1, 10, nSpans);
+			gd.addSlider("#_Samples", 1, MAX_N_SPANS, nSpans);
 			gd.setInsets(0, 0, 0);
 			gd.addChoice("Integration", BIN_TYPES, BIN_TYPES[binChoice]);
 		}
@@ -1475,7 +1477,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				skipSingleVoxels = gd.getNextBoolean();
 				checkboxCounter++;
 			} else {
-				nSpans = Math.min(Math.max((int) gd.getNextNumber(), 1), 10);
+				nSpans = Math.min(Math.max((int) gd.getNextNumber(), 1), MAX_N_SPANS);
 				numFieldCounter++;
 				binChoice = gd.getNextChoiceIndex();
 				iebinChoice = (Choice) choices.elementAt(choiceCounter++);
