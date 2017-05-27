@@ -2035,8 +2035,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * @deprecated use {@link #countTargetGroups()}.size
+	 * @deprecated use targetGroupsPositions(points, ip).size()
 	 */
+	@Deprecated
 	public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 		return targetGroupsPositions(pixels, rawpoints, ip).size();
 	}
@@ -2083,8 +2084,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * @deprecated use {@link #groupPositions(points, ip)}.size()
+	 * @deprecated use groupPositions(points, ip).size()
 	 */
+	@Deprecated
 	public int countGroups(final int[][] points, final ImageProcessor ip) {
 		return groupPositions(points, ip).size();
 	}
