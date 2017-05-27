@@ -2,7 +2,7 @@
  * #%L
  * Sholl_Analysis plugin for ImageJ
  * %%
- * Copyright (C) 2016 Tiago Ferreira
+ * Copyright (C) 2017 Tiago Ferreira
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
@@ -43,6 +43,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -230,7 +232,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus img;
 	private ImageProcessor ip;
 	private static int progressCounter;
-
+	private Map<Double, HashSet<ShollPoint>> intersPoints;
+	private boolean storeIntersPoints = true;
 
 	/**
 	 * This method is called when the plugin is loaded. {@code arg} is specified
@@ -1942,6 +1945,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// least 1
 		binsamples = new int[binsize];
 
+		// Create Map to hold the intersection points
+		if (storeIntersPoints)
+			intersPoints = new HashMap<Double, HashSet<ShollPoint>>();
+
 		IJ.showStatus(
 				"Sampling " + size + " radii, " + binsize + " measurement(s) per radius. Press 'Esc' to abort...");
 
@@ -1960,7 +1967,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				pixels = getPixels(ip, points);
 
 				// Count the number of intersections
-				binsamples[j] = countTargetGroups(pixels, points, ip);
+				final HashSet<ShollPoint> thisRadiusIntersPoints = targetGroupsPositions(pixels, points, ip);
+				binsamples[j] = thisRadiusIntersPoints.size();
+
+				// Store all intersection points
+				if (storeIntersPoints) {
+					intersPoints.put(radii[i], thisRadiusIntersPoints);
+				}
 
 			}
 
@@ -2019,8 +2032,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/**
-	 * Counts how many groups of non-zero pixels are present in a given array of
-	 * "masked" pixels. A group consists of a formation of adjacent pixels,
+	 * @deprecated use {@link #countTargetGroups()}.size
+	 */
+	public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
+		return targetGroupsPositions(pixels, rawpoints, ip).size();
+	}
+
+	/**
+	 * Retrieves the positions of non-zero pixels are present in a given array
+	 * of "masked" pixels. A group consists of a formation of adjacent pixels,
 	 * where adjacency is true for all eight neighboring positions around a
 	 * given pixel. Requires threshold values to be set beforehand using
 	 * {@link #setThreshold(int, int)}.
@@ -2033,9 +2053,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the x,y pixel positions
 	 * @param ip
 	 *            reference to the 2D image being analyzed
-	 * @return the number of non-zero clusters
+	 * @return the positions of non-zero clusters (first coordinate of each
+	 *         cluster)
 	 */
-	public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
+	public HashSet<ShollPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints,
+			final ImageProcessor ip) {
 
 		int i, j;
 		int[][] points;
@@ -2053,34 +2075,46 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (pixels[i] != 0.0)
 				points[j++] = rawpoints[i];
 
-		return countGroups(points, ip);
+		return groupPositions(points, ip);
 
 	}
 
 	/**
-	 * For a given set of points of a segmented 2D image, counts how many groups
-	 * (clusters) of 8-connected pixels exist within the set. Requires threshold
-	 * values to be set beforehand using {@link #setThreshold(int, int)}.
+	 * @deprecated use {@link #groupPositions(points, ip)}.size()
+	 */
+	public int countGroups(final int[][] points, final ImageProcessor ip) {
+		return groupPositions(points, ip).size();
+	}
+
+	/**
+	 * For a given set of points of a segmented 2D image, returns the
+	 * coordinates of the first position of unique clusters of 8-connected
+	 * pixels that exist within the set. Requires threshold values to be set
+	 * beforehand using {@link #setThreshold(int, int)}.
 	 *
 	 * @param points
 	 *            the x,y pixel positions
 	 * @param ip
 	 *            the 2D image being analyzed
-	 * @return the number of detected clusters
-	 * @see #countSinglePixels
+	 * @return the collection of points
+	 * @see #countGroups
 	 */
-	public int countGroups(final int[][] points, final ImageProcessor ip) {
+	public HashSet<ShollPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
 
-		int i, j, k, target, source, groups, len, dx;
+		int i, j, k, target, source, len, dx;
 
 		// Create an array to hold the point grouping data
 		final int[] grouping = new int[len = points.length];
 
 		// Initialize each point to be in a unique group
-		for (i = 0, groups = len; i < groups; i++)
+		final HashSet<Integer> positions = new HashSet<>();
+		for (i = 0; i < len; i++) {
 			grouping[i] = i + 1;
+			positions.add(i);
+		}
+		// int groups = len;
 
-		for (i = 0; i < len; i++)
+		for (i = 0; i < len; i++) {
 			for (j = 0; j < len; j++) {
 
 				// Don't compare the same point with itself
@@ -2104,25 +2138,36 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 							grouping[k] = source;
 
 					// Update the number of groups
-					groups--;
-
+					if (!positions.remove(j)) // we must trim the set even if
+												// this position has been
+												// visited
+						positions.remove(positions.iterator().next());
+					// groups--;
 				}
+
 			}
+		}
 
-		if (doSpikeSupression)
-			groups -= countSinglePixels(points, len, grouping, ip);
+		// System.out.println("i=" + i);
+		// System.out.println("groups/positions before doSpikeSupression: " + groups + "/" + positions.size());
+		if (doSpikeSupression) {
+			removeSinglePixels(points, len, grouping, ip, positions);
+			// System.out.println("groups/positions after doSpikeSupression: " + groups + "/" + positions.size());
+		}
 
-		return groups;
+		final HashSet<ShollPoint> sPoints = new HashSet<>();
+		for (final Integer pos : positions)
+			sPoints.add(new ShollPoint(points[pos][0], points[pos][1]));
+
+		return sPoints;
 	}
 
 	/**
-	 * Counts 1-pixel groups that exist solely on the edge of a "stair" of
-	 * target pixels
+	 * Removes positions from 1-pixel groups that exist solely on the edge of a
+	 * "stair" of target pixels
 	 */
-	private int countSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
-			final ImageProcessor ip) {
-
-		int counts = 0;
+	private void removeSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
+			final ImageProcessor ip, final HashSet<Integer> positions) {
 
 		for (int i = 0; i < pointsLength; i++) {
 
@@ -2171,13 +2216,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if ((px[0] != 0 && px[1] != 0 && px[3] != 0 && px[4] == 0 && px[6] == 0 && px[7] == 0)
 					|| (px[1] != 0 && px[2] != 0 && px[4] != 0 && px[3] == 0 && px[5] == 0 && px[6] == 0)
 					|| (px[4] != 0 && px[6] != 0 && px[7] != 0 && px[0] == 0 && px[1] == 0 && px[3] == 0)
-					|| (px[3] != 0 && px[5] != 0 && px[6] != 0 && px[1] == 0 && px[2] == 0 && px[4] == 0))
+					|| (px[3] != 0 && px[5] != 0 && px[6] != 0 && px[1] == 0 && px[2] == 0 && px[4] == 0)) {
 
-				counts++;
+				positions.remove(i);
+			}
 
 		}
-
-		return counts;
 
 	}
 
@@ -2381,6 +2425,23 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (nSpans > 1)
 				shell.setStrokeWidth(nSpans);
 			overlay.add(shell, "r=" + IJ.d2s(r, 2) + unit);
+			// Add intersection points
+			if (storeIntersPoints && intersPoints != null) {
+				final HashSet<ShollPoint> iPoints = intersPoints.get(r);
+				if (iPoints == null || iPoints.isEmpty())
+					continue;
+				PointRoi intersRois = null;
+				for (final ShollPoint point : iPoints) {
+					if (intersRois == null)
+						intersRois = new PointRoi(point.x, point.y);
+					intersRois.addPoint(point.x, point.y);
+				}
+				if (intersRois != null) {
+					intersRois.setPointType(2);
+					overlay.add(intersRois, "IntersPoints r=" + IJ.d2s(r, 2));
+				}
+			}
+
 		}
 
 		if (newOverlay)
