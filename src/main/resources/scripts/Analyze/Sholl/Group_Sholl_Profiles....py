@@ -1,4 +1,4 @@
-# @String(visibility="MESSAGE",value="<html>This script merges Sholl profiles from multiple files into a single table. It<br>assumes that files share the same structure and profiles the same radius<br>step size. Example: for a group of profiles stored in files <i>Cell1.csv,<br>Cell2.csv, ..., CellN.csv</i>, the script would generate the following tables:<table align='center' style='font-size:8px'><tr align='center'><th valign='bottom'>&nbsp;</th><th colspan='4' valign='bottom'><i>Inters.</th><th colspan='2' valign='bottom'>&nbsp;</th><th colspan='2' valign='bottom'><i>Inters.</th></tr><tr align='center'><th><tt>Radius</th><th><tt>Cell1</th><th><tt>Cell2</th><th><tt>Cell3</th><th><tt>...</th><th><tt>&nbsp;</th><th><tt>Radius</th><th><tt>Mean Cell<sub>1..N</th><th><tt>SD Cell<sub>1..N</th></tr><tr align='center'><td><tt>x1</td><td><tt>row1</td><td><tt>row1</td><td><tt>row1</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>x1</td><td><tt>row1 mean</td><td><tt>row1 SD</td></tr><tr align='center'><td><tt>x2</td><td><tt>row2</td><td><tt>row2</td><td><tt>row2</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>x2</td><td><tt>row2 mean</td><td><tt>row2 SD</td></tr><tr align='center'><td><tt>...</td><td><tt>...</td><td><tt>...</td><td><tt>...</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>...</td><td><tt>...</td><td><tt>...</td></tr><tr align='center'><td><tt>xN</td><td><tt>rowN</td><td><tt>rowN</td><td><tt>rowN</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>xN</td><td><tt>rowN mean</td><td><tt>rowN SD</td></tr></table><br><p>Tip: Subscribe to the BAR update site and use <i>BAR>Data Analysis></i><br>&emsp;&emsp;routines to plot processed data.<br>&nbsp;") MSG
+# @String(visibility="MESSAGE",value="<html>This script merges Sholl profiles from multiple files into a single table. It<br>assumes that files share the same structure and profiles the same radius<br>step size. Example: for a group of profiles stored in files <i>Cell1.csv,<br>Cell2.csv, ..., CellN.csv</i>, the script would generate the following tables:<table align='center' style='font-size:9px'><tr align='center'><th valign='bottom'>&nbsp;</th><th colspan='4' valign='bottom'><i>Inters.</th><th colspan='2' valign='bottom'>&nbsp;</th><th colspan='2' valign='bottom'><i>Inters.</th></tr><tr align='center'><th><tt>Radius</th><th><tt>Cell1</th><th><tt>Cell2</th><th><tt>Cell3</th><th><tt>...</th><th><tt>&nbsp;</th><th><tt>Radius</th><th><tt>Mean Cell<sub>1..N</th><th><tt>SD Cell<sub>1..N</th></tr><tr align='center'><td><tt>x1</td><td><tt>row1</td><td><tt>row1</td><td><tt>row1</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>x1</td><td><tt>row1 mean</td><td><tt>row1 SD</td></tr><tr align='center'><td><tt>x2</td><td><tt>row2</td><td><tt>row2</td><td><tt>row2</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>x2</td><td><tt>row2 mean</td><td><tt>row2 SD</td></tr><tr align='center'><td><tt>...</td><td><tt>...</td><td><tt>...</td><td><tt>...</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>...</td><td><tt>...</td><td><tt>...</td></tr><tr align='center'><td><tt>xN</td><td><tt>rowN</td><td><tt>rowN</td><td><tt>rowN</td><td><tt>...</td><td><tt>&nbsp;</td><td><tt>xN</td><td><tt>rowN mean</td><td><tt>rowN SD</td></tr></table><br><p>Tip: Subscribe to the BAR update site and use <i>BAR>Data Analysis></i><br>&emsp;&emsp;routines to plot processed data.<br>&nbsp;") MSG
 # @File(label="Input directory", style="directory", description="The directory containing the files to be parsed") dir
 # @String(label="Filename contains", value="", description="<html>Only files containing this string will be considered.<br>Leave blank to consider all files. Glob patterns accepted.") pattern
 # @String(label="File extension", choices={".csv",".txt",".xls",".ods", "any extension"}, description="<html>The extension of the files to be parsed.") extension
@@ -55,6 +55,7 @@ def stdev(data):
     svar = ssd/(n)
     return svar**0.5
 
+
 def tofloat(v):
     try:
         return float(v)
@@ -62,10 +63,21 @@ def tofloat(v):
         #log("Non-numeric entry: %s" % v, "warn")
         return v
 
+
+def newtable(header, values):
+    """Returns an IJ1 table populated with the specified column"""
+    table = EnhancedResultsTable()
+    table.setNaNEmptyCells(False)
+    for v in values:
+        table.incrementCounter()
+        table.addValue(header, v)
+    return table
+
+
 def main():
 
     ext = "" if "any" in extension else extension
-    glob_pattern = "*" + pattern + "*" + ext
+    glob_pattern = "*%s*%s" % (pattern, ext)
     files = sorted(glob.glob(os.path.join(str(dir), glob_pattern)))
 
     if not files:
@@ -132,19 +144,14 @@ def main():
               " settings or check the Console for details." % len(files))
         return
 
-    data_identifier = "Col#%s [%s]" % ( ycol_idx1based, glob_pattern)
+    data_identifier = "Col#%s_%s" % (ycol_idx1based, pattern)
 
     if output_type in "Merged data Both":
         log("Building table with merged Y-data...")
-        table = EnhancedResultsTable()
-        table.showRowNumbers(False)
-        table.setNaNEmptyCells(False)
-        for x in xvalues:
-            table.incrementCounter()
-            table.addValue(reference_xheader, x)
+        table = newtable(reference_xheader, xvalues)
         for filename, row, row_value in all_ydata:
             table.setValue(filename, row, row_value)
-        table.show("MergedFiles%s" % data_identifier)
+        table.show("MergedFiles_%s" % data_identifier)
 
     if output_type in "Row statistics Both":
         log("Retrieving statistics for merged Y-data...")
@@ -156,19 +163,14 @@ def main():
         for row_key, row_values in list_of_rows.iteritems():
             row_stats[row_key] = (mean(row_values), stdev(row_values), len(row_values))
 
-        table = EnhancedResultsTable()
-        table.showRowNumbers(True)
-        table.setNaNEmptyCells(True)
-        for x in xvalues:
-            table.incrementCounter()
-            table.addValue(reference_xheader, x)
+        table = newtable(reference_xheader, xvalues)
         for key, value in row_stats.iteritems():
             table.setValue("Mean", int(key), value[0])
             table.setValue("StdDev", int(key), value[1])
             table.setValue("N", int(key), value[2])
-        table.show("Stats%s" % data_identifier)
+        table.show("Stats_%s" % data_identifier)
 
-        plot = Plot("Plot of Means", reference_xheader, "N. of intersections")
+        plot = Plot("Mean Sholl Plot [%s]" % data_identifier, reference_xheader, "N. of intersections")
         plot.setLegend("Mean"+ u'\u00B1' +"SD", Plot.LEGEND_TRANSPARENT + Plot.AUTO_POSITION)
         plot.setColor("cyan", "blue")
         plot.addPoints(table.getColumn(0), table.getColumn(1),
