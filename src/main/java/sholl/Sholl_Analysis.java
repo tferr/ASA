@@ -1218,7 +1218,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Create intersections mask", mask);
 		gd.setInsets(0, xIndent, 0);
-		gd.addCheckbox("Overlay sampling shells", overlayShells);
+		gd.addCheckbox("Overlay sampling shells and intersection points", overlayShells);
 
 		// Offer to save results
 		gd.setInsets(0, xIndent, 0);
@@ -1527,6 +1527,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
 			overlayShells = gd.getNextBoolean();
+			storeIntersPoints = overlayShells;
 			ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			ieoverlay.setEnabled(!is3D);
 
@@ -2381,7 +2382,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (overlay != null && overlay.size() > 0) {
 			for (int i = overlay.size() - 1; i >= 0; i--) {
 				final String roiName = overlay.get(i).getName();
-				if (roiName != null && (roiName.equals("center") || roiName.startsWith("r=")))
+				if (roiName != null && (roiName.equals("center") || roiName.contains("r=")))
 					overlay.remove(i);
 			}
 		}
@@ -2398,8 +2399,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		} else
 			removeOverlayShells(overlay);
 
+		// Add center of analysis
 		overlay.add(new PointRoi(x, y), "center");
+
+		final Color rc = Roi.getColor();
+		final Color shellColor = new Color(rc.getRed(), rc.getGreen(), rc.getBlue(), 100);
+
 		for (final double r : radii) {
+
+			// Add Shells
 			final double rawR = r / vxSize;
 			final Roi shell;
 
@@ -2426,7 +2434,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// shell.setStrokeColor(Color.CYAN);
 			if (nSpans > 1)
 				shell.setStrokeWidth(nSpans);
-			overlay.add(shell, "r=" + IJ.d2s(r, 2) + unit);
+			shell.setStrokeColor(shellColor);
+			overlay.add(shell, "Shell r=" + IJ.d2s(r, 2) + unit);
+
 			// Add intersection points
 			if (storeIntersPoints && intersPoints != null) {
 				final HashSet<ShollPoint> iPoints = intersPoints.get(r);
