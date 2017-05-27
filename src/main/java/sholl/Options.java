@@ -68,7 +68,7 @@ public class Options implements PlugIn {
 	/** Argument for {@link #run(String)} **/
 	public static final String SKIP_BITMAP_OPTIONS_LABEL = "skip-bitmap";
 	/** Argument for {@link #run(String)} **/
-	static final String RESET_OPTIONS_LABEL = "reset";
+	private static final String RESET_OPTIONS_LABEL = "reset";
 
 	/* Columns in "Sholl Results" table */
 	public static final int DIRECTORY = 1;
@@ -110,26 +110,26 @@ public class Options implements PlugIn {
 
 	/* Non-Boolean preferences */
 	protected HashMap<String, String> stringPrefs;
-	static final String START_RADIUS_KEY = "A";
-	static final String END_RADIUS_KEY = "B";
-	static final String STEP_SIZE_KEY = "C";
-	static final String NSAMPLES_KEY = "D";
-	static final String INTEGRATION_KEY = "E";
-	static final String ENCLOSING_RADIUS_KEY = "F";
-	static final String PRIMARY_BRANCHES_KEY = "G";
-	static final String POLYNOMIAL_INDEX_KEY = "H";
-	static final String NORMALIZER_INDEX_KEY = "I";
-	static final String SAVE_DIR_KEY = "J";
-	static final String QUAD_CHOICE_KEY = "K";
+	protected static final String START_RADIUS_KEY = "A";
+	protected static final String END_RADIUS_KEY = "B";
+	protected static final String STEP_SIZE_KEY = "C";
+	protected static final String NSAMPLES_KEY = "D";
+	protected static final String INTEGRATION_KEY = "E";
+	protected static final String ENCLOSING_RADIUS_KEY = "F";
+	protected static final String PRIMARY_BRANCHES_KEY = "G";
+	protected static final String POLYNOMIAL_INDEX_KEY = "H";
+	protected static final String NORMALIZER_INDEX_KEY = "I";
+	protected static final String SAVE_DIR_KEY = "J";
+	protected static final String QUAD_CHOICE_KEY = "K";
 	// TODO: static final String LIMIT_CSV_KEY = "L";
 
-	final static String HASHMAP_KEY = "sholl.map";
-	final private String HASHMAP_DELIMITER = "|";
+	private final static String HASHMAP_KEY = "sholl.map";
+	private final String HASHMAP_DELIMITER = "|";
 	private String hashMapString;
 
 	/* Sholl mask */
-	static final int SAMPLED_MASK = 0;
-	static final int FITTED_MASK = 1;
+	private static final int SAMPLED_MASK = 0;
+	protected static final int FITTED_MASK = 1;
 	private static final String[] MASK_TYPES = new String[] { "Sampled values", "Fitted values" };
 	private final static String MASK_KEY = "sholl.mask";
 	private final static int DEFAULT_MASK_BACKGROUND = 228;

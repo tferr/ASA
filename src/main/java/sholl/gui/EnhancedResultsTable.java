@@ -32,7 +32,6 @@ import ij.gui.GenericDialog;
 import ij.macro.Interpreter;
 import ij.measure.ResultsTable;
 import ij.plugin.MeasurementsWriter;
-import ij.text.TextPanel;
 import ij.text.TextWindow;
 
 /** Slight improvements to {@link ij.measure.ResultsTable} */
@@ -42,10 +41,6 @@ public class EnhancedResultsTable extends ResultsTable {
 	private boolean listenerAdded;
 	private boolean isShowing;
 	private String title;
-
-	public EnhancedResultsTable() {
-		super();
-	}
 
 	/**
 	 * Calls the default {@code incrementCounter()} while monitoring unsaved
@@ -150,7 +145,7 @@ public class EnhancedResultsTable extends ResultsTable {
 		final GenericDialog gd = new GenericDialog("Unsaved Data");
 		gd.addMessage("Save measurements in " + tableTitle + "?", new Font("SansSerif", Font.BOLD, 12));
 		gd.addMessage("Data will be discarded if you dismiss this prompt!", new Font("SansSerif", Font.PLAIN, 12),
-				sholl.gui.Utils.getDisabledComponentColor());
+				Utils.getDisabledComponentColor());
 		gd.setCancelLabel("No. Discard measurements");
 		gd.setOKLabel("Yes. Save to...");
 		gd.showDialog();
@@ -160,15 +155,8 @@ public class EnhancedResultsTable extends ResultsTable {
 		return false;
 	}
 
-	TextWindow getWindow(final String title) {
+	private TextWindow getWindow(final String title) {
 		return (TextWindow) WindowManager.getWindow(title);
-	}
-
-	TextPanel getPanel(final String title) {
-		final TextWindow window = getWindow(title);
-		if (window == null)
-			return null;
-		return window.getTextPanel();
 	}
 
 	public void setUnsavedMeasurements(final boolean unsavedMeasurements) {

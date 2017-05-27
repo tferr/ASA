@@ -45,7 +45,7 @@ public class Utils {
 	private Utils() {
 	}
 
-	static void addClickableURLtoLabel(final Component label, final String url, final Color color) {
+	protected static void addClickableURLtoLabel(final Component label, final String url, final Color color) {
 		if (isHeadless() || label == null || url == null)
 			return;
 		label.addMouseListener(new MouseAdapter() {
@@ -131,11 +131,11 @@ public class Utils {
 		return GraphicsEnvironment.isHeadless();
 	}
 
-	final static String citationURL() {
+	protected final static String citationURL() {
 		return "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html";
 	}
 
-	final static String citationMsg() {
+	protected final static String citationMsg() {
 		return "Please be so kind as to cite this program in your own\n"
 				+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)";
 	}

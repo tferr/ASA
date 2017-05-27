@@ -97,7 +97,7 @@ public class Sholl_Utils implements PlugIn {
 	}
 
 	/** Displays the ddaC sample image and returns a reference to it */
-	static ImagePlus displaySample() {
+	protected static ImagePlus displaySample() {
 		final ImagePlus imp = sampleImage();
 		if (imp == null) {
 			IJ.showStatus("Error: Could not open ddaC.tif!");
@@ -123,7 +123,7 @@ public class Sholl_Utils implements PlugIn {
 		return matlabJetColorMap(backgroundGray, -1);
 	}
 
-	static IndexColorModel matlabJetColorMap(final int backgroundGray, final int foregroundGray) {
+	protected static IndexColorModel matlabJetColorMap(final int backgroundGray, final int foregroundGray) {
 
 		// Initialize colors arrays (zero-filled by default)
 		final byte[] reds = new byte[256];
@@ -207,7 +207,7 @@ public class Sholl_Utils implements PlugIn {
 	/**
 	 * Converts an integer to its ordinal (http://stackoverflow.com/a/6810409)
 	 */
-	static String ordinal(final int i) {
+	protected static String ordinal(final int i) {
 		final String[] sufixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
 		switch (i % 100) {
 		case 11:
@@ -356,7 +356,7 @@ public class Sholl_Utils implements PlugIn {
 	 * @return the text contents of the clipboard or an empty string if no text
 	 *         could be retrieved
 	 */
-	static String getClipboardText() {
+	protected static String getClipboardText() {
 		String text = "";
 		try {
 			final Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -368,7 +368,7 @@ public class Sholl_Utils implements PlugIn {
 		return text;
 	}
 
-	static TextWindow getTextWindow(final String windowtitle) {
+	protected static TextWindow getTextWindow(final String windowtitle) {
 		final Frame f = WindowManager.getFrame(windowtitle);
 		if (f == null || !(f instanceof TextWindow))
 			return null;

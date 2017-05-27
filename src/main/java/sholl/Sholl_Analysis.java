@@ -1178,7 +1178,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			try { // Access "units" label
 				final Panel p = (Panel) gd.getComponent(gd.getComponentCount() - 1);
 				final Label l = (Label) p.getComponent(1);
-				l.setForeground(sholl.gui.Utils.getDisabledComponentColor());
+				l.setForeground(Utils.getDisabledComponentColor());
 			} catch (final Exception ignored) {
 			}
 		}
@@ -1239,7 +1239,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
-			sholl.gui.Utils.improveRecording();
+			Utils.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else { // User pressed any other button
 			return false;
@@ -1401,7 +1401,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					final int newChoice = (rColumn < ierColumn.getItemCount() - 1) ? rColumn + 1 : 0;
 					if (source == ierColumn)
 						iecColumn.select(newChoice);
-					else if (source == iecColumn)
+					else if (source.equals(iecColumn))
 						ierColumn.select(newChoice);
 				}
 
@@ -1678,7 +1678,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled())
 			return false;
 		else if (gd.wasOKed()) {
-			sholl.gui.Utils.improveRecording();
+			Utils.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else {
 			return false;
@@ -2722,9 +2722,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.add(mi);
 		popup.addSeparator();
 		mi = new JMenuItem();
-		mi = sholl.gui.Utils.menuItemTrigerringURL("Online documentation", URL);
+		mi = Utils.menuItemTrigerringURL("Online documentation", URL);
 		popup.add(mi);
-		mi = sholl.gui.Utils.menuItemTriggeringResources();
+		mi = Utils.menuItemTriggeringResources();
 		popup.add(mi);
 		return popup;
 	}
