@@ -1399,7 +1399,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				final Choice iecColumn = (Choice) choices.elementAt(choiceCounter++);
 				if (rColumn == cColumn) {
 					final int newChoice = (rColumn < ierColumn.getItemCount() - 1) ? rColumn + 1 : 0;
-					if (source == ierColumn)
+					if (source.equals(ierColumn))
 						iecColumn.select(newChoice);
 					else if (source.equals(iecColumn))
 						ierColumn.select(newChoice);
@@ -1567,19 +1567,20 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (!proceed)
 			tipMsg = "Error: At least one method needs to be chosen!";
 		if (source != null) {
-			if (source == iequadChoice)
+			if (source.equals(iequadChoice))
 				tipMsg += "The \"Restriction\" option requires an orthogonal line.";
-			else if (source == iebinChoice)
+			else if (source.equals(iebinChoice))
 				tipMsg += "The \"Integration\" option is disabled with 3D images.";
-			else if (source == iepolyChoice)
+			else if (source.equals(iepolyChoice))
 				tipMsg += "The BAR update site allows fitting to polynomials of higher order.";
-			else if (source == ienormChoice)
+			else if (source.equals(ienormChoice))
 				tipMsg += "\"Annulus/Spherical shell\" requires non-continuous sampling.";
-			else if (source == iechooseLog || source == ieshollNS || source == ieshollSLOG || source == ieshollLOG)
+			else if (source.equals(iechooseLog) || source.equals(ieshollNS) || source.equals(ieshollSLOG)
+					|| source.equals(ieshollLOG))
 				tipMsg += "Determination ratio chooses most informative method.";
-			else if (source == ieprimaryBranches || source == ieinferPrimary)
+			else if (source.equals(ieprimaryBranches) || source.equals(ieinferPrimary))
 				tipMsg += "# Primary branches are used to calculate Schoenen indices.";
-			else if (source == iehideSaved)
+			else if (source.equals(iehideSaved))
 				tipMsg += "Saving path: " + imgPath;
 			else if (!isCSV) {
 				if (Double.isNaN(startRadius))
@@ -3270,7 +3271,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			setExportPath(null);
 			setDescription("Imported data", false);
 			final String choice = gd.getNextRadioButton();
-			if (choice.equals("External file...")) {
+			if ("External file...".equals(choice)) {
 
 				try {
 					rt = ResultsTable.open("");
@@ -3284,7 +3285,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					lError("", e.getMessage());
 				}
 
-			} else if (choice.equals("Clipboard")) {
+			} else if ("Clipboard".equals(choice)) {
 
 				final String clipboard = Sholl_Utils.getClipboardText();
 				final String error = "Clipboard does not seem to contain valid data";
