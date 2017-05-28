@@ -2438,7 +2438,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (nSpans > 1)
 				shell.setStrokeWidth(nSpans);
 			shell.setStrokeColor(shellColor);
-			overlay.add(shell, "Shell r=" + IJ.d2s(r, 2) + unit);
+			overlay.add(shell, "Shell r=" + IJ.d2s(r, 2));
 
 			// Add intersection points
 			if (storeIntersPoints && intersPoints != null) {
