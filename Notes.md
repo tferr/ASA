@@ -8,15 +8,18 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 
 ## Development Builds
-* All options can now be accessed programmatically ([example](./scripting-examples/))
-* Improved [script](./src/main/resources/scripts/Analyze/Sholl/) implementing
-  _Analyze>Sholl>Group Sholl Profiles..._
-* Switch from Jenkins to Travis CI
-
+* No major changes to report
 
 ## Release Builds
 
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+
+#### Version 3.6.13 (June 2017)
+* All options can now be accessed programmatically ([example](./scripting-examples/))
+* Intersection points between arbor and sampling shells can be accessed as ROIs
+* Improved [script](./src/main/resources/scripts/Analyze/Sholl/) implementing
+  _Analyze>Sholl>Group Sholl Profiles..._
+* Switch from Jenkins to Travis CI
 
 #### Version 3.6.12 (January 2017)
 * Implemented the _Analyze>Sholl>Group Sholl Profiles..._ command
