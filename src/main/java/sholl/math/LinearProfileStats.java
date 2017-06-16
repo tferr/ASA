@@ -19,7 +19,7 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-package sholl.stats;
+package sholl.math;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
