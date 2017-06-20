@@ -1,0 +1,63 @@
+/*
+ * #%L
+ * Sholl_Analysis plugin for ImageJ
+ * %%
+ * Copyright (C) 2017 Tiago Ferreira
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+package sholl;
+
+import java.util.ArrayList;
+
+/**
+ * Utility class defining a sholl profile entry
+ *
+ * @author Tiago Ferreira
+ */
+public class ProfileEntry implements Comparable<ProfileEntry> {
+
+	public double radius, count;
+	public ArrayList<ShollPoint> points;
+
+	public ProfileEntry(final Number r, final Number count, final ArrayList<ShollPoint> points) {
+		this.radius = r.doubleValue();
+		this.count = count.doubleValue();
+		this.points = points;
+	}
+
+	public ProfileEntry(final Number r, final Number count) {
+		this(r, count, null);
+	}
+
+	public void addPoint(final ShollPoint point) {
+		points.add(point);
+	}
+
+	public void assignPoints(final ArrayList<ShollPoint> points) {
+		this.points = points;
+	}
+
+	public void removePoint(final ShollPoint point) {
+		points.remove(point);
+	}
+
+	@Override
+	public int compareTo(final ProfileEntry other) {
+		return Double.compare(this.radius, other.radius);
+	}
+
+}
