@@ -1,11 +1,11 @@
 package sholl.parsers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.scijava.Context;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -145,14 +145,15 @@ public class ImageParser2D implements Parser {
 	public Profile parse() {
 		checkUnsetFields();
 
-		int[] binsamples, pixels;
+		double[] binsamples;
+		int[] pixels;
 		int[][] points;
 
 		final int size = radii.size();
 
 		// Create array for bin samples. Passed value of binSize must be at
 		// least 1
-		binsamples = new int[spanSize];
+		binsamples = new double[spanSize];
 
 		statusService.showStatus(
 				"Sampling " + size + " radii, " + spanSize + " measurement(s) per radius. Press 'Esc' to abort...");
@@ -168,7 +169,6 @@ public class ImageParser2D implements Parser {
 			// Retrieve the radius in pixel coordinates and set the largest
 			// radius of this bin span
 			int rbin = (int) Math.round(radius / pixelSize + spanSize / 2);
-
 			final Set<ShollPoint> pointsList = new HashSet<>();
 
 			// Inner loop to gather samples for each bin
@@ -192,48 +192,16 @@ public class ImageParser2D implements Parser {
 
 			// Statistically combine bin data
 			if (spanSize > 1) {
-				if (spanType == MEDIAN) {
-
-					// Sort the bin data
-					Arrays.sort(binsamples);
-
-					// Pull out the median value: average the two middle values
-					// if no center exists otherwise pull out the center value
-					if (spanSize % 2 == 0)
-						counts = (binsamples[spanSize / 2] + binsamples[spanSize / 2 - 1]) / 2.0;
-					else
-						counts = binsamples[spanSize / 2];
-
-				} else if (spanType == AVERAGE) {
-
-					// Mean: Find the samples sum and divide by n. of samples
-					int sum = 0;
-					for (final int sample : binsamples)
-						sum += sample;
-					counts = ((double) sum) / ((double) spanSize);
-
-				} else if (spanType == MODE) {
-
-					// Mode: Find the value that appears most often. The first
-					// sampled value is used if no mode exists
-					int mode = 0, maxCount = 0;
-					for (int ma = 0; ma < spanSize; ma++) {
-						int tempCount = 0;
-						for (int mb = 0; mb < spanSize; mb++)
-							if (binsamples[mb] == binsamples[ma])
-								tempCount++;
-						if (tempCount > maxCount) {
-							maxCount = tempCount;
-							mode = binsamples[ma];
-						}
-					}
-					counts = mode;
-
+				if (spanType == MEDIAN) { // 50th percentile
+					counts = StatUtils.percentile(binsamples, 50);
+				} else if (spanType == AVERAGE) { // mean
+					counts = StatUtils.mean(binsamples);
+				} else if (spanType == MODE) { // the 1st max freq. element
+					counts = StatUtils.mode(binsamples)[0];
 				}
-
-			} else // There was only one sample
+			} else {// There was only one sample
 				counts = binsamples[0];
-
+			}
 			profile.add(new ProfileEntry(radius, counts, pointsList));
 
 		}
