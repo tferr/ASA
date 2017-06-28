@@ -128,6 +128,16 @@ public class ShollPoint {
 		return result.times(1.0 / points.length);
 	}
 
+	protected static ShollPoint fromString(final String string) {
+		if (string == null || string.isEmpty())
+			return null;
+		final String[] ccs = string.trim().split(",");
+		if (ccs.length == 3) {
+			return new ShollPoint(Double.valueOf(ccs[0]), Double.valueOf(ccs[1]), Double.valueOf(ccs[2]));
+		}
+		return null;
+	}
+
 	public double rawX(final Calibration cal) {
 		return cal.getRawX(x);
 	}
@@ -140,4 +150,8 @@ public class ShollPoint {
 		return z / cal.pixelDepth + cal.zOrigin;
 	}
 
+	@Override
+	public String toString() {
+		return ShollUtils.d2s(x) + "," + ShollUtils.d2s(y) + "," + ShollUtils.d2s(z);
+	}
 }
