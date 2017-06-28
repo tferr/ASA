@@ -21,17 +21,18 @@
  */
 package sholl;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import ij.ImagePlus;
+import ij.measure.Calibration;
+import ij.process.ImageProcessor;
 import sholl.gui.ShollPlot;
-import sholl.math.LinearProfileStats;
-import sholl.parsers.Parser;
 
 /**
  * Class defining a sholl profile
@@ -41,11 +42,8 @@ import sholl.parsers.Parser;
 public class Profile implements ProfileProperties {
 
 	private SortedSet<ProfileEntry> profile;
-	private String identifier;
-	private String spatialUnit;
-	private boolean hemiShells;
-	private boolean fitted;
-	private Point2D.Double center;
+	private ShollPoint center;
+	private Calibration cal;
 	private Properties properties;
 
 	public Profile() {
@@ -61,7 +59,6 @@ public class Profile implements ProfileProperties {
 	 *            sampled intersection counts
 	 */
 	public Profile(final ArrayList<Number> radii, final ArrayList<Number> sampledInters) {
-		initialize();
 		if (radii == null || sampledInters == null)
 			throw new NullPointerException("Lists cannot be null");
 		final int n = radii.size();
@@ -131,8 +128,8 @@ public class Profile implements ProfileProperties {
 		return counts().stream().mapToDouble(d -> d).toArray();
 	}
 
-	public ArrayList<ArrayList<ShollPoint>> points() {
-		final ArrayList<ArrayList<ShollPoint>> allPoints = new ArrayList<>();
+	public ArrayList<Set<ShollPoint>> points() {
+		final ArrayList<Set<ShollPoint>> allPoints = new ArrayList<>();
 		for (final ProfileEntry e : profile)
 			allPoints.add(e.points);
 		return allPoints;
@@ -154,7 +151,24 @@ public class Profile implements ProfileProperties {
 		}
 	}
 
-	public Set<ProfileEntry> entries() {
+	public void scale(final double xScale, final double yScale, final double zScale) {
+		final double isotropicScale = Math.cbrt(xScale * yScale * zScale);
+		if (Double.isNaN(isotropicScale) || isotropicScale <= 0)
+			throw new IllegalArgumentException("Invalid scaling factors");
+		final Iterator<ProfileEntry> iter = profile.iterator();
+		if (center != null)
+			center.scale(xScale, yScale, zScale);
+		while (iter.hasNext()) {
+			final ProfileEntry entry = iter.next();
+			entry.radius *= isotropicScale;
+			if (entry.points == null)
+				continue;
+			for (final ShollPoint point : entry.points)
+				point.scale(xScale, yScale, zScale);
+		}
+	}
+
+	public SortedSet<ProfileEntry> entries() {
 		return profile;
 	}
 
@@ -187,18 +201,21 @@ public class Profile implements ProfileProperties {
 		}
 	}
 
-	public boolean hemiShells() {
-		return hemiShells;
+	public boolean scaled() {
+		return cal != null && cal.scaled() && !String.valueOf(Double.NaN).equals(cal.getUnit());
+	}
+
+	public boolean hasPoints() {
+		for (final Iterator<ProfileEntry> it = profile.iterator(); it.hasNext();) {
+			final Set<ShollPoint> entryPoints = it.next().points;
+			if (entryPoints != null && entryPoints.size() > 0)
+				return true;
+		}
+		return false;
 	}
 
 	public ShollPlot plot() {
-		String plotTitle = idDescription().toString();
-		if (plotTitle.isEmpty() || "null".equals(plotTitle))
-			plotTitle = "Sholl Profile";
-		String xTitle = distanceDescription().toString();
-		if (xTitle.isEmpty() || "null".equals(xTitle))
-			xTitle = "Distance";
-		return new ShollPlot(plotTitle, xTitle, "No. Intersections", new LinearProfileStats(this), true);
+		return new ShollPlot(this);
 	}
 
 	@Override
@@ -206,47 +223,13 @@ public class Profile implements ProfileProperties {
 		return properties.toString();
 	}
 
-	private StringBuilder idDescription() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(identifier);
-		if (center() != null)
-			sb.append(" (").append(center).append(")");
-		return sb;
-	}
-
-	private StringBuilder distanceDescription() {
-		final StringBuilder sb = new StringBuilder();
-		if (is2D())
-			sb.append("2D ");
-		if (hemiShells())
-			sb.append(" - HemiShells");
-		if (spatialUnit() != null)
-			sb.append(" (").append(spatialUnit()).append(")");
-		return sb;
-	}
-
-	public void setHemiShells(final boolean hemiShells) {
-		this.hemiShells = hemiShells;
-	}
-
-	public Point2D.Double center() {
+	public ShollPoint center() {
 		return center;
 	}
 
-	public void setCenter(final Point2D.Double center) {
+	public void setCenter(final ShollPoint center) {
 		this.center = center;
-	}
-
-	public boolean isFitted() {
-		return fitted;
-	}
-
-	public void setIsFitted(final boolean fitted) {
-		this.fitted = fitted;
-	}
-
-	public Parser getParser() {
-		return parser;
+		properties.setProperty(KEY_CENTER, center.toString());
 	}
 
 	private static ArrayList<Number> arrayToList(final Number[] array) {
@@ -258,6 +241,46 @@ public class Profile implements ProfileProperties {
 
 	public int size() {
 		return profile.size();
+	}
+
+	public double startRadius() {
+		return profile.first().radius;
+	}
+
+	public double stepSize() {
+		double stepSize = 0;
+		ProfileEntry previousEntry = null;
+		for (final Iterator<ProfileEntry> it = profile.iterator(); it.hasNext();) {
+			final ProfileEntry currentEntry = it.next();
+			if (previousEntry != null)
+				stepSize += currentEntry.radius - previousEntry.radius;
+			previousEntry = currentEntry;
+		}
+		return stepSize / profile.size();
+	}
+
+	public double endRadius() {
+		return profile.last().radius;
+	}
+
+	public Calibration spatialCalibration() {
+		return cal;
+	}
+
+	public void assignImage(final ImagePlus imp) {
+		if (imp == null)
+			return;
+		setSpatialCalibration(imp.getCalibration());
+		setIdentifier(imp.getTitle());
+		setNDimensions(imp.getNDimensions());
+		if (imp.getProcessor().isBinary())
+			properties.setProperty(KEY_SOURCE, SRC_IMG_BINARY);
+		else if (imp.getProcessor().getMinThreshold() != ImageProcessor.NO_THRESHOLD)
+			properties.setProperty(KEY_SOURCE, SRC_IMG_THRESH);
+		else
+			properties.setProperty(KEY_SOURCE, SRC_IMG);
+	}
+
 	public void setSpatialCalibration(final Calibration cal) {
 		this.cal = cal;
 		properties.setProperty(KEY_CALIBRATION, cal.toString());
