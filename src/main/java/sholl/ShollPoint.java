@@ -21,48 +21,85 @@
  */
 package sholl;
 
-import java.util.ArrayList;
+import ij.measure.Calibration;
 
 /**
- * Utility class to access 2D/3D points. Inspired by fiji.math3d.Point3d
+ * Utility class to access the coordinates of intersection points. Inspired by
+ * fiji.math3d.Point3d
  *
  * @author Tiago Ferreira
  */
 public class ShollPoint {
 
-	public double x, y, z;
+	/**
+	 * The intersection x-coordinate in world coordinates (not pixel
+	 * coordinates)
+	 */
+	public double x;
+	/**
+	 * The intersection y-coordinate in world coordinates (not pixel
+	 * coordinates)
+	 */
+	public double y;
+	/**
+	 * The intersection z-coordinate in world coordinates (not pixel
+	 * coordinates)
+	 */
+	public double z;
 
 	public ShollPoint() {
 	}
 
-	public ShollPoint(final double x, final double y, final double z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	public ShollPoint(final Number x, final Number y, final Number z) {
+		this.x = x.doubleValue();
+		this.y = y.doubleValue();
+		this.z = z.doubleValue();
 	}
 
-	public ShollPoint(final int x, final int y) {
-		this.x = x;
-		this.y = y;
-		this.z = 1;
+	public ShollPoint(final int x, final int y, final int z, final Calibration cal) {
+		this.x = cal.getX(x);
+		this.y = cal.getY(y);
+		this.z = cal.getZ(z);
 	}
 
-	public ShollPoint(final int x, final int y, final int z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	public ShollPoint(final int x, final int y, final Calibration cal) {
+		this.x = cal.getX(x);
+		this.y = cal.getY(y);
+		this.z = cal.getZ(1);
 	}
 
-	public ShollPoint minus(final ShollPoint other) {
-		return new ShollPoint(x - other.x, y - other.y, z - other.z);
+	public ShollPoint(final Number x, final Number y) {
+		this.x = x.doubleValue();
+		this.y = y.doubleValue();
+		this.z = 0;
 	}
 
-	public ShollPoint plus(final ShollPoint other) {
-		return new ShollPoint(x + other.x, y + other.y, z + other.z);
+	public void scale(final double xScale, final double yScale, final double zScale) {
+		this.x *= xScale;
+		this.y *= yScale;
+		this.z *= zScale;
 	}
 
-	public double scalar(final ShollPoint other) {
-		return x * other.x + y * other.y + z * other.z;
+	public void applyOffset(final double xOffset, final double yOffset, final double zOffset) {
+		this.x += xOffset;
+		this.y += yOffset;
+		this.z += zOffset;
+	}
+
+	public ShollPoint minus(final ShollPoint point) {
+		if (point == null)
+			return this;
+		return new ShollPoint(x - point.x, y - point.y, z - point.z);
+	}
+
+	public ShollPoint plus(final ShollPoint point) {
+		if (point == null)
+			return this;
+		return new ShollPoint(x + point.x, y + point.y, z + point.z);
+	}
+
+	public double scalar(final ShollPoint point) {
+		return x * point.x + y * point.y + z * point.z;
 	}
 
 	public ShollPoint times(final double factor) {
@@ -73,22 +110,34 @@ public class ShollPoint {
 		return Math.sqrt(scalar(this));
 	}
 
-	public double distanceSquared(final ShollPoint other) {
-		final double x1 = x - other.x;
-		final double y1 = y - other.y;
-		final double z1 = z - other.z;
+	public double distanceSquared(final ShollPoint point) {
+		final double x1 = x - point.x;
+		final double y1 = y - point.y;
+		final double z1 = z - point.z;
 		return x1 * x1 + y1 * y1 + z1 * z1;
 	}
 
-	public double distanceTo(final ShollPoint other) {
-		return Math.sqrt(distanceSquared(other));
+	public double distanceTo(final ShollPoint point) {
+		return Math.sqrt(distanceSquared(point));
 	}
 
-	public static ShollPoint average(final ArrayList<ShollPoint> list) {
+	public ShollPoint average(final ShollPoint... points) {
 		ShollPoint result = new ShollPoint();
-		for (final ShollPoint point : list)
+		for (final ShollPoint point : points)
 			result = result.plus(point);
-		return result.times(1.0 / list.size());
+		return result.times(1.0 / points.length);
+	}
+
+	public double rawX(final Calibration cal) {
+		return cal.getRawX(x);
+	}
+
+	public double rawY(final Calibration cal) {
+		return cal.getRawY(y);
+	}
+
+	public double rawZ(final Calibration cal) {
+		return z / cal.pixelDepth + cal.zOrigin;
 	}
 
 }
