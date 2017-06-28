@@ -364,6 +364,7 @@ public class Profile implements ProfileProperties {
 		final double centerRawZ = center.rawZ(cal);
 		final PointRoi cRoi = new PointRoi(centerRawX, centerRawY);
 		cRoi.setPosition((int) centerRawZ);
+		cRoi.setPointType(1);
 		overlay.add(cRoi, "center");
 
 		// Add intersection points
@@ -400,6 +401,7 @@ public class Profile implements ProfileProperties {
 		// Add Shells
 		final Color rc = Roi.getColor();
 		final Color shellColor = new Color(rc.getRed(), rc.getGreen(), rc.getBlue(), 100);
+		final int shellThickness = Integer.valueOf(properties.getProperty(KEY_NSAMPLES, "1"));
 
 		// 2D analysis: circular shells
 		final String sProperty = properties.getProperty(KEY_HEMISHELLS, HEMI_NONE);
@@ -431,6 +433,7 @@ public class Profile implements ProfileProperties {
 				shell = new OvalRoi(centerRawX - radiusX, centerRawY - radiusY, 2 * radiusX, 2 * radiusY);
 			}
 			shell.setStrokeColor(shellColor);
+			shell.setStrokeWidth(shellThickness);
 			overlay.add(shell, "Shell r=" + ShollUtils.d2s(entry.radius));
 		}
 
