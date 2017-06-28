@@ -21,7 +21,7 @@
  */
 package sholl;
 
-import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Utility class defining a sholl profile entry
@@ -30,12 +30,21 @@ import java.util.ArrayList;
  */
 public class ProfileEntry implements Comparable<ProfileEntry> {
 
-	public double radius, count;
-	public ArrayList<ShollPoint> points;
+	public double radius;
 
-	public ProfileEntry(final Number r, final Number count, final ArrayList<ShollPoint> points) {
+	public double count;
+
+	public Set<ShollPoint> points;
+
+	public ProfileEntry(final Number r, final Number count, final Set<ShollPoint> points) {
 		this.radius = r.doubleValue();
 		this.count = count.doubleValue();
+		this.points = points;
+	}
+
+	public ProfileEntry(final Number r, final Set<ShollPoint> points) {
+		this.radius = r.doubleValue();
+		this.count = points.size();
 		this.points = points;
 	}
 
@@ -47,7 +56,7 @@ public class ProfileEntry implements Comparable<ProfileEntry> {
 		points.add(point);
 	}
 
-	public void assignPoints(final ArrayList<ShollPoint> points) {
+	public void assignPoints(final Set<ShollPoint> points) {
 		this.points = points;
 	}
 
