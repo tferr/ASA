@@ -38,19 +38,18 @@ import sholl.parsers.Parser;
  *
  * @author Tiago Ferreira
  */
-public class Profile {
+public class Profile implements ProfileProperties {
 
 	private SortedSet<ProfileEntry> profile;
-	private Parser parser;
 	private String identifier;
 	private String spatialUnit;
 	private boolean hemiShells;
 	private boolean fitted;
 	private Point2D.Double center;
+	private Properties properties;
 
-	public Profile(final Parser parser) {
+	public Profile() {
 		initialize();
-		this.parser = parser;
 	}
 
 	/**
@@ -99,22 +98,15 @@ public class Profile {
 
 	private void initialize() {
 		profile = Collections.synchronizedSortedSet(new TreeSet<ProfileEntry>());
+		properties = new Properties();
 	}
 
 	public String identifier() {
-		return identifier;
+		return properties.getProperty(KEY_ID);
 	}
 
 	public void setIdentifier(final String identifier) {
-		this.identifier = identifier;
-	}
-
-	public String spatialUnit() {
-		return spatialUnit;
-	}
-
-	public void setSpatialUnit(final String spatialUnit) {
-		this.spatialUnit = spatialUnit;
+		properties.setProperty(KEY_ID, identifier);
 	}
 
 	public ArrayList<Double> radii() {
@@ -167,38 +159,31 @@ public class Profile {
 	}
 
 	public String source() {
-		switch (getParser().source()) {
-		case Parser.SOURCE_IMP:
-			return "Image";
-		case Parser.SOURCE_TRACES:
-			return "Traces";
-		case Parser.SOURCE_SWC:
-			return "SWC";
-		case Parser.SOURCE_TABULAR:
-			return "Table";
-		case Parser.SOURCE_STATS:
-			return "Stats";
-		case Parser.SOURCE_OTHER:
-		default:
-			return "Other";
+		return properties.getProperty(KEY_SOURCE, UNSET);
+	}
+
+	public int nDimensions() {
+		try {
+			return Integer.valueOf(properties.getProperty(KEY_2D3D, "-1"));
+		} catch (final NumberFormatException exc) {
+			return -1;
 		}
 	}
 
 	public boolean is2D() {
-		return parser != null && parser.space() == Parser.TWO_D;
+		return nDimensions() == 2;
 	}
 
-	public String spatialDimention() {
-		if (parser == null)
-			return null;
-		switch (getParser().space()) {
-		case Parser.THREE_D:
-			return "3D";
-		case Parser.TWO_D:
-			return "2D";
-		case Parser.UNKNOWN_D:
+	public void setNDimensions(final int twoDthreeD) {
+		switch (twoDthreeD) {
+		case 1:
+		case 2:
+		case 3:
+			properties.setProperty(KEY_2D3D, String.valueOf(twoDthreeD));
+			return;
 		default:
-			return "Unknown";
+			properties.setProperty(KEY_2D3D, UNSET);
+			return;
 		}
 	}
 
@@ -218,8 +203,7 @@ public class Profile {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("ID=[").append(idDescription()).append("] Sampling=[").append(distanceDescription())
-				.append("] N=[").append(size()).append(" entries]").toString();
+		return properties.toString();
 	}
 
 	private StringBuilder idDescription() {
@@ -274,6 +258,33 @@ public class Profile {
 
 	public int size() {
 		return profile.size();
+	public void setSpatialCalibration(final Calibration cal) {
+		this.cal = cal;
+		properties.setProperty(KEY_CALIBRATION, cal.toString());
+	}
+
+	public Properties getProperties() {
+		return properties;
+	}
+
+	public void setProperties(final Properties properties) {
+		this.properties = properties;
+
+		// Center
+		center = ShollPoint.fromString(properties.getProperty(KEY_CENTER, UNSET));
+
+		// Calibration
+		final String[] calLines = properties.getProperty(KEY_CALIBRATION, UNSET).split(",");
+		final Double vx = Double.parseDouble(getCalibrationValue(calLines, "w="));
+		final Double vy = Double.parseDouble(getCalibrationValue(calLines, "h="));
+		final Double vz = Double.parseDouble(getCalibrationValue(calLines, "d="));
+		final String unit = getCalibrationValue(calLines, "unit=");
+		cal = new Calibration();
+		cal.setUnit(unit);
+		cal.pixelWidth = vx;
+		cal.pixelHeight = vy;
+		cal.pixelDepth = vz;
+
 	}
 
 }
