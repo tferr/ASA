@@ -21,6 +21,8 @@
  */
 package sholl.math;
 
+import sholl.Profile;
+
 /**
  * @author Tiago Ferreira
  *
@@ -28,37 +30,37 @@ package sholl.math;
 public interface ShollStats {
 
 	/** Flag for area normalization (Semi-log/Log-log method) */
-	public final static int AREA = 2;
+	final static int AREA = 2;
 	/** Flag for perimeter normalization (Semi-log/Log-log method) */
-	public final static int PERIMETER = 4;
+	static int PERIMETER = 4;
 	/** Flag for annulus normalization (Semi-log/Log-log method) */
-	public final static int ANNULUS = 8;
+	final static int ANNULUS = 8;
 	/** Flag for volume normalization (Semi-log/Log-log method) */
-	public final static int VOLUME = 16;
+	final static int VOLUME = 16;
 	/** Flag for surface normalization (Semi-log/Log-log method) */
-	public final static int SURFACE = 32;
+	final static int SURFACE = 32;
 	/** Flag for spherical shell normalization (Semi-log/Log-log method) */
-	public static final int S_SHELL = 64;
+	static final int S_SHELL = 64;
 
 	/** Flag for imposing Semi-log analysis */
-	public final static int SEMI_LOG = 128;
+	final static int SEMI_LOG = 128;
 	/** Flag for imposing Log-log analysis */
-	public final static int LOG_LOG = 256;
+	final static int LOG_LOG = 256;
 	/** Flag for automatic choice between Semi-log/Log-log analysis */
-	public final static int GUESS_SLOG = 512;
+	final static int GUESS_SLOG = 512;
 
-	double[] getRadii();
+	double[] getXvalues();
 
-	double[] getCounts();
+	double[] getYvalues();
 
-	double[] getFcounts();
+	//double[] getFitXvalues();
 
-	int getN();
+	double[] getFitYvalues();
 
 	boolean validFit();
 
-	double getStartRadius();
+	int getN();
 
-	double getEndRadius();
+	Profile getProfile();
 
 }
