@@ -21,6 +21,8 @@
  */
 package sholl;
 
+import java.awt.Color;
+import java.awt.geom.Arc2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,6 +32,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import ij.ImagePlus;
+import ij.gui.OvalRoi;
+import ij.gui.Overlay;
+import ij.gui.PointRoi;
+import ij.gui.Roi;
+import ij.gui.ShapeRoi;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
 import sholl.gui.ShollPlot;
@@ -310,4 +317,130 @@ public class Profile implements ProfileProperties {
 
 	}
 
+	private String getCalibrationValue(final String[] splittedCalibrationString, final String key) {
+		for (String line : splittedCalibrationString) {
+			line = line.trim();
+			final int idx = line.indexOf(key);
+			if (idx == -1)
+				continue;
+			return line.substring(idx + key.length());
+		}
+		return String.valueOf(Double.NaN);
+	}
+
+	private Overlay getOverlay(final ImagePlus imp) {
+		if (imp == null)
+			return new Overlay();
+		final Overlay overlay = imp.getOverlay();
+		if (overlay == null)
+			return new Overlay();
+		if (overlay.size() == 0)
+			return overlay;
+		for (int i = overlay.size() - 1; i >= 0; i--) {
+			final String roiName = overlay.get(i).getName();
+			if (roiName != null && (roiName.equals("center") || roiName.contains("r=")))
+				overlay.remove(i);
+		}
+		return overlay;
+	}
+
+	public Overlay getROIs() {
+		return getROIs(null);
+	}
+
+	// If set coordinates of points are scaled to pixel coordinates using the
+	// profile calibration, otherwise the image calibration is used
+	public Overlay getROIs(final ImagePlus imp) {
+
+		if (center == null)
+			throw new RuntimeException("ROIs cannot be generated with undefined center");
+
+		final Overlay overlay = getOverlay(imp);
+		final Calibration cal = scaled() ? this.cal : new Calibration(imp);
+
+		// Add center
+		final double centerRawX = center.rawX(cal);
+		final double centerRawY = center.rawY(cal);
+		final double centerRawZ = center.rawZ(cal);
+		final PointRoi cRoi = new PointRoi(centerRawX, centerRawY);
+		cRoi.setPosition((int) centerRawZ);
+		overlay.add(cRoi, "center");
+
+		// Add intersection points
+		for (final ProfileEntry entry : profile) {
+			final Set<ShollPoint> points = entry.points;
+			if (points == null || points.isEmpty())
+				continue;
+			PointRoi multipointRoi = null;
+			double currentRawZ = 0;
+			for (final ShollPoint point : points) {
+
+				final double rawX = point.rawX(cal);
+				final double rawY = point.rawY(cal);
+				final double rawZ = point.rawZ(cal);
+				if (multipointRoi == null || currentRawZ != rawZ) {
+					multipointRoi = new PointRoi(rawX, rawY);
+					currentRawZ = rawZ;
+					multipointRoi.setPointType(2);
+					multipointRoi.setPosition(0, (int) rawZ, 0);
+					overlay.add(multipointRoi,
+							"ShollPoints r=" + ShollUtils.d2s(entry.radius) + " z=" + ShollUtils.d2s(point.z));
+				} else if (rawZ == currentRawZ) { // same plane
+					multipointRoi.addPoint(rawX, rawY);
+				}
+			}
+		}
+
+		if (!is2D()) {
+			// throw new RuntimeException("Non-2D ROIS are not currently
+			// supported");
+			return overlay;
+		}
+
+		// Add Shells
+		final Color rc = Roi.getColor();
+		final Color shellColor = new Color(rc.getRed(), rc.getGreen(), rc.getBlue(), 100);
+
+		// 2D analysis: circular shells
+		final String sProperty = properties.getProperty(KEY_HEMISHELLS, HEMI_NONE);
+		final boolean arcs = !HEMI_NONE.equals(sProperty);
+		final boolean north = arcs && sProperty.contains(HEMI_NORTH);
+		final boolean south = arcs && sProperty.contains(HEMI_SOUTH);
+		final boolean west = arcs && sProperty.contains(HEMI_WEST);
+		final boolean east = arcs && sProperty.contains(HEMI_EAST);
+
+		for (final ProfileEntry entry : profile) {
+			final double radiusX = cal.getRawX(entry.radius);
+			final double radiusY = cal.getRawY(entry.radius);
+
+			Roi shell;
+			if (arcs) {
+				final Arc2D.Double arc = new Arc2D.Double();
+				final double radius = Math.sqrt(radiusX * radiusY);
+				if (north) {
+					arc.setArcByCenter(centerRawX, centerRawY, radius, 0, 180, Arc2D.OPEN);
+				} else if (south) {
+					arc.setArcByCenter(centerRawX, centerRawY, radius, -180, 180, Arc2D.OPEN);
+				} else if (west) {
+					arc.setArcByCenter(centerRawX, centerRawY, radius, 90, -180, Arc2D.OPEN);
+				} else if (east) {
+					arc.setArcByCenter(centerRawX, centerRawY, radius, -90, -180, Arc2D.OPEN);
+				}
+				shell = new ShapeRoi(arc);
+			} else {
+				shell = new OvalRoi(centerRawX - radiusX, centerRawY - radiusY, 2 * radiusX, 2 * radiusY);
+			}
+			shell.setStrokeColor(shellColor);
+			overlay.add(shell, "Shell r=" + ShollUtils.d2s(entry.radius));
+		}
+
+		if (imp != null)
+			imp.setOverlay(overlay);
+
+		return overlay;
+	}
+
+	public boolean add(final ProfileEntry entry) {
+		return profile.add(entry);
+	}
 }
