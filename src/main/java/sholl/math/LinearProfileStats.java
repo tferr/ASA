@@ -23,9 +23,7 @@ package sholl.math;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -36,7 +34,6 @@ import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.exception.NoDataException;
@@ -47,7 +44,8 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
 import org.apache.commons.math3.stat.descriptive.moment.Skewness;
-import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
+
+import sholl.Profile;
 
 /**
  * Retrieves descriptive statistics and calculates Sholl Metrics from sampled
@@ -57,12 +55,7 @@ import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
  *
  * @author Tiago Ferreira
  */
-public class LinearProfileStats {
-
-	private final double[] radii;
-	private final double[] counts;
-	private final int nPoints;
-	private final static double UNASSIGNED_VALUE = Double.MIN_VALUE;
+public class LinearProfileStats extends CommonStats implements ShollStats {
 
 	/* Sampled data */
 	private double maxCount = UNASSIGNED_VALUE;
@@ -71,97 +64,11 @@ public class LinearProfileStats {
 	private ArrayList<Point2D.Double> maxima;
 
 	/* Polynomial fit */
-	private double[] polyfitCounts;
 	private PolynomialFunction pFunction;
 	private int maxEval = 1000; // number of function evaluations
 
-	/**
-	 * List based constructor.
-	 *
-	 * @param radii
-	 *            sampled radii
-	 * @param sampledInters
-	 *            sampled intersection counts
-	 */
-	public LinearProfileStats(final ArrayList<Double> radii, final ArrayList<Double> sampledInters) {
-		this(radii.stream().mapToDouble(d -> d).toArray(), sampledInters.stream().mapToDouble(d -> d).toArray(), false);
-	}
-
-	/**
-	 * Constructor accepting integer data.
-	 *
-	 * @param radii
-	 *            sampled radii
-	 * @param sampledInters
-	 *            sampled intersection counts
-	 */
-	public LinearProfileStats(final int[] radii, final int[] sampledInters, final boolean zapZeroes) {
-		this(Arrays.stream(radii).asDoubleStream().toArray(), Arrays.stream(sampledInters).asDoubleStream().toArray(),
-				zapZeroes);
-	}
-
-	/**
-	 * Default constructor.
-	 *
-	 * @param radii
-	 *            sampled radii
-	 * @param sampledInters
-	 *            sampled intersection counts
-	 */
-	public LinearProfileStats(final double[] radii, final double[] sampledInters, final boolean zapZeroes) {
-		if (radii == null || sampledInters == null)
-			throw new IllegalArgumentException("Arrays cannot be null");
-		final int n = radii.length;
-		if (n == 0 || n != sampledInters.length)
-			throw new IllegalArgumentException("Arrays cannot be empty and must have the same size");
-		if (zapZeroes) {
-			final Object[] data = trimZeroes(radii, sampledInters);
-			this.radii = (double[]) data[0];
-			this.counts = (double[]) data[1];
-			this.nPoints = this.radii.length;
-		} else {
-			this.radii = radii;
-			this.counts = sampledInters;
-			this.nPoints = n;
-		}
-	}
-
-	private Object[] trimZeroes(final double[] radii, final double[] counts) {
-		final int n = radii.length;
-		int nTrimmed = 0;
-		for (int i = 0; i < n; i++) {
-			if (counts[i] > 0)
-				nTrimmed++;
-		}
-		if (nTrimmed == n)
-			return new Object[] { radii, counts };
-
-		final double[] radiiTrimmed = new double[nTrimmed];
-		final double[] countsTrimmed = new double[nTrimmed];
-		for (int i = 0, j = 0; i < n; i++) {
-			if (counts[i] > 0) {
-				radiiTrimmed[j] = radii[i];
-				countsTrimmed[j++] = radii[i];
-			}
-		}
-		return new Object[] { radiiTrimmed, countsTrimmed };
-	}
-
-	/**
-	 * Constructor accepting matrices.
-	 *
-	 * @param sampledData
-	 *            sampled data in double[n][2] format, where n = number of
-	 *            points (radii: double[n][0]; sampledInters: double[n][1])
-	 */
-	public LinearProfileStats(final double[][] sampledData) {
-		nPoints = sampledData.length;
-		radii = new double[nPoints];
-		counts = new double[nPoints];
-		for (int i = 0; i < nPoints; i++) {
-			radii[i] = sampledData[i][0];
-			counts[i] = sampledData[i][1];
-		}
+	public LinearProfileStats(final Profile profile) {
+		super(profile);
 	}
 
 	/**
@@ -175,9 +82,9 @@ public class LinearProfileStats {
 	 */
 	public Point2D.Double getCentroid(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
-		final double x = StatUtils.sum(radii) / nPoints;
-		final double y = StatUtils.sum(fittedData ? polyfitCounts : counts) / nPoints;
+			validateFit();
+		final double x = StatUtils.sum(inputRadii) / nPoints;
+		final double y = StatUtils.sum(fittedData ? fCounts : inputCounts) / nPoints;
 		return new Point2D.Double(x, y);
 	}
 
@@ -200,14 +107,14 @@ public class LinearProfileStats {
 	 */
 	public Point2D.Double getPolygonCentroid(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
+			validateFit();
 		double area = 0;
 		double sumx = 0;
 		double sumy = 0;
-		final double[] y = (fittedData) ? polyfitCounts : counts;
+		final double[] y = (fittedData) ? fCounts : inputCounts;
 		for (int i = 1; i < nPoints; i++) {
-			final double cfactor = (radii[i - 1] * y[i]) - (radii[i] * y[i - 1]);
-			sumx += (radii[i - 1] + radii[i]) * cfactor;
+			final double cfactor = (inputRadii[i - 1] * y[i]) - (inputRadii[i] * y[i - 1]);
+			sumx += (inputRadii[i - 1] + inputRadii[i]) * cfactor;
 			sumy += (y[i - 1] + y[i]) * cfactor;
 			area += cfactor / 2;
 		}
@@ -235,12 +142,12 @@ public class LinearProfileStats {
 	 */
 	public double getEnclosingRadius(final boolean fittedData, final double cutoff) {
 		if (fittedData)
-			checkPolynomialFit();
-		final double[] y = (fittedData) ? polyfitCounts : counts;
+			validateFit();
+		final double[] y = (fittedData) ? fCounts : inputCounts;
 		final double enclosingRadius = Double.NaN;
 		for (int i = nPoints - 1; i > 0; i--) {
 			if (y[i] >= cutoff)
-				return radii[i];
+				return inputRadii[i];
 		}
 		return enclosingRadius;
 	}
@@ -267,9 +174,9 @@ public class LinearProfileStats {
 	 */
 	public int getIntersectingRadii(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
+			validateFit();
 		int count = 0;
-		for (final double c : (fittedData) ? polyfitCounts : counts) {
+		for (final double c : (fittedData) ? fCounts : inputCounts) {
 			if (c > 0)
 				count++;
 		}
@@ -295,9 +202,9 @@ public class LinearProfileStats {
 	 */
 	public double getKurtosis(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
+			validateFit();
 		final Kurtosis k = new Kurtosis();
-		return k.evaluate(fittedData ? polyfitCounts : counts);
+		return k.evaluate(fittedData ? fCounts : inputCounts);
 	}
 
 	/** @return {@link #getKurtosis(boolean) getKurtosis(false)} */
@@ -322,16 +229,16 @@ public class LinearProfileStats {
 		final double max;
 		final ArrayList<Point2D.Double> target = new ArrayList<>();
 		if (fittedData) {
-			checkPolynomialFit();
-			values = polyfitCounts;
+			validateFit();
+			values = fCounts;
 			max = StatUtils.max(values);
 		} else {
 			max = getMaxCount(fittedData);
-			values = counts;
+			values = inputCounts;
 		}
 		for (int i = 0; i < nPoints; i++) {
 			if (values[i] == max) {
-				target.add(new Point2D.Double(radii[i], values[i]));
+				target.add(new Point2D.Double(inputRadii[i], values[i]));
 			}
 		}
 		if (maxima == null)
@@ -383,10 +290,10 @@ public class LinearProfileStats {
 	 */
 	public double getMean(final boolean fittedData) {
 		if (fittedData) {
-			checkPolynomialFit();
-			return StatUtils.mean(polyfitCounts);
+			validateFit();
+			return StatUtils.mean(fCounts);
 		}
-		return StatUtils.mean(counts);
+		return StatUtils.mean(inputCounts);
 	}
 
 	/** @return {@link #getMean(boolean) getMean(false)} */
@@ -404,7 +311,7 @@ public class LinearProfileStats {
 	 *         calculated
 	 */
 	public int getIndexOfRadius(final double radius) {
-		return getIndex(radii, radius);
+		return getIndex(inputRadii, radius);
 	}
 
 	/**
@@ -421,10 +328,10 @@ public class LinearProfileStats {
 	 */
 	public int getIndexOfInters(final boolean fittedData, final double inters) {
 		if (fittedData) {
-			checkPolynomialFit();
-			return getIndex(polyfitCounts, inters);
+			validateFit();
+			return getIndex(fCounts, inters);
 		}
-		return getIndex(counts, inters);
+		return getIndex(inputCounts, inters);
 	}
 
 	/**
@@ -441,65 +348,48 @@ public class LinearProfileStats {
 		final PolynomialCurveFitter fitter = PolynomialCurveFitter.create(degree);
 		final ArrayList<WeightedObservedPoint> points = new ArrayList<>();
 		for (int i = 0; i < nPoints; i++) {
-			points.add(new WeightedObservedPoint(1, radii[i], counts[i]));
+			points.add(new WeightedObservedPoint(1, inputRadii[i], inputCounts[i]));
 		}
 		pFunction = new PolynomialFunction(fitter.fit(points));
-		polyfitCounts = new double[nPoints];
+		fCounts = new double[nPoints];
 		for (int i = 0; i < nPoints; i++) {
-			polyfitCounts[i] = pFunction.value(radii[i]);
+			fCounts[i] = pFunction.value(inputRadii[i]);
 		}
 	}
 
 	/**
-	 * Returns the sampled distances.
+	 * Returns the abscissae of the sampled linear plot for sampled data.
 	 *
-	 * @return the abscissae of the sampled profile
+	 * @return the sampled distances.
 	 */
-	public double[] getRadii() {
-		return radii;
+	@Override
+	public double[] getXvalues() {
+		return inputRadii;
 	}
 
 	/**
-	 * Returns the sampled intersection counts.
+	 * Returns the ordinates of the sampled linear plot of sampled data.
 	 *
-	 * @return the ordinates of the sampled profile
+	 *
+	 * @return the sampled intersection counts.
 	 */
-	public double[] getCounts() {
-		return counts;
+	@Override
+	public double[] getYvalues() {
+		return inputCounts;
 	}
 
 	/**
-	 * Returns the polynomial fitted intersection counts.
+	 * Returns the ordinates of the sampled linear plot of fitted data.
 	 *
 	 * @return the y-values of the polynomial fit retrieved at sampling
 	 *         distances
 	 * @throws NullPointerException
 	 *             if {@link #fitPolynomial(int) } has not been called
 	 */
-	public double[] getFcounts() {
-		checkPolynomialFit();
-		return polyfitCounts;
-	}
-
-	/**
-	 * Checks if valid fitted data exists.
-	 *
-	 * @return {@code true} if polynomial fitted data exists
-	 */
-	public boolean validFcounts() {
-		return (polyfitCounts != null && polyfitCounts.length > 0);
-	}
-
-	/**
-	 * Returns the polynomial function currently fitting the data
-	 *
-	 * @return the polynomial
-	 * @throws NullPointerException
-	 *             if {@link #fitPolynomial(int)} has not been called
-	 */
-	public PolynomialFunction setPolynomial(final PolynomialFunction polynomial) {
-		checkPolynomialFit();
-		return pFunction;
+	@Override
+	public double[] getFitYvalues() {
+		validateFit();
+		return fCounts;
 	}
 
 	/**
@@ -510,7 +400,7 @@ public class LinearProfileStats {
 	 *             if {@link #fitPolynomial(int)} has not been called
 	 */
 	public PolynomialFunction getPolynomial() {
-		checkPolynomialFit();
+		validateFit();
 		return pFunction;
 	}
 
@@ -522,7 +412,7 @@ public class LinearProfileStats {
 	 *             if {@link #fitPolynomial(int)} has not been called
 	 */
 	public int getPolynomialDegree() {
-		checkPolynomialFit();
+		validateFit();
 		return pFunction.degree();
 	}
 
@@ -548,11 +438,6 @@ public class LinearProfileStats {
 		return degOrd + " deg.";
 	}
 
-	private void checkPolynomialFit() {
-		if (pFunction == null || polyfitCounts == null)
-			throw new NullPointerException("fitPolynomial() not been called");
-	}
-
 	/**
 	 * Calculates local maxima (critical points at which the derivative of the
 	 * polynomial is zero) within the specified interval.
@@ -573,7 +458,7 @@ public class LinearProfileStats {
 	 */
 	public Set<Point2D.Double> getPolynomialMaxima(final double lowerBound, final double upperBound,
 			final double initialGuess) {
-		checkPolynomialFit();
+		validateFit();
 		final PolynomialFunction derivative = pFunction.polynomialDerivative();
 		final LaguerreSolver solver = new LaguerreSolver();
 		final Complex[] roots = solver.solveAllComplex(derivative.getCoefficients(), initialGuess, getMaxEvaluations());
@@ -586,7 +471,7 @@ public class LinearProfileStats {
 													// ordinates
 			}
 		});
-		final double tolerance = getAverageStepSize();
+		final double tolerance = profile.stepSize();
 		for (final Complex root : roots) {
 			final double x = root.getReal();
 			if (x < lowerBound || x > upperBound)
@@ -597,14 +482,6 @@ public class LinearProfileStats {
 			}
 		}
 		return maxima;
-	}
-
-	private double getAverageStepSize() {
-		double stepSize = 0;
-		for (int i = 1; i < nPoints; i++) {
-			stepSize = radii[i] - radii[0];
-		}
-		return stepSize / nPoints;
 	}
 
 	/**
@@ -639,62 +516,12 @@ public class LinearProfileStats {
 	 * @throws NullPointerException
 	 *             if {@link #fitPolynomial(int)} has not been called
 	 */
-
-	public double getRSquaredOfPolynomialFit(final boolean adjusted) {
-		checkPolynomialFit();
-		// calculate 'residual sum of squares'
-		double ssRes = 0.0;
-		for (int i = 0; i < nPoints; i++) {
-			final double y = counts[i];
-			final double f = polyfitCounts[i];
-			ssRes += (y - f) * (y - f);
-		}
-		// calculate 'total sum of squares'
-		final double sampleAvg = StatUtils.mean(counts);
-		double ssTot = 0.0;
-		for (final double y : counts) {
-			ssTot += (y - sampleAvg) * (y - sampleAvg);
-		}
-
-		double rSquared = 1.0 - (ssRes / ssTot);
+	public double getRSquaredOfFit(final boolean adjusted) {
 		if (adjusted) {
 			final int p = pFunction.degree() - 1;
-			rSquared = rSquared - (1 - rSquared) * (p / (nPoints - p - 1));
+			return getAdjustedRSquaredOfFit(p);
 		}
-		return rSquared;
-	}
-
-	/**
-	 * Returns the Kolmogorov-Smirnov (K-S) test of the polynomial fit as a
-	 * measurement of goodness of fit.
-	 *
-	 * @return the test statistic (p-value) used to evaluate the null hypothesis
-	 *         that sampled data and polynomial fitted represent samples from
-	 *         the same underlying distribution
-	 *
-	 * @throws NullPointerException
-	 *             if {@link #fitPolynomial(int)} has not been called
-	 * @throws InsufficientDataException
-	 *             if sampled data contains fewer than two data points
-	 */
-	public double getKStestOfPolynomialFit() {
-		checkPolynomialFit();
-		final KolmogorovSmirnovTest test = new KolmogorovSmirnovTest();
-		final double pValue = test.kolmogorovSmirnovTest(counts, polyfitCounts);
-		return pValue;
-	}
-
-	private int getIndex(final double[] array, final double value) {
-		final NavigableSet<Double> ns = new TreeSet<>();
-		for (final double element : array)
-			ns.add(element);
-		final Double candidate = ns.floor(value);
-		if (candidate == null)
-			return -1;
-		for (int i = 0; i < array.length; i++)
-			if (array[i] == candidate)
-				return i;
-		return -1;
+		return getRSquaredOfFit();
 	}
 
 	/**
@@ -721,7 +548,7 @@ public class LinearProfileStats {
 	 */
 	public double getMeanValueOfPolynomialFit(final String integrator, final double lowerBound,
 			final double upperBound) {
-		checkPolynomialFit();
+		validateFit();
 		final UnivariateIntegrator uniIntegrator;
 		if (integrator != null && integrator.toLowerCase().contains("romberg"))
 			uniIntegrator = new RombergIntegrator();
@@ -764,10 +591,10 @@ public class LinearProfileStats {
 	 */
 	public double getMedian(final boolean fittedData) {
 		if (fittedData) {
-			checkPolynomialFit();
-			return StatUtils.percentile(polyfitCounts, 50);
+			validateFit();
+			return StatUtils.percentile(fCounts, 50);
 		}
-		return StatUtils.percentile(counts, 50);
+		return StatUtils.percentile(inputCounts, 50);
 	}
 
 	/** @return {@link #getMedian(boolean) getMedian(false)} */
@@ -785,13 +612,13 @@ public class LinearProfileStats {
 	 */
 	public double getPrimaryBranches(final boolean fittedData) {
 		if (fittedData) {
-			checkPolynomialFit();
+			validateFit();
 		}
 		return startRadiusCount(fittedData);
 	}
 
 	private double startRadiusCount(final boolean fittedData) {
-		return (fittedData) ? polyfitCounts[0] : counts[0];
+		return (fittedData) ? fCounts[0] : inputCounts[0];
 	}
 
 	/**
@@ -814,15 +641,15 @@ public class LinearProfileStats {
 	 */
 	public double getRamificationIndex(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
+			validateFit();
 		return getMaxCount(fittedData) / startRadiusCount(fittedData);
 	}
 
 	private double getMaxCount(final boolean fittedData) {
 		if (fittedData)
-			return StatUtils.max(polyfitCounts);
+			return StatUtils.max(fCounts);
 		if (maxCount == UNASSIGNED_VALUE)
-			maxCount = StatUtils.max(counts);
+			maxCount = StatUtils.max(inputCounts);
 		return maxCount;
 	}
 
@@ -845,7 +672,7 @@ public class LinearProfileStats {
 	 */
 	public double getMax(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
+			validateFit();
 		return getMaxCount(fittedData);
 	}
 
@@ -865,35 +692,15 @@ public class LinearProfileStats {
 	 */
 	public double getMin(final boolean fittedData) {
 		if (fittedData) {
-			checkPolynomialFit();
-			return StatUtils.min(polyfitCounts);
+			validateFit();
+			return StatUtils.min(fCounts);
 		}
-		return StatUtils.min(counts);
+		return StatUtils.min(inputCounts);
 	}
 
 	/** @return {@link #getMin(boolean) getMin(false)} */
 	public double getMin() {
 		return getMin(false);
-	}
-
-	/**
-	 * Returns the shortest sampling distance (typically the first sampling
-	 * radius)
-	 *
-	 * @return the smallest sampling radius (typically the first)
-	 */
-	public double getStartRadius() {
-		return StatUtils.min(radii);
-	}
-
-	/**
-	 * Returns the largest sampling distance (typically the last sampling
-	 * radius)
-	 *
-	 * @return the largest sampling radius
-	 */
-	public double getEndRadius() {
-		return StatUtils.max(radii);
 	}
 
 	/**
@@ -907,9 +714,9 @@ public class LinearProfileStats {
 	 */
 	public double getSkewness(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
+			validateFit();
 		final Skewness s = new Skewness();
-		return s.evaluate(fittedData ? polyfitCounts : counts);
+		return s.evaluate(fittedData ? fCounts : inputCounts);
 	}
 
 	/** @return {@link #getSkewness(boolean) getSkewness(false)} */
@@ -928,11 +735,11 @@ public class LinearProfileStats {
 	 */
 	public double getSum(final boolean fittedData) {
 		if (fittedData) {
-			checkPolynomialFit();
-			return StatUtils.sum(polyfitCounts);
+			validateFit();
+			return StatUtils.sum(fCounts);
 		}
 		if (sumCounts == UNASSIGNED_VALUE)
-			sumCounts = StatUtils.sum(counts);
+			sumCounts = StatUtils.sum(inputCounts);
 		return sumCounts;
 	}
 
@@ -951,11 +758,11 @@ public class LinearProfileStats {
 	 */
 	public double getSumSq(final boolean fittedData) {
 		if (fittedData) {
-			checkPolynomialFit();
-			return StatUtils.sumSq(polyfitCounts);
+			validateFit();
+			return StatUtils.sumSq(fCounts);
 		}
 		if (sumSqCounts == UNASSIGNED_VALUE)
-			sumSqCounts = StatUtils.sumSq(counts);
+			sumSqCounts = StatUtils.sumSq(inputCounts);
 		return sumSqCounts;
 	}
 
@@ -975,8 +782,8 @@ public class LinearProfileStats {
 	 */
 	public double getVariance(final boolean fittedData) {
 		if (fittedData)
-			checkPolynomialFit();
-		return StatUtils.variance(fittedData ? polyfitCounts : counts);
+			validateFit();
+		return StatUtils.variance(fittedData ? fCounts : inputCounts);
 	}
 
 	/** @return {@link #getVariance(boolean) getVariance(false)} */
@@ -984,4 +791,8 @@ public class LinearProfileStats {
 		return getVariance(false);
 	}
 
+	@Override
+	public boolean validFit() {
+		return (pFunction != null && super.validFit());
+	}
 }
