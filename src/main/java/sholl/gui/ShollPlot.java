@@ -1,4 +1,4 @@
-package sholl.plot;
+package sholl.gui;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -6,14 +6,21 @@ import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 
-import ij.IJ;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
+
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.measure.Measurements;
 import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.Tools;
+import sholl.Profile;
+import sholl.ShollPoint;
+import sholl.ShollUtils;
 import sholl.math.LinearProfileStats;
+import sholl.math.NormalizedProfileStats;
+import sholl.math.ShollStats;
 
 public class ShollPlot extends Plot {
 
@@ -33,54 +40,195 @@ public class ShollPlot extends Plot {
 	private final static int DEFAULT_FLAGS = X_FORCE2GRID + X_TICKS + X_NUMBERS + Y_FORCE2GRID + Y_TICKS + Y_NUMBERS;
 	private final static double[] DUMMY_VALUES = null;
 
-	public ShollPlot(final String title, final LinearProfileStats stats) {
-		this(title, "Distance", "No. Intersections", stats, true);
+	private final boolean annotate;
+	private final ShollStats stats;
+	private LinearProfileStats linearStats;
+	private NormalizedProfileStats normStats;
+	private final StringBuffer tempLegend;
+	private final double xMin, xMax, yMin, yMax;
+
+	public ShollPlot(final Profile profile) {
+		this(new LinearProfileStats(profile));
 	}
 
-	public ShollPlot(final String title, final String xLabel, final String yLabel, final LinearProfileStats stats,
+	public ShollPlot(final ShollStats stats) {
+		this(defaultTitle(stats), defaultXtitle(stats), defaultYtitle(stats), stats, true);
+	}
+
+	public ShollPlot(final String title, final String xLabel, final String yLabel, final ShollStats stats,
 			final boolean annotate) {
 
 		// initialize empty plot, so that sampled data can be plotted with a
 		// custom shape, otherwise the default Plot.Line would be used
 		super(title, xLabel, yLabel, DUMMY_VALUES, DUMMY_VALUES, DEFAULT_FLAGS);
+		this.stats = stats;
+		if (stats == null)
+			throw new NullPointerException("Stats instance cannot be null");
 
-		final double[] xValues = stats.getRadii();
-		final double[] yValues = stats.getCounts();
+		if (stats instanceof LinearProfileStats) {
+			linearStats = (LinearProfileStats) stats;
+			normStats = null;
+		} else if (stats instanceof NormalizedProfileStats) {
+			normStats = (NormalizedProfileStats) stats;
+			linearStats = null;
+		} else {
+			throw new IllegalArgumentException("Unrecognized ShollStats implementation");
+		}
+
+		this.annotate = annotate;
+		tempLegend = new StringBuffer();
 
 		// Set plot limits without grid lines
-		final double[] xScale = Tools.getMinMax(xValues);
-		final double[] yScale = Tools.getMinMax(yValues);
+		final double[] xValues = stats.getXvalues();
+		final double[] yValues = stats.getYvalues();
+		xMin = StatUtils.min(xValues);
+		xMax = StatUtils.max(xValues);
+		yMin = StatUtils.min(yValues);
+		yMax = StatUtils.max(yValues);
 		final boolean gridState = PlotWindow.noGridLines;
 		PlotWindow.noGridLines = false;
-		setLimits(xScale[0], xScale[1], yScale[0], yScale[1]);
+		setLimits(xMin, xMax, yMin, yMax);
 		PlotWindow.noGridLines = gridState;
 
 		// Add sampled data
-		if (annotate)
-			annotateProfile(stats, false);
 		setColor(SDATA_COLOR);
 		addPoints(xValues, yValues, Plot.CROSS);
+		if (linearStats != null)
+			annotateLinearProfile(false);
 
 		// Add fitted data
-		if (stats.validFcounts()) {
-			if (annotate)
-				annotateProfile(stats, true);
-			setColor(FDATA_COLOR1);
-			addPoints(stats.getRadii(), stats.getFcounts(), THICK_LINE);
+		setColor(FDATA_COLOR1);
+		if (linearStats != null && linearStats.validFit()) {
+			addPoints(linearStats.getXvalues(), linearStats.getFitYvalues(), THICK_LINE);
+			annotateLinearProfile(true);
 		}
+		if (normStats != null && normStats.validFit()) {
+			final SimpleRegression reg = normStats.getRegression();
+			final double y1 = reg.predict(xMin);
+			final double y2 = reg.predict(xMax);
+
+			// Plot regression: NB: with drawLine(x1, y1, x2, y2); line
+			// will not have a label and will not be listed on plot's table
+			addPoints(new double[] { xMin, xMax }, new double[] { y1, y2 }, THICK_LINE);
+			annotateNormalizedProfile(reg);
+		}
+
+		// Append finalized legend
+		final int flagPos = (annotate) ? AUTO_POSITION | LEGEND_TRANSPARENT : 0;
+		final StringBuffer finalLegend = new StringBuffer("Sampled data\n");
+		finalLegend.append(tempLegend);
+		setLineWidth(1);
+		setColor(Color.WHITE);
+		setLegend(finalLegend.toString(), flagPos);
+		updateImage();
+		resetDrawing();
 	}
 
-	private void annotateProfile(final LinearProfileStats stats, final boolean fittedData) {
+	public void rebuild() {
+		final PlotWindow pw = (PlotWindow) getImagePlus().getWindow();
+		if (pw == null || !pw.isVisible())
+			return;
+		if (isFrozen())
+			return;
+		final ShollPlot newPlot = new ShollPlot(getTitle(), defaultXtitle(stats), defaultYtitle(stats), stats,
+				annotate);
+		pw.drawPlot(newPlot);
+	}
 
+	private static String defaultTitle(final Profile profile) {
+		String plotTitle = profile.identifier();
+		if (plotTitle == null || plotTitle.isEmpty())
+			plotTitle = "Sholl Profile";
+		return plotTitle;
+	}
+
+	private static String defaultTitle(final ShollStats stats) {
+		return defaultTitle(stats.getProfile());
+	}
+
+	private static String defaultXtitle(final Profile profile) {
+		final StringBuilder sb = new StringBuilder();
+		if (profile.is2D())
+			sb.append("2D ");
+		sb.append("Distance");
+		final ShollPoint center = profile.center();
+		if (center != null)
+			sb.append(" from ").append(center.toString());
+		if (profile.scaled())
+			sb.append(" (").append(profile.spatialCalibration().getUnit()).append(")");
+		return sb.toString();
+	}
+
+	private static String defaultXtitle(final ShollStats stats) {
+		if (stats instanceof NormalizedProfileStats
+				&& (((NormalizedProfileStats) stats)).getMethod() == ShollStats.LOG_LOG) {
+			return "log[ " + defaultXtitle(stats.getProfile()) + " ]";
+		}
+		return defaultXtitle(stats.getProfile());
+	}
+
+	private static String defaultYtitle(final ShollStats stats) {
+		if (stats instanceof NormalizedProfileStats) {
+			final int normMethod = (((NormalizedProfileStats) stats)).getMethod();
+			switch (normMethod) {
+			case ShollStats.ANNULUS:
+				return "log(No. Inters./Annulus)";
+			case ShollStats.AREA:
+				return "log(No. Inters./Area)";
+			case ShollStats.PERIMETER:
+				return "log(No. Inters./Perimeter)";
+			case ShollStats.S_SHELL:
+				return "log(No. Inters./Spherical Shell)";
+			case ShollStats.SURFACE:
+				return "log(No. Inters./Surface)";
+			case ShollStats.VOLUME:
+				return "log(No. Inters./Volume)";
+			default:
+				return "Normalized Inters.";
+			}
+		}
+		return "No. Intersections";
+	}
+
+	private void drawDottedLine(final double x1, final double y1, final double x2, final double y2) {
 		final int DASH_STEP = 4;
-		final Point2D.Double centroid = stats.getCentroid(fittedData);
-		final Point2D.Double barycenter = stats.getPolygonCentroid(fittedData);
-		final Point2D.Double max = stats.getCenteredMaximum(fittedData);
-		final double primary = stats.getPrimaryBranches(fittedData);
+		drawDottedLine(x1, y1, x2, y2, DASH_STEP);
+	}
+
+	private void annotateNormalizedProfile(final SimpleRegression regression) {
+		if (!annotate || regression == null)
+			return;
+
+		// mark slope
+		final double xCenter = (xMin + xMax) / 2;
+		final double ySlope = regression.predict(xCenter);
+		drawDottedLine(xMin, ySlope, xCenter, ySlope);
+		drawDottedLine(xCenter, yMin, xCenter, ySlope);
+
+		// mark intercept
+		if (regression.hasIntercept())
+			markPoint(new Point2D.Double(0, regression.getIntercept()), DOT, 8);
+
+		// assemble legend
+		final double rsqred = regression.getRSquare();
+		final double k = -regression.getSlope();
+		tempLegend.append("k= ").append(ShollUtils.d2s(k));
+		tempLegend.append(" (R\u00B2= ").append(ShollUtils.d2s(rsqred)).append(")\n");
+	}
+
+	private void annotateLinearProfile(final boolean fittedData) {
+
+		if (!annotate || linearStats == null)
+			return;
+
+		final Point2D.Double centroid = linearStats.getCentroid(fittedData);
+		final Point2D.Double pCentroid = linearStats.getPolygonCentroid(fittedData);
+		final Point2D.Double max = linearStats.getCenteredMaximum(fittedData);
+		final double primary = linearStats.getPrimaryBranches(fittedData);
 		final double mv;
 		Color color;
 		if (fittedData) {
-			mv = stats.getMeanValueOfPolynomialFit(stats.getStartRadius(), stats.getEndRadius());
+			mv = linearStats.getMeanValueOfPolynomialFit(xMin, xMax);
 			color = FDATA_ANNOT_COLOR1;
 		} else {
 			mv = centroid.y;
@@ -89,38 +237,32 @@ public class ShollPlot extends Plot {
 
 		setLineWidth(1);
 		setColor(color);
-		final double[] limits = getLimits(); // {xMin, xMax, yMin, yMax};
-
-		// highlight max
-		drawDottedLine(limits[0], max.y, max.x, max.y, DASH_STEP);
-		drawDottedLine(max.x, limits[2], max.x, max.y, DASH_STEP);
 
 		// highlight centroids
-		markPoint(barycenter, CROSS, 9);
+		markPoint(pCentroid, CROSS, 8);
 		setColor(color);
-		drawDottedLine(limits[0], centroid.y, centroid.x, centroid.y, DASH_STEP);
-		drawDottedLine(centroid.x, limits[2], centroid.x, centroid.y, DASH_STEP);
+		drawDottedLine(xMin, centroid.y, centroid.x, centroid.y);
+		drawDottedLine(centroid.x, yMin, centroid.x, centroid.y);
 
 		// highlight mv
 		if (fittedData && mv != centroid.y)
-			drawDottedLine(limits[0], mv, centroid.x, mv, DASH_STEP);
+			drawDottedLine(xMin, mv, centroid.x, mv);
 
 		// highlight primary branches
-		drawDottedLine(stats.getStartRadius(), primary, max.x, primary, DASH_STEP);
+		drawDottedLine(xMin, primary, max.x, primary);
+
+		// highlight max
+		drawDottedLine(xMin, max.y, max.x, max.y);
+		drawDottedLine(max.x, yMin, max.x, max.y);
 
 		// build label
 		if (fittedData) {
-			final double rsqred = stats.getRSquaredOfPolynomialFit(true);
-			final String polyType = stats.getPolynomialAsString();
-			final StringBuffer legend = new StringBuffer();
-			legend.append("Sampled data\n");
-			legend.append(polyType).append(" fit (");
-			legend.append("R\u00B2= ").append(IJ.d2s(rsqred, 3)).append(")\n");
-			setLineWidth(1);
-			setColor(Color.WHITE);
-			setLegend(legend.toString(), AUTO_POSITION | LEGEND_TRANSPARENT);
+			final double rsqred = linearStats.getRSquaredOfFit(true);
+			final String polyType = linearStats.getPolynomialAsString();
+			tempLegend.append(polyType).append(" fit (");
+			tempLegend.append("R\u00B2= ").append(ShollUtils.d2s(rsqred)).append(")\n");
 		}
-		resetDrawing();
+
 	}
 
 	/**
