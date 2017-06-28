@@ -29,6 +29,8 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 
 import sholl.Profile;
+import sholl.ProfileEntry;
+import sholl.gui.ShollPlot;
 
 public class CommonStats implements ShollStats {
 
@@ -38,26 +40,21 @@ public class CommonStats implements ShollStats {
 	protected final double[] inputCounts;
 	protected int nPoints;
 	protected double[] fCounts;
+	protected ShollPlot plot;
+	protected final Profile profile;
 
 	public CommonStats(final Profile profile) {
 		if (profile == null)
 			throw new NullPointerException("Cannot instantiate class with a null profile");
-		inputRadii = profile.radiiAsArray();
-		inputCounts = profile.countsAsArray();
-		if (inputRadii == null || inputCounts == null)
-			throw new NullPointerException("Cannot instantiate class with profile holding null data");
-		final int n = inputRadii.length;
-		if (n == 0 || n != inputCounts.length)
-			throw new IllegalArgumentException("BUG: profile's size of data arrays in  differ");
-		nPoints = this.inputRadii.length;
-	}
-
-	public double getStepSize() {
-		double stepSize = 0;
-		for (int i = 1; i < nPoints; i++) {
-			stepSize += inputRadii[i] - inputRadii[i - 1];
+		this.profile = profile;
+		nPoints = profile.size();
+		inputRadii = new double[nPoints];
+		inputCounts = new double[nPoints];
+		int idx = 0;
+		for (ProfileEntry entry : profile.entries()) {
+			inputRadii[idx] = entry.radius;
+			inputCounts[idx++] = entry.count;
 		}
-		return stepSize / nPoints;
 	}
 
 	/**
@@ -100,6 +97,12 @@ public class CommonStats implements ShollStats {
 		return 1.0 - (ssRes / ssTot);
 	}
 
+	protected ShollPlot getPlot() {
+		if (plot == null)
+			plot = new ShollPlot(this);
+		return plot;
+	}
+
 	protected double getAdjustedRSquaredOfFit(final int p) {
 		double rSquared = getRSquaredOfFit();
 		rSquared = rSquared - (1 - rSquared) * (p / (nPoints - p - 1));
@@ -121,49 +124,23 @@ public class CommonStats implements ShollStats {
 
 	protected void validateFit() {
 		if (!validFit())
-			throw new NullPointerException("fitPolynomial() not been called");
+			throw new NullPointerException("Fitted data required but fit not yet performed");
 	}
 
 	/**
-	 * Returns sampled distances.
+	 * Returns X-values of a Sholl plot.
 	 *
-	 * @return sampling distances associated with input profile
+	 * @return X-values of a Sholl plot
 	 */
 	@Override
-	public double[] getRadii() {
+	public double[] getXvalues() {
 		return inputRadii;
 	}
 
-	/**
-	 * Returns sampled counts.
-	 *
-	 * @return intersection counts associated with input profile
-	 */
+
 	@Override
-	public double[] getCounts() {
+	public double[] getYvalues() {
 		return inputCounts;
-	}
-
-	/**
-	 * Returns the shortest sampling distance (typically the first sampling
-	 * radius)
-	 *
-	 * @return the smallest sampling radius (typically the first)
-	 */
-	@Override
-	public double getStartRadius() {
-		return StatUtils.min(inputRadii);
-	}
-
-	/**
-	 * Returns the largest sampling distance (typically the last sampling
-	 * radius)
-	 *
-	 * @return the largest sampling radius
-	 */
-	@Override
-	public double getEndRadius() {
-		return StatUtils.max(inputRadii);
 	}
 
 	@Override
@@ -172,7 +149,7 @@ public class CommonStats implements ShollStats {
 	}
 
 	@Override
-	public double[] getFcounts() {
+	public double[] getFitYvalues() {
 		return fCounts;
 	}
 
@@ -184,6 +161,11 @@ public class CommonStats implements ShollStats {
 	@Override
 	public boolean validFit() {
 		return (fCounts != null && fCounts.length > 0);
+	}
+
+	@Override
+	public Profile getProfile() {
+		return profile;
 	}
 
 }
