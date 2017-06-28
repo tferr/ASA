@@ -30,10 +30,16 @@ import java.util.Set;
  */
 public class ProfileEntry implements Comparable<ProfileEntry> {
 
+	/** The entry's radius length (in physical units) */
 	public double radius;
 
+	/** The number of intersection counts associated with the entry */
 	public double count;
 
+	/**
+	 * List of intersection points associated with the entry's radius (in
+	 * spatially calibrated units)
+	 */
 	public Set<ShollPoint> points;
 
 	public ProfileEntry(final Number r, final Number count, final Set<ShollPoint> points) {
