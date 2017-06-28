@@ -23,8 +23,9 @@ package sholl.parsers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.Properties;
 
+import ij.measure.Calibration;
 import ij.measure.ResultsTable;
 import sholl.Profile;
 import sholl.ProfileEntry;
@@ -35,22 +36,20 @@ import sholl.ProfileEntry;
  */
 public class TabularParser implements Parser {
 
-	private final Profile profile;
-	private final Set<ProfileEntry> profileData;
+	private Profile profile;
 
+	private ResultsTable table;
+	private String tableName;
 	private final String radiiColumnHeader;
-	private final String countsColumnHeader;
+	private int radiiCol;
+	private int countsCol;
+	private final int startRow;
+	private final int endRow;
 
 	public TabularParser(final File table, final String radiiColumnHeader, final String countsColumnHeader)
 			throws IOException {
-		final ResultsTable rt = ResultsTable.open(table.getAbsolutePath());
-		this.radiiColumnHeader = radiiColumnHeader;
-		this.countsColumnHeader = countsColumnHeader;
-		profile = new Profile(this);
-		profileData = profile.entries();
-		profile.setSpatialUnit(guessSpatialUnit(radiiColumnHeader));
-		profile.setIdentifier(table.getName());
-		buildProfile(rt, -1, -1);
+		this(ResultsTable.open(table.getAbsolutePath()), radiiColumnHeader, countsColumnHeader, -1, -1);
+		tableName = table.getName();
 	}
 
 	public TabularParser(final String filePath, final String radiiColumnHeader, final String countsColumnHeader)
@@ -63,70 +62,63 @@ public class TabularParser implements Parser {
 	 */
 	public TabularParser(final ResultsTable table, final String radiiColumnHeader, final String countsColumnHeader,
 			final int startRow, final int endRow) {
+
+		if (table == null || table.getCounter() == 0)
+			throw new IllegalArgumentException("Table does not contain valid data");
+
 		this.radiiColumnHeader = radiiColumnHeader;
-		this.countsColumnHeader = countsColumnHeader;
-		profile = new Profile(this);
-		profileData = profile.entries();
-		profile.setSpatialUnit(guessSpatialUnit(radiiColumnHeader));
-		profile.setIdentifier(table.toString());
-		buildProfile(table, startRow, endRow);
+		final int radiiCol = table.getColumnIndex(radiiColumnHeader);
+		final int countsCol = table.getColumnIndex(countsColumnHeader);
+		if (radiiCol == ResultsTable.COLUMN_NOT_FOUND || countsCol == ResultsTable.COLUMN_NOT_FOUND)
+			throw new IllegalArgumentException(
+					"Specified headings do not match existing ones: " + table.getColumnHeadings());
+
+		final int lastRow = table.getCounter() - 1;
+		this.startRow = (startRow == -1) ? 0 : startRow;
+		this.endRow = (endRow == -1) ? lastRow : endRow;
+		if (this.startRow > this.endRow || this.endRow > lastRow)
+			throw new IllegalArgumentException("Specified rows are out of range");
 	}
 
-	private String guessSpatialUnit(final String columnHeader) {
-		if (columnHeader == null)
-			return null;
+	@Override
+	public Profile parse() {
+		profile = new Profile();
+		final double[] radii = table.getColumnAsDoubles(radiiCol);
+		final double[] counts = table.getColumnAsDoubles(countsCol);
+		for (int i = startRow; i <= endRow; i++) {
+			final ProfileEntry entry = new ProfileEntry(radii[i], counts[i], null);
+			profile.add(entry);
+		}
+		final Properties properties = new Properties();
+		properties.setProperty(KEY_ID, (tableName == null) ? table.toString() : tableName);
+		properties.setProperty(KEY_SOURCE, SRC_TABLE);
+		final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
+		if (cal != null)
+			profile.setSpatialCalibration(cal);
+		profile.setProperties(properties);
+		return profile;
+	}
 
-		final String[] tokens = columnHeader.toLowerCase().split("\\W");
+	private Calibration guessCalibrationFromHeading(final String colHeading) {
+		if (colHeading == null)
+			return null;
+		final String[] tokens = colHeading.toLowerCase().split("\\W");
 		final String[] knownUnits = new String("\u00B5 micron mm cm pixels").split(" ");
 		for (final String token : tokens) {
 			for (final String unit : knownUnits) {
-				if (token.contains(unit))
-					return unit;
+				if (token.contains(unit)) {
+					final Calibration cal = new Calibration();
+					cal.setUnit(unit);
+					return cal;
+				}
 			}
 		}
 		return null;
 	}
 
-	private void buildProfile(final ResultsTable table, final int startRow, final int endRow) {
-
-		final int radiiCol = table.getColumnIndex(radiiColumnHeader);
-		final int countsCol = table.getColumnIndex(countsColumnHeader);
-		if (radiiCol == ResultsTable.COLUMN_NOT_FOUND || countsCol == ResultsTable.COLUMN_NOT_FOUND)
-			throw new IllegalArgumentException("Specified columns not found");
-
-		final int lastRow = table.getCounter() - 1;
-		final int sRow = (startRow == -1) ? 0 : startRow;
-		final int eRow = (endRow == -1) ? lastRow : endRow;
-		if (sRow > eRow || eRow > lastRow)
-			throw new IllegalArgumentException("Specified rows are out of range");
-
-		final double[] radii = table.getColumnAsDoubles(radiiCol);
-		final double[] counts = table.getColumnAsDoubles(countsCol);
-		for (int i = sRow; i <= eRow; i++) {
-			final ProfileEntry entry = new ProfileEntry(radii[i], counts[i], null);
-			profileData.add(entry);
-		}
-
-	}
-
 	@Override
 	public boolean successful() {
-		return profile != null && profileData.size() > 0;
-	}
-
-	@Override
-	public int space() {
-		return UNKNOWN_D;
-	}
-
-	@Override
-	public int source() {
-		return SOURCE_TABULAR;
-	}
-
-	@Override
-	public Profile profile() {
-		return profile;
+		return profile != null && profile.size() > 0;
 	}
 
 }
