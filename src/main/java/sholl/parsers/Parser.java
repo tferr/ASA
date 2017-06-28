@@ -22,25 +22,12 @@
 package sholl.parsers;
 
 import sholl.Profile;
+import sholl.ProfileProperties;
 
-public interface Parser {
-
-	public static final int SOURCE_IMP = 1;
-	public static final int SOURCE_TRACES = 2;
-	public static final int SOURCE_SWC = 4;
-	public static final int SOURCE_TABULAR = 8;
-	public static final int SOURCE_STATS = 16;
-	public static final int SOURCE_OTHER = 32;
-	public static final int TWO_D = 64;
-	public static final int THREE_D = 128;
-	public static final int UNKNOWN_D = 256;
+public interface Parser extends ProfileProperties {
 
 	public boolean successful();
 
-	public int space();
-
-	public int source();
-
-	public Profile profile();
+	public Profile parse();
 
 }
