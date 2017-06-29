@@ -32,7 +32,7 @@ import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.gui.ShollPlot;
 
-public class CommonStats implements ShollStats {
+class CommonStats implements ShollStats {
 
 	protected final static double UNASSIGNED_VALUE = Double.MIN_VALUE;
 
