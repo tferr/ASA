@@ -432,8 +432,10 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		case 12:
 		case 13:
 			degOrd = deg + "th";
+			break;
 		default:
 			degOrd = deg + sufixes[deg % 10];
+			break;
 		}
 		return degOrd + " deg.";
 	}
