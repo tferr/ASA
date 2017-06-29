@@ -63,6 +63,7 @@ public class TabularParser implements Parser {
 	public TabularParser(final ResultsTable table, final String radiiColumnHeader, final String countsColumnHeader,
 			final int startRow, final int endRow) {
 
+		this.table = table;
 		if (table == null || table.getCounter() == 0)
 			throw new IllegalArgumentException("Table does not contain valid data");
 
