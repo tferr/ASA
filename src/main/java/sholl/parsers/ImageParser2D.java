@@ -36,17 +36,18 @@ public class ImageParser2D extends ImageParser {
 	private ImageProcessor ip;
 	private int minX, maxX;
 	private int minY, maxY;
-	private int spanSize, spanType;
-	private final int MAX_N_SPANS = 10;
+	private int nSpans, spanType;
 	private final boolean doSpikeSupression = true;
 	private int channel, slice, frame;
 
 	/** Flag for integration of repeated measures: average */
-	public static final int AVERAGE = 0;
+	public static final int MEAN = 0;
 	/** Flag for integration of repeated measures: median */
 	private static final int MEDIAN = 1;
 	/** Flag for integration of repeated measures: mode */
 	public static final int MODE = 2;
+	private static final int NONE = -1;
+	private final int MAX_N_SPANS = 10;
 
 	public ImageParser2D(final ImagePlus imp) {
 		super(imp);
@@ -87,16 +88,18 @@ public class ImageParser2D extends ImageParser {
 	}
 
 	private void setRadiiSpan(final int nSamples, final int integrationFlag) {
-		spanSize = Math.max(1, Math.min(MAX_N_SPANS, nSamples));
-		properties.setProperty(KEY_NSAMPLES, String.valueOf(spanSize));
+		nSpans = Math.max(1, Math.min(MAX_N_SPANS, nSamples));
+		properties.setProperty(KEY_NSAMPLES, String.valueOf(nSpans));
 		switch (integrationFlag) {
+		case NONE:
+			break;
 		case MEDIAN:
 			properties.setProperty(KEY_NSAMPLES_INTG, INTG_MEDIAN);
 			break;
 		case MODE:
 			properties.setProperty(KEY_NSAMPLES_INTG, INTG_MODE);
 			break;
-		case AVERAGE:
+		case MEAN:
 			properties.setProperty(KEY_NSAMPLES_INTG, INTG_MEAN);
 			break;
 		default:
@@ -109,6 +112,8 @@ public class ImageParser2D extends ImageParser {
 	public Profile parse() {
 		checkUnsetFields();
 		ip = getProcessor();
+		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
+			setHemiShells(HEMI_NONE);
 
 		double[] binsamples;
 		int[] pixels;
@@ -118,29 +123,28 @@ public class ImageParser2D extends ImageParser {
 
 		// Create array for bin samples. Passed value of binSize must be at
 		// least 1
-		binsamples = new double[spanSize];
+		binsamples = new double[nSpans];
 
 		statusService.showStatus(
-				"Sampling " + size + " radii, " + spanSize + " measurement(s) per radius. Press 'Esc' to abort...");
-
-		final int xc = (int) center.rawX(cal);
-		final int yc = (int) center.rawY(cal);
+				"Sampling " + size + " radii, " + nSpans + " measurement(s) per radius. Press 'Esc' to abort...");
 
 		// Outer loop to control the analysis bins
 		int i = 0;
-		double counts = 0;
 		for (final Double radius : radii) {
 
 			// Retrieve the radius in pixel coordinates and set the largest
 			// radius of this bin span
-			int rbin = (int) Math.round(radius / pixelSize + spanSize / 2);
+			int intRadius = (int) Math.round(radius / voxelSize + nSpans / 2);
 			final Set<ShollPoint> pointsList = new HashSet<>();
 
-			// Inner loop to gather samples for each bin
-			for (int s = 0; s < spanSize; s++) {
+			// Inner loop to gather samples for each sample
+			for (int s = 0; s < nSpans; s++) {
 
-				// Get the circumference pixels for this radius
-				points = getCircumferencePoints(xc, yc, rbin--);
+				if (intRadius < 1)
+					break;
+
+				// Get the circumference pixels for this int radius
+				points = getCircumferencePoints(xc, yc, intRadius--);
 				pixels = getPixels(points);
 
 				// Count the number of intersections
@@ -149,22 +153,23 @@ public class ImageParser2D extends ImageParser {
 				pointsList.addAll(thisBinIntersPoints);
 			}
 
-			statusService.showProgress(i++, size * spanSize);
 			if (IJ.escapePressed()) {
 				IJ.beep();
 				return profile;
 			}
+			statusService.showProgress(i++, size * nSpans);
 
 			// Statistically combine bin data
-			if (spanSize > 1) {
+			double counts = 0;
+			if (nSpans > 1) {
 				if (spanType == MEDIAN) { // 50th percentile
 					counts = StatUtils.percentile(binsamples, 50);
-				} else if (spanType == AVERAGE) { // mean
+				} else if (spanType == MEAN) { // mean
 					counts = StatUtils.mean(binsamples);
 				} else if (spanType == MODE) { // the 1st max freq. element
 					counts = StatUtils.mode(binsamples)[0];
 				}
-			} else {// There was only one sample
+			} else { // There was only one sample
 				counts = binsamples[0];
 			}
 			profile.add(new ProfileEntry(radius, counts, pointsList));
