@@ -117,8 +117,14 @@ public class ShollPoint {
 		return x1 * x1 + y1 * y1 + z1 * z1;
 	}
 
-	public double distanceTo(final ShollPoint point) {
+	public double euclideanDxTo(final ShollPoint point) {
 		return Math.sqrt(distanceSquared(point));
+	}
+
+	public double chebyshevDxTo(final ShollPoint point) {
+		double max = Math.max(Math.abs(x - point.x), Math.abs(y - point.y));
+		max = Math.max(Math.abs(z - point.z), max);
+		return max;
 	}
 
 	public ShollPoint average(final ShollPoint... points) {
