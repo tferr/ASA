@@ -443,9 +443,35 @@ public class ImageParser2D extends ImageParser {
 
 	}
 
-	private void checkUnsetFields() {
-		if (center == null || radii == null || upperT == ImageProcessor.NO_THRESHOLD || (lowerT == 0 && upperT == 0))
-			throw new NullPointerException("Cannot proceed with undefined parameters");
+	public void setHemiShells(final String flag) {
+		checkUnsetFields();
+		final int maxRadius = (int) Math.round(radii.get(radii.size() - 1) / voxelSize);
+		minX = Math.max(xc - maxRadius, 0);
+		maxX = Math.min(xc + maxRadius, imp.getWidth());
+		minY = Math.max(yc - maxRadius, 0);
+		maxY = Math.min(yc + maxRadius, imp.getHeight());
+		final String fFlag = (flag == null || flag.isEmpty()) ? HEMI_NONE : flag.trim().toLowerCase();
+		switch (fFlag) {
+		case HEMI_NORTH:
+			maxY = Math.min(yc + maxRadius, yc);
+			break;
+		case HEMI_SOUTH:
+			minY = Math.max(yc - maxRadius, yc);
+			break;
+		case HEMI_WEST:
+			minX = xc;
+			break;
+		case HEMI_EAST:
+			maxX = xc;
+			break;
+		case HEMI_NONE:
+			break;
+		default:
+			throw new IllegalArgumentException("Unrecognized flag: " + flag);
+		}
+		properties.setProperty(KEY_HEMISHELLS, fFlag);
+	}
+
 	public void setPosition(final int channel, final int slice, final int frame) {
 		if (channel < 1 || channel > imp.getNChannels() || slice < 1 || slice > imp.getNSlices() || frame < 1
 				|| frame > imp.getNFrames())
