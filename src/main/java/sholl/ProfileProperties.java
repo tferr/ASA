@@ -35,6 +35,9 @@ public interface ProfileProperties {
 	final String KEY_NSAMPLES_INTG = "samples-integration";
 	final String KEY_CALIBRATION = "calibration";
 	final String KEY_CENTER = "center";
+	final String KEY_CHANNEL_POS = "channel";
+	final String KEY_SLICE_POS = "slice";
+	final String KEY_FRAME_POS = "frame";
 
 	final String SRC_TABLE = "table";
 	final String SRC_TRACES = "tracings";
