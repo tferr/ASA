@@ -8,14 +8,11 @@ import java.util.Set;
 import org.apache.commons.math3.stat.StatUtils;
 import org.scijava.Context;
 import org.scijava.app.StatusService;
-import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.measure.Calibration;
 import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
@@ -23,10 +20,8 @@ import ij.process.TypeConverter;
 import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.ShollPoint;
-import sholl.Sholl_Utils;
 
-@Plugin(type = Command.class)
-public class ImageParser2D implements Parser {
+public class ImageParser2D extends ImageParser {
 
 	@Parameter
 	private Context context;
@@ -37,17 +32,10 @@ public class ImageParser2D implements Parser {
 	@Parameter
 	private StatusService statusService;
 
-	private Properties properties;
-	private Profile profile;
-	private ShollPoint center;
-	private ArrayList<Double> radii;
-
+	private final Properties properties;
 	private ImageProcessor ip;
-	private Calibration cal;
-	private double pixelSize;
 	private int minX, maxX;
 	private int minY, maxY;
-	private int lowerT, upperT;
 	private int spanSize, spanType;
 	private final int MAX_N_SPANS = 10;
 	private final boolean doSpikeSupression = true;
@@ -77,11 +65,6 @@ public class ImageParser2D implements Parser {
 		// final ImageJ ij = net.imagej.Main.launch(args);
 		final ImageParser2D parser = new ImageParser2D(Sholl_Utils.sampleImage());
 		parser.parse();
-	}
-
-	@Override
-	public boolean successful() {
-		return profile.size() > 0;
 	}
 
 	public void setCenterPx(final int x, final int y) {
