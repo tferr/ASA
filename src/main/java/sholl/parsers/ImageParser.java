@@ -51,14 +51,14 @@ class ImageParser implements Parser {
 	}
 
 	public void setCenter(final double x, final double y, final double z) {
-		center = new ShollPoint(x, y);
+		center = new ShollPoint(x, y, z);
 		profile.setCenter(center);
 		xc = (int) center.rawX(cal);
 		yc = (int) center.rawY(cal);
 		zc = (int) center.rawZ(cal);
 	}
 
-	public void setThreshold(final int lower, final int upper) {
+	public void setThreshold(final double lower, final double upper) {
 		lowerT = lower;
 		upperT = upper;
 	}
