@@ -16,11 +16,13 @@ import org.scijava.plugin.Plugin;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Calibration;
+import ij.process.ColorProcessor;
+import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.TypeConverter;
 import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.ShollPoint;
-import sholl.ShollUtils;
 import sholl.Sholl_Utils;
 
 @Plugin(type = Command.class)
@@ -49,6 +51,7 @@ public class ImageParser2D implements Parser {
 	private int spanSize, spanType;
 	private final int MAX_N_SPANS = 10;
 	private final boolean doSpikeSupression = true;
+	private int channel, slice, frame;
 
 	/** Flag for integration of repeated measures: average */
 	public static final int AVERAGE = 0;
@@ -57,30 +60,16 @@ public class ImageParser2D implements Parser {
 	/** Flag for integration of repeated measures: mode */
 	public static final int MODE = 2;
 
-	public ImageParser2D() {
+	public ImageParser2D(final ImagePlus imp) {
+		super(imp);
 		if (context == null)
 			context = (Context) IJ.runPlugIn("org.scijava.Context", "");
 		if (logService == null)
 			logService = context.getService(LogService.class);
 		if (statusService == null)
 			statusService = context.getService(StatusService.class);
-	}
-
-	public ImageParser2D(final ImagePlus imp) {
-		this();
-		ip = imp.getProcessor();
-		if (ip.isBinary())
-			setThreshold(1, 255);
-		cal = imp.getCalibration(); // never null
-		pixelSize = Math.sqrt(cal.pixelHeight * cal.pixelWidth);
-		profile = new Profile();
-		profile.assignImage(imp);
 		properties = profile.getProperties();
-
-		minX = 0;
-		maxX = imp.getWidth() - 1;
-		minY = 0;
-		maxY = imp.getHeight() - 1;
+		setPosition(imp.getC(), imp.getZ(), imp.getT());
 	}
 
 	/** Debug method **/
@@ -96,30 +85,22 @@ public class ImageParser2D implements Parser {
 	}
 
 	public void setCenterPx(final int x, final int y) {
-		if (cal == null)
-			throw new IllegalArgumentException("Attempting to set center under unknown calibration");
-		center = new ShollPoint(x, y, cal);
-		profile.setCenter(center);
+		super.setCenterPx(x, y, 1);
 	}
 
 	public void setCenter(final double x, final double y) {
-		center = new ShollPoint(x, y);
-		profile.setCenter(center);
+		super.setCenter(x, y, 0);
 	}
 
+	@Override
 	public void setRadii(final double startRadius, final double step, final double endRadius) {
-		setRadii(startRadius, step, endRadius, 1, -1);
+		setRadii(startRadius, step, endRadius, 1, NONE);
 	}
 
 	public void setRadii(final double startRadius, final double step, final double endRadius, final int span,
 			final int integrationFlag) {
-		radii = ShollUtils.getRadii(startRadius, step, endRadius);
+		super.setRadii(startRadius, step, endRadius);
 		setRadiiSpan(span, integrationFlag);
-	}
-
-	public void setThreshold(final int lower, final int upper) {
-		lowerT = lower;
-		upperT = upper;
 	}
 
 	private void setRadiiSpan(final int nSamples, final int integrationFlag) {
@@ -144,6 +125,7 @@ public class ImageParser2D implements Parser {
 	@Override
 	public Profile parse() {
 		checkUnsetFields();
+		ip = getProcessor();
 
 		double[] binsamples;
 		int[] pixels;
@@ -476,5 +458,23 @@ public class ImageParser2D implements Parser {
 	private void checkUnsetFields() {
 		if (center == null || radii == null || upperT == ImageProcessor.NO_THRESHOLD || (lowerT == 0 && upperT == 0))
 			throw new NullPointerException("Cannot proceed with undefined parameters");
+	public void setPosition(final int channel, final int slice, final int frame) {
+		if (channel < 1 || channel > imp.getNChannels() || slice < 1 || slice > imp.getNSlices() || frame < 1
+				|| frame > imp.getNFrames())
+			throw new IllegalArgumentException("Specified (channel, slice, frame) position is out of range");
+		this.channel = channel;
+		this.slice = slice;
+		this.frame = frame;
+		properties.setProperty(KEY_CHANNEL_POS, String.valueOf(channel));
+		properties.setProperty(KEY_SLICE_POS, String.valueOf(slice));
+		properties.setProperty(KEY_FRAME_POS, String.valueOf(frame));
+	}
+
+	private ImageProcessor getProcessor() {
+		imp.setPositionWithoutUpdate(channel, slice, frame);
+		final ImageProcessor ip = imp.getChannelProcessor();
+		if (ip instanceof FloatProcessor || ip instanceof ColorProcessor)
+			return new TypeConverter(ip, false).convertToShort();
+		return ip;
 	}
 }
