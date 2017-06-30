@@ -71,12 +71,24 @@ class ImageParser implements Parser {
 	}
 
 	protected double maxPossibleRadius() {
-		final ShollPoint p1 = new ShollPoint(0, 0, 0);
-		final ShollPoint p2 = new ShollPoint(imp.getWidth() * cal.pixelWidth, imp.getHeight() * cal.pixelHeight,
-				imp.getNSlices() * cal.pixelDepth);
+		final double maxX = imp.getWidth() * cal.pixelWidth;
+		final double maxY = imp.getHeight() * cal.pixelHeight;
+		final double maxZ = imp.getNSlices() * cal.pixelDepth;
+		final ShollPoint[] points = new ShollPoint[8];
+		points[0] = new ShollPoint(0, 0, 0);
+		points[1] = new ShollPoint(maxX, maxY, maxZ);
 		if (center == null)
-			return p1.distanceTo(p2);
-		return Math.max(center.distanceTo(p1), center.distanceTo(p2));
+			return points[0].distanceTo(points[1]);
+		points[2] = new ShollPoint(maxX, 0, 0);
+		points[3] = new ShollPoint(0, maxY, 0);
+		points[4] = new ShollPoint(maxX, maxY, 0);
+		points[5] = new ShollPoint(0, 0, maxZ);
+		points[6] = new ShollPoint(maxX, 0, maxZ);
+		points[7] = new ShollPoint(0, maxY, maxZ);
+		double max = 0;
+		for (final ShollPoint p : points)
+			max = Math.max(max, center.distanceSquared(p));
+		return Math.sqrt(max);
 	}
 
 	protected void checkUnsetFields() {
