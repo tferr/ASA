@@ -78,7 +78,7 @@ class ImageParser implements Parser {
 		points[0] = new ShollPoint(0, 0, 0);
 		points[1] = new ShollPoint(maxX, maxY, maxZ);
 		if (center == null)
-			return points[0].distanceTo(points[1]);
+			return points[0].euclideanDxTo(points[1]);
 		points[2] = new ShollPoint(maxX, 0, 0);
 		points[3] = new ShollPoint(0, maxY, 0);
 		points[4] = new ShollPoint(maxX, maxY, 0);
