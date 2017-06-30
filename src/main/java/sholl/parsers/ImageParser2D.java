@@ -263,10 +263,11 @@ public class ImageParser2D extends ImageParser {
 
 				// Compute the chessboard (Chebyshev) distance. A distance of 1
 				// underlies 8-connectivity
-				dx = Math.max(Math.abs(points[i][0] - points[j][0]), Math.abs(points[i][1] - points[j][1]));
+				final ShollPoint p1 = new ShollPoint(points[i][0], points[i][1]);
+				final ShollPoint p2 = new ShollPoint(points[j][0], points[j][1]);
 
 				// Should these two points be in the same group?
-				if ((dx == 1) && (grouping[i] != grouping[j])) {
+				if ((p1.chebyshevDxTo(p2) <= 1) && (grouping[i] != grouping[j])) {
 
 					// Record which numbers we're changing
 					source = grouping[i];
