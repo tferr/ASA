@@ -38,7 +38,7 @@ public class TabularParser implements Parser {
 
 	private Profile profile;
 
-	private ResultsTable table;
+	private final ResultsTable table;
 	private String tableName;
 	private final String radiiColumnHeader;
 	private int radiiCol;
