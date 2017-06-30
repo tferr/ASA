@@ -44,14 +44,14 @@ class CommonStats implements ShollStats {
 	protected final Profile profile;
 
 	public CommonStats(final Profile profile) {
-		if (profile == null)
-			throw new NullPointerException("Cannot instantiate class with a null profile");
+		if (profile == null || profile.size() == 0)
+			throw new NullPointerException("Cannot instantiate analysis with a null or empty profile");
 		this.profile = profile;
 		nPoints = profile.size();
 		inputRadii = new double[nPoints];
 		inputCounts = new double[nPoints];
 		int idx = 0;
-		for (ProfileEntry entry : profile.entries()) {
+		for (final ProfileEntry entry : profile.entries()) {
 			inputRadii[idx] = entry.radius;
 			inputCounts[idx++] = entry.count;
 		}
@@ -136,7 +136,6 @@ class CommonStats implements ShollStats {
 	public double[] getXvalues() {
 		return inputRadii;
 	}
-
 
 	@Override
 	public double[] getYvalues() {
