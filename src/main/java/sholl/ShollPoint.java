@@ -90,14 +90,10 @@ public class ShollPoint {
 	}
 
 	public ShollPoint minus(final ShollPoint point) {
-		if (point == null)
-			return this;
 		return new ShollPoint(x - point.x, y - point.y, z - point.z);
 	}
 
 	public ShollPoint plus(final ShollPoint point) {
-		if (point == null)
-			return this;
 		return new ShollPoint(x + point.x, y + point.y, z + point.z);
 	}
 

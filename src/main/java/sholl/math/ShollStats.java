@@ -53,7 +53,7 @@ public interface ShollStats {
 
 	double[] getYvalues();
 
-	//double[] getFitXvalues();
+	// double[] getFitXvalues();
 
 	double[] getFitYvalues();
 

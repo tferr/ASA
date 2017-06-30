@@ -45,7 +45,7 @@ class CommonStats implements ShollStats {
 
 	public CommonStats(final Profile profile) {
 		if (profile == null || profile.size() == 0)
-			throw new NullPointerException("Cannot instantiate analysis with a null or empty profile");
+			throw new IllegalArgumentException("Cannot instantiate analysis with a null or empty profile");
 		this.profile = profile;
 		nPoints = profile.size();
 		inputRadii = new double[nPoints];
