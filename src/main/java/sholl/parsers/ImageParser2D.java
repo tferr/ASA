@@ -327,8 +327,6 @@ public class ImageParser2D extends ImageParser {
 
 	public int[] getPixels(final int[][] points) {
 
-		int value;
-
 		// Initialize the array to hold the pixel values. int arrays are
 		// initialized to a default value of 0
 		final int[] pixels = new int[points.length];
@@ -338,13 +336,25 @@ public class ImageParser2D extends ImageParser {
 
 			// We already filtered out of bounds coordinates in
 			// getCircumferencePoints
-			value = ip.getPixel(points[i][0], points[i][1]);
-			if (value >= lowerT && value <= upperT)
+			if (withinBoundsAndThreshold(points[i][0], points[i][1]))
 				pixels[i] = 1;
 		}
 
 		return pixels;
 
+	}
+
+	private boolean withinBoundsAndThreshold(final int x, final int y) {
+		return withinBounds(x, y) && withinThreshold(x, y);
+	}
+
+	private boolean withinBounds(final int x, final int y) {
+		return (x >= minX && x <= maxX && y >= minY && y <= maxY);
+	}
+
+	private boolean withinThreshold(final int x, final int y) {
+		final double value = ip.getPixel(x, y);
+		return (value >= lowerT && value <= upperT);
 	}
 
 	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
@@ -418,7 +428,7 @@ public class ImageParser2D extends ImageParser {
 			pxX = points[i][0];
 			pxY = points[i][1];
 
-			if ((i + 1) % r != 0 && pxX >= minX && pxX <= maxX && pxY >= minY && pxY <= maxY)
+			if ((i + 1) % r != 0 && withinBounds(pxX, pxY))
 				count++;
 		}
 
@@ -430,10 +440,9 @@ public class ImageParser2D extends ImageParser {
 			pxX = points[i][0];
 			pxY = points[i][1];
 
-			if ((i + 1) % r != 0 && pxX >= minX && pxX <= maxX && pxY >= minY && pxY <= maxY) {
+			if ((i + 1) % r != 0 && withinBounds(pxX, pxY)) {
 				refined[j][0] = pxX;
 				refined[j++][1] = pxY;
-
 			}
 
 		}
