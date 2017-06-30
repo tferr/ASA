@@ -6,10 +6,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.StatUtils;
-import org.scijava.Context;
-import org.scijava.app.StatusService;
-import org.scijava.log.LogService;
-import org.scijava.plugin.Parameter;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -22,15 +18,6 @@ import sholl.ProfileEntry;
 import sholl.ShollPoint;
 
 public class ImageParser2D extends ImageParser {
-
-	@Parameter
-	private Context context;
-
-	@Parameter
-	private LogService logService;
-
-	@Parameter
-	private StatusService statusService;
 
 	private final Properties properties;
 	private ImageProcessor ip;
@@ -51,12 +38,6 @@ public class ImageParser2D extends ImageParser {
 
 	public ImageParser2D(final ImagePlus imp) {
 		super(imp);
-		if (context == null)
-			context = (Context) IJ.runPlugIn("org.scijava.Context", "");
-		if (logService == null)
-			logService = context.getService(LogService.class);
-		if (statusService == null)
-			statusService = context.getService(StatusService.class);
 		properties = profile.getProperties();
 		setPosition(imp.getC(), imp.getZ(), imp.getT());
 	}

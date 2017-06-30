@@ -2,6 +2,12 @@ package sholl.parsers;
 
 import java.util.ArrayList;
 
+import org.scijava.Context;
+import org.scijava.app.StatusService;
+import org.scijava.log.LogService;
+import org.scijava.plugin.Parameter;
+
+import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
@@ -10,6 +16,15 @@ import sholl.ShollPoint;
 import sholl.ShollUtils;
 
 class ImageParser implements Parser {
+
+	@Parameter
+	protected Context context;
+
+	@Parameter
+	protected LogService logService;
+
+	@Parameter
+	protected StatusService statusService;
 
 	protected final Profile profile;
 	protected ShollPoint center;
@@ -25,6 +40,12 @@ class ImageParser implements Parser {
 	protected int zc;
 
 	protected ImageParser(final ImagePlus imp) {
+		if (context == null)
+			context = (Context) IJ.runPlugIn("org.scijava.Context", "");
+		if (logService == null)
+			logService = context.getService(LogService.class);
+		if (statusService == null)
+			statusService = context.getService(StatusService.class);
 		this.imp = imp;
 		if (imp.getProcessor().isBinary())
 			setThreshold(1, 255);
