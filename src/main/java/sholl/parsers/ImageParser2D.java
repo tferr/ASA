@@ -1,6 +1,5 @@
 package sholl.parsers;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -183,7 +182,7 @@ public class ImageParser2D extends ImageParser {
 	}
 
 	private void removeSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
-			final ImageProcessor ip, final HashSet<Integer> positions) {
+			final HashSet<Integer> positions) {
 
 		for (int i = 0; i < pointsLength; i++) {
 
@@ -243,7 +242,7 @@ public class ImageParser2D extends ImageParser {
 
 	public Set<ShollPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
 
-		int i, j, k, target, source, len, dx;
+		int i, j, k, target, source, len;
 
 		// Create an array to hold the point grouping data
 		final int[] grouping = new int[len = points.length];
@@ -254,7 +253,6 @@ public class ImageParser2D extends ImageParser {
 			grouping[i] = i + 1;
 			positions.add(i);
 		}
-		// int groups = len;
 
 		for (i = 0; i < len; i++) {
 			for (j = 0; j < len; j++) {
@@ -279,24 +277,15 @@ public class ImageParser2D extends ImageParser {
 						if (grouping[k] == target)
 							grouping[k] = source;
 
-					// Update the number of groups
-					if (!positions.remove(j)) // we must trim the set even if
-												// this position has been
-												// visited
-						positions.remove(positions.iterator().next());
-					// groups--;
+					// Remove redundant position
+					positions.remove(j);
 				}
 
 			}
 		}
 
-		// System.out.println("i=" + i);
-		// System.out.println("groups/positions before doSpikeSupression: " +
-		// groups + "/" + positions.size());
 		if (doSpikeSupression) {
-			removeSinglePixels(points, len, grouping, ip, positions);
-			// System.out.println("groups/positions after doSpikeSupression: " +
-			// groups + "/" + positions.size());
+			removeSinglePixels(points, len, grouping, positions);
 		}
 
 		final Set<ShollPoint> sPoints = new HashSet<>();
