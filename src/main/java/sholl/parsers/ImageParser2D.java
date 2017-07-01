@@ -129,7 +129,7 @@ public class ImageParser2D extends ImageParser {
 				pixels = getPixels(points);
 
 				// Count the number of intersections
-				final Set<UPoint> thisBinIntersPoints = targetGroupsPositions(pixels, points, ip);
+				final Set<UPoint> thisBinIntersPoints = targetGroupsPositions(pixels, points);
 				binsamples[s] = thisBinIntersPoints.size();
 				pointsList.addAll(thisBinIntersPoints);
 			}
@@ -160,7 +160,7 @@ public class ImageParser2D extends ImageParser {
 		return profile;
 	}
 
-	public Set<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
+	public Set<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints) {
 
 		int i, j;
 		int[][] points;
@@ -178,7 +178,7 @@ public class ImageParser2D extends ImageParser {
 			if (pixels[i] != 0.0)
 				points[j++] = rawpoints[i];
 
-		return groupPositions(points, ip);
+		return groupPositions(points);
 
 	}
 
@@ -241,22 +241,22 @@ public class ImageParser2D extends ImageParser {
 
 	}
 
-	public Set<UPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
+	public Set<UPoint> groupPositions(final int[][] points) {
 
-		int i, j, k, target, source, len;
+		int target, source, len;
 
 		// Create an array to hold the point grouping data
 		final int[] grouping = new int[len = points.length];
 
 		// Initialize each point to be in a unique group
 		final HashSet<Integer> positions = new HashSet<>();
-		for (i = 0; i < len; i++) {
+		for (int i = 0; i < len; i++) {
 			grouping[i] = i + 1;
 			positions.add(i);
 		}
 
-		for (i = 0; i < len; i++) {
-			for (j = 0; j < len; j++) {
+		for (int i = 0; i < len; i++) {
+			for (int j = 0; j < len; j++) {
 
 				// Don't compare the same point with itself
 				if (i == j)
@@ -275,7 +275,7 @@ public class ImageParser2D extends ImageParser {
 					target = grouping[j];
 
 					// Change all targets to sources
-					for (k = 0; k < len; k++)
+					for (int k = 0; k < len; k++)
 						if (grouping[k] == target)
 							grouping[k] = source;
 
