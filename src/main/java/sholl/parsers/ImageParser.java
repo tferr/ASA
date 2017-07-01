@@ -12,7 +12,7 @@ import ij.ImagePlus;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
 import sholl.Profile;
-import sholl.ShollPoint;
+import sholl.UPoint;
 import sholl.ShollUtils;
 
 class ImageParser implements Parser {
@@ -27,7 +27,7 @@ class ImageParser implements Parser {
 	protected StatusService statusService;
 
 	protected final Profile profile;
-	protected ShollPoint center;
+	protected UPoint center;
 	protected ArrayList<Double> radii;
 
 	protected final ImagePlus imp;
@@ -64,7 +64,7 @@ class ImageParser implements Parser {
 	}
 
 	public void setCenterPx(final int x, final int y, final int z) {
-		center = new ShollPoint(x, y, z, cal);
+		center = new UPoint(x, y, z, cal);
 		profile.setCenter(center);
 		xc = x;
 		yc = y;
@@ -72,7 +72,7 @@ class ImageParser implements Parser {
 	}
 
 	public void setCenter(final double x, final double y, final double z) {
-		center = new ShollPoint(x, y, z);
+		center = new UPoint(x, y, z);
 		profile.setCenter(center);
 		xc = (int) center.rawX(cal);
 		yc = (int) center.rawY(cal);
@@ -95,19 +95,19 @@ class ImageParser implements Parser {
 		final double maxX = imp.getWidth() * cal.pixelWidth;
 		final double maxY = imp.getHeight() * cal.pixelHeight;
 		final double maxZ = imp.getNSlices() * cal.pixelDepth;
-		final ShollPoint[] points = new ShollPoint[8];
-		points[0] = new ShollPoint(0, 0, 0);
-		points[1] = new ShollPoint(maxX, maxY, maxZ);
+		final UPoint[] points = new UPoint[8];
+		points[0] = new UPoint(0, 0, 0);
+		points[1] = new UPoint(maxX, maxY, maxZ);
 		if (center == null)
 			return points[0].euclideanDxTo(points[1]);
-		points[2] = new ShollPoint(maxX, 0, 0);
-		points[3] = new ShollPoint(0, maxY, 0);
-		points[4] = new ShollPoint(maxX, maxY, 0);
-		points[5] = new ShollPoint(0, 0, maxZ);
-		points[6] = new ShollPoint(maxX, 0, maxZ);
-		points[7] = new ShollPoint(0, maxY, maxZ);
+		points[2] = new UPoint(maxX, 0, 0);
+		points[3] = new UPoint(0, maxY, 0);
+		points[4] = new UPoint(maxX, maxY, 0);
+		points[5] = new UPoint(0, 0, maxZ);
+		points[6] = new UPoint(maxX, 0, maxZ);
+		points[7] = new UPoint(0, maxY, maxZ);
 		double max = 0;
-		for (final ShollPoint p : points)
+		for (final UPoint p : points)
 			max = Math.max(max, center.distanceSquared(p));
 		return Math.sqrt(max);
 	}

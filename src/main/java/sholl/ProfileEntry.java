@@ -40,15 +40,15 @@ public class ProfileEntry implements Comparable<ProfileEntry> {
 	 * List of intersection points associated with the entry's radius (in
 	 * spatially calibrated units)
 	 */
-	public Set<ShollPoint> points;
+	public Set<UPoint> points;
 
-	public ProfileEntry(final Number r, final Number count, final Set<ShollPoint> points) {
+	public ProfileEntry(final Number r, final Number count, final Set<UPoint> points) {
 		this.radius = r.doubleValue();
 		this.count = count.doubleValue();
 		this.points = points;
 	}
 
-	public ProfileEntry(final Number r, final Set<ShollPoint> points) {
+	public ProfileEntry(final Number r, final Set<UPoint> points) {
 		this.radius = r.doubleValue();
 		this.count = points.size();
 		this.points = points;
@@ -58,15 +58,15 @@ public class ProfileEntry implements Comparable<ProfileEntry> {
 		this(r, count, null);
 	}
 
-	public void addPoint(final ShollPoint point) {
+	public void addPoint(final UPoint point) {
 		points.add(point);
 	}
 
-	public void assignPoints(final Set<ShollPoint> points) {
+	public void assignPoints(final Set<UPoint> points) {
 		this.points = points;
 	}
 
-	public void removePoint(final ShollPoint point) {
+	public void removePoint(final UPoint point) {
 		points.remove(point);
 	}
 

@@ -14,7 +14,7 @@ import ij.process.ImageProcessor;
 import ij.process.TypeConverter;
 import sholl.Profile;
 import sholl.ProfileEntry;
-import sholl.ShollPoint;
+import sholl.UPoint;
 
 public class ImageParser2D extends ImageParser {
 
@@ -44,8 +44,9 @@ public class ImageParser2D extends ImageParser {
 	/** Debug method **/
 	public static void main(final String... args) throws Exception {
 		// final ImageJ ij = net.imagej.Main.launch(args);
-		final ImageParser2D parser = new ImageParser2D(Sholl_Utils.sampleImage());
-		parser.parse();
+		// final ImageParser2D parser = new
+		// ImageParser2D(Sholl_Utils.sampleImage());
+		// parser.parse();
 	}
 
 	public void setCenterPx(final int x, final int y) {
@@ -115,7 +116,7 @@ public class ImageParser2D extends ImageParser {
 			// Retrieve the radius in pixel coordinates and set the largest
 			// radius of this bin span
 			int intRadius = (int) Math.round(radius / voxelSize + nSpans / 2);
-			final Set<ShollPoint> pointsList = new HashSet<>();
+			final Set<UPoint> pointsList = new HashSet<>();
 
 			// Inner loop to gather samples for each sample
 			for (int s = 0; s < nSpans; s++) {
@@ -128,7 +129,7 @@ public class ImageParser2D extends ImageParser {
 				pixels = getPixels(points);
 
 				// Count the number of intersections
-				final Set<ShollPoint> thisBinIntersPoints = targetGroupsPositions(pixels, points, ip);
+				final Set<UPoint> thisBinIntersPoints = targetGroupsPositions(pixels, points, ip);
 				binsamples[s] = thisBinIntersPoints.size();
 				pointsList.addAll(thisBinIntersPoints);
 			}
@@ -159,7 +160,7 @@ public class ImageParser2D extends ImageParser {
 		return profile;
 	}
 
-	public Set<ShollPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
+	public Set<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 
 		int i, j;
 		int[][] points;
@@ -240,7 +241,7 @@ public class ImageParser2D extends ImageParser {
 
 	}
 
-	public Set<ShollPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
+	public Set<UPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
 
 		int i, j, k, target, source, len;
 
@@ -263,8 +264,8 @@ public class ImageParser2D extends ImageParser {
 
 				// Compute the chessboard (Chebyshev) distance. A distance of 1
 				// underlies 8-connectivity
-				final ShollPoint p1 = new ShollPoint(points[i][0], points[i][1]);
-				final ShollPoint p2 = new ShollPoint(points[j][0], points[j][1]);
+				final UPoint p1 = new UPoint(points[i][0], points[i][1]);
+				final UPoint p2 = new UPoint(points[j][0], points[j][1]);
 
 				// Should these two points be in the same group?
 				if ((p1.chebyshevDxTo(p2) <= 1) && (grouping[i] != grouping[j])) {
@@ -289,9 +290,9 @@ public class ImageParser2D extends ImageParser {
 			removeSinglePixels(points, len, grouping, positions);
 		}
 
-		final Set<ShollPoint> sPoints = new HashSet<>();
+		final Set<UPoint> sPoints = new HashSet<>();
 		for (final Integer pos : positions)
-			sPoints.add(new ShollPoint(points[pos][0], points[pos][1], cal));
+			sPoints.add(new UPoint(points[pos][0], points[pos][1], cal));
 
 		return sPoints;
 	}

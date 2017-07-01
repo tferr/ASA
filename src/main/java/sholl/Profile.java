@@ -49,7 +49,7 @@ import sholl.gui.ShollPlot;
 public class Profile implements ProfileProperties {
 
 	private SortedSet<ProfileEntry> profile;
-	private ShollPoint center;
+	private UPoint center;
 	private Calibration cal;
 	private Properties properties;
 
@@ -135,8 +135,8 @@ public class Profile implements ProfileProperties {
 		return counts().stream().mapToDouble(d -> d).toArray();
 	}
 
-	public ArrayList<Set<ShollPoint>> points() {
-		final ArrayList<Set<ShollPoint>> allPoints = new ArrayList<>();
+	public ArrayList<Set<UPoint>> points() {
+		final ArrayList<Set<UPoint>> allPoints = new ArrayList<>();
 		for (final ProfileEntry e : profile)
 			allPoints.add(e.points);
 		return allPoints;
@@ -170,7 +170,7 @@ public class Profile implements ProfileProperties {
 			entry.radius *= isotropicScale;
 			if (entry.points == null)
 				continue;
-			for (final ShollPoint point : entry.points)
+			for (final UPoint point : entry.points)
 				point.scale(xScale, yScale, zScale);
 		}
 	}
@@ -214,7 +214,7 @@ public class Profile implements ProfileProperties {
 
 	public boolean hasPoints() {
 		for (final Iterator<ProfileEntry> it = profile.iterator(); it.hasNext();) {
-			final Set<ShollPoint> entryPoints = it.next().points;
+			final Set<UPoint> entryPoints = it.next().points;
 			if (entryPoints != null && entryPoints.size() > 0)
 				return true;
 		}
@@ -230,11 +230,11 @@ public class Profile implements ProfileProperties {
 		return properties.toString();
 	}
 
-	public ShollPoint center() {
+	public UPoint center() {
 		return center;
 	}
 
-	public void setCenter(final ShollPoint center) {
+	public void setCenter(final UPoint center) {
 		this.center = center;
 		properties.setProperty(KEY_CENTER, center.toString());
 	}
@@ -301,7 +301,7 @@ public class Profile implements ProfileProperties {
 		this.properties = properties;
 
 		// Center
-		center = ShollPoint.fromString(properties.getProperty(KEY_CENTER, UNSET));
+		center = UPoint.fromString(properties.getProperty(KEY_CENTER, UNSET));
 
 		// Calibration
 		final String[] calLines = properties.getProperty(KEY_CALIBRATION, UNSET).split(",");
@@ -369,12 +369,12 @@ public class Profile implements ProfileProperties {
 
 		// Add intersection points
 		for (final ProfileEntry entry : profile) {
-			final Set<ShollPoint> points = entry.points;
+			final Set<UPoint> points = entry.points;
 			if (points == null || points.isEmpty())
 				continue;
 			PointRoi multipointRoi = null;
 			double currentRawZ = 0;
-			for (final ShollPoint point : points) {
+			for (final UPoint point : points) {
 
 				final double rawX = point.rawX(cal);
 				final double rawY = point.rawY(cal);

@@ -16,7 +16,7 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.Tools;
 import sholl.Profile;
-import sholl.ShollPoint;
+import sholl.UPoint;
 import sholl.ShollUtils;
 import sholl.math.LinearProfileStats;
 import sholl.math.NormalizedProfileStats;
@@ -151,7 +151,7 @@ public class ShollPlot extends Plot {
 		if (profile.is2D())
 			sb.append("2D ");
 		sb.append("Distance");
-		final ShollPoint center = profile.center();
+		final UPoint center = profile.center();
 		if (center != null)
 			sb.append(" from ").append(center.toString());
 		if (profile.scaled())

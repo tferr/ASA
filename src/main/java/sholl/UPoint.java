@@ -27,51 +27,49 @@ import java.util.Set;
 import ij.measure.Calibration;
 
 /**
- * Utility class to access the coordinates of intersection points. Inspired by
- * fiji.math3d.Point3d
+ * Class to access Cartesian coordinates of 2D and 3D points. Designed to
+ * accommodate points from several Universes such SWC points, pixels, voxels,
+ * and point ROIs.
  *
  * @author Tiago Ferreira
  */
-public class ShollPoint {
+public class UPoint {
 
 	/**
-	 * The intersection x-coordinate in world coordinates (not pixel
-	 * coordinates)
+	 * The x-coordinate in world coordinates (not pixel coordinates)
 	 */
 	public double x;
 	/**
-	 * The intersection y-coordinate in world coordinates (not pixel
-	 * coordinates)
+	 * The y-coordinate in world coordinates (not pixel coordinates)
 	 */
 	public double y;
 	/**
-	 * The intersection z-coordinate in world coordinates (not pixel
-	 * coordinates)
+	 * The z-coordinate in world coordinates (not pixel coordinates)
 	 */
 	public double z;
 
-	public ShollPoint() {
+	public UPoint() {
 	}
 
-	public ShollPoint(final Number x, final Number y, final Number z) {
+	public UPoint(final Number x, final Number y, final Number z) {
 		this.x = x.doubleValue();
 		this.y = y.doubleValue();
 		this.z = z.doubleValue();
 	}
 
-	public ShollPoint(final int x, final int y, final int z, final Calibration cal) {
+	public UPoint(final int x, final int y, final int z, final Calibration cal) {
 		this.x = cal.getX(x);
 		this.y = cal.getY(y);
 		this.z = cal.getZ(z);
 	}
 
-	public ShollPoint(final int x, final int y, final Calibration cal) {
+	public UPoint(final int x, final int y, final Calibration cal) {
 		this.x = cal.getX(x);
 		this.y = cal.getY(y);
 		this.z = cal.getZ(1);
 	}
 
-	public ShollPoint(final Number x, final Number y) {
+	public UPoint(final Number x, final Number y) {
 		this.x = x.doubleValue();
 		this.y = y.doubleValue();
 		this.z = 0;
@@ -89,65 +87,65 @@ public class ShollPoint {
 		this.z += zOffset;
 	}
 
-	public ShollPoint minus(final ShollPoint point) {
-		return new ShollPoint(x - point.x, y - point.y, z - point.z);
+	public UPoint minus(final UPoint point) {
+		return new UPoint(x - point.x, y - point.y, z - point.z);
 	}
 
-	public ShollPoint plus(final ShollPoint point) {
-		return new ShollPoint(x + point.x, y + point.y, z + point.z);
+	public UPoint plus(final UPoint point) {
+		return new UPoint(x + point.x, y + point.y, z + point.z);
 	}
 
-	public double scalar(final ShollPoint point) {
+	public double scalar(final UPoint point) {
 		return x * point.x + y * point.y + z * point.z;
 	}
 
-	public ShollPoint times(final double factor) {
-		return new ShollPoint(x * factor, y * factor, z * factor);
+	public UPoint times(final double factor) {
+		return new UPoint(x * factor, y * factor, z * factor);
 	}
 
 	public double length() {
 		return Math.sqrt(scalar(this));
 	}
 
-	public double distanceSquared(final ShollPoint point) {
+	public double distanceSquared(final UPoint point) {
 		final double x1 = x - point.x;
 		final double y1 = y - point.y;
 		final double z1 = z - point.z;
 		return x1 * x1 + y1 * y1 + z1 * z1;
 	}
 
-	public double euclideanDxTo(final ShollPoint point) {
+	public double euclideanDxTo(final UPoint point) {
 		return Math.sqrt(distanceSquared(point));
 	}
 
-	public double chebyshevDxTo(final ShollPoint point) {
+	public double chebyshevDxTo(final UPoint point) {
 		double max = Math.max(Math.abs(x - point.x), Math.abs(y - point.y));
 		max = Math.max(Math.abs(z - point.z), max);
 		return max;
 	}
 
-	public ShollPoint average(final ShollPoint... points) {
-		ShollPoint result = new ShollPoint();
-		for (final ShollPoint point : points)
+	public UPoint average(final UPoint... points) {
+		UPoint result = new UPoint();
+		for (final UPoint point : points)
 			result = result.plus(point);
 		return result.times(1.0 / points.length);
 	}
 
-	public static void scale(final Set<ShollPoint> set, final Calibration cal) {
-		for (final Iterator<ShollPoint> it = set.iterator(); it.hasNext();) {
-			final ShollPoint point = it.next();
+	public static void scale(final Set<UPoint> set, final Calibration cal) {
+		for (final Iterator<UPoint> it = set.iterator(); it.hasNext();) {
+			final UPoint point = it.next();
 			point.x = cal.getX(point.x);
 			point.y = cal.getY(point.y);
 			point.z = cal.getZ(point.z);
 		}
 	}
 
-	protected static ShollPoint fromString(final String string) {
+	protected static UPoint fromString(final String string) {
 		if (string == null || string.isEmpty())
 			return null;
 		final String[] ccs = string.trim().split(",");
 		if (ccs.length == 3) {
-			return new ShollPoint(Double.valueOf(ccs[0]), Double.valueOf(ccs[1]), Double.valueOf(ccs[2]));
+			return new UPoint(Double.valueOf(ccs[0]), Double.valueOf(ccs[1]), Double.valueOf(ccs[2]));
 		}
 		return null;
 	}
