@@ -21,7 +21,6 @@
  */
 package sholl.math;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Set;
@@ -46,6 +45,7 @@ import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
 import org.apache.commons.math3.stat.descriptive.moment.Skewness;
 
 import sholl.Profile;
+import sholl.UPoint;
 
 /**
  * Retrieves descriptive statistics and calculates Sholl Metrics from sampled
@@ -61,7 +61,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	private double maxCount = UNASSIGNED_VALUE;
 	private double sumCounts = UNASSIGNED_VALUE;
 	private double sumSqCounts = UNASSIGNED_VALUE;
-	private ArrayList<Point2D.Double> maxima;
+	private ArrayList<UPoint> maxima;
 
 	/* Polynomial fit */
 	private PolynomialFunction pFunction;
@@ -80,16 +80,16 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *
 	 * @return the centroid {x,y} coordinates
 	 */
-	public Point2D.Double getCentroid(final boolean fittedData) {
+	public UPoint getCentroid(final boolean fittedData) {
 		if (fittedData)
 			validateFit();
 		final double x = StatUtils.sum(inputRadii) / nPoints;
 		final double y = StatUtils.sum(fittedData ? fCounts : inputCounts) / nPoints;
-		return new Point2D.Double(x, y);
+		return new UPoint(x, y);
 	}
 
 	/** @return {@link #getCentroid(boolean) getCentroid(false)} */
-	public Point2D.Double getCentroid() {
+	public UPoint getCentroid() {
 		return getCentroid(false);
 	}
 
@@ -105,7 +105,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *
 	 * @return the point by the centroid {x,y} coordinates
 	 */
-	public Point2D.Double getPolygonCentroid(final boolean fittedData) {
+	public UPoint getPolygonCentroid(final boolean fittedData) {
 		if (fittedData)
 			validateFit();
 		double area = 0;
@@ -118,13 +118,13 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 			sumy += (y[i - 1] + y[i]) * cfactor;
 			area += cfactor / 2;
 		}
-		return new Point2D.Double(sumx / (6 * area), sumy / (6 * area));
+		return new UPoint(sumx / (6 * area), sumy / (6 * area));
 	}
 
 	/**
 	 * @return {@link #getPolygonCentroid(boolean) getPolygonCentroid(false)}
 	 */
-	public Point2D.Double getPolygonCentroid() {
+	public UPoint getPolygonCentroid() {
 		return getPolygonCentroid(false);
 	}
 
@@ -221,13 +221,13 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *            values, otherwise from sampled data
 	 * @return the list of points of all maxima
 	 */
-	public ArrayList<Point2D.Double> getMaxima(final boolean fittedData) {
+	public ArrayList<UPoint> getMaxima(final boolean fittedData) {
 		if (!fittedData && maxima != null) {
 			return maxima;
 		}
 		final double values[];
 		final double max;
-		final ArrayList<Point2D.Double> target = new ArrayList<>();
+		final ArrayList<UPoint> target = new ArrayList<>();
 		if (fittedData) {
 			validateFit();
 			values = fCounts;
@@ -238,7 +238,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		}
 		for (int i = 0; i < nPoints; i++) {
 			if (values[i] == max) {
-				target.add(new Point2D.Double(inputRadii[i], values[i]));
+				target.add(new UPoint(inputRadii[i], values[i]));
 			}
 		}
 		if (maxima == null)
@@ -247,7 +247,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	}
 
 	/** @return {@link #getMaxima(boolean) getMaxima(false)} */
-	public ArrayList<Point2D.Double> getMaxima() {
+	public ArrayList<UPoint> getMaxima() {
 		return getMaxima(false);
 	}
 
@@ -259,23 +259,23 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *            values, otherwise from sampled data
 	 * @return the averaged x,y coordinates of maxima
 	 */
-	public Point2D.Double getCenteredMaximum(final boolean fittedData) {
-		final ArrayList<Point2D.Double> maxima = getMaxima(fittedData);
+	public UPoint getCenteredMaximum(final boolean fittedData) {
+		final ArrayList<UPoint> maxima = getMaxima(fittedData);
 		double sumX = 0;
 		double sumY = 0;
-		for (final Point2D.Double p : maxima) {
+		for (final UPoint p : maxima) {
 			sumX += p.x;
 			sumY += p.y;
 		}
 		final double avgX = sumX / maxima.size();
 		final double avgY = sumY / maxima.size();
-		return new Point2D.Double(avgX, avgY);
+		return new UPoint(avgX, avgY);
 	}
 
 	/**
 	 * @return {@link #getCenteredMaximum(boolean) getCenteredMaximum(false)}
 	 */
-	public Point2D.Double getCenteredMaximum() {
+	public UPoint getCenteredMaximum() {
 		return getCenteredMaximum(false);
 	}
 
@@ -458,7 +458,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 * @throws NullPointerException
 	 *             if {@link #fitPolynomial(int)} has not been called
 	 */
-	public Set<Point2D.Double> getPolynomialMaxima(final double lowerBound, final double upperBound,
+	public Set<UPoint> getPolynomialMaxima(final double lowerBound, final double upperBound,
 			final double initialGuess) {
 		validateFit();
 		final PolynomialFunction derivative = pFunction.polynomialDerivative();
@@ -466,9 +466,9 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		final Complex[] roots = solver.solveAllComplex(derivative.getCoefficients(), initialGuess, getMaxEvaluations());
 		if (roots == null)
 			return null;
-		final Set<Point2D.Double> maxima = new TreeSet<>(new Comparator<Point2D.Double>() {
+		final Set<UPoint> maxima = new TreeSet<>(new Comparator<UPoint>() {
 			@Override
-			public int compare(final Point2D.Double p1, final Point2D.Double p2) {
+			public int compare(final UPoint p1, final UPoint p2) {
 				return Double.compare(p2.y, p1.y); // descendant order of
 													// ordinates
 			}
@@ -480,7 +480,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 				continue;
 			final double y = pFunction.value(x);
 			if (y > pFunction.value(x - tolerance) && y > pFunction.value(x + tolerance)) {
-				maxima.add(new Point2D.Double(x, y));
+				maxima.add(new UPoint(x, y));
 			}
 		}
 		return maxima;

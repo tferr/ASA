@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
@@ -16,8 +15,8 @@ import ij.process.ImageProcessor;
 import ij.process.ImageStatistics;
 import ij.util.Tools;
 import sholl.Profile;
-import sholl.UPoint;
 import sholl.ShollUtils;
+import sholl.UPoint;
 import sholl.math.LinearProfileStats;
 import sholl.math.NormalizedProfileStats;
 import sholl.math.ShollStats;
@@ -207,7 +206,7 @@ public class ShollPlot extends Plot {
 
 		// mark intercept
 		if (regression.hasIntercept())
-			markPoint(new Point2D.Double(0, regression.getIntercept()), DOT, 8);
+			markPoint(new UPoint(0, regression.getIntercept()), DOT, 8);
 
 		// assemble legend
 		final double rsqred = regression.getRSquare();
@@ -221,9 +220,9 @@ public class ShollPlot extends Plot {
 		if (!annotate || linearStats == null)
 			return;
 
-		final Point2D.Double centroid = linearStats.getCentroid(fittedData);
-		final Point2D.Double pCentroid = linearStats.getPolygonCentroid(fittedData);
-		final Point2D.Double max = linearStats.getCenteredMaximum(fittedData);
+		final UPoint centroid = linearStats.getCentroid(fittedData);
+		final UPoint pCentroid = linearStats.getPolygonCentroid(fittedData);
+		final UPoint max = linearStats.getCenteredMaximum(fittedData);
 		final double primary = linearStats.getPrimaryBranches(fittedData);
 		final double mv;
 		Color color;
@@ -269,19 +268,19 @@ public class ShollPlot extends Plot {
 	 * Highlights a point on a plot without listing it on the Plot's table. Does
 	 * nothing if point is {@code null}
 	 *
-	 * @param point
+	 * @param pCentroid
 	 *            the point to be drawn (defined in calibrated coordinates)
 	 * @param markShape
 	 *            either X, CROSS or DOT. Other shapes are not supported.
 	 * @param markSize
 	 *            the mark size in pixels
 	 */
-	public void markPoint(final Point2D.Double point, final int markShape, final int markSize) {
-		if (point == null)
+	public void markPoint(final UPoint pCentroid, final int markShape, final int markSize) {
+		if (pCentroid == null)
 			return;
 
-		final double x = point.x;
-		final double y = point.y;
+		final double x = pCentroid.x;
+		final double y = pCentroid.y;
 		final double xStart = descaleX((int) (scaleXtoPxl(x) - (markSize / 2) + 0.5));
 		final double yStart = descaleY((int) (scaleYtoPxl(y) - (markSize / 2) + 0.5));
 		final double xEnd = descaleX((int) (scaleXtoPxl(x) + (markSize / 2) + 0.5));
@@ -320,9 +319,9 @@ public class ShollPlot extends Plot {
 	 *            the point to be drawn (defined in calibrated coordinates)
 	 * @param color
 	 *            the drawing color. This will not affect consequent objects
-	 * @see {@link #markPoint(Point2D.Double, int, int)}
+	 * @see {@link #markPoint(UPoint, int, int)}
 	 */
-	public void markPoint(final Point2D.Double point, final Color color) {
+	public void markPoint(final UPoint point, final Color color) {
 		setColor(color);
 		markPoint(point, X, 9);
 		resetDrawing();
