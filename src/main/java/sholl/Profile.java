@@ -23,6 +23,7 @@ package sholl;
 
 import java.awt.Color;
 import java.awt.geom.Arc2D;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -358,6 +359,11 @@ public class Profile implements ProfileProperties {
 		final Overlay overlay = getOverlay(imp);
 		final Calibration cal = scaled() ? this.cal : new Calibration(imp);
 
+		// Get hyperstck position
+		final int channel = Integer.valueOf(properties.getProperty(KEY_CHANNEL_POS, "1"));
+		final int slice = Integer.valueOf(properties.getProperty(KEY_SLICE_POS, "1"));
+		final int frame = Integer.valueOf(properties.getProperty(KEY_FRAME_POS, "1"));
+
 		// Add center
 		final double centerRawX = center.rawX(cal);
 		final double centerRawY = center.rawY(cal);
@@ -365,28 +371,30 @@ public class Profile implements ProfileProperties {
 		final PointRoi cRoi = new PointRoi(centerRawX, centerRawY);
 		cRoi.setPosition((int) centerRawZ);
 		cRoi.setPointType(1);
+		cRoi.setPosition(channel, slice, frame);
 		overlay.add(cRoi, "center");
 
+		final DecimalFormat formatter = new DecimalFormat("#000.##");
 		// Add intersection points
 		for (final ProfileEntry entry : profile) {
 			final Set<UPoint> points = entry.points;
 			if (points == null || points.isEmpty())
 				continue;
 			PointRoi multipointRoi = null;
-			double currentRawZ = 0;
+			double currentRawZ = -1;
 			for (final UPoint point : points) {
 
 				final double rawX = point.rawX(cal);
 				final double rawY = point.rawY(cal);
 				final double rawZ = point.rawZ(cal);
-				if (multipointRoi == null || currentRawZ != rawZ) {
+				if (currentRawZ == -1 || currentRawZ != rawZ) {
 					multipointRoi = new PointRoi(rawX, rawY);
 					currentRawZ = rawZ;
 					multipointRoi.setPointType(2);
-					multipointRoi.setPosition(0, (int) rawZ, 0);
+					multipointRoi.setPosition(channel, (int) rawZ, frame);
 					overlay.add(multipointRoi,
-							"ShollPoints r=" + ShollUtils.d2s(entry.radius) + " z=" + ShollUtils.d2s(point.z));
-				} else if (rawZ == currentRawZ) { // same plane
+							"ShollPoints r=" + formatter.format(entry.radius) + " z=" + formatter.format(point.z));
+				} else if (currentRawZ == rawZ) { // same plane
 					multipointRoi.addPoint(rawX, rawY);
 				}
 			}
