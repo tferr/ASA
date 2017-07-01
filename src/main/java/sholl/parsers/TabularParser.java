@@ -68,8 +68,8 @@ public class TabularParser implements Parser {
 			throw new IllegalArgumentException("Table does not contain valid data");
 
 		this.radiiColumnHeader = radiiColumnHeader;
-		final int radiiCol = table.getColumnIndex(radiiColumnHeader);
-		final int countsCol = table.getColumnIndex(countsColumnHeader);
+		radiiCol = table.getColumnIndex(radiiColumnHeader);
+		countsCol = table.getColumnIndex(countsColumnHeader);
 		if (radiiCol == ResultsTable.COLUMN_NOT_FOUND || countsCol == ResultsTable.COLUMN_NOT_FOUND)
 			throw new IllegalArgumentException(
 					"Specified headings do not match existing ones: " + table.getColumnHeadings());
