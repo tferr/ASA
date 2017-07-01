@@ -43,7 +43,7 @@ class CommonStats implements ShollStats {
 	protected ShollPlot plot;
 	protected final Profile profile;
 
-	public CommonStats(final Profile profile) {
+	protected CommonStats(final Profile profile) {
 		if (profile == null || profile.size() == 0)
 			throw new IllegalArgumentException("Cannot instantiate analysis with a null or empty profile");
 		this.profile = profile;
@@ -70,14 +70,14 @@ class CommonStats implements ShollStats {
 	 * @throws InsufficientDataException
 	 *             if sampled data contains fewer than two data points
 	 */
-	protected double getKStestOfFit() {
+	public double getKStestOfFit() {
 		validateFit();
 		final KolmogorovSmirnovTest test = new KolmogorovSmirnovTest();
 		final double pValue = test.kolmogorovSmirnovTest(inputCounts, fCounts);
 		return pValue;
 	}
 
-	protected double getRSquaredOfFit() {
+	public double getRSquaredOfFit() {
 		validateFit();
 
 		// calculate 'residual sum of squares'
@@ -97,13 +97,13 @@ class CommonStats implements ShollStats {
 		return 1.0 - (ssRes / ssTot);
 	}
 
-	protected ShollPlot getPlot() {
+	public ShollPlot getPlot() {
 		if (plot == null)
 			plot = new ShollPlot(this);
 		return plot;
 	}
 
-	protected double getAdjustedRSquaredOfFit(final int p) {
+	public double getAdjustedRSquaredOfFit(final int p) {
 		double rSquared = getRSquaredOfFit();
 		rSquared = rSquared - (1 - rSquared) * (p / (nPoints - p - 1));
 		return rSquared;
