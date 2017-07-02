@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
+import net.imagej.table.DoubleColumn;
+
 import ij.measure.Calibration;
 import ij.measure.ResultsTable;
 import sholl.Profile;
@@ -37,14 +39,14 @@ import sholl.ProfileEntry;
 public class TabularParser implements Parser {
 
 	private Profile profile;
-
-	private final ResultsTable table;
+	private final ij.measure.ResultsTable ij1table;
+	private final net.imagej.table.ResultsTable ij2table;
+	private final int radiiCol;
+	private final int countsCol;
+	private int startRow = -1;
+	private int endRow = -1;
 	private String tableName;
 	private final String radiiColumnHeader;
-	private int radiiCol;
-	private int countsCol;
-	private final int startRow;
-	private final int endRow;
 
 	public TabularParser(final File table, final String radiiColumnHeader, final String countsColumnHeader)
 			throws IOException {
@@ -57,47 +59,85 @@ public class TabularParser implements Parser {
 		this(new File(filePath), radiiColumnHeader, countsColumnHeader);
 	}
 
-	/**
-	 *
-	 */
-	public TabularParser(final ResultsTable table, final String radiiColumnHeader, final String countsColumnHeader,
-			final int startRow, final int endRow) {
+	public TabularParser(final ij.measure.ResultsTable table, final String radiiColumnHeader,
+			final String countsColumnHeader, final int startRow, final int endRow) {
 
-		this.table = table;
 		if (table == null || table.getCounter() == 0)
 			throw new IllegalArgumentException("Table does not contain valid data");
 
-		this.radiiColumnHeader = radiiColumnHeader;
+		ij2table = null;
+		ij1table = table;
 		radiiCol = table.getColumnIndex(radiiColumnHeader);
 		countsCol = table.getColumnIndex(countsColumnHeader);
 		if (radiiCol == ResultsTable.COLUMN_NOT_FOUND || countsCol == ResultsTable.COLUMN_NOT_FOUND)
 			throw new IllegalArgumentException(
 					"Specified headings do not match existing ones: " + table.getColumnHeadings());
+		this.radiiColumnHeader = radiiColumnHeader;
+	}
 
-		final int lastRow = table.getCounter() - 1;
-		this.startRow = (startRow == -1) ? 0 : startRow;
-		this.endRow = (endRow == -1) ? lastRow : endRow;
-		if (this.startRow > this.endRow || this.endRow > lastRow)
-			throw new IllegalArgumentException("Specified rows are out of range");
+	/**
+	 *
+	 */
+	public TabularParser(final net.imagej.table.ResultsTable table, final String radiiColumnHeader,
+			final String countsColumnHeader) {
+		if (table == null || table.isEmpty())
+			throw new IllegalArgumentException("Table does not contain valid data");
+		ij1table = null;
+		ij2table = table;
+		radiiCol = table.getColumnIndex(radiiColumnHeader);
+		countsCol = table.getColumnIndex(countsColumnHeader);
+		if (radiiCol == -1 || countsCol == -1)
+			throw new IllegalArgumentException("Specified headings do not match existing ones");
+		this.radiiColumnHeader = radiiColumnHeader;
 	}
 
 	@Override
 	public Profile parse() {
 		profile = new Profile();
-		final double[] radii = table.getColumnAsDoubles(radiiCol);
-		final double[] counts = table.getColumnAsDoubles(countsCol);
-		for (int i = startRow; i <= endRow; i++) {
-			final ProfileEntry entry = new ProfileEntry(radii[i], counts[i], null);
-			profile.add(entry);
-		}
+		if (ij1table == null)
+			buildProfileFromIJ2Table();
+		else
+			buildProfileFromIJ1Table();
 		final Properties properties = new Properties();
-		properties.setProperty(KEY_ID, (tableName == null) ? table.toString() : tableName);
+		if (tableName != null)
+			properties.setProperty(KEY_ID, tableName);
 		properties.setProperty(KEY_SOURCE, SRC_TABLE);
 		profile.setProperties(properties);
 		final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
 		if (cal != null)
 			profile.setSpatialCalibration(cal);
 		return profile;
+	}
+
+	private int[] getFilteredRowRange(final int lastRow) {
+		final int filteredStartRow = (startRow == -1) ? 0 : startRow;
+		final int filteredEndRow = (endRow == -1) ? lastRow : endRow;
+		if (filteredStartRow > filteredEndRow || filteredEndRow > lastRow)
+			throw new IllegalArgumentException("Specified rows are out of range");
+		return new int[] { filteredStartRow, filteredEndRow };
+	}
+
+	private void buildProfileFromIJ1Table() {
+		final int lastRow = ij1table.getCounter() - 1;
+		final int[] rowRange = getFilteredRowRange(lastRow);
+		final double[] radii = ij1table.getColumnAsDoubles(radiiCol);
+		final double[] counts = ij1table.getColumnAsDoubles(countsCol);
+		for (int i = rowRange[0]; i <= rowRange[1]; i++) {
+			final ProfileEntry entry = new ProfileEntry(radii[i], counts[i], null);
+			profile.add(entry);
+		}
+	}
+
+	private void buildProfileFromIJ2Table() {
+		final DoubleColumn radiiColumn = ij2table.get(radiiCol);
+		final DoubleColumn countsColumn = ij2table.get(countsCol);
+		if (radiiColumn == null || countsColumn == null)
+			throw new NullPointerException("Specified headings do not match existing ones");
+		final int[] rowRange = getFilteredRowRange(ij2table.getRowCount() - 1);
+		for (int i = rowRange[0]; i <= rowRange[1]; i++) {
+			final ProfileEntry entry = new ProfileEntry(radiiColumn.get(i), countsColumn.get(i), null);
+			profile.add(entry);
+		}
 	}
 
 	private Calibration guessCalibrationFromHeading(final String colHeading) {
@@ -120,6 +160,13 @@ public class TabularParser implements Parser {
 	@Override
 	public boolean successful() {
 		return profile != null && profile.size() > 0;
+	}
+
+	public void restrictToSubset(final int startRow, final int endRow) {
+		if (successful())
+			throw new RuntimeException("restrictToSubset() must be called before parsing data");
+		this.startRow = startRow;
+		this.endRow = endRow;
 	}
 
 }
