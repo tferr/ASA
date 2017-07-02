@@ -93,10 +93,10 @@ public class TabularParser implements Parser {
 		final Properties properties = new Properties();
 		properties.setProperty(KEY_ID, (tableName == null) ? table.toString() : tableName);
 		properties.setProperty(KEY_SOURCE, SRC_TABLE);
+		profile.setProperties(properties);
 		final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
 		if (cal != null)
 			profile.setSpatialCalibration(cal);
-		profile.setProperties(properties);
 		return profile;
 	}
 
@@ -104,7 +104,7 @@ public class TabularParser implements Parser {
 		if (colHeading == null)
 			return null;
 		final String[] tokens = colHeading.toLowerCase().split("\\W");
-		final String[] knownUnits = new String("\u00B5 micron mm cm pixels").split(" ");
+		final String[] knownUnits = new String("\u00B5 um micron mm cm pixels").split(" ");
 		for (final String token : tokens) {
 			for (final String unit : knownUnits) {
 				if (token.contains(unit)) {
