@@ -1,6 +1,7 @@
 package sholl.parsers;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.scijava.Context;
 import org.scijava.app.StatusService;
@@ -27,6 +28,7 @@ class ImageParser implements Parser {
 	protected StatusService statusService;
 
 	protected final Profile profile;
+	protected final Properties properties;
 	protected UPoint center;
 	protected ArrayList<Double> radii;
 
@@ -35,6 +37,9 @@ class ImageParser implements Parser {
 	protected final double voxelSize;
 	protected double lowerT = ImageProcessor.NO_THRESHOLD;
 	protected double upperT = ImageProcessor.NO_THRESHOLD;
+	protected int minX, maxX;
+	protected int minY, maxY;
+	protected int minZ, maxZ;
 	protected int xc;
 	protected int yc;
 	protected int zc;
@@ -56,6 +61,7 @@ class ImageParser implements Parser {
 			voxelSize = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
 		profile = new Profile();
 		profile.assignImage(imp);
+		properties = profile.getProperties();
 	}
 
 	@Override
@@ -116,6 +122,37 @@ class ImageParser implements Parser {
 		if (center == null || radii == null || upperT == ImageProcessor.NO_THRESHOLD
 				|| lowerT == ImageProcessor.NO_THRESHOLD)
 			throw new NullPointerException("Cannot proceed with undefined parameters");
+	}
+
+	public void setHemiShells(final String flag) {
+		checkUnsetFields();
+		final int maxRadius = (int) Math.round(radii.get(radii.size() - 1) / voxelSize);
+		minX = Math.max(xc - maxRadius, 0);
+		maxX = Math.min(xc + maxRadius, imp.getWidth());
+		minY = Math.max(yc - maxRadius, 0);
+		maxY = Math.min(yc + maxRadius, imp.getHeight());
+		minZ = Math.max(zc - maxRadius, 1);
+		maxZ = Math.min(zc + maxRadius, imp.getNSlices());
+		final String fFlag = (flag == null || flag.isEmpty()) ? HEMI_NONE : flag.trim().toLowerCase();
+		switch (fFlag) {
+		case HEMI_NORTH:
+			maxY = Math.min(yc + maxRadius, yc);
+			break;
+		case HEMI_SOUTH:
+			minY = Math.max(yc - maxRadius, yc);
+			break;
+		case HEMI_WEST:
+			minX = xc;
+			break;
+		case HEMI_EAST:
+			maxX = xc;
+			break;
+		case HEMI_NONE:
+			break;
+		default:
+			throw new IllegalArgumentException("Unrecognized flag: " + flag);
+		}
+		properties.setProperty(KEY_HEMISHELLS, fFlag);
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package sholl.parsers;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,10 +35,6 @@ public class ImageParser3D extends ImageParser implements Command {
 	@Parameter
 	private StatusService statusService;
 
-	private final Properties properties;
-	private int minX, maxX;
-	private int minY, maxY;
-	private int minZ, maxZ;
 	private final int channel = 1;
 	private double vxWH, vxD;
 	private int progressCounter;
@@ -217,37 +212,6 @@ public class ImageParser3D extends ImageParser implements Command {
 
 	private void setThreadedCounter(final int updatedCounter) {
 		progressCounter = updatedCounter;
-	}
-
-	public void setHemiShells(final String flag) {
-		checkUnsetFields();
-		final int maxRadius = (int) Math.round(radii.get(radii.size() - 1) / voxelSize);
-		minX = Math.max(xc - maxRadius, 0);
-		maxX = Math.min(xc + maxRadius, imp.getWidth());
-		minY = Math.max(yc - maxRadius, 0);
-		maxY = Math.min(yc + maxRadius, imp.getHeight());
-		minZ = Math.max(zc - maxRadius, 1);
-		maxZ = Math.min(zc + maxRadius, imp.getNSlices());
-		final String fFlag = (flag == null || flag.isEmpty()) ? HEMI_NONE : flag.trim().toLowerCase();
-		switch (fFlag) {
-		case HEMI_NORTH:
-			maxY = Math.min(yc + maxRadius, yc);
-			break;
-		case HEMI_SOUTH:
-			minY = Math.max(yc - maxRadius, yc);
-			break;
-		case HEMI_WEST:
-			minX = xc;
-			break;
-		case HEMI_EAST:
-			maxX = xc;
-			break;
-		case HEMI_NONE:
-			break;
-		default:
-			throw new IllegalArgumentException("Unrecognized flag: " + flag);
-		}
-		properties.setProperty(KEY_HEMISHELLS, fFlag);
 	}
 
 	public void setSkipSingleVoxels(final boolean skip) {

@@ -1,7 +1,6 @@
 package sholl.parsers;
 
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.StatUtils;
@@ -18,13 +17,14 @@ import sholl.UPoint;
 
 public class ImageParser2D extends ImageParser {
 
-	private final Properties properties;
 	private ImageProcessor ip;
-	private int minX, maxX;
-	private int minY, maxY;
 	private int nSpans, spanType;
 	private final boolean doSpikeSupression = true;
 	private int channel, slice, frame;
+	private final boolean doSpikeSupression;
+	private int nSpans;
+	private int spanType;
+	private int slice;
 
 	/** Flag for integration of repeated measures: average */
 	public static final int MEAN = 0;
@@ -37,7 +37,6 @@ public class ImageParser2D extends ImageParser {
 
 	public ImageParser2D(final ImagePlus imp) {
 		super(imp);
-		properties = profile.getProperties();
 		setPosition(imp.getC(), imp.getZ(), imp.getT());
 	}
 
@@ -422,35 +421,6 @@ public class ImageParser2D extends ImageParser {
 		// Return the array
 		return refined;
 
-	}
-
-	public void setHemiShells(final String flag) {
-		checkUnsetFields();
-		final int maxRadius = (int) Math.round(radii.get(radii.size() - 1) / voxelSize);
-		minX = Math.max(xc - maxRadius, 0);
-		maxX = Math.min(xc + maxRadius, imp.getWidth());
-		minY = Math.max(yc - maxRadius, 0);
-		maxY = Math.min(yc + maxRadius, imp.getHeight());
-		final String fFlag = (flag == null || flag.isEmpty()) ? HEMI_NONE : flag.trim().toLowerCase();
-		switch (fFlag) {
-		case HEMI_NORTH:
-			maxY = Math.min(yc + maxRadius, yc);
-			break;
-		case HEMI_SOUTH:
-			minY = Math.max(yc - maxRadius, yc);
-			break;
-		case HEMI_WEST:
-			minX = xc;
-			break;
-		case HEMI_EAST:
-			maxX = xc;
-			break;
-		case HEMI_NONE:
-			break;
-		default:
-			throw new IllegalArgumentException("Unrecognized flag: " + flag);
-		}
-		properties.setProperty(KEY_HEMISHELLS, fFlag);
 	}
 
 	public void setPosition(final int channel, final int slice, final int frame) {
