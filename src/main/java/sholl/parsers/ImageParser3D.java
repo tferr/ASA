@@ -40,6 +40,7 @@ public class ImageParser3D extends ImageParser implements Command {
 	private double vxWH, vxD;
 	private int progressCounter;
 	private boolean skipSingleVoxels;
+	private ImageStack stack;
 
 	public ImageParser3D(final ImagePlus imp) {
 		super(imp);
@@ -71,9 +72,7 @@ public class ImageParser3D extends ImageParser implements Command {
 		final int nspheres = radii.size();
 		final UPoint c = new UPoint(xc, yc, zc);
 
-		// Get Image Stack
-		final ImageStack stack = (imp.isComposite()) ? ChannelSplitter.getChannel(imp, channel) : imp.getStack();
-
+		stack = (imp.isComposite()) ? ChannelSplitter.getChannel(imp, channel) : imp.getStack();
 		vxD = cal.pixelDepth;
 		vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
 		// Split processing across the number of available CPUs
@@ -99,9 +98,8 @@ public class ImageParser3D extends ImageParser implements Command {
 
 						for (int s = start; s < end; s++) {
 							final int counter = getThreadedCounter();
-							statusService.showProgress(counter, nspheres);
-							statusService.showStatus("Sampling sphere " + (counter + 1) + "/" + nspheres + " (" + n_cpus
-									+ " threads). Press 'Esc' to abort...");
+							statusService.showStatus(counter, nspheres, "Sampling shell " + (counter + 1) + "/"
+									+ nspheres + " (" + n_cpus + " threads). Press 'Esc' to abort...");
 							setThreadedCounter(counter + 1);
 							if (IJ.escapePressed()) {
 								IJ.beep();
