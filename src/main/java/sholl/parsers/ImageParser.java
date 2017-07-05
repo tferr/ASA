@@ -43,10 +43,11 @@ class ImageParser implements Parser {
 		if (imp.getProcessor().isBinary())
 			setThreshold(1, 255);
 		cal = imp.getCalibration(); // never null
-		if (imp.getNDimensions() > 2)
-			voxelSize = Math.cbrt(cal.pixelWidth * cal.pixelHeight * cal.pixelDepth);
-		else
-			voxelSize = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
+		if (imp.getNDimensions() > 2) {
+			voxelSize = (cal.pixelWidth + cal.pixelHeight + cal.pixelDepth) / 3;
+		} else {
+			voxelSize = (cal.pixelWidth + cal.pixelHeight) / 2;
+		}
 		helper = new Helper((Context) IJ.runPlugIn("org.scijava.Context", ""));
 		statusService = helper.getStatusService();
 		profile = new Profile();
