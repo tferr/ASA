@@ -37,6 +37,8 @@ class ImageParser implements Parser {
 	protected final double voxelSize;
 	protected double lowerT = ImageProcessor.NO_THRESHOLD;
 	protected double upperT = ImageProcessor.NO_THRESHOLD;
+	protected int channel;
+	protected int frame;
 	protected int minX, maxX;
 	protected int minY, maxY;
 	protected int minZ, maxZ;
@@ -153,6 +155,15 @@ class ImageParser implements Parser {
 			throw new IllegalArgumentException("Unrecognized flag: " + flag);
 		}
 		properties.setProperty(KEY_HEMISHELLS, fFlag);
+	}
+
+	protected void setPosition(final int channel, final int frame) {
+		if (channel < 1 || channel > imp.getNChannels() || frame < 1 || frame > imp.getNFrames())
+			throw new IllegalArgumentException("Specified (channel, slice, frame) position is out of range");
+		this.channel = channel;
+		this.frame = frame;
+		properties.setProperty(KEY_CHANNEL_POS, String.valueOf(channel));
+		properties.setProperty(KEY_FRAME_POS, String.valueOf(frame));
 	}
 
 	@Override
