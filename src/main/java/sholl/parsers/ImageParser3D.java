@@ -3,15 +3,7 @@ package sholl.parsers;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.scijava.Context;
-import org.scijava.app.StatusService;
-import org.scijava.command.Command;
-import org.scijava.log.LogService;
-import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -22,21 +14,9 @@ import ij.util.ThreadUtil;
 import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.UPoint;
-import sholl.Sholl_Utils;
 
-@Plugin(type = Command.class)
-public class ImageParser3D extends ImageParser implements Command {
+public class ImageParser3D extends ImageParser {
 
-	@Parameter
-	private Context context;
-
-	@Parameter
-	private LogService logService;
-
-	@Parameter
-	private StatusService statusService;
-
-	private final int channel = 1;
 	private double vxWH, vxD;
 	private int progressCounter;
 	private boolean skipSingleVoxels;
@@ -45,23 +25,8 @@ public class ImageParser3D extends ImageParser implements Command {
 
 	public ImageParser3D(final ImagePlus imp) {
 		super(imp);
-		if (context == null)
-			context = (Context) IJ.runPlugIn("org.scijava.Context", "");
-		if (logService == null)
-			logService = context.getService(LogService.class);
-		if (statusService == null)
-			statusService = context.getService(StatusService.class);
-		properties = profile.getProperties();
-	}
-
-	public static void main(final String... args) {
-		// final ImageJ ij = net.imagej.Main.launch(args);
-		// ij.command().run(ImageParser2D.class, true);
-		new ImageParser3D(Sholl_Utils.sampleImage()).run();
-	}
-
-	@Override
-	public void run() {
+		skipSingleVoxels = true;
+		setPosition(imp.getC(), imp.getT());
 	}
 
 	@Override
