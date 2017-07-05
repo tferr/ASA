@@ -154,6 +154,7 @@ public class ImageParser2D extends ImageParser {
 
 		}
 
+		helper.clear();
 		return profile;
 	}
 

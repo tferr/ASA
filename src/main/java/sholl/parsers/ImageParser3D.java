@@ -117,6 +117,7 @@ public class ImageParser3D extends ImageParser {
 		}
 		ThreadUtil.startAndJoin(threads);
 
+		helper.clear();
 		return profile;
 
 	}
