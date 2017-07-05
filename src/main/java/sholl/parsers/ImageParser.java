@@ -155,8 +155,25 @@ class ImageParser implements Parser {
 		properties.setProperty(KEY_FRAME_POS, String.valueOf(frame));
 	}
 
+	protected boolean withinThreshold(final double value) {
+		return (value >= lowerT && value <= upperT);
+	}
+
+	protected boolean withinXYbounds(final int x, final int y) {
+		return (x >= minX && x <= maxX && y >= minY && y <= maxY);
+	}
+
+	protected boolean withinZbounds(final int z) {
+		return (z >= minZ && z <= maxZ);
+	}
+
+	protected boolean withinBounds(final int x, final int y, final int z) {
+		return withinXYbounds(x, y) && withinZbounds(z);
+	}
+
 	@Override
 	public Profile parse() {
 		return profile;
 	}
+
 }
