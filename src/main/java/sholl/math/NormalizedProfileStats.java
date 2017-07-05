@@ -47,6 +47,7 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 	private final double determinationRatio;
 	private int chosenMethod;
 	private String normTypeString;
+	private String chosenMethodDescription;
 
 	private double[] regressionXdata;
 
@@ -116,11 +117,13 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 		switch (flag) {
 		case SEMI_LOG:
 			chosenMethod = SEMI_LOG;
+			chosenMethodDescription = "Semi-log";
 			regressionChosen = regressionSemiLog;
 			regressionXdata = inputRadii;
 			break;
 		case LOG_LOG:
 			chosenMethod = LOG_LOG;
+			chosenMethodDescription = "Log-log";
 			regressionChosen = regressionLogLog;
 			regressionXdata = radiiLog;
 			break;
@@ -142,6 +145,10 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 
 	public int getMethod() {
 		return chosenMethod;
+	}
+
+	public String getMethodDescription() {
+		return chosenMethodDescription;
 	}
 
 	public SimpleRegression getRegression() {
