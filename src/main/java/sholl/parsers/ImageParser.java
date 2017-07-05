@@ -5,33 +5,25 @@ import java.util.Properties;
 
 import org.scijava.Context;
 import org.scijava.app.StatusService;
-import org.scijava.log.LogService;
-import org.scijava.plugin.Parameter;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
+import sholl.Helper;
 import sholl.Profile;
-import sholl.UPoint;
 import sholl.ShollUtils;
+import sholl.UPoint;
 
 class ImageParser implements Parser {
-
-	@Parameter
-	protected Context context;
-
-	@Parameter
-	protected LogService logService;
-
-	@Parameter
-	protected StatusService statusService;
 
 	protected final Profile profile;
 	protected final Properties properties;
 	protected UPoint center;
 	protected ArrayList<Double> radii;
 
+	protected final Helper helper;
+	protected final StatusService statusService;
 	protected final ImagePlus imp;
 	protected final Calibration cal;
 	protected final double voxelSize;
@@ -47,12 +39,6 @@ class ImageParser implements Parser {
 	protected int zc;
 
 	protected ImageParser(final ImagePlus imp) {
-		if (context == null)
-			context = (Context) IJ.runPlugIn("org.scijava.Context", "");
-		if (logService == null)
-			logService = context.getService(LogService.class);
-		if (statusService == null)
-			statusService = context.getService(StatusService.class);
 		this.imp = imp;
 		if (imp.getProcessor().isBinary())
 			setThreshold(1, 255);
@@ -61,6 +47,8 @@ class ImageParser implements Parser {
 			voxelSize = Math.cbrt(cal.pixelWidth * cal.pixelHeight * cal.pixelDepth);
 		else
 			voxelSize = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
+		helper = new Helper((Context) IJ.runPlugIn("org.scijava.Context", ""));
+		statusService = helper.getStatusService();
 		profile = new Profile();
 		profile.assignImage(imp);
 		properties = profile.getProperties();
