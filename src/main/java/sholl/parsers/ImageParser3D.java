@@ -1,5 +1,6 @@
 package sholl.parsers;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -108,11 +109,12 @@ public class ImageParser3D extends ImageParser implements Command {
 							}
 
 							// Initialize ArrayLists to hold surface points
-							final Set<UPoint> pixelPoints = new HashSet<>();
+							final ArrayList<UPoint> pixelPoints = new ArrayList<>();
 
 							// Restrain analysis to the smallest volume for this
 							// sphere
 							final double r = radii.get(s);
+							final double rSq = r * r;
 							final int xmin = Math.max(xc - (int) Math.round(r / vxWH), minX);
 							final int ymin = Math.max(yc - (int) Math.round(r / vxWH), minY);
 							final int zmin = Math.max(zc - (int) Math.round(r / vxD), minZ);
@@ -140,9 +142,9 @@ public class ImageParser3D extends ImageParser implements Command {
 							// surface of this shell: Check if they are
 							// clustered and add them in world coordinates
 							// to profile
-							cleanse3Dgroups(pixelPoints);
-							UPoint.scale(pixelPoints, cal);
-							profile.add(new ProfileEntry(r, pixelPoints));
+							final HashSet<UPoint> points = getUnique3Dgroups(pixelPoints);
+							UPoint.scale(points, cal);
+							profile.add(new ProfileEntry(r, points));
 
 						}
 
@@ -157,21 +159,32 @@ public class ImageParser3D extends ImageParser implements Command {
 
 	}
 
-	public void cleanse3Dgroups(final Set<UPoint> points) {
+	protected HashSet<UPoint> getUnique3Dgroups(final ArrayList<UPoint> points) {
 
-		UPoint previousPoint = null;
-		for (final Iterator<UPoint> it = points.iterator(); it.hasNext();) {
-			final UPoint currentPoint = it.next();
-			if (previousPoint != null) {
+		for (int i = 0; i < points.size(); i++) {
+			for (int j = i + 1; j < points.size(); j++) {
+
+				final UPoint pi = points.get(i);
+				final UPoint pj = points.get(j);
 				// Compute the chessboard (Chebyshev) distance for this point. A
 				// chessboard distance of 1 in xy (lateral) underlies
 				// 8-connectivity within the plane. A distance of 1 in z (axial)
 				// underlies 26-connectivity in 3D
-				if (currentPoint.chebyshevDxTo(previousPoint) <= 1)
-					it.remove();
+				if (pi.chebyshevXYdxTo(pj) < 2 || pi.chebyshevZdxTo(pj) < 2) {
+					pj.setFlag(UPoint.DELETE);
+				}
 			}
-			previousPoint = currentPoint;
 		}
+
+		final Iterator<UPoint> it = points.iterator();
+		while (it.hasNext()) {
+			if (it.next().flag == UPoint.DELETE) {
+				it.remove();
+			}
+		}
+
+		return new HashSet<>(points);
+
 	}
 
 	private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
