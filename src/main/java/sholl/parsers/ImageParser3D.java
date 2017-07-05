@@ -190,7 +190,7 @@ public class ImageParser3D extends ImageParser implements Command {
 		for (int i = 0; i < neighboors.length; i++) {
 			try {
 				value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2]);
-				if (value >= lowerT && value <= upperT) {
+				if (withinBounds(neighboors[i][0], neighboors[i][1], neighboors[i][2]) && withinThreshold(value)) {
 					clustered = true;
 					break;
 				}

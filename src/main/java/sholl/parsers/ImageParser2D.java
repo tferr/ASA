@@ -18,9 +18,6 @@ import sholl.UPoint;
 public class ImageParser2D extends ImageParser {
 
 	private ImageProcessor ip;
-	private int nSpans, spanType;
-	private final boolean doSpikeSupression = true;
-	private int channel, slice, frame;
 	private final boolean doSpikeSupression;
 	private int nSpans;
 	private int spanType;
@@ -29,15 +26,16 @@ public class ImageParser2D extends ImageParser {
 	/** Flag for integration of repeated measures: average */
 	public static final int MEAN = 0;
 	/** Flag for integration of repeated measures: median */
-	private static final int MEDIAN = 1;
+	public static final int MEDIAN = 1;
 	/** Flag for integration of repeated measures: mode */
 	public static final int MODE = 2;
 	private static final int NONE = -1;
-	private final int MAX_N_SPANS = 10;
+	public final int MAX_N_SPANS = 10;
 
 	public ImageParser2D(final ImagePlus imp) {
 		super(imp);
 		setPosition(imp.getC(), imp.getZ(), imp.getT());
+		doSpikeSupression = true;
 	}
 
 	/** Debug method **/
@@ -159,7 +157,7 @@ public class ImageParser2D extends ImageParser {
 		return profile;
 	}
 
-	public Set<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints) {
+	protected Set<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints) {
 
 		int i, j;
 		int[][] points;
@@ -240,7 +238,7 @@ public class ImageParser2D extends ImageParser {
 
 	}
 
-	public Set<UPoint> groupPositions(final int[][] points) {
+	protected Set<UPoint> groupPositions(final int[][] points) {
 
 		int target, source, len;
 
@@ -267,7 +265,7 @@ public class ImageParser2D extends ImageParser {
 				final UPoint p2 = new UPoint(points[j][0], points[j][1]);
 
 				// Should these two points be in the same group?
-				if ((p1.chebyshevDxTo(p2) <= 1) && (grouping[i] != grouping[j])) {
+				if ((p1.chebyshevXYdxTo(p2) <= 1) && (grouping[i] != grouping[j])) {
 
 					// Record which numbers we're changing
 					source = grouping[i];
@@ -296,7 +294,7 @@ public class ImageParser2D extends ImageParser {
 		return sPoints;
 	}
 
-	public int[] getPixels(final int[][] points) {
+	protected int[] getPixels(final int[][] points) {
 
 		// Initialize the array to hold the pixel values. int arrays are
 		// initialized to a default value of 0
@@ -315,17 +313,8 @@ public class ImageParser2D extends ImageParser {
 
 	}
 
-	private boolean withinBoundsAndThreshold(final int x, final int y) {
-		return withinBounds(x, y) && withinThreshold(x, y);
-	}
-
-	private boolean withinBounds(final int x, final int y) {
-		return (x >= minX && x <= maxX && y >= minY && y <= maxY);
-	}
-
-	private boolean withinThreshold(final int x, final int y) {
-		final double value = ip.getPixel(x, y);
-		return (value >= lowerT && value <= upperT);
+	protected boolean withinBoundsAndThreshold(final int x, final int y) {
+		return withinXYbounds(x, y) && withinThreshold(ip.getPixel(x, y));
 	}
 
 	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
@@ -399,7 +388,7 @@ public class ImageParser2D extends ImageParser {
 			pxX = points[i][0];
 			pxY = points[i][1];
 
-			if ((i + 1) % r != 0 && withinBounds(pxX, pxY))
+			if ((i + 1) % r != 0 && withinXYbounds(pxX, pxY))
 				count++;
 		}
 
@@ -411,7 +400,7 @@ public class ImageParser2D extends ImageParser {
 			pxX = points[i][0];
 			pxY = points[i][1];
 
-			if ((i + 1) % r != 0 && withinBounds(pxX, pxY)) {
+			if ((i + 1) % r != 0 && withinXYbounds(pxX, pxY)) {
 				refined[j][0] = pxX;
 				refined[j++][1] = pxY;
 			}
@@ -424,15 +413,11 @@ public class ImageParser2D extends ImageParser {
 	}
 
 	public void setPosition(final int channel, final int slice, final int frame) {
-		if (channel < 1 || channel > imp.getNChannels() || slice < 1 || slice > imp.getNSlices() || frame < 1
-				|| frame > imp.getNFrames())
-			throw new IllegalArgumentException("Specified (channel, slice, frame) position is out of range");
-		this.channel = channel;
-		this.slice = slice;
-		this.frame = frame;
-		properties.setProperty(KEY_CHANNEL_POS, String.valueOf(channel));
+		if (slice < 1 || slice > imp.getNSlices())
+			throw new IllegalArgumentException("Specified slice position is out of range");
+		this.slice = minZ = maxZ = slice;
 		properties.setProperty(KEY_SLICE_POS, String.valueOf(slice));
-		properties.setProperty(KEY_FRAME_POS, String.valueOf(frame));
+		super.setPosition(channel, frame);
 	}
 
 	private ImageProcessor getProcessor() {
