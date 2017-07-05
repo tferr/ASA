@@ -41,6 +41,7 @@ public class ImageParser3D extends ImageParser implements Command {
 	private int progressCounter;
 	private boolean skipSingleVoxels;
 	private ImageStack stack;
+	private final double EQUALITY_PRECISION = 0.000000001;
 
 	public ImageParser3D(final ImagePlus imp) {
 		super(imp);
@@ -70,8 +71,7 @@ public class ImageParser3D extends ImageParser implements Command {
 			setHemiShells(HEMI_NONE);
 
 		final int nspheres = radii.size();
-		final UPoint c = new UPoint(xc, yc, zc);
-
+		final UPoint c = new UPoint(xc, yc, zc, cal);
 		stack = (imp.isComposite()) ? ChannelSplitter.getChannel(imp, channel) : imp.getStack();
 		vxD = cal.pixelDepth;
 		vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
@@ -123,10 +123,9 @@ public class ImageParser3D extends ImageParser implements Command {
 							for (int z = zmin; z < zmax; z++) {
 								for (int y = ymin; y < ymax; y++) {
 									for (int x = xmin; x < xmax; x++) {
-										final UPoint p = new UPoint(x, y, z);
-										if (p.distanceSquared(c) == r * r) {
-											final double value = stack.getVoxel(x, y, z);
-											if (value < lowerT || value > upperT)
+										final UPoint p = new UPoint(x, y, z, cal);
+										if (Math.abs(p.distanceSquared(c) - rSq) < EQUALITY_PRECISION) {
+											if (!withinThreshold(stack.getVoxel(x, y, z)))
 												continue;
 											if (skipSingleVoxels && !hasNeighbors(x, y, z, stack))
 												continue;
