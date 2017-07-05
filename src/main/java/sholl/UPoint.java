@@ -118,10 +118,16 @@ public class UPoint {
 		return Math.sqrt(distanceSquared(point));
 	}
 
+	public double chebyshevXYdxTo(final UPoint point) {
+		return Math.max(Math.abs(x - point.x), Math.abs(y - point.y));
+	}
+
+	public double chebyshevZdxTo(final UPoint point) {
+		return Math.abs(z - point.z);
+	}
+
 	public double chebyshevDxTo(final UPoint point) {
-		double max = Math.max(Math.abs(x - point.x), Math.abs(y - point.y));
-		max = Math.max(Math.abs(z - point.z), max);
-		return max;
+		return Math.max(chebyshevXYdxTo(point), chebyshevZdxTo(point));
 	}
 
 	public UPoint average(final UPoint... points) {
