@@ -35,26 +35,32 @@ import ij.measure.Calibration;
  */
 public class UPoint {
 
-	/**
-	 * The x-coordinate in world coordinates (not pixel coordinates)
-	 */
+	/** The x-coordinate */
 	public double x;
-	/**
-	 * The y-coordinate in world coordinates (not pixel coordinates)
-	 */
+	/** The y-coordinate */
 	public double y;
-	/**
-	 * The z-coordinate in world coordinates (not pixel coordinates)
-	 */
+	/** The z-coordinate */
 	public double z;
+	public int flag = NONE;
+
+	public final static int NONE = 0;
+	public final static int VISITED = 1;
+	public final static int DELETE = 2;
+	public final static int KEEP = 4;
 
 	public UPoint() {
 	}
 
-	public UPoint(final Number x, final Number y, final Number z) {
-		this.x = x.doubleValue();
-		this.y = y.doubleValue();
-		this.z = z.doubleValue();
+	public UPoint(final double x, final double y, final double z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
+	public UPoint(final double x, final double y) {
+		this.x = x;
+		this.y = y;
+		this.z = 0;
 	}
 
 	public UPoint(final int x, final int y, final int z, final Calibration cal) {
@@ -69,10 +75,18 @@ public class UPoint {
 		this.z = cal.getZ(1);
 	}
 
-	public UPoint(final Number x, final Number y) {
-		this.x = x.doubleValue();
-		this.y = y.doubleValue();
-		this.z = 0;
+	public UPoint(final int x, final int y, final int z, final int flag) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.flag = flag;
+	}
+
+	public UPoint(final int x, final int y, final int flag) {
+		this.x = x;
+		this.y = y;
+		this.z = 1;
+		this.flag = flag;
 	}
 
 	public void scale(final double xScale, final double yScale, final double zScale) {
@@ -166,6 +180,22 @@ public class UPoint {
 
 	public double rawZ(final Calibration cal) {
 		return z / cal.pixelDepth + cal.zOrigin;
+	}
+
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+
+	public int intX() {
+		return (int) x;
+	}
+
+	public int intY() {
+		return (int) y;
+	}
+
+	public int intZ() {
+		return (int) z;
 	}
 
 	@Override
