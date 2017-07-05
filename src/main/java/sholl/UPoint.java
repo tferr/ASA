@@ -72,7 +72,7 @@ public class UPoint {
 	public UPoint(final int x, final int y, final Calibration cal) {
 		this.x = cal.getX(x);
 		this.y = cal.getY(y);
-		this.z = cal.getZ(1);
+		this.z = cal.getZ(0);
 	}
 
 	public UPoint(final int x, final int y, final int z, final int flag) {
@@ -85,7 +85,7 @@ public class UPoint {
 	public UPoint(final int x, final int y, final int flag) {
 		this.x = x;
 		this.y = y;
-		this.z = 1;
+		this.z = 0;
 		this.flag = flag;
 	}
 

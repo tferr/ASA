@@ -415,7 +415,8 @@ public class ImageParser2D extends ImageParser {
 	public void setPosition(final int channel, final int slice, final int frame) {
 		if (slice < 1 || slice > imp.getNSlices())
 			throw new IllegalArgumentException("Specified slice position is out of range");
-		this.slice = minZ = maxZ = slice;
+		this.slice = slice; // 1-based
+		minZ = maxZ = slice -1; // 0-based
 		properties.setProperty(KEY_SLICE_POS, String.valueOf(slice));
 		super.setPosition(channel, frame);
 	}
