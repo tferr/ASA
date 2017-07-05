@@ -361,17 +361,16 @@ public class Profile implements ProfileProperties {
 
 		// Get hyperstck position
 		final int channel = Integer.valueOf(properties.getProperty(KEY_CHANNEL_POS, "1"));
-		final int slice = Integer.valueOf(properties.getProperty(KEY_SLICE_POS, "1"));
 		final int frame = Integer.valueOf(properties.getProperty(KEY_FRAME_POS, "1"));
-
+		final boolean hyperStack = (channel != 1 && frame != 1);
 		// Add center
 		final double centerRawX = center.rawX(cal);
 		final double centerRawY = center.rawY(cal);
 		final double centerRawZ = center.rawZ(cal);
+
 		final PointRoi cRoi = new PointRoi(centerRawX, centerRawY);
-		cRoi.setPosition((int) centerRawZ);
 		cRoi.setPointType(1);
-		cRoi.setPosition(channel, slice, frame);
+		setROIposition(cRoi, channel, centerRawZ, frame, hyperStack);
 		overlay.add(cRoi, "center");
 
 		final DecimalFormat formatter = new DecimalFormat("#000.##");
@@ -391,7 +390,7 @@ public class Profile implements ProfileProperties {
 					multipointRoi = new PointRoi(rawX, rawY);
 					currentRawZ = rawZ;
 					multipointRoi.setPointType(2);
-					multipointRoi.setPosition(channel, (int) rawZ, frame);
+					setROIposition(multipointRoi, channel, rawZ, frame, hyperStack);
 					overlay.add(multipointRoi,
 							"ShollPoints r=" + formatter.format(entry.radius) + " z=" + formatter.format(point.z));
 				} else if (currentRawZ == rawZ) { // same plane
@@ -449,6 +448,13 @@ public class Profile implements ProfileProperties {
 			imp.setOverlay(overlay);
 
 		return overlay;
+	}
+
+	private void setROIposition(final Roi roi, final int c, final double z, final int t, final boolean hyperStack) {
+		if (hyperStack) // NB: ROI position uses 1-based indices
+			roi.setPosition(c, (int) z + 1, t);
+		else
+			roi.setPosition((int) z + 1);
 	}
 
 	public boolean add(final ProfileEntry entry) {
