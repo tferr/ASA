@@ -92,7 +92,7 @@ public class ImageParser3D extends ImageParser {
 										if (Math.abs(p.distanceSquared(c) - rSq) < EQUALITY_PRECISION) {
 											if (!withinThreshold(stack.getVoxel(x, y, z)))
 												continue;
-											if (skipSingleVoxels && !hasNeighbors(x, y, z, stack))
+											if (skipSingleVoxels && !hasNeighbors(x, y, z))
 												continue;
 											pixelPoints.add(new UPoint(x, y, z));
 										}
@@ -149,35 +149,29 @@ public class ImageParser3D extends ImageParser {
 
 	}
 
-	private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
+	private boolean hasNeighbors(final int x, final int y, final int z) {
 
-		final int[][] neighboors = new int[6][3];
+		final int[][] neighbors = new int[6][3];
+		neighbors[0] = new int[] { x - 1, y, z };
+		neighbors[1] = new int[] { x + 1, y, z };
+		neighbors[2] = new int[] { x, y - 1, z };
+		neighbors[3] = new int[] { x, y + 1, z };
+		neighbors[4] = new int[] { x, y, z + 1 };
+		neighbors[5] = new int[] { x, y, z - 1 };
 
-		neighboors[0] = new int[] { x - 1, y, z };
-		neighboors[1] = new int[] { x + 1, y, z };
-		neighboors[2] = new int[] { x, y - 1, z };
-		neighboors[3] = new int[] { x, y + 1, z };
-		neighboors[4] = new int[] { x, y, z + 1 };
-		neighboors[5] = new int[] { x, y, z - 1 };
-
-		boolean clustered = false;
-		double value;
-		for (int i = 0; i < neighboors.length; i++) {
+		for (int i = 0; i < neighbors.length; i++) {
 			try {
-				value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2]);
-				if (withinBounds(neighboors[i][0], neighboors[i][1], neighboors[i][2]) && withinThreshold(value)) {
-					clustered = true;
-					break;
-				}
-			} catch (final IndexOutOfBoundsException ignored) { // Edge voxel:
+				if (!withinBounds(neighbors[i][0], neighbors[i][1], neighbors[i][2]))
+					return false;
+				if (withinThreshold(stack.getVoxel(neighbors[i][0], neighbors[i][1], neighbors[i][2])))
+					return true;
+			} catch (final IndexOutOfBoundsException ignored) { // Edge voxel?
 																// Neighborhood
 																// unknown.
-				clustered = false;
-				break;
+				return false;
 			}
 		}
-
-		return clustered;
+		return false;
 
 	}
 
