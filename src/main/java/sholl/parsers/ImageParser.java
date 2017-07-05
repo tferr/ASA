@@ -94,7 +94,8 @@ class ImageParser implements Parser {
 
 	protected void setRadii(final double startRadius, final double step, final double endRadius) {
 		final double fStartRadius = (Double.isNaN(startRadius)) ? voxelSize : Math.max(voxelSize, startRadius);
-		final double fEndRadius = (Double.isNaN(endRadius)) ? maxPossibleRadius() : endRadius;
+		final double maxRadius = maxPossibleRadius();
+		final double fEndRadius = (Double.isNaN(endRadius)) ? maxRadius : Math.min(endRadius, maxRadius);
 		final double fStep = (Double.isNaN(step)) ? voxelSize : Math.max(step, voxelSize);
 		radii = ShollUtils.getRadii(fStartRadius, fStep, fEndRadius);
 	}
