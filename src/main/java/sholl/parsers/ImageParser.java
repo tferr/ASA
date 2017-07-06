@@ -90,9 +90,9 @@ class ImageParser implements Parser {
 	}
 
 	protected double maxPossibleRadius() {
-		final double maxX = imp.getWidth()-1 * cal.pixelWidth;
-		final double maxY = imp.getHeight()-1 * cal.pixelHeight;
-		final double maxZ = imp.getNSlices()-1 * cal.pixelDepth;
+		final double maxX = imp.getWidth() - 1 * cal.pixelWidth;
+		final double maxY = imp.getHeight() - 1 * cal.pixelHeight;
+		final double maxZ = imp.getNSlices() - 1 * cal.pixelDepth;
 		final UPoint[] points = new UPoint[8];
 		points[0] = new UPoint(0, 0, 0);
 		points[1] = new UPoint(maxX, maxY, maxZ);
@@ -120,11 +120,12 @@ class ImageParser implements Parser {
 		checkUnsetFields();
 		final int maxRadius = (int) Math.round(radii.get(radii.size() - 1) / voxelSize);
 		minX = Math.max(xc - maxRadius, 0);
-		maxX = Math.min(xc + maxRadius, imp.getWidth()-1);
+		maxX = Math.min(xc + maxRadius, imp.getWidth() - 1);
 		minY = Math.max(yc - maxRadius, 0);
-		maxY = Math.min(yc + maxRadius, imp.getHeight()-1);
+		maxY = Math.min(yc + maxRadius, imp.getHeight() - 1);
 		minZ = Math.max(zc - maxRadius, 0);
-		maxZ = Math.min(zc + maxRadius, imp.getNSlices()-1);
+		maxZ = Math.min(zc + maxRadius, imp.getNSlices() - 1);
+
 		final String fFlag = (flag == null || flag.isEmpty()) ? HEMI_NONE : flag.trim().toLowerCase();
 		switch (fFlag) {
 		case HEMI_NORTH:
@@ -145,13 +146,14 @@ class ImageParser implements Parser {
 			throw new IllegalArgumentException("Unrecognized flag: " + flag);
 		}
 		properties.setProperty(KEY_HEMISHELLS, fFlag);
+
 	}
 
 	protected void setPosition(final int channel, final int frame) {
 		if (channel < 1 || channel > imp.getNChannels() || frame < 1 || frame > imp.getNFrames())
 			throw new IllegalArgumentException("Specified (channel, slice, frame) position is out of range");
-		this.channel = channel; //1-based
-		this.frame = frame; //1-based
+		this.channel = channel; // 1-based
+		this.frame = frame; // 1-based
 		properties.setProperty(KEY_CHANNEL_POS, String.valueOf(channel));
 		properties.setProperty(KEY_FRAME_POS, String.valueOf(frame));
 	}
