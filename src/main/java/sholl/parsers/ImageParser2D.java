@@ -88,10 +88,9 @@ public class ImageParser2D extends ImageParser {
 
 	@Override
 	public Profile parse() {
-		checkUnsetFields();
-		ip = getProcessor();
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
+		ip = getProcessor();
 
 		double[] binsamples;
 		int[] pixels;

@@ -31,7 +31,6 @@ public class ImageParser3D extends ImageParser {
 
 	@Override
 	public Profile parse() {
-		checkUnsetFields();
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
 
