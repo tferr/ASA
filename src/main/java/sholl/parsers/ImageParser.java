@@ -61,6 +61,8 @@ class ImageParser implements Parser {
 	}
 
 	public void setCenterPx(final int x, final int y, final int z) {
+		if (x > imp.getWidth() - 1 || y > imp.getHeight() || z > imp.getNSlices())
+			throw new IndexOutOfBoundsException("specified coordinates cannot be aplied to image");
 		center = new UPoint(x, y, z, cal);
 		profile.setCenter(center);
 		xc = x;
