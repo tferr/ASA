@@ -43,10 +43,10 @@ public class UPoint {
 	public double z;
 	public int flag = NONE;
 
-	public final static int NONE = 0;
-	public final static int VISITED = 1;
-	public final static int DELETE = 2;
-	public final static int KEEP = 4;
+	public final static int NONE = -1;
+	public final static int VISITED = -2;
+	public final static int DELETE = -4;
+	public final static int KEEP = -8;
 
 	public UPoint() {
 	}
@@ -79,13 +79,6 @@ public class UPoint {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.flag = flag;
-	}
-
-	public UPoint(final int x, final int y, final int flag) {
-		this.x = x;
-		this.y = y;
-		this.z = 0;
 		this.flag = flag;
 	}
 
