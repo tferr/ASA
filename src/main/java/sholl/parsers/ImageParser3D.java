@@ -17,11 +17,10 @@ import sholl.UPoint;
 
 public class ImageParser3D extends ImageParser {
 
-	private double vxWH, vxD;
+	private double vxW, vxH, vxD;
 	private int progressCounter;
 	private boolean skipSingleVoxels;
 	private ImageStack stack;
-	private final double EQUALITY_PRECISION = 0.000000001;
 
 	public ImageParser3D(final ImagePlus imp) {
 		super(imp);
@@ -37,8 +36,10 @@ public class ImageParser3D extends ImageParser {
 		final int nspheres = radii.size();
 		final UPoint c = new UPoint(xc, yc, zc, cal);
 		stack = (imp.isComposite()) ? ChannelSplitter.getChannel(imp, channel) : imp.getStack();
+		vxW = cal.pixelWidth;
+		vxH = cal.pixelHeight;
 		vxD = cal.pixelDepth;
-		vxWH = Math.sqrt(cal.pixelWidth * cal.pixelHeight);
+
 		// Split processing across the number of available CPUs
 		final AtomicInteger ai = new AtomicInteger(0);
 		final int n_cpus = Prefs.getThreads();
@@ -76,19 +77,24 @@ public class ImageParser3D extends ImageParser {
 							// Restrain analysis to the smallest volume for this
 							// sphere
 							final double r = radii.get(s);
-							final double rSq = r * r;
-							final int xmin = Math.max(xc - (int) Math.round(r / vxWH), minX);
-							final int ymin = Math.max(yc - (int) Math.round(r / vxWH), minY);
-							final int zmin = Math.max(zc - (int) Math.round(r / vxD), minZ);
-							final int xmax = Math.min(xc + (int) Math.round(r / vxWH), maxX);
-							final int ymax = Math.min(yc + (int) Math.round(r / vxWH), maxY);
-							final int zmax = Math.min(zc + (int) Math.round(r / vxD), maxZ);
+							final double upperR = r + voxelSize;
+							final double lowerR = r - voxelSize;
 
-							for (int z = zmin; z < zmax; z++) {
-								for (int y = ymin; y < ymax; y++) {
-									for (int x = xmin; x < xmax; x++) {
+							final int xr = (int) Math.round(r / vxW);
+							final int yr = (int) Math.round(r / vxH);
+							final int zr = (int) Math.round(r / vxD);
+							final int xmin = Math.max(xc - xr, minX);
+							final int ymin = Math.max(yc - yr, minY);
+							final int zmin = Math.max(zc - zr, minZ);
+							final int xmax = Math.min(xc + xr, maxX);
+							final int ymax = Math.min(yc + yr, maxY);
+							final int zmax = Math.min(zc + zr, maxZ);
+							for (int z = zmin; z <= zmax; z++) {
+								for (int y = ymin; y <= ymax; y++) {
+									for (int x = xmin; x <= xmax; x++) {
 										final UPoint p = new UPoint(x, y, z, cal);
-										if (Math.abs(p.distanceSquared(c) - rSq) < EQUALITY_PRECISION) {
+										final double dxSq = p.distanceSquared(c);
+										if (dxSq > lowerR * lowerR && dxSq < upperR * upperR) {
 											if (!withinThreshold(stack.getVoxel(x, y, z)))
 												continue;
 											if (skipSingleVoxels && !hasNeighbors(x, y, z))
