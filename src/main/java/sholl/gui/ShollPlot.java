@@ -39,12 +39,12 @@ public class ShollPlot extends Plot {
 	private final static int DEFAULT_FLAGS = X_FORCE2GRID + X_TICKS + X_NUMBERS + Y_FORCE2GRID + Y_TICKS + Y_NUMBERS;
 	private final static double[] DUMMY_VALUES = null;
 
-	private final boolean annotate;
-	private final ShollStats stats;
+	private boolean annotate;
+	private ShollStats stats;
 	private LinearProfileStats linearStats;
 	private NormalizedProfileStats normStats;
-	private final StringBuffer tempLegend;
-	private final double xMin, xMax, yMin, yMax;
+	private StringBuffer tempLegend;
+	private double xMin, xMax, yMin, yMax;
 
 	public ShollPlot(final Profile profile) {
 		this(new LinearProfileStats(profile));
@@ -52,6 +52,22 @@ public class ShollPlot extends Plot {
 
 	public ShollPlot(final ShollStats stats) {
 		this(defaultTitle(stats), defaultXtitle(stats), defaultYtitle(stats), stats, true);
+	}
+
+	public ShollPlot(final Profile... profiles) {
+		super("Combined Sholl Plot", "Distance", "No. Intersections");
+		final Color[] colors = uniqueColors(profiles.length);
+		final StringBuffer legend = new StringBuffer();
+		for (int i = 0; i < profiles.length; i++) {
+			final Profile p = profiles[i];
+			setColor(colors[i]);
+			addPoints(p.radii(), p.counts(), LINE);
+			legend.append(p.identifier()).append("\n");
+		}
+		setLimitsToFit(false);
+		setColor(Color.WHITE);
+		setLegend(legend.toString(), AUTO_POSITION | LEGEND_TRANSPARENT);
+		resetDrawing();
 	}
 
 	public ShollPlot(final String title, final String xLabel, final String yLabel, final ShollStats stats,
@@ -417,5 +433,17 @@ public class ShollPlot extends Plot {
 	private void resetDrawing() {
 		setLineWidth(1);
 		setColor(Color.BLACK);
+	}
+
+	private Color[] uniqueColors(final int n) {
+		final Color[] defaults = new Color[] { Color.BLUE, Color.RED, Color.MAGENTA, Color.GREEN.darker(),
+				Color.DARK_GRAY, Color.CYAN.darker(), Color.ORANGE.darker(), Color.BLACK };
+		final Color[] colors = new Color[n];
+		for (int j = 0, i = 0; i < n; i++) {
+			colors[i] = defaults[j++];
+			if (j == defaults.length - 1)
+				j = 0;
+		}
+		return colors;
 	}
 }
