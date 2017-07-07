@@ -99,7 +99,7 @@ public class ImageParser3D extends ImageParser {
 												continue;
 											if (skipSingleVoxels && !hasNeighbors(x, y, z))
 												continue;
-											pixelPoints.add(new UPoint(x, y, z));
+											pixelPoints.add(new UPoint(x, y, z, UPoint.NONE));
 										}
 									}
 								}
