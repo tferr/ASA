@@ -132,7 +132,7 @@ public class ImageParser3D extends ImageParser {
 				// chessboard distance of 1 in xy (lateral) underlies
 				// 8-connectivity within the plane. A distance of 1 in z (axial)
 				// underlies 26-connectivity in 3D
-				if (pi.chebyshevXYdxTo(pj) < 2 || pi.chebyshevZdxTo(pj) < 2) {
+				if (pi.chebyshevXYdxTo(pj) * pi.chebyshevZdxTo(pj) < 2) { // int distances: ==1 <=> <2
 					pj.setFlag(UPoint.DELETE);
 				}
 			}
