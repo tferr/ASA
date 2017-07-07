@@ -45,6 +45,7 @@ public class ImageParser3D extends ImageParser {
 		final int n_cpus = Prefs.getThreads();
 		final Thread[] threads = ThreadUtil.createThreadArray(n_cpus);
 		setThreadedCounter(0);
+		final String statusMSg = "Sampling shell %d/%d (%d threads). Press 'Esc' to abort...";
 
 		for (int ithread = 0; ithread < threads.length; ithread++) {
 
@@ -63,8 +64,8 @@ public class ImageParser3D extends ImageParser {
 
 						for (int s = start; s < end; s++) {
 							final int counter = getThreadedCounter();
-							statusService.showStatus(counter, nspheres, "Sampling shell " + (counter + 1) + "/"
-									+ nspheres + " (" + n_cpus + " threads). Press 'Esc' to abort...");
+							statusService.showStatus(counter, nspheres,
+									String.format(statusMSg, (counter + 1), nspheres, n_cpus));
 							setThreadedCounter(counter + 1);
 							if (IJ.escapePressed()) {
 								IJ.beep();
