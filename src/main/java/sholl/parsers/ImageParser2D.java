@@ -90,6 +90,7 @@ public class ImageParser2D extends ImageParser {
 	public Profile parse() {
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
+		start = System.currentTimeMillis();
 		ip = getProcessor();
 
 		double[] binsamples;
@@ -153,7 +154,7 @@ public class ImageParser2D extends ImageParser {
 
 		}
 
-		helper.clear();
+		clearStatus();
 		return profile;
 	}
 
@@ -416,7 +417,7 @@ public class ImageParser2D extends ImageParser {
 		if (slice < 1 || slice > imp.getNSlices())
 			throw new IllegalArgumentException("Specified slice position is out of range");
 		this.slice = slice; // 1-based
-		minZ = maxZ = slice -1; // 0-based
+		minZ = maxZ = slice - 1; // 0-based
 		properties.setProperty(KEY_SLICE_POS, String.valueOf(slice));
 		super.setPosition(channel, frame);
 	}

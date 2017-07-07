@@ -32,6 +32,7 @@ public class ImageParser3D extends ImageParser {
 	public Profile parse() {
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
+		start = System.currentTimeMillis();
 
 		final int nspheres = radii.size();
 		final UPoint c = new UPoint(xc, yc, zc, cal);
@@ -122,8 +123,7 @@ public class ImageParser3D extends ImageParser {
 			};
 		}
 		ThreadUtil.startAndJoin(threads);
-
-		helper.clear();
+		clearStatus();
 		return profile;
 
 	}

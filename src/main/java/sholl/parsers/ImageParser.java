@@ -37,6 +37,7 @@ class ImageParser implements Parser {
 	protected int xc;
 	protected int yc;
 	protected int zc;
+	protected long start;
 
 	protected ImageParser(final ImagePlus imp) {
 		this.imp = imp;
@@ -53,11 +54,6 @@ class ImageParser implements Parser {
 		profile = new Profile();
 		profile.assignImage(imp);
 		properties = profile.getProperties();
-	}
-
-	@Override
-	public boolean successful() {
-		return profile.size() > 0;
 	}
 
 	public void setCenterPx(final int x, final int y, final int z) {
@@ -176,9 +172,20 @@ class ImageParser implements Parser {
 		return withinXYbounds(x, y) && withinZbounds(z);
 	}
 
+	protected void clearStatus() {
+		//IJ.log(""+ (System.currentTimeMillis()-start));
+		String a = helper.getElapsedTime(start);
+		statusService.showStatus(0, 0, "Finished. " + a);
+	}
+
 	@Override
 	public Profile parse() {
 		return profile;
+	}
+
+	@Override
+	public boolean successful() {
+		return profile.size() > 0;
 	}
 
 }

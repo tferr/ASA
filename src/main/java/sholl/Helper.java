@@ -1,5 +1,7 @@
 package sholl;
 
+import java.util.concurrent.TimeUnit;
+
 import net.imagej.legacy.LegacyService;
 
 import org.scijava.Context;
@@ -45,11 +47,6 @@ public class Helper {
 		logService.info("[Sholl] " + string);
 	}
 
-	public void clear() {
-		statusService.clearStatus();
-		statusService.showProgress(0, 0);
-	}
-
 	public void warn(final String string) {
 		logService.warn("[Sholl] " + string);
 	}
@@ -57,6 +54,17 @@ public class Helper {
 	public void log(final String... strings) {
 		if (strings != null)
 			log(String.join(" ", strings));
+	}
+
+	public String getElapsedTime(final long fromStart) {
+		final long time = System.currentTimeMillis() - fromStart;
+		if (time < 1000)
+			return String.format("%02d msec", time);
+		else if (time < 90000)
+			return String.format("%02d sec", TimeUnit.MILLISECONDS.toSeconds(time));
+		return String.format("%02d min, %02d sec", TimeUnit.MILLISECONDS.toMinutes(time),
+				TimeUnit.MILLISECONDS.toSeconds(time)
+						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
 	}
 
 	public StatusService getStatusService() {
