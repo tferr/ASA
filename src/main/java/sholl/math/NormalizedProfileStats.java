@@ -151,6 +151,13 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 		return chosenMethodDescription;
 	}
 
+	public void resetRegression() {
+		regressionChosen.clear();
+		for (int i = 0; i < nPoints; i++) {
+			regressionChosen.addData(regressionXdata[i], countsLogNorm[i]);
+		}
+	}
+
 	public SimpleRegression getRegression() {
 		return regressionChosen;
 	}
@@ -170,7 +177,8 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 			regressionChosen.removeData(regressionXdata[i], countsLogNorm[i]);
 	}
 
-	public double getRSquare() {
+	@Override
+	public double getRSquaredOfFit() {
 		return regressionChosen.getRSquare();
 	}
 
@@ -190,7 +198,7 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 		return -getSlope();
 	}
 
-	public double getDetRatio() {
+	public double getDeterminationRatio() {
 		return determinationRatio;
 	}
 
