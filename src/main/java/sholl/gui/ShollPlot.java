@@ -339,7 +339,7 @@ public class ShollPlot extends Plot {
 	 */
 	public void markPoint(final UPoint point, final Color color) {
 		setColor(color);
-		markPoint(point, X, 9);
+		markPoint(point, CROSS, 8);
 		resetDrawing();
 	}
 
