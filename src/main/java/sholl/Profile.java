@@ -21,9 +21,6 @@
  */
 package sholl;
 
-import java.awt.Color;
-import java.awt.geom.Arc2D;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -33,13 +30,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import ij.ImagePlus;
-import ij.gui.OvalRoi;
 import ij.gui.Overlay;
-import ij.gui.PointRoi;
-import ij.gui.Roi;
-import ij.gui.ShapeRoi;
 import ij.measure.Calibration;
 import ij.process.ImageProcessor;
+import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
 
 /**
@@ -329,132 +323,17 @@ public class Profile implements ProfileProperties {
 		return String.valueOf(Double.NaN);
 	}
 
-	private Overlay getOverlay(final ImagePlus imp) {
-		if (imp == null)
-			return new Overlay();
-		final Overlay overlay = imp.getOverlay();
-		if (overlay == null)
-			return new Overlay();
-		if (overlay.size() == 0)
-			return overlay;
-		for (int i = overlay.size() - 1; i >= 0; i--) {
-			final String roiName = overlay.get(i).getName();
-			if (roiName != null && (roiName.equals("center") || roiName.contains("r=")))
-				overlay.remove(i);
-		}
-		return overlay;
-	}
-
 	public Overlay getROIs() {
 		return getROIs(null);
 	}
 
-	// If set coordinates of points are scaled to pixel coordinates using the
-	// profile calibration, otherwise the image calibration is used
 	public Overlay getROIs(final ImagePlus imp) {
-
-		if (center == null)
-			throw new RuntimeException("ROIs cannot be generated with undefined center");
-
-		final Overlay overlay = getOverlay(imp);
-		final Calibration cal = scaled() ? this.cal : new Calibration(imp);
-
-		// Get hyperstck position
-		final int channel = Integer.valueOf(properties.getProperty(KEY_CHANNEL_POS, "1"));
-		final int frame = Integer.valueOf(properties.getProperty(KEY_FRAME_POS, "1"));
-		final boolean hyperStack = (channel != 1 && frame != 1);
-		// Add center
-		final double centerRawX = center.rawX(cal);
-		final double centerRawY = center.rawY(cal);
-		final double centerRawZ = center.rawZ(cal);
-
-		final PointRoi cRoi = new PointRoi(centerRawX, centerRawY);
-		cRoi.setPointType(1);
-		setROIposition(cRoi, channel, centerRawZ, frame, hyperStack);
-		overlay.add(cRoi, "center");
-
-		final DecimalFormat formatter = new DecimalFormat("#000.##");
-		// Add intersection points
-		for (final ProfileEntry entry : profile) {
-			final Set<UPoint> points = entry.points;
-			if (points == null || points.isEmpty())
-				continue;
-			PointRoi multipointRoi = null;
-			double currentRawZ = -1;
-			for (final UPoint point : points) {
-
-				final double rawX = point.rawX(cal);
-				final double rawY = point.rawY(cal);
-				final double rawZ = point.rawZ(cal);
-				if (currentRawZ == -1 || currentRawZ != rawZ) {
-					multipointRoi = new PointRoi(rawX, rawY);
-					currentRawZ = rawZ;
-					multipointRoi.setPointType(2);
-					setROIposition(multipointRoi, channel, rawZ, frame, hyperStack);
-					overlay.add(multipointRoi,
-							"ShollPoints r=" + formatter.format(entry.radius) + " z=" + formatter.format(point.z));
-				} else if (currentRawZ == rawZ) { // same plane
-					multipointRoi.addPoint(rawX, rawY);
-				}
-			}
-		}
-
-		if (!is2D()) {
-			// throw new RuntimeException("Non-2D ROIS are not currently
-			// supported");
-			return overlay;
-		}
-
-		// Add Shells
-		final Color rc = Roi.getColor();
-		final Color shellColor = new Color(rc.getRed(), rc.getGreen(), rc.getBlue(), 100);
-		final int shellThickness = Integer.valueOf(properties.getProperty(KEY_NSAMPLES, "1"));
-
-		// 2D analysis: circular shells
-		final String sProperty = properties.getProperty(KEY_HEMISHELLS, HEMI_NONE);
-		final boolean arcs = !HEMI_NONE.equals(sProperty);
-		final boolean north = arcs && sProperty.contains(HEMI_NORTH);
-		final boolean south = arcs && sProperty.contains(HEMI_SOUTH);
-		final boolean west = arcs && sProperty.contains(HEMI_WEST);
-		final boolean east = arcs && sProperty.contains(HEMI_EAST);
-
-		for (final ProfileEntry entry : profile) {
-			final double radiusX = cal.getRawX(entry.radius);
-			final double radiusY = cal.getRawY(entry.radius);
-
-			Roi shell;
-			if (arcs) {
-				final Arc2D.Double arc = new Arc2D.Double();
-				final double radius = Math.sqrt(radiusX * radiusY);
-				if (north) {
-					arc.setArcByCenter(centerRawX, centerRawY, radius, 0, 180, Arc2D.OPEN);
-				} else if (south) {
-					arc.setArcByCenter(centerRawX, centerRawY, radius, -180, 180, Arc2D.OPEN);
-				} else if (west) {
-					arc.setArcByCenter(centerRawX, centerRawY, radius, 90, -180, Arc2D.OPEN);
-				} else if (east) {
-					arc.setArcByCenter(centerRawX, centerRawY, radius, -90, -180, Arc2D.OPEN);
-				}
-				shell = new ShapeRoi(arc);
-			} else {
-				shell = new OvalRoi(centerRawX - radiusX, centerRawY - radiusY, 2 * radiusX, 2 * radiusY);
-			}
-			shell.setStrokeColor(shellColor);
-			shell.setStrokeWidth(shellThickness);
-			overlay.add(shell, "Shell r=" + ShollUtils.d2s(entry.radius));
-		}
-
-		if (imp != null)
-			imp.setOverlay(overlay);
-
-		return overlay;
-	}
-
-	private void setROIposition(final Roi roi, final int c, final double z, final int t, final boolean hyperStack) {
-		if (hyperStack) // NB: ROI position uses 1-based indices
-			roi.setPosition(c, (int) z + 1, t);
-		else
-			roi.setPosition((int) z + 1);
+		final ShollOverlay so = new ShollOverlay(this, imp);
+		so.addCenter();
+		if (!is2D())
+			so.setShellsColor(null); // same as so.setShellsThickness(0);
+		so.setPointsLUT("mpl-viridis.lut");
+		return so.getOverlay();
 	}
 
 	public boolean add(final ProfileEntry entry) {
