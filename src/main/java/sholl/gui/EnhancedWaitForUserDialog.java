@@ -48,7 +48,7 @@ public class EnhancedWaitForUserDialog extends WaitForUserDialog {
 	 *            The URL to be opened by the default browser of the OS
 	 */
 	public void addHyperlink(final String url) {
-		Utils.addClickableURLtoLabel(super.label, url, null);
+		EnhancedGenericDialog.addClickableURLtoLabel(super.label, url, null);
 	}
 
 }

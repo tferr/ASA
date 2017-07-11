@@ -25,9 +25,11 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Panel;
@@ -38,12 +40,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
+import ij.plugin.BrowserLauncher;
 import ij.plugin.frame.Recorder;
+import sholl.Sholl_Analysis;
 
 /**
  * Enhances GenericDialog with a few additional features, including scrollbars
@@ -99,19 +104,20 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 	 */
 	public void addHyperlinkMessage(final String text, final Font font, final Color color, final String url) {
 		super.addMessage(text, font, color);
-		Utils.addClickableURLtoLabel(super.getMessage(), url, color);
+		addClickableURLtoLabel(super.getMessage(), url, color);
 	}
 
 	/** Allows users to visit the manuscript from a dialog prompt */
 	public void addCitationMessage() {
-		super.addMessage(Utils.citationMsg(), null, Utils.infoColor());
-		Utils.addClickableURLtoLabel(super.getMessage(), Utils.citationURL(), Utils.infoColor());
+		super.addMessage(citationMsg(), null, infoColor());
+		addClickableURLtoLabel(super.getMessage(), citationURL(),
+				infoColor());
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		final Object source = e.getSource();
-		if (!Utils.isHeadless() && source != null && labelOfHelpActionButton != null
+		if (!isHeadless() && source != null && labelOfHelpActionButton != null
 				&& source.toString().contains(labelOfHelpActionButton) && helpActionButtonListener != null) {
 			helpActionButtonListener.actionPerformed(e);
 		} else {
@@ -133,7 +139,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 	 *            the ActionListener monitoring action events
 	 */
 	public void assignListenerToHelpButton(final String buttonLabel, final ActionListener listener) {
-		if (!Utils.isHeadless() && buttonLabel != null && listener != null) {
+		if (!isHeadless() && buttonLabel != null && listener != null) {
 			super.addHelp("");
 			super.setHelpLabel(buttonLabel);
 			labelOfHelpActionButton = buttonLabel;
@@ -166,7 +172,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 	 *            the JPopupMenu to be attached to the "Help" button.
 	 */
 	public void assignPopupToHelpButton(final String buttonLabel, final JPopupMenu popupmenu) {
-		if (!Utils.isHeadless() && buttonLabel != null && popupmenu != null) {
+		if (!isHeadless() && buttonLabel != null && popupmenu != null) {
 			// Ensure swing component is displayed with a java.awt look and feel
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -201,7 +207,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 	 * {@link IJ#getScreenSize()}. Dialog remains fully recordable.
 	 */
 	public void showScrollableDialog() {
-		if (!Utils.isHeadless())
+		if (!isHeadless())
 			addScrollBars();
 		super.showDialog();
 	}
@@ -300,6 +306,109 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 		// add scroll pane to original container
 		this.add(scroll);
 
+	}
+
+	protected static void addClickableURLtoLabel(final Component label, final String url, final Color color) {
+		if (isHeadless() || label == null || url == null)
+			return;
+		label.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent paramAnonymousMouseEvent) {
+				try {
+					BrowserLauncher.openURL(url);
+				} catch (final Exception localException) {
+					IJ.error("" + localException);
+				}
+			}
+
+			@Override
+			public void mouseEntered(final MouseEvent paramAnonymousMouseEvent) {
+				label.setForeground(Color.BLUE);
+				label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+				// IJ.showStatus("Click to open URL...");
+			}
+
+			@Override
+			public void mouseExited(final MouseEvent paramAnonymousMouseEvent) {
+				label.setForeground(color);
+				label.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				// IJ.showStatus("");
+			}
+		});
+	}
+
+	/** Customizes macro recordings */
+	public static final void improveRecording() {
+		if (Recorder.record) {
+			String recordString = "// Recording Sholl Analysis version " + Sholl_Analysis.VERSION + "\n" + "// Visit "
+					+ Sholl_Analysis.URL + "#Batch_Processing for scripting tips\n";
+			final String cmd = Recorder.getCommand();
+			final String cmdOptions = Recorder.getCommandOptions();
+			if (cmd == null || cmdOptions == null) {
+				recordString += "// NB: Commands dismissing prompts (such the ones in the \"More\u00bb\" dropdown menu) may not\n"
+						+ "// record properly. You may need to repeat recording if recorded instruction is invalid\n";
+			}
+			Recorder.recordString(recordString);
+		}
+	}
+
+	/**
+	 * Returns the foreground color of disabled components.
+	 *
+	 * @return The {@link UIManager} foreground color of a disabled component.
+	 */
+	public static Color getDisabledComponentColor() {
+		try {
+			return UIManager.getColor("CheckBox.disabledText");
+		} catch (final Exception ignored) {
+			return Color.GRAY;
+		}
+	}
+
+	public static JMenuItem menuItemTrigerringURL(final String label, final String URL) {
+		final JMenuItem mi = new JMenuItem(label);
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				IJ.runPlugIn("ij.plugin.BrowserLauncher", URL);
+			}
+		});
+		return mi;
+	}
+
+	public static JMenuItem menuItemTriggeringResources() {
+		final JMenuItem mi = new JMenuItem("About & Resources...");
+		mi.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				IJ.runPlugIn(sholl.Sholl_Utils.class.getName(), "about");
+			}
+		});
+		return mi;
+	}
+
+	/**
+	 * @return {@code true} if running on an headless environment
+	 */
+	public static boolean isHeadless() {
+		return GraphicsEnvironment.isHeadless();
+	}
+
+	protected final static String citationURL() {
+		return "http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html";
+	}
+
+	protected final static String citationMsg() {
+		return "Please be so kind as to cite this program in your own\n"
+				+ "research: Ferreira et al. Nat Methods 11, 982-4 (2014)";
+	}
+
+	public final static Color infoColor() {
+		return Color.DARK_GRAY;
+	}
+
+	public final static Color warningColor() {
+		return Color.RED;
 	}
 
 }

@@ -145,7 +145,7 @@ public class EnhancedResultsTable extends ResultsTable {
 		final GenericDialog gd = new GenericDialog("Unsaved Data");
 		gd.addMessage("Save measurements in " + tableTitle + "?", new Font("SansSerif", Font.BOLD, 12));
 		gd.addMessage("Data will be discarded if you dismiss this prompt!", new Font("SansSerif", Font.PLAIN, 12),
-				Utils.getDisabledComponentColor());
+				EnhancedGenericDialog.getDisabledComponentColor());
 		gd.setCancelLabel("No. Discard measurements");
 		gd.setOKLabel("Yes. Save to...");
 		gd.showDialog();
