@@ -88,7 +88,7 @@ println "Determination ratio: " + nStats.getDeterminationRatio()
 // We'll now restrict the linear regression to a subset of percentiles
 [[10,90], [20,80], [30,70]].each {
     sleep(1000)
-    nStats.restrictRegToPercentile(it[0],it[1])
+    nStats.restrictRegToPercentile(it[0], it[1])
     println "R^2 P[${it[0]},${it[1]}]: " + nStats.getRSquaredOfFit()
     plot.rebuild()
     nStats.resetRegression()
