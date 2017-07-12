@@ -357,6 +357,26 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		}
 	}
 
+	/** Experimental **/
+	public int findBestFit(final int fromDegree, final int toDegree, final double minRSquared, final double minPvalue) {
+		double rSqHighest = 0d;
+		int bestDegree = -1;
+		final double[] coefficients = (pFunction == null) ? null : pFunction.getCoefficients();
+		for (int deg = fromDegree; deg <= toDegree; deg++) {
+			fitPolynomial(deg);
+			if (getKStestOfFit() < minPvalue)
+				continue;
+			final double rSq = getRSquaredOfFit(true);
+			if (rSq > minRSquared && rSq > rSqHighest) {
+				rSqHighest = rSq;
+				bestDegree = deg;
+			}
+		}
+		if (coefficients != null)
+			pFunction = new PolynomialFunction(coefficients);
+		return bestDegree;
+	}
+
 	/**
 	 * Returns the abscissae of the sampled linear plot for sampled data.
 	 *
