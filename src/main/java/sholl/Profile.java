@@ -339,4 +339,19 @@ public class Profile implements ProfileProperties {
 	public boolean add(final ProfileEntry entry) {
 		return profile.add(entry);
 	}
+
+	public int zeroCounts() {
+		final Iterator<ProfileEntry> iter = profile.iterator();
+		int count = 0;
+		while (iter.hasNext()) {
+			if (iter.next().count == 0)
+				count++;
+		}
+		return count;
+	}
+
+	public boolean isEmpty() {
+		return profile == null || profile.size() == zeroCounts();
+	}
+
 }

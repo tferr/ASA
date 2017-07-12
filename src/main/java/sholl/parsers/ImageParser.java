@@ -185,7 +185,7 @@ class ImageParser implements Parser {
 
 	@Override
 	public boolean successful() {
-		return profile.size() > 0;
+		return !profile.isEmpty();
 	}
 
 }
