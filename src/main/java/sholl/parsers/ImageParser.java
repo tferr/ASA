@@ -124,7 +124,7 @@ class ImageParser implements Parser {
 		minZ = Math.max(zc - maxRadius, 0);
 		maxZ = Math.min(zc + maxRadius, imp.getNSlices() - 1);
 
-		final String fFlag = (flag == null || flag.isEmpty()) ? HEMI_NONE : flag.trim().toLowerCase();
+		final String fFlag = extractHemiShellFlag(flag);
 		switch (fFlag) {
 		case HEMI_NORTH:
 			maxY = Math.min(yc + maxRadius, yc);
@@ -145,6 +145,21 @@ class ImageParser implements Parser {
 		}
 		properties.setProperty(KEY_HEMISHELLS, fFlag);
 
+	}
+
+	private String extractHemiShellFlag(final String string) {
+		if (string == null || string.trim().isEmpty())
+			return HEMI_NONE;
+		final String flag = string.toLowerCase();
+		if (flag.contains("above") || flag.contains("north"))
+			return HEMI_NORTH;
+		else if (flag.contains("below") || flag.contains("south"))
+			return HEMI_SOUTH;
+		else if (flag.contains("left") || flag.contains("east"))
+			return HEMI_EAST;
+		else if (flag.contains("right") || flag.contains("west"))
+			return HEMI_WEST;
+		return flag;
 	}
 
 	protected void setPosition(final int channel, final int frame) {
