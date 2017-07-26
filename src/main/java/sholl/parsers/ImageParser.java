@@ -17,8 +17,8 @@ import sholl.UPoint;
 
 public class ImageParser implements Parser {
 
-	protected final Profile profile;
-	protected final Properties properties;
+	protected Profile profile;
+	protected Properties properties;
 	protected UPoint center;
 	protected ArrayList<Double> radii;
 
@@ -57,6 +57,10 @@ public class ImageParser implements Parser {
 			voxelSize = (cal.pixelWidth + cal.pixelHeight) / 2;
 		}
 		statusService = context.getService(StatusService.class);
+		initProfile();
+	}
+
+	private void initProfile() {
 		profile = new Profile();
 		profile.assignImage(imp);
 		properties = profile.getProperties();
@@ -223,6 +227,10 @@ public class ImageParser implements Parser {
 	@Override
 	public void terminate() {
 		running = false;
+	}
+
+	public void reset() {
+		initProfile();
 	}
 
 }
