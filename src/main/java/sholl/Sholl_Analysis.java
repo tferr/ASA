@@ -101,7 +101,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	public static final String VERSION = Sholl_Utils.version();
+	public static final String VERSION = ShollUtils.version();
 	public static final String URL = "http://imagej.net/Sholl_Analysis";
 
 	/* Sholl Type Definitions */
