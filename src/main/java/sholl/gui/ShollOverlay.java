@@ -121,8 +121,10 @@ public class ShollOverlay implements ProfileProperties {
 		return overlay;
 	}
 
-	public static void removeShollROIs(final Overlay overlay) {
-		if (overlay.size() == 0)
+	public void updateDisplay() {
+		if (imp != null)
+			imp.setOverlay(overlay);
+	}
 
 	public synchronized static void removeShells(final Overlay overlay) {
 		removeShollROIs(overlay, SHELL);
@@ -339,7 +341,11 @@ public class ShollOverlay implements ProfileProperties {
 
 	private void setLUT(final ArrayList<Roi> rois, final String property, final String lutName, final int alpha)
 			throws IllegalArgumentException, IOException {
-		final ColorTable ct = getColorTable(lutName);
+		setLUT(rois, property, getColorTable(lutName), alpha);
+	}
+
+	private void setLUT(final ArrayList<Roi> rois, final String property, final ColorTable ct, final int alpha)
+			throws IllegalArgumentException, IOException {
 		String fProperty = COUNT;
 		if (property != null && property.toLowerCase().startsWith("radi")) // radi[i|us]
 			fProperty = RADIUS;
