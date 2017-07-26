@@ -251,7 +251,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private ColorTable lutTable;
 
 	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, //
-			label = HEADER_HTML + "<br>Process:")
+			label = HEADER_HTML + "<br>Run:")
 	private String SPACER;
 
 	// @Parameter(label = "Debug mode", required = false, visibility =
@@ -261,7 +261,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	// @Parameter(label = "More Options...", callback = "optionsButtonAction")
 	// private Button test;
 
-	@Parameter(label = "Analysis Action", required = false, style = ChoiceWidget.RADIO_BUTTON_VERTICAL_STYLE, //
+	@Parameter(label = "Action", required = false, style = ChoiceWidget.RADIO_BUTTON_VERTICAL_STYLE, //
 			visibility = ItemVisibility.TRANSIENT, //
 			callback = "setAnalysisScope", choices = { "Analyze image", "Re-analyze parsed data",
 					"Abort current analysis", "Change image..." })
@@ -477,7 +477,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private void headsupWarning() {
 		helper.error("<HTML><div WIDTH=480><p>" + "This is an experimental version of the new "
 				+ "version of the Sholl plugin. Apart from many improvements, this release is "
-				+ "focused on sampling and accuracy and scriptability (see templates menu in the "
+				+ "focused on sampling accuracy and scriptability (see templates menu in the "
 				+ "Script Editor). Several other refinements should also be noticeblable. E.g., 3D "
 				+ "stacks are now parsed at ~2x speed.</p>"
 				+ "<p>Please report any bugs you find (in the ImageJ Forum or through GitHub) "
