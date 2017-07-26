@@ -83,6 +83,23 @@ public class ShollUtils {
 		return new ColorTable8(values);
 	}
 
+	public static String extractHemiShellFlag(final String string) {
+		if (string == null || string.trim().isEmpty())
+			return ProfileProperties.HEMI_NONE;
+		final String flag = string.toLowerCase();
+		if (flag.contains("none") || flag.contains("full"))
+			return ProfileProperties.HEMI_NONE;
+		if (flag.contains("above") || flag.contains("north"))
+			return ProfileProperties.HEMI_NORTH;
+		else if (flag.contains("below") || flag.contains("south"))
+			return ProfileProperties.HEMI_SOUTH;
+		else if (flag.contains("left") || flag.contains("east"))
+			return ProfileProperties.HEMI_EAST;
+		else if (flag.contains("right") || flag.contains("west"))
+			return ProfileProperties.HEMI_WEST;
+		return flag;
+	}
+
 	/**
 	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
 	 *
