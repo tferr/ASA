@@ -89,6 +89,7 @@ import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
 import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
+import sholl.parsers.ImageParser;
 import sholl.parsers.ImageParser2D;
 import sholl.parsers.ImageParser3D;
 
@@ -194,11 +195,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Parameters for 2D analysis */
 	private static final String[] BIN_TYPES = { "Mean", "Median", "Mode" };
 	/** Flag for integration of repeated measures (2D analysis): average */
-	public static final int BIN_AVERAGE = 0;
+	public static final int BIN_AVERAGE = ImageParser2D.MEAN;
 	/** Flag for integration of repeated measures (2D analysis): median */
-	public static final int BIN_MEDIAN = 1;
+	public static final int BIN_MEDIAN = ImageParser2D.MEDIAN;
 	/** Flag for integration of repeated measures (2D analysis): mode */
-	public static final int BIN_MODE = 2;
+	public static final int BIN_MODE = ImageParser2D.MODE;
 	private int binChoice = BIN_AVERAGE;
 	private int nSpans = 1;
 	public static final int MAX_N_SPANS = 10;
