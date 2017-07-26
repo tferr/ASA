@@ -88,7 +88,6 @@ import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
-import sholl.gui.Utils;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -1178,7 +1177,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			try { // Access "units" label
 				final Panel p = (Panel) gd.getComponent(gd.getComponentCount() - 1);
 				final Label l = (Label) p.getComponent(1);
-				l.setForeground(Utils.getDisabledComponentColor());
+				l.setForeground(EnhancedGenericDialog.getDisabledComponentColor());
 			} catch (final Exception ignored) {
 			}
 		}
@@ -1239,7 +1238,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
-			Utils.improveRecording();
+			EnhancedGenericDialog.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else { // User pressed any other button
 			return false;
@@ -1547,7 +1546,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		iehideSaved.setEnabled(save);
 		Color pathFieldForeground = Color.BLACK;
 		if (!save)
-			pathFieldForeground = Utils.getDisabledComponentColor();
+			pathFieldForeground = EnhancedGenericDialog.getDisabledComponentColor();
 		if (!validPath)
 			pathFieldForeground = Color.RED;
 		ieimgPath.setForeground(pathFieldForeground);
@@ -1679,7 +1678,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled())
 			return false;
 		else if (gd.wasOKed()) {
-			Utils.improveRecording();
+			EnhancedGenericDialog.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else {
 			return false;
@@ -2723,9 +2722,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		popup.add(mi);
 		popup.addSeparator();
 		mi = new JMenuItem();
-		mi = Utils.menuItemTrigerringURL("Online documentation", URL);
+		mi = EnhancedGenericDialog.menuItemTrigerringURL("Online documentation", URL);
 		popup.add(mi);
-		mi = Utils.menuItemTriggeringResources();
+		mi = EnhancedGenericDialog.menuItemTriggeringResources();
 		popup.add(mi);
 		return popup;
 	}
