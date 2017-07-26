@@ -27,19 +27,15 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.IndexColorModel;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import org.scijava.util.VersionUtils;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.HTMLDialog;
 import ij.gui.Plot;
-import ij.io.Opener;
 import ij.plugin.PlugIn;
 import ij.text.TextWindow;
 import sholl.gui.ShollPlot;
@@ -79,20 +75,15 @@ public class Sholl_Utils implements PlugIn {
 	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
 	 *
 	 * @return ddaC image, or null if image cannot be retrieved
+	 * @deprecated Use {@link ShollUtils#sampleImage()} instead
 	 */
 	public static ImagePlus sampleImage() {
-		final InputStream is = Sholl_Utils.class.getResourceAsStream("/images/ddaC.tif");
-		ImagePlus imp = null;
-		if (is != null) {
-			final Opener opener = new Opener();
-			imp = opener.openTiff(is, "Drosophila_ddaC_Neuron.tif");
-		}
-		return imp;
+		return ShollUtils.sampleImage();
 	}
 
 	/** Displays the ddaC sample image and returns a reference to it */
 	protected static ImagePlus displaySample() {
-		final ImagePlus imp = sampleImage();
+		final ImagePlus imp = ShollUtils.sampleImage();
 		if (imp == null) {
 			IJ.showStatus("Error: Could not open ddaC.tif!");
 			IJ.beep();
@@ -280,11 +271,11 @@ public class Sholl_Utils implements PlugIn {
 	 *
 	 * @return the version or a non-empty place holder string if version could
 	 *         not be retrieved.
+	 * @deprecated Use {@link ShollUtils#version()} instead
 	 *
 	 */
 	public static String version() {
-		final String VERSION = VersionUtils.getVersion(Sholl_Analysis.class);
-		return (VERSION == null) ? "X Dev" : VERSION;
+		return ShollUtils.version();
 	}
 
 	/**

@@ -10,6 +10,10 @@ import java.util.stream.IntStream;
 
 import net.imagej.table.ResultsTable;
 import net.imagej.table.TableLoader;
+import org.scijava.util.VersionUtils;
+
+import ij.ImagePlus;
+import ij.io.Opener;
 
 public class ShollUtils {
 
@@ -21,7 +25,7 @@ public class ShollUtils {
 	}
 
 	// this method is from BAR
-	public static URL getResource(final String resourcePath) {
+	private static URL getResource(final String resourcePath) {
 		final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		URL resource = null;
 		try {
@@ -65,4 +69,35 @@ public class ShollUtils {
 		return radii;
 
 	}
+	/**
+	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
+	 *
+	 * @return ddaC image, or null if image cannot be retrieved
+	 */
+	public static ImagePlus sampleImage() {
+		final URL url = getResource("images/ddaC.tif");
+		if (url == null)
+			throw new NullPointerException("Could not retrieve ddaC.tif");
+		ImagePlus imp = null;
+		try {
+			final Opener opener = new Opener();
+			imp = opener.openTiff(url.openStream(), "Drosophila_ddaC_Neuron.tif");
+		} catch (final IOException exc) {
+			exc.printStackTrace();
+		}
+		return imp;
+	}
+
+	/**
+	 * Retrieves Sholl Analysis version
+	 *
+	 * @return the version or a non-empty place holder string if version could
+	 *         not be retrieved.
+	 *
+	 */
+	public static String version() {
+		final String VERSION = VersionUtils.getVersion(Sholl_Analysis.class);
+		return (VERSION == null) ? "X Dev" : VERSION;
+	}
+
 }
