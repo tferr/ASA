@@ -89,6 +89,19 @@ public class ImageParser implements Parser {
 		upperT = upper;
 	}
 
+	@Deprecated
+	public void setRadii(final double[] radiiArray) {
+		if (radiiArray == null) {
+			throw new NullPointerException("radii array cannot be null");
+		}
+		if (radii == null)
+			radii = new ArrayList<>();
+		radii.clear();
+		for (final double r : radiiArray) {
+			radii.add(r);
+		}
+	}
+
 	public void setRadii(final double startRadius, final double step, final double endRadius) {
 		final double fStartRadius = (Double.isNaN(startRadius)) ? voxelSize : Math.max(voxelSize, startRadius);
 		final double maxRadius = maxPossibleRadius();
