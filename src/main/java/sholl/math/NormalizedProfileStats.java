@@ -57,15 +57,11 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 
 	public NormalizedProfileStats(final Profile profile, final int normalizationFlag, final int methodFlag) {
 
-		super(profile);
+		super(profile, true);
 		normType = normalizationFlag;
 		if (profile.is2D() && is3Dnormalization())
 			throw new IllegalArgumentException("3D normalization specified on a 2D profile");
 
-		// Remove all zeroes from input sample: log(0) is undefined
-		profile.trimZeroCounts();
-
-		nPoints = profile.size();
 		countsLogNorm = new double[nPoints];
 		normalizeCounts();
 		radiiLog = Arrays.stream(inputRadii).map(r -> Math.log(r)).toArray();
