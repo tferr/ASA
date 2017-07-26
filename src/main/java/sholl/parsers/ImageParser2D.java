@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.math3.stat.StatUtils;
+import org.scijava.Context;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -33,7 +34,11 @@ public class ImageParser2D extends ImageParser {
 	public final int MAX_N_SPANS = 10;
 
 	public ImageParser2D(final ImagePlus imp) {
-		super(imp);
+		this(imp, null);
+	}
+
+	public ImageParser2D(final ImagePlus imp, final Context context) {
+		super(imp, context);
 		setPosition(imp.getC(), imp.getZ(), imp.getT());
 		doSpikeSupression = true;
 	}
@@ -65,7 +70,7 @@ public class ImageParser2D extends ImageParser {
 		setRadiiSpan(span, integrationFlag);
 	}
 
-	private void setRadiiSpan(final int nSamples, final int integrationFlag) {
+	public void setRadiiSpan(final int nSamples, final int integrationFlag) {
 		nSpans = Math.max(1, Math.min(MAX_N_SPANS, nSamples));
 		properties.setProperty(KEY_NSAMPLES, String.valueOf(nSpans));
 		switch (integrationFlag) {
