@@ -28,8 +28,11 @@ public interface Parser extends ProfileProperties {
 
 	public boolean successful();
 
-	public Profile parse();
+	public void parse();
 
 	public void terminate();
+
+	public Profile getProfile();
+
 
 }
