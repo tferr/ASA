@@ -41,7 +41,7 @@ public class ShollUtils {
 		return resource;
 	}
 
-	protected static ResultsTable csvSample() {
+	public static ResultsTable csvSample() {
 		final URL url = getResource("csv/ddaCsample.csv");
 		if (url == null)
 			throw new NullPointerException("Could not retrieve ddaCsample.csv");
