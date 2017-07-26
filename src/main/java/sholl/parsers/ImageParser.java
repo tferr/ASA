@@ -15,15 +15,15 @@ import sholl.Profile;
 import sholl.ShollUtils;
 import sholl.UPoint;
 
-class ImageParser implements Parser {
+public class ImageParser implements Parser {
 
 	protected final Profile profile;
 	protected final Properties properties;
 	protected UPoint center;
 	protected ArrayList<Double> radii;
 
-	protected final Helper helper;
-	protected final StatusService statusService;
+	protected Context context;
+	protected StatusService statusService;
 	protected final ImagePlus imp;
 	protected final Calibration cal;
 	protected final double voxelSize;
@@ -39,8 +39,15 @@ class ImageParser implements Parser {
 	protected int zc;
 	protected long start;
 
+	protected volatile boolean running = true;
+
 	protected ImageParser(final ImagePlus imp) {
+		this(imp, (Context) IJ.runPlugIn("org.scijava.Context", ""));
+	}
+
+	protected ImageParser(final ImagePlus imp, final Context context) {
 		this.imp = imp;
+		this.context = context;
 		if (imp.getProcessor().isBinary())
 			setThreshold(1, 255);
 		cal = imp.getCalibration(); // never null
@@ -49,11 +56,14 @@ class ImageParser implements Parser {
 		} else {
 			voxelSize = (cal.pixelWidth + cal.pixelHeight) / 2;
 		}
-		helper = new Helper((Context) IJ.runPlugIn("org.scijava.Context", ""));
-		statusService = helper.getStatusService();
+		statusService = context.getService(StatusService.class);
 		profile = new Profile();
 		profile.assignImage(imp);
 		properties = profile.getProperties();
+	}
+
+	public double getIsotropicVoxelSize() {
+		return voxelSize;
 	}
 
 	public void setCenterPx(final int x, final int y, final int z) {
@@ -79,7 +89,7 @@ class ImageParser implements Parser {
 		upperT = upper;
 	}
 
-	protected void setRadii(final double startRadius, final double step, final double endRadius) {
+	public void setRadii(final double startRadius, final double step, final double endRadius) {
 		final double fStartRadius = (Double.isNaN(startRadius)) ? voxelSize : Math.max(voxelSize, startRadius);
 		final double maxRadius = maxPossibleRadius();
 		final double fEndRadius = (Double.isNaN(endRadius)) ? maxRadius : Math.min(endRadius, maxRadius);
@@ -87,7 +97,7 @@ class ImageParser implements Parser {
 		radii = ShollUtils.getRadii(fStartRadius, fStep, fEndRadius);
 	}
 
-	protected double maxPossibleRadius() {
+	public double maxPossibleRadius() {
 		final double maxX = imp.getWidth() - 1 * cal.pixelWidth;
 		final double maxY = imp.getHeight() - 1 * cal.pixelHeight;
 		final double maxZ = imp.getNSlices() - 1 * cal.pixelDepth;
@@ -108,14 +118,19 @@ class ImageParser implements Parser {
 		return Math.sqrt(max);
 	}
 
-	protected void checkUnsetFields() {
-		if (center == null || radii == null || upperT == ImageProcessor.NO_THRESHOLD
-				|| lowerT == ImageProcessor.NO_THRESHOLD)
+	protected void checkUnsetFields(final boolean includeThreshold) {
+		if (center == null || radii == null)
 			throw new NullPointerException("Cannot proceed with undefined parameters");
+		if (includeThreshold && (upperT == ImageProcessor.NO_THRESHOLD || lowerT == ImageProcessor.NO_THRESHOLD))
+			throw new NullPointerException("Cannot proceed with undefined threshold levels");
+	}
+
+	protected void checkUnsetFields() {
+		checkUnsetFields(true);
 	}
 
 	public void setHemiShells(final String flag) {
-		checkUnsetFields();
+		checkUnsetFields(false);
 		final int maxRadius = (int) Math.round(radii.get(radii.size() - 1) / voxelSize);
 		minX = Math.max(xc - maxRadius, 0);
 		maxX = Math.min(xc + maxRadius, imp.getWidth() - 1);
@@ -186,6 +201,11 @@ class ImageParser implements Parser {
 	@Override
 	public boolean successful() {
 		return !profile.isEmpty();
+	}
+
+	@Override
+	public void terminate() {
+		running = false;
 	}
 
 }
