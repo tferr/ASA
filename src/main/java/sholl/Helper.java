@@ -10,6 +10,8 @@ import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.prefs.PrefService;
 import org.scijava.ui.DialogPrompt.MessageType;
+import org.scijava.ui.DialogPrompt.OptionType;
+import org.scijava.ui.DialogPrompt.Result;
 import org.scijava.ui.UIService;
 import org.scijava.util.VersionUtils;
 
@@ -39,10 +41,30 @@ public class Helper {
 		VERSION = VersionUtils.getVersion(sholl.Helper.class);
 	}
 
-	public void error(final String string) {
-		uiService.showDialog(string, "Sholl v" + VERSION, MessageType.ERROR_MESSAGE);
+	public Result errorPrompt(final String message, final String title) {
+		return uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION + " Error" : title,
+				MessageType.ERROR_MESSAGE, OptionType.DEFAULT_OPTION);
 	}
 
+	public void error(final String message, final String title) {
+		uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION + " Error" : title,
+				MessageType.ERROR_MESSAGE);
+	}
+
+	public void infoMsg(final String message, final String title) {
+		uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION + " Error" : title,
+				MessageType.INFORMATION_MESSAGE);
+	}
+
+	public Result yesNoPrompt(final String message, final String title) {
+		return uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION : title,
+				MessageType.QUESTION_MESSAGE, OptionType.YES_NO_OPTION);
+	}
+
+	public Result yesNoCancelPrompt(final String message, final String title) {
+		return uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION : title,
+				MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
+	}
 	public void log(final String string) {
 		logService.info("[Sholl] " + string);
 	}
