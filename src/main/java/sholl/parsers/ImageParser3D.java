@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.scijava.Context;
+import org.scijava.thread.ThreadService;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -21,110 +24,123 @@ public class ImageParser3D extends ImageParser {
 	private int progressCounter;
 	private boolean skipSingleVoxels;
 	private ImageStack stack;
+	private final int nCPUs;
+	private final ThreadService threadService;
+	private final AtomicInteger ai;
+	private int nSamples;
 
 	public ImageParser3D(final ImagePlus imp) {
-		super(imp);
+		this(imp, (Context) IJ.runPlugIn("org.scijava.Context", ""));
+	}
+
+	public ImageParser3D(final ImagePlus imp, final Context context) {
+		super(imp, context);
 		skipSingleVoxels = true;
 		setPosition(imp.getC(), imp.getT());
+		threadService = context.getService(ThreadService.class);
+		ai = new AtomicInteger(0);
+		nCPUs = Prefs.getThreads();
 	}
 
 	@Override
 	public Profile parse() {
+		checkUnsetFields();
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
 		start = System.currentTimeMillis();
-
-		final int nspheres = radii.size();
-		final UPoint c = new UPoint(xc, yc, zc, cal);
+		nSamples = radii.size();
 		stack = (imp.isComposite()) ? ChannelSplitter.getChannel(imp, channel) : imp.getStack();
 		vxW = cal.pixelWidth;
 		vxH = cal.pixelHeight;
 		vxD = cal.pixelDepth;
 
 		// Split processing across the number of available CPUs
-		final AtomicInteger ai = new AtomicInteger(0);
-		final int n_cpus = Prefs.getThreads();
-		final Thread[] threads = ThreadUtil.createThreadArray(n_cpus);
+		final Thread[] threads = new Thread[nCPUs];
 		setThreadedCounter(0);
-		final String statusMSg = "Sampling shell %d/%d (%d threads). Press 'Esc' to abort...";
 
 		for (int ithread = 0; ithread < threads.length; ithread++) {
-
-			final int chunkSize = (nspheres + n_cpus - 1) / n_cpus; // divide by
+			final int chunkSize = (nSamples + nCPUs - 1) / nCPUs; // divide by
 																	// threads
 																	// rounded
 																	// up.
 			final int start = ithread * chunkSize;
-			final int end = Math.min(start + chunkSize, nspheres);
-
-			threads[ithread] = new Thread() {
-
-				@Override
-				public void run() {
-					for (int k = ai.getAndIncrement(); k < n_cpus; k = ai.getAndIncrement()) {
-
-						for (int s = start; s < end; s++) {
-							final int counter = getThreadedCounter();
-							statusService.showStatus(counter, nspheres,
-									String.format(statusMSg, (counter + 1), nspheres, n_cpus));
-							setThreadedCounter(counter + 1);
-							if (IJ.escapePressed()) {
-								IJ.beep();
-								return;
-							}
-
-							// Initialize ArrayLists to hold surface points
-							final ArrayList<UPoint> pixelPoints = new ArrayList<>();
-
-							// Restrain analysis to the smallest volume for this
-							// sphere
-							final double r = radii.get(s);
-							final double upperR = r + voxelSize;
-							final double lowerR = r - voxelSize;
-
-							final int xr = (int) Math.round(r / vxW);
-							final int yr = (int) Math.round(r / vxH);
-							final int zr = (int) Math.round(r / vxD);
-							final int xmin = Math.max(xc - xr, minX);
-							final int ymin = Math.max(yc - yr, minY);
-							final int zmin = Math.max(zc - zr, minZ);
-							final int xmax = Math.min(xc + xr, maxX);
-							final int ymax = Math.min(yc + yr, maxY);
-							final int zmax = Math.min(zc + zr, maxZ);
-							for (int z = zmin; z <= zmax; z++) {
-								for (int y = ymin; y <= ymax; y++) {
-									for (int x = xmin; x <= xmax; x++) {
-										final UPoint p = new UPoint(x, y, z, cal);
-										final double dxSq = p.distanceSquared(c);
-										if (dxSq > lowerR * lowerR && dxSq < upperR * upperR) {
-											if (!withinThreshold(stack.getVoxel(x, y, z)))
-												continue;
-											if (skipSingleVoxels && !hasNeighbors(x, y, z))
-												continue;
-											pixelPoints.add(new UPoint(x, y, z, UPoint.NONE));
-										}
-									}
-								}
-							}
-
-							// We now have the the points intercepting the
-							// surface of this shell: Check if they are
-							// clustered and add them in world coordinates
-							// to profile
-							final HashSet<UPoint> points = getUnique3Dgroups(pixelPoints);
-							UPoint.scale(points, cal);
-							profile.add(new ProfileEntry(r, points));
-
-						}
-
-					}
-
-				}
-			};
+			final int end = Math.min(start + chunkSize, nSamples);
+			threads[ithread] = threadService.newThread(new ChunkParser(start, end));
 		}
 		ThreadUtil.startAndJoin(threads);
-		clearStatus();
 		return profile;
+
+	}
+
+	private class ChunkParser implements Runnable {
+
+		private final int start;
+		private final int end;
+
+		public ChunkParser(final int start, final int end) {
+			this.start = start;
+			this.end = end;
+		}
+
+		@Override
+		public void run() {
+
+			for (int k = ai.getAndIncrement(); k < nCPUs; k = ai.getAndIncrement()) {
+				for (int s = start; s < end; s++) {
+
+					final int counter = getThreadedCounter();
+					statusService.showProgress(counter, nSamples);
+					setThreadedCounter(counter + 1);
+
+					// Initialize ArrayLists to hold surface points
+					final ArrayList<UPoint> pixelPoints = new ArrayList<>();
+
+					// Restrain analysis to the smallest volume for this
+					// sphere
+					final double r = radii.get(s);
+					final double upperR = r + voxelSize;
+					final double lowerR = r - voxelSize;
+					final int xr = (int) Math.round(r / vxW);
+					final int yr = (int) Math.round(r / vxH);
+					final int zr = (int) Math.round(r / vxD);
+					final int xmin = Math.max(xc - xr, minX);
+					final int ymin = Math.max(yc - yr, minY);
+					final int zmin = Math.max(zc - zr, minZ);
+					final int xmax = Math.min(xc + xr, maxX);
+					final int ymax = Math.min(yc + yr, maxY);
+					final int zmax = Math.min(zc + zr, maxZ);
+
+					for (int z = zmin; z <= zmax; z++) {
+						for (int y = ymin; y <= ymax; y++) {
+							for (int x = xmin; x <= xmax; x++) {
+
+								if (!running)
+									return;
+								final UPoint p = new UPoint(x, y, z, cal);
+								final double dxSq = p.distanceSquared(center);
+								if (dxSq > lowerR * lowerR && dxSq < upperR * upperR) {
+									if (!withinThreshold(stack.getVoxel(x, y, z)))
+										continue;
+									if (skipSingleVoxels && !hasNeighbors(x, y, z))
+										continue;
+									pixelPoints.add(new UPoint(x, y, z, UPoint.NONE));
+								}
+
+							}
+						}
+					}
+
+					// We now have the the points intercepting the
+					// surface of this shell: Check if they are
+					// clustered and add them in world coordinates
+					// to profile
+					final HashSet<UPoint> points = getUnique3Dgroups(pixelPoints);
+					UPoint.scale(points, cal);
+					profile.add(new ProfileEntry(r, points));
+
+				}
+			}
+		}
 
 	}
 
