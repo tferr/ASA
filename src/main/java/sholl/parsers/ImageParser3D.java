@@ -14,7 +14,6 @@ import ij.ImageStack;
 import ij.Prefs;
 import ij.plugin.ChannelSplitter;
 import ij.util.ThreadUtil;
-import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.UPoint;
 
@@ -43,7 +42,7 @@ public class ImageParser3D extends ImageParser {
 	}
 
 	@Override
-	public Profile parse() {
+	public void parse() {
 		checkUnsetFields();
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
@@ -68,7 +67,6 @@ public class ImageParser3D extends ImageParser {
 			threads[ithread] = threadService.newThread(new ChunkParser(start, end));
 		}
 		ThreadUtil.startAndJoin(threads);
-		return profile;
 
 	}
 

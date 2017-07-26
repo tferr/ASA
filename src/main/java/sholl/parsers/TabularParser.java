@@ -93,7 +93,7 @@ public class TabularParser implements Parser {
 	}
 
 	@Override
-	public Profile parse() {
+	public void parse() {
 		profile = new Profile();
 		while (running) {
 			if (ij1table == null)
@@ -109,7 +109,7 @@ public class TabularParser implements Parser {
 			if (cal != null)
 				profile.setSpatialCalibration(cal);
 		}
-		return profile;
+
 	}
 
 	private int[] getFilteredRowRange(final int lastRow) {
@@ -175,6 +175,11 @@ public class TabularParser implements Parser {
 	@Override
 	public void terminate() {
 		running = false;
+	}
+
+	@Override
+	public Profile getProfile() {
+		return profile;
 	}
 
 }

@@ -207,7 +207,11 @@ public class ImageParser implements Parser {
 	}
 
 	@Override
-	public Profile parse() {
+	public void parse() {
+	}
+
+	@Override
+	public Profile getProfile() {
 		return profile;
 	}
 

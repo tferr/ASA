@@ -12,7 +12,6 @@ import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.TypeConverter;
-import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.UPoint;
 
@@ -92,7 +91,7 @@ public class ImageParser2D extends ImageParser {
 	}
 
 	@Override
-	public Profile parse() {
+	public void parse() {
 		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
 			setHemiShells(HEMI_NONE);
 		start = System.currentTimeMillis();
@@ -135,11 +134,6 @@ public class ImageParser2D extends ImageParser {
 				binsamples[s] = thisBinIntersPoints.size();
 				pointsList.addAll(thisBinIntersPoints);
 			}
-
-			if (IJ.escapePressed()) {
-				IJ.beep();
-				return profile;
-			}
 			statusService.showProgress(i++, size * nSpans);
 
 			// Statistically combine bin data
@@ -160,7 +154,6 @@ public class ImageParser2D extends ImageParser {
 		}
 
 		clearStatus();
-		return profile;
 	}
 
 	protected Set<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints) {
