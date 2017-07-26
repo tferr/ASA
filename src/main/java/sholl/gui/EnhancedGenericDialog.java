@@ -110,8 +110,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 	/** Allows users to visit the manuscript from a dialog prompt */
 	public void addCitationMessage() {
 		super.addMessage(citationMsg(), null, infoColor());
-		addClickableURLtoLabel(super.getMessage(), citationURL(),
-				infoColor());
+		addClickableURLtoLabel(super.getMessage(), citationURL(), infoColor());
 	}
 
 	@Override

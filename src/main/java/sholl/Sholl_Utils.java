@@ -47,7 +47,7 @@ import sholl.gui.ShollPlot;
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  * @author Tiago Ferreira
  */
-@Deprecated
+
 public class Sholl_Utils implements PlugIn {
 
 	private static final String BUILD = buildDate();

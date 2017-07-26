@@ -93,7 +93,6 @@ public class ImageParser implements Parser {
 		upperT = upper;
 	}
 
-	@Deprecated
 	public void setRadii(final double[] radiiArray) {
 		if (radiiArray == null) {
 			throw new NullPointerException("radii array cannot be null");
@@ -205,8 +204,7 @@ public class ImageParser implements Parser {
 	}
 
 	protected void clearStatus() {
-		//IJ.log(""+ (System.currentTimeMillis()-start));
-		String a = helper.getElapsedTime(start);
+		final String a = Helper.getElapsedTime(start);
 		statusService.showStatus(0, 0, "Finished. " + a);
 	}
 

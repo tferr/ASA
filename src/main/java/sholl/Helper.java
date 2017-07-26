@@ -79,6 +79,7 @@ public class Helper {
 		return uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION : title,
 				MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
 	}
+
 	public void log(final String string) {
 		logService.info("[Sholl] " + string);
 	}
@@ -128,6 +129,7 @@ public class Helper {
 		}
 		return module;
 	}
+
 	public StatusService getStatusService() {
 		return statusService;
 	}
