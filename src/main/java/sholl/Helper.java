@@ -1,12 +1,20 @@
 package sholl;
 
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import net.imagej.legacy.LegacyService;
 
 import org.scijava.Context;
 import org.scijava.app.StatusService;
+import org.scijava.command.Command;
+import org.scijava.command.CommandService;
 import org.scijava.log.LogService;
+import org.scijava.module.MethodCallException;
+import org.scijava.module.Module;
+import org.scijava.module.ModuleService;
 import org.scijava.plugin.Parameter;
 import org.scijava.prefs.PrefService;
 import org.scijava.ui.DialogPrompt.MessageType;
@@ -19,6 +27,12 @@ public class Helper {
 
 	@Parameter
 	private Context context;
+
+	@Parameter
+	private CommandService cmdService;
+
+	@Parameter
+	private ModuleService moduleService;
 
 	@Parameter
 	private LogService logService;
@@ -78,7 +92,7 @@ public class Helper {
 			log(String.join(" ", strings));
 	}
 
-	public String getElapsedTime(final long fromStart) {
+	public static String getElapsedTime(final long fromStart) {
 		final long time = System.currentTimeMillis() - fromStart;
 		if (time < 1000)
 			return String.format("%02d msec", time);
@@ -89,6 +103,31 @@ public class Helper {
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
 	}
 
+	protected <C extends Command> Module executeCommand(final Class<C> cmdClass, final Map<String, Object> inputs) {
+		final Module module = moduleService.createModule(cmdService.getCommand(cmdClass));
+		try {
+			module.initialize();
+		} catch (final MethodCallException ex) {
+			ex.printStackTrace();
+		}
+		if (inputs != null) {
+			inputs.forEach((k, v) -> {
+				module.setInput(k, v);
+				module.resolveInput(k);
+			});
+		}
+		cmdService.run(cmdClass, true, inputs);
+		module.run();
+		final Future<Module> run = moduleService.run(module, true, inputs);
+		try {
+			run.get();
+		} catch (final InterruptedException ex) {
+			ex.printStackTrace();
+		} catch (final ExecutionException ex) {
+			ex.printStackTrace();
+		}
+		return module;
+	}
 	public StatusService getStatusService() {
 		return statusService;
 	}

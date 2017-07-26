@@ -33,8 +33,6 @@ import org.scijava.convert.ConvertService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
 import org.scijava.log.LogService;
-import org.scijava.module.MethodCallException;
-import org.scijava.module.Module;
 import org.scijava.module.ModuleService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.options.OptionsService;
@@ -391,7 +389,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			// final Map<String, Object> map = new HashMap<>();
 			// map.put("imp1", imp);
 			// final Module executeCommand =
-			// executeCommand(DatasetChooser.class, map);
+			// helper.executeCommand(DatasetChooser.class, map);
 			// final Map<String, Object> mapIn = executeCommand.getInputs();
 			// helper.log(mapIn.toString());
 			// final Map<String, Object> mapOut = executeCommand.getOutputs();
@@ -425,32 +423,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			helper.log("Scope of analysis could not be changed");
 			exc.printStackTrace();
 		}
-	}
-
-	protected <C extends Command> Module executeCommand(final Class<C> type, final Map<String, Object> parameters) {
-		final Module module = moduleService.createModule(cmdService.getCommand(type));
-		try {
-			module.initialize();
-		} catch (final MethodCallException ex) {
-			ex.printStackTrace();
-		}
-		if (parameters != null) {
-			parameters.forEach((k, v) -> {
-				module.setInput(k, v);
-				module.resolveInput(k);
-			});
-		}
-		cmdService.run(type, true, parameters);
-		module.run();
-		final Future<Module> run = moduleService.run(module, true, parameters);
-		try {
-			run.get();
-		} catch (final InterruptedException ex) {
-			ex.printStackTrace();
-		} catch (final ExecutionException ex) {
-			ex.printStackTrace();
-		}
-		return module;
 	}
 
 	private void startAnalysisThread(final boolean skipImageParsing) {
