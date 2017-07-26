@@ -2714,7 +2714,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.drawLine(x1, y1, x2, y2);
 			plot.setLineWidth(1);
 
-			Sholl_Utils.markPlotPoint(plot, new double[] { 0, kIntercept }, color);
+			plot.markPoint(new UPoint(0, kIntercept), color);
 			if (plotLabels) {
 				final StringBuffer label = new StringBuffer();
 				label.append("R\u00B2= " + IJ.d2s(kRSquared, 3));
