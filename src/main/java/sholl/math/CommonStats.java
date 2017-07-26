@@ -44,8 +44,20 @@ class CommonStats implements ShollStats {
 	protected final Profile profile;
 
 	protected CommonStats(final Profile profile) {
-		if (profile == null || profile.size() == 0)
-			throw new IllegalArgumentException("Cannot instantiate analysis with a null or empty profile");
+		this(profile, false);
+	}
+
+	protected CommonStats(final Profile profile, final boolean trimZeroes) {
+
+		if (profile == null)
+			throw new IllegalArgumentException("Cannot instantiate analysis with a null profile");
+		// Remove all zeroes from input sample: this is required when e.g.,
+		// performing log transforms, since log(0) is undefined
+		if (trimZeroes)
+			profile.trimZeroCounts();
+		if (profile.isEmpty())
+			throw new IllegalArgumentException("Cannot instantiate analysis with an empty profile");
+
 		this.profile = profile;
 		nPoints = profile.size();
 		inputRadii = new double[nPoints];
