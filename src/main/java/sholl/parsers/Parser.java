@@ -30,4 +30,6 @@ public interface Parser extends ProfileProperties {
 
 	public Profile parse();
 
+	public void terminate();
+
 }
