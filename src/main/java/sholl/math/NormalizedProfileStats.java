@@ -300,4 +300,44 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 		return counts;
 	}
 
+	public static int getNormalizerFlag(final String string) {
+		switch (string.toLowerCase().trim()) {
+		case "area":
+			return AREA;
+		case "perimeter":
+			return PERIMETER;
+		case "annulus":
+			return ANNULUS;
+		case "volume":
+			return VOLUME;
+		case "surface":
+		case "surface area":
+			return SURFACE;
+		case "spheric shell":
+		case "spherical shell":
+			return S_SHELL;
+		default:
+			return -1;
+		}
+	}
+
+	public static int getMethodFlag(final String string) {
+		switch (string.toLowerCase().replace(" ", "").trim()) {
+		case "guess":
+		case "automaticallychoose":
+		case "determine":
+		case "calculate":
+			return GUESS_SLOG;
+		case "semi-log":
+		case "semi_log":
+		case "semilog":
+			return SEMI_LOG;
+		case "log-log":
+		case "log_log":
+		case "loglog":
+			return LOG_LOG;
+		default:
+			return -1;
+		}
+	}
 }
