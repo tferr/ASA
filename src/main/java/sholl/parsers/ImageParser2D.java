@@ -34,7 +34,7 @@ public class ImageParser2D extends ImageParser {
 	public final int MAX_N_SPANS = 10;
 
 	public ImageParser2D(final ImagePlus imp) {
-		this(imp, null);
+		this(imp, (Context) IJ.runPlugIn("org.scijava.Context", ""));
 	}
 
 	public ImageParser2D(final ImagePlus imp, final Context context) {
