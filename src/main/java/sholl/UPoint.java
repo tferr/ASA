@@ -175,7 +175,7 @@ public class UPoint {
 		return z / cal.pixelDepth + cal.zOrigin;
 	}
 
-	public void setFlag(int flag) {
+	public void setFlag(final int flag) {
 		this.flag = flag;
 	}
 
@@ -193,6 +193,10 @@ public class UPoint {
 
 	@Override
 	public String toString() {
-		return ShollUtils.d2s(x) + "," + ShollUtils.d2s(y) + "," + ShollUtils.d2s(z);
+		return ShollUtils.d2s(x) + ", " + ShollUtils.d2s(y) + ", " + ShollUtils.d2s(z);
+	}
+
+	public boolean equals(final UPoint point) {
+		return (this.x == point.x && this.y == point.y && this.z == point.z);
 	}
 }
