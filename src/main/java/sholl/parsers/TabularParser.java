@@ -47,6 +47,7 @@ public class TabularParser implements Parser {
 	private int endRow = -1;
 	private String tableName;
 	private final String radiiColumnHeader;
+	private volatile boolean running = true;
 
 	public TabularParser(final File table, final String radiiColumnHeader, final String countsColumnHeader)
 			throws IOException {
@@ -94,18 +95,20 @@ public class TabularParser implements Parser {
 	@Override
 	public Profile parse() {
 		profile = new Profile();
-		if (ij1table == null)
-			buildProfileFromIJ2Table();
-		else
-			buildProfileFromIJ1Table();
-		final Properties properties = new Properties();
-		if (tableName != null)
-			properties.setProperty(KEY_ID, tableName);
-		properties.setProperty(KEY_SOURCE, SRC_TABLE);
-		profile.setProperties(properties);
-		final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
-		if (cal != null)
-			profile.setSpatialCalibration(cal);
+		while (running) {
+			if (ij1table == null)
+				buildProfileFromIJ2Table();
+			else
+				buildProfileFromIJ1Table();
+			final Properties properties = new Properties();
+			if (tableName != null)
+				properties.setProperty(KEY_ID, tableName);
+			properties.setProperty(KEY_SOURCE, SRC_TABLE);
+			profile.setProperties(properties);
+			final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
+			if (cal != null)
+				profile.setSpatialCalibration(cal);
+		}
 		return profile;
 	}
 
@@ -157,16 +160,21 @@ public class TabularParser implements Parser {
 		return null;
 	}
 
-	@Override
-	public boolean successful() {
-		return profile != null && profile.size() > 0;
-	}
-
 	public void restrictToSubset(final int startRow, final int endRow) {
 		if (successful())
 			throw new RuntimeException("restrictToSubset() must be called before parsing data");
 		this.startRow = startRow;
 		this.endRow = endRow;
+	}
+
+	@Override
+	public boolean successful() {
+		return profile != null && profile.size() > 0;
+	}
+
+	@Override
+	public void terminate() {
+		running = false;
 	}
 
 }
