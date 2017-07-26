@@ -1,5 +1,6 @@
 package sholl;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -10,6 +11,8 @@ import java.util.stream.IntStream;
 
 import net.imagej.table.ResultsTable;
 import net.imagej.table.TableLoader;
+import net.imglib2.display.ColorTable8;
+
 import org.scijava.util.VersionUtils;
 
 import ij.ImagePlus;
@@ -69,6 +72,17 @@ public class ShollUtils {
 		return radii;
 
 	}
+
+	public static ColorTable8 constantLUT(final Color color) {
+		final byte[][] values = new byte[3][256];
+		for (int i = 0; i < 256; i++) {
+			values[0][i] = (byte) color.getRed();
+			values[1][i] = (byte) color.getGreen();
+			values[2][i] = (byte) color.getBlue();
+		}
+		return new ColorTable8(values);
+	}
+
 	/**
 	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
 	 *
