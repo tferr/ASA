@@ -88,6 +88,7 @@ import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
 import sholl.gui.ShollPlot;
+import sholl.parsers.ImageParser2D;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -469,7 +470,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (is3D) {
 				counts = analyze3D(x, y, z, radii, img);
 			} else {
-				counts = analyze2D(x, y, radii, vxSize, nSpans, binChoice, ip);
+				counts = analyze2D(x, y, radii, vxSize, nSpans, binChoice, img);
 			}
 
 		}
@@ -1933,104 +1934,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @see #setInteractiveMode(boolean)
 	 */
 	public double[] analyze2D(final int xc, final int yc, final double[] radii, final double pixelSize,
-			final int binsize, final int bintype, final ImageProcessor ip) {
+			final int binsize, final int bintype, final ImagePlus imp) {
 
-		int i, j, k, rbin, sum, size;
-		int[] binsamples, pixels;
-		int[][] points;
-		double[] data;
-
-		// Create an array to hold the results
-		data = new double[size = radii.length];
-
-		// Create array for bin samples. Passed value of binsize must be at
-		// least 1
-		binsamples = new int[binsize];
-
-		// Create Map to hold the intersection points
-		if (storeIntersPoints)
-			intersPoints = new HashMap<Double, HashSet<ShollPoint>>();
-
-		IJ.showStatus(
-				"Sampling " + size + " radii, " + binsize + " measurement(s) per radius. Press 'Esc' to abort...");
-
-		// Outer loop to control the analysis bins
-		for (i = 0; i < size; i++) {
-
-			// Retrieve the radius in pixel coordinates and set the largest
-			// radius of this bin span
-			rbin = (int) Math.round(radii[i] / pixelSize + binsize / 2);
-
-			// Inner loop to gather samples for each bin
-			for (j = 0; j < binsize; j++) {
-
-				// Get the circumference pixels for this radius
-				points = getCircumferencePoints(xc, yc, rbin--);
-				pixels = getPixels(ip, points);
-
-				// Count the number of intersections
-				final HashSet<ShollPoint> thisRadiusIntersPoints = targetGroupsPositions(pixels, points, ip);
-				binsamples[j] = thisRadiusIntersPoints.size();
-
-				// Store all intersection points
-				if (storeIntersPoints) {
-					intersPoints.put(radii[i], thisRadiusIntersPoints);
-				}
-
-			}
-
-			IJ.showProgress(i, size * binsize);
-			if (IJ.escapePressed()) {
-				IJ.beep();
-				return data;
-			}
-
-			// Statistically combine bin data
-			if (binsize > 1) {
-				if (bintype == BIN_MEDIAN) {
-
-					// Sort the bin data
-					Arrays.sort(binsamples);
-
-					// Pull out the median value: average the two middle values
-					// if no center exists otherwise pull out the center value
-					if (binsize % 2 == 0)
-						data[i] = (binsamples[binsize / 2] + binsamples[binsize / 2 - 1]) / 2.0;
-					else
-						data[i] = binsamples[binsize / 2];
-
-				} else if (bintype == BIN_AVERAGE) {
-
-					// Mean: Find the samples sum and divide by n. of samples
-					for (sum = 0, k = 0; k < binsize; k++)
-						sum += binsamples[k];
-					data[i] = ((double) sum) / ((double) binsize);
-
-				} else if (bintype == BIN_MODE) {
-
-					// Mode: Find the value that appears most often. The first
-					// sampled value is used if no mode exists
-					int mode = 0, maxCount = 0;
-					for (int ma = 0; ma < binsize; ma++) {
-						int tempCount = 0;
-						for (int mb = 0; mb < binsize; mb++)
-							if (binsamples[mb] == binsamples[ma])
-								tempCount++;
-						if (tempCount > maxCount) {
-							maxCount = tempCount;
-							mode = binsamples[ma];
-						}
-					}
-					data[i] = mode;
-
-				}
-
-			} else // There was only one sample
-				data[i] = binsamples[0];
-
-		}
-
-		return data;
+		ImageParser2D parser = new ImageParser2D(imp);
+		parser.setCenterPx(xc, yc);
+		parser.setThreshold(lowerT, upperT);
+		parser.setRadii(radii);
+		parser.setRadiiSpan(binsize, bintype);
+		parser.setHemiShells(quadString);
+		return parser.parse().countsAsArray();
 	}
 
 	/**
