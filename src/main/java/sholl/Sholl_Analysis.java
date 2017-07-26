@@ -64,7 +64,6 @@ import ij.gui.Line;
 import ij.gui.OvalRoi;
 import ij.gui.Overlay;
 import ij.gui.Plot;
-import ij.gui.PlotWindow;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
@@ -88,6 +87,7 @@ import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
+import sholl.gui.ShollPlot;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -503,7 +503,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean noPlots = options.getPlotOutput() == Options.NO_PLOTS;
 		final boolean onlyLinearPlot = options.getPlotOutput() == Options.ONLY_LINEAR_PLOT;
 		if (shollN) {
-			final Plot plotN;
+			final ShollPlot plotN;
 			if (noPlots) {
 				plotN = null;
 			} else {
@@ -514,7 +514,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (fitCurve)
 				fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
 			if (!noPlots) {
-				Sholl_Utils.markPlotPoint(plotN, centroid, Color.RED);
+				plotN.markPoint(new UPoint(centroid[0], centroid[1]), Color.RED);
 				savePlot(plotN, SHOLL_N);
 			}
 
@@ -537,7 +537,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final String distanceString = is3D ? "3D distance" : "2D distance";
 
 		if (shollNS) {
-			final Plot plotNS;
+			final ShollPlot plotNS;
 			if (noPlots || onlyLinearPlot) {
 				plotNS = null;
 			} else {
@@ -551,7 +551,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 		if (shollSLOG) {
-			final Plot plotSLOG;
+			final ShollPlot plotSLOG;
 			if (noPlots || onlyLinearPlot) {
 				plotSLOG = null;
 			} else {
@@ -565,7 +565,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 		if (shollLOG) {
-			final Plot plotLOG;
+			final ShollPlot plotLOG;
 			if (noPlots || onlyLinearPlot) {
 				plotLOG = null;
 			} else {
@@ -844,7 +844,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * fitted values or null if values.length is less than SMALLEST_DATASET
 	 */
 	private double[] getFittedProfile(final double[][] values, final int method, final ResultsTable rt,
-			final Plot plot) {
+			final ShollPlot plot) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
@@ -916,9 +916,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Plot fitted curve
 		if (plot != null) {
 			plot.setColor(Color.BLUE);
-			plot.setLineWidth(2);
-			plot.addPoints(x, fy, PlotWindow.LINE);
-			plot.setLineWidth(1);
+			plot.addPoints(x, fy, ShollPlot.THICK_LINE);
 		}
 
 		if (verbose) {
@@ -967,6 +965,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			// Highlight mean value on the plot
 			if (plot != null) {
+				// plot.drawHorizontalLine(mv, Color.LIGHT_GRAY);
 				plot.setLineWidth(1);
 				plot.setColor(Color.LIGHT_GRAY);
 				plot.drawLine(xRange[0], mv, xRange[1], mv);
@@ -999,7 +998,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		if (plot != null && plotLabels)
-			Sholl_Utils.makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
+			plot.drawLabel(plotLabel.toString(), Color.BLACK);
 
 		return fy;
 
@@ -2903,48 +2902,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Returns a plot with some axes customizations */
-	private Plot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
-
-		// Extract values
-		final int size = xy.length;
-		final double[] x0 = new double[size];
-		final double[] y0 = new double[size];
-		for (int i = 0; i < size; i++) {
-			x0[i] = xy[i][0];
-			y0[i] = xy[i][1];
-		}
-
-		// Create an empty plot
-		final double[] empty = null;
-		final int flags = Plot.X_FORCE2GRID + Plot.X_TICKS + Plot.X_NUMBERS + Plot.Y_FORCE2GRID + Plot.Y_TICKS
-				+ Plot.Y_NUMBERS;
-		final Plot plot = new Plot(title, xLabel, yLabel, empty, empty, flags);
-
-		// Set limits
-		final double[] xScale = Tools.getMinMax(x0);
-		final double[] yScale = Tools.getMinMax(y0);
-		setPlotLimits(plot, xScale, yScale);
-
-		// Add data (default color is black)
-		plot.setColor(Color.GRAY);
-		plot.addPoints(x0, y0, Plot.CROSS);
-
+	private ShollPlot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
+		final LinearProfileStats stats = new LinearProfileStats(new Profile(xy));
+		final ShollPlot plot = new ShollPlot(title, xLabel, yLabel, stats, true);
 		return plot;
-
-	}
-
-	/** Sets plot limits imposing grid lines */
-	private void setPlotLimits(final Plot plot, final double[] xScale, final double[] yScale) {
-
-		final boolean gridState = PlotWindow.noGridLines;
-		PlotWindow.noGridLines = false;
-		plot.setLimits(xScale[0], xScale[1], yScale[0], yScale[1]);
-		PlotWindow.noGridLines = gridState;
-
 	}
 
 	/** Calls plotRegression for both regressions as specified in Options */
-	private void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt, final String method) {
+	private void plotRegression(final double[][] values, final ShollPlot plot, final ResultsTable rt,
+			final String method) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
@@ -2962,7 +2928,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * Performs linear regression using the full range data or percentiles 10-90
 	 */
-	private void plotRegression(final double[] x, final double[] y, final boolean trim, final Plot plot,
+	private void plotRegression(final double[] x, final double[] y, final boolean trim, final ShollPlot plot,
 			final ResultsTable rt, final String method) {
 
 		final int size = x.length;
@@ -3026,7 +2992,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 				label.append("R\u00B2= " + IJ.d2s(kRSquared, 3));
 				label.append("\nk= " + IJ.d2s(k, -2));
 				label.append("\nIntercept= " + IJ.d2s(kIntercept, 2));
-				Sholl_Utils.makePlotLabel(plot, label.toString(), color);
+				plot.drawLabel(label.toString(), color);
 			}
 
 		}
