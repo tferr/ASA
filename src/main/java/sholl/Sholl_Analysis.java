@@ -232,7 +232,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus img;
 	private ImageProcessor ip;
 	private static int progressCounter;
-	private Map<Double, HashSet<ShollPoint>> intersPoints;
+	private Map<Double, HashSet<UPoint>> intersPoints;
 	private boolean storeIntersPoints = true;
 
 	/**
@@ -2059,8 +2059,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the positions of non-zero clusters (first coordinate of each
 	 *         cluster)
 	 */
-	public HashSet<ShollPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints,
-			final ImageProcessor ip) {
+	public HashSet<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 
 		int i, j;
 		int[][] points;
@@ -2103,7 +2102,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the collection of points
 	 * @see #countGroups
 	 */
-	public HashSet<ShollPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
+	public HashSet<UPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
 
 		int i, j, k, target, source, len, dx;
 
@@ -2159,9 +2158,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			// System.out.println("groups/positions after doSpikeSupression: " + groups + "/" + positions.size());
 		}
 
-		final HashSet<ShollPoint> sPoints = new HashSet<>();
+		final HashSet<UPoint> sPoints = new HashSet<>();
 		for (final Integer pos : positions)
-			sPoints.add(new ShollPoint(points[pos][0], points[pos][1]));
+			sPoints.add(new UPoint(points[pos][0], points[pos][1]));
 
 		return sPoints;
 	}
