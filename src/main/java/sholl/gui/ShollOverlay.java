@@ -308,7 +308,7 @@ public class ShollOverlay implements ProfileProperties {
 
 	public void setShellsLUT(final String lutName, final String property) throws IOException {
 		validateShells();
-		setLUT(points, property, lutName, shellsAlpha);
+		setLUT(shells, property, lutName, shellsAlpha);
 	}
 
 	public void setPointsLUT(final String lutName, final String property) throws IOException {
