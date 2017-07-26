@@ -87,6 +87,7 @@ import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
+import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
 import sholl.parsers.ImageParser2D;
 import sholl.parsers.ImageParser3D;
@@ -251,11 +252,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	public void run(final String arg) {
 
 		if (arg.equalsIgnoreCase("sample")) {
-			img = Sholl_Utils.displaySample();
+			img = ShollUtils.sampleImage();
 			if (img == null) {
 				sError("Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
 				return;
-			}
+			} else
+				img.show();
 		} else if (arg.equalsIgnoreCase("image")) {
 			interactiveMode = true;
 			img = WindowManager.getCurrentImage();
@@ -473,7 +475,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			} else {
 				counts = analyze2D(x, y, radii, vxSize, nSpans, binChoice, img);
 			}
-
 		}
 
 		IJ.showStatus("Preparing Results...");
@@ -710,7 +711,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		if (!is3D && overlayShells)
+		if (overlayShells)
 			overlayShells();
 
 		IJ.showProgress(0, 0);
@@ -1373,8 +1374,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// options common to bitmapPrompt() and csvPrompt()
 		final TextField ieprimaryBranches, ieimgPath;
 		final Choice iepolyChoice, ienormChoice;
-		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, ieoverlay, iesave,
-				iehideSaved;
+		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, iesave, iehideSaved;
 
 		// options specific to bitmapPrompt();
 		Choice iequadChoice = null, iebinChoice = null;
@@ -1527,9 +1527,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
 			overlayShells = gd.getNextBoolean();
-			storeIntersPoints = overlayShells;
-			ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
-			ieoverlay.setEnabled(!is3D);
+			// storeIntersPoints = overlayShells;
+			// ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
+			// ieoverlay.setEnabled(!is3D);
 
 		}
 
@@ -2099,96 +2099,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/**
-	 * Removes all ROIs stored the specified overlay that have been added by
-	 * {@link #overlayShells()}
-	 *
-	 * @param overlay
-	 *            the {@link ij.gui.Overlay Overlay} containing the sampling
-	 *            shells
-	 */
-	private void removeOverlayShells(final Overlay overlay) {
-		if (overlay != null && overlay.size() > 0) {
-			for (int i = overlay.size() - 1; i >= 0; i--) {
-				final String roiName = overlay.get(i).getName();
-				if (roiName != null && (roiName.equals("center") || roiName.contains("r=")))
-					overlay.remove(i);
-			}
-		}
-	}
-
-	/** Adds 2D sampling shells to the overlay of plugin's input image */
+	/** Adds Sholl ROIs to input image */
 	private void overlayShells() {
-
-		Overlay overlay = img.getOverlay();
-		boolean newOverlay = false;
-		if (overlay == null) {
-			overlay = new Overlay();
-			newOverlay = true;
-		} else
-			removeOverlayShells(overlay);
-
-		// Add center of analysis
-		overlay.add(new PointRoi(x, y), "center");
-
-		final Color rc = Roi.getColor();
-		final Color shellColor = new Color(rc.getRed(), rc.getGreen(), rc.getBlue(), 100);
-
-		for (final double r : radii) {
-
-			// Add Shells
-			final double rawR = r / vxSize;
-			final Roi shell;
-
-			// TODO: Some sort of meridian geodesics overlay for 3D shells?
-			// https://en.wikipedia.org/wiki/Geodesics_on_an_ellipsoid
-
-			if (orthoChord && trimBounds) { // 2D analysis using semicircle
-											// shells
-				final Arc2D.Double arc = new Arc2D.Double();
-				if (quadString.equals(QUAD_NORTH))
-					arc.setArcByCenter(x, y, rawR, 0, 180, Arc2D.OPEN);
-				else if (quadString.equals(QUAD_SOUTH))
-					arc.setArcByCenter(x, y, rawR, -180, 180, Arc2D.OPEN);
-				else if (quadString.equals(QUAD_WEST))
-					arc.setArcByCenter(x, y, rawR, 90, -180, Arc2D.OPEN);
-				else if (quadString.equals(QUAD_EAST))
-					arc.setArcByCenter(x, y, rawR, -90, -180, Arc2D.OPEN);
-				else
-					throw new IllegalArgumentException("Invalid restriction choice: " + quadString);
-				shell = new ShapeRoi(arc);
-			} else { // 2D analysis using circular shells
-				shell = new OvalRoi(x - rawR, y - rawR, 2 * rawR, 2 * rawR);
-			}
-			// shell.setStrokeColor(Color.CYAN);
-			if (nSpans > 1)
-				shell.setStrokeWidth(nSpans);
-			shell.setStrokeColor(shellColor);
-			overlay.add(shell, "Shell r=" + IJ.d2s(r, 2));
-
-			// Add intersection points
-			if (storeIntersPoints && intersPoints != null) {
-				final HashSet<ShollPoint> iPoints = intersPoints.get(r);
-				if (iPoints == null || iPoints.isEmpty())
-					continue;
-				PointRoi intersRois = null;
-				for (final ShollPoint point : iPoints) {
-					if (intersRois == null)
-						intersRois = new PointRoi(point.x, point.y);
-					intersRois.addPoint(point.x, point.y);
-				}
-				if (intersRois != null) {
-					intersRois.setPointType(2);
-					overlay.add(intersRois, "IntersPoints r=" + IJ.d2s(r, 2));
-				}
-			}
-
-		}
-
-		if (newOverlay)
-			img.setOverlay(overlay);
-		else
-			img.draw();
+		final ShollOverlay so = new ShollOverlay(getProfile(), img, true);
+		so.addCenter();
+		if (!is3D)
+			so.setShellsColor(Roi.getColor());
+		so.setPointsColor(Roi.getColor());
+		img.setOverlay(so.getOverlay());
 	}
 
 	/**
