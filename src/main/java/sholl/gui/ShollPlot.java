@@ -381,7 +381,12 @@ public class ShollPlot extends Plot {
 
 		final Rectangle r = getDrawingFrame();
 		final int padding = 4; // space between label and axes
-		final int yTop = r.y + 1 + padding;
+		final int yTop = r.y + 1 + padding + metrics.getHeight(); // FIXME:
+																	// Since
+																	// 1.51n
+																	// top-padding
+																	// is offset
+																	// by 1line
 		final int yBottom = r.y + r.height - textHeight - padding;
 		final int xLeft = r.x + 1 + padding;
 		final int xRight = r.x + r.width - textWidth - padding;

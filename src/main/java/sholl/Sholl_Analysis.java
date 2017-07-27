@@ -958,12 +958,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			mv = (1 / (xRange[1] - xRange[0])) * mv;
 
 			// Highlight mean value on the plot
-			if (plot != null) {
-				// plot.drawHorizontalLine(mv, Color.LIGHT_GRAY);
-				plot.setLineWidth(1);
-				plot.setColor(Color.LIGHT_GRAY);
-				plot.drawLine(xRange[0], mv, xRange[1], mv);
-			}
+			// if (plot != null) {
+			// // plot.drawHorizontalLine(mv, Color.LIGHT_GRAY);
+			// plot.setLineWidth(1);
+			// plot.setColor(Color.LIGHT_GRAY);
+			// plot.drawLine(xRange[0], mv, xRange[1], mv);
+			// }
 
 			// Calculate the "fitted" ramification index
 			if (inferPrimary)
@@ -991,8 +991,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		if (plot != null && plotLabels)
+		if (plot != null && plotLabels) {
 			plot.drawLabel(plotLabel.toString(), Color.BLACK);
+			// remove legend to mimic previous versions
+			plot.setLegend("Sampled Data\nPoyn. fit", 0);
+		}
 
 		return fy;
 
