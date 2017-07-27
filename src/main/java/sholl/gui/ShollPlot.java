@@ -36,7 +36,7 @@ public class ShollPlot extends Plot {
 	/** Flag for plotting points with a thicker solid line */
 	public static final int THICK_LINE = -1;
 
-	private final static int DEFAULT_FLAGS = X_FORCE2GRID + X_TICKS + X_NUMBERS + Y_FORCE2GRID + Y_TICKS + Y_NUMBERS;
+	private final static int DEF_FLAGS = X_FORCE2GRID + X_TICKS + X_NUMBERS + Y_FORCE2GRID + Y_TICKS + Y_NUMBERS;
 	private final static double[] DUMMY_VALUES = null;
 
 	private boolean annotate;
@@ -75,7 +75,7 @@ public class ShollPlot extends Plot {
 
 		// initialize empty plot, so that sampled data can be plotted with a
 		// custom shape, otherwise the default Plot.Line would be used
-		super(title, xLabel, yLabel, DUMMY_VALUES, DUMMY_VALUES, DEFAULT_FLAGS);
+		super(title, xLabel, yLabel, DUMMY_VALUES, DUMMY_VALUES, DEF_FLAGS);
 		this.stats = stats;
 		if (stats == null)
 			throw new NullPointerException("Stats instance cannot be null");

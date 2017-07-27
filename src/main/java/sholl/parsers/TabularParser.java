@@ -74,6 +74,8 @@ public class TabularParser implements Parser {
 			throw new IllegalArgumentException(
 					"Specified headings do not match existing ones: " + table.getColumnHeadings());
 		this.radiiColumnHeader = radiiColumnHeader;
+		this.startRow = startRow;
+		this.endRow = endRow;
 	}
 
 	/**
@@ -147,7 +149,7 @@ public class TabularParser implements Parser {
 		if (colHeading == null)
 			return null;
 		final String[] tokens = colHeading.toLowerCase().split("\\W");
-		final String[] knownUnits = new String("\u00B5 um micron mm cm pixels").split(" ");
+		final String[] knownUnits = "\u00B5 um micron mm cm pixels".split(" ");
 		for (final String token : tokens) {
 			for (final String unit : knownUnits) {
 				if (token.contains(unit)) {
@@ -160,11 +162,11 @@ public class TabularParser implements Parser {
 		return null;
 	}
 
-	public void restrictToSubset(final int startRow, final int endRow) {
+	public void restrictToSubset(final int firstRow, final int lastRow) {
 		if (successful())
 			throw new RuntimeException("restrictToSubset() must be called before parsing data");
-		this.startRow = startRow;
-		this.endRow = endRow;
+		this.startRow = firstRow;
+		this.endRow = lastRow;
 	}
 
 	@Override
