@@ -34,7 +34,8 @@ public class DatasetChooser implements Command { // extends ModuleCommand
 	}
 
 	public static void main(final String... args) throws InstantiableException, MethodCallException {
-		final ImageJ ij = net.imagej.Main.launch(args);
+		final ImageJ ij = new ImageJ();
+		ij.ui().showUI();
 		ij.command().run(DatasetChooser.class, true);
 	}
 

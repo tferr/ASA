@@ -978,7 +978,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	public static void main(final String... args) {
-		final ImageJ ij = net.imagej.Main.launch(args);
+		final ImageJ ij = new ImageJ();
+		ij.ui().showUI();
 		ij.command().run(ShollAnalysis.class, true);
 	}
 }
