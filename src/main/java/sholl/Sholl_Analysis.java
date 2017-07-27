@@ -1455,7 +1455,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (orthoChord) {
 				trimBounds = gd.getNextBoolean();
 				quadChoice = gd.getNextChoiceIndex();
-				quadString = quads[quadChoice];
+				quadString = (trimBounds) ? quads[quadChoice] : "None";
 				checkboxCounter++;
 				// final Checkbox ietrimBounds =
 				// (Checkbox)checkboxes.elementAt(checkboxCounter++);
