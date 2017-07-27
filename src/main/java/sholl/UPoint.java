@@ -205,4 +205,9 @@ public class UPoint {
 		final UPoint point = (UPoint) object;
 		return (this.x == point.x && this.y == point.y && this.z == point.z);
 	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 }
