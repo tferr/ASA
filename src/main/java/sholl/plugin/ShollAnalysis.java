@@ -806,7 +806,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		} else if (primaryBranchesChoice.contains("multipoint") && imp != null) {
 			final Roi roi = imp.getRoi();
 			if (roi == null || roi.getType() != Roi.POINT) {
-				helper.error("No Multipoint ROI Exists", "Please set a multipoint selection marking primary branches.");
+				helper.error("Please activate a multipoint ROI marking primary branches.", "No Multipoint ROI Exists");
 				primaryBranchesChoice = "Infer from starting radius";
 				primaryBranches = -1;
 				return;
