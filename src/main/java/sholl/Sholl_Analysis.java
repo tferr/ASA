@@ -238,6 +238,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static int progressCounter;
 	private Map<Double, HashSet<UPoint>> intersPoints;
 	private boolean storeIntersPoints = true;
+	private Profile profile;
 
 	/**
 	 * This method is called when the plugin is loaded. {@code arg} is specified
@@ -1718,14 +1719,28 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return intersection counts (the linear profile of sampled data)
 	 * @see #setInteractiveMode(boolean)
 	 */
+	@Deprecated
 	public synchronized double[] analyze3D(final int xc, final int yc, final int zc, final double[] radii,
 			final ImagePlus img) {
-		ImageParser3D parser = new ImageParser3D(img);
+		IJ.showStatus(
+				"Analyzing image (" + radii.length + "shells/" + Prefs.THREADS + "threads). Press \"Esc\" to abort...");
+		assembleProfile(xc, yc, zc, radii, 0, 0, skipSingleVoxels, img);
+		return getProfile().countsAsArray();
+	}
+
+	private synchronized void assembleProfile(final int xc, final int yc, final int zc, final double[] radii,
+			final int nSpans, final int binChoice, final boolean skipSingleVoxels, final ImagePlus img) {
+		final ImageParser parser = (is3D) ? new ImageParser3D(img) : new ImageParser2D(img);
 		parser.setCenterPx(xc, yc, zc);
+		parser.setRadii(radii);
+		if (is3D)
+			((ImageParser3D) parser).setSkipSingleVoxels(skipSingleVoxels);
+		else
+			((ImageParser2D) parser).setRadiiSpan(nSpans, binChoice);
 		parser.setThreshold(lowerT, upperT);
 		parser.setHemiShells(quadString);
-		parser.setRadii(radii);
-		return parser.parse().countsAsArray();
+		final ParserRunner runner = new ParserRunner(parser);
+		runner.run();
 	}
 
 	/**
@@ -1751,16 +1766,44 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return intersection counts (the linear profile of sampled data)
 	 * @see #setInteractiveMode(boolean)
 	 */
+	@Deprecated
 	public double[] analyze2D(final int xc, final int yc, final double[] radii, final double pixelSize,
 			final int binsize, final int bintype, final ImagePlus imp) {
+		IJ.showStatus("Analyzing image (" + radii.length + "shells). Press \"Esc\" to abort...");
+		assembleProfile(xc, yc, 1, radii, binsize, bintype, false, img);
+		return getProfile().countsAsArray();
+	}
 
-		ImageParser2D parser = new ImageParser2D(imp);
-		parser.setCenterPx(xc, yc);
-		parser.setThreshold(lowerT, upperT);
-		parser.setRadii(radii);
-		parser.setRadiiSpan(binsize, bintype);
-		parser.setHemiShells(quadString);
-		return parser.parse().countsAsArray();
+	private Profile getProfile() {
+		return profile;
+	}
+
+	private void setProfile(final Profile profile) {
+		this.profile = profile;
+	}
+
+	/** Private classes **/
+	class ParserRunner implements Runnable {
+
+		private final ImageParser parser;
+
+		public ParserRunner(final ImageParser parser) {
+			this.parser = parser;
+		}
+
+		@Override
+		public void run() {
+			parser.parse();
+			if (IJ.escapePressed()) {
+				IJ.showStatus("Canceling Parsing...");
+				parser.terminate();
+			}
+			if (!parser.successful()) {
+				IJ.showStatus("No valid profile retrieved.");
+				return;
+			}
+			setProfile(parser.getProfile());
+		}
 	}
 
 	/**
