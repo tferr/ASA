@@ -235,9 +235,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private double[] counts;
 	private ImagePlus img;
 	private ImageProcessor ip;
-	private static int progressCounter;
-	private Map<Double, HashSet<UPoint>> intersPoints;
-	private boolean storeIntersPoints = true;
+	// private Map<Double, HashSet<UPoint>> intersPoints;
+	// private boolean storeIntersPoints = true;
 	private Profile profile;
 
 	/**
@@ -1806,9 +1805,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 	}
 
-	/**
-	 * @deprecated use targetGroupsPositions(points, ip).size()
-	 */
 	@Deprecated
 	public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 		return targetGroupsPositions(pixels, rawpoints, ip).size();
@@ -1832,6 +1828,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the positions of non-zero clusters (first coordinate of each
 	 *         cluster)
 	 */
+	@Deprecated
 	public HashSet<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 
 		int i, j;
@@ -1875,6 +1872,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the collection of points
 	 * @see #countGroups
 	 */
+	@Deprecated
 	public HashSet<UPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
 
 		int i, j, k, target, source, len, dx;
@@ -1925,10 +1923,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// System.out.println("i=" + i);
-		// System.out.println("groups/positions before doSpikeSupression: " + groups + "/" + positions.size());
+		// System.out.println("groups/positions before doSpikeSupression: " +
+		// groups + "/" + positions.size());
 		if (doSpikeSupression) {
 			removeSinglePixels(points, len, grouping, ip, positions);
-			// System.out.println("groups/positions after doSpikeSupression: " + groups + "/" + positions.size());
+			// System.out.println("groups/positions after doSpikeSupression: " +
+			// groups + "/" + positions.size());
 		}
 
 		final HashSet<UPoint> sPoints = new HashSet<>();
@@ -1942,6 +1942,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Removes positions from 1-pixel groups that exist solely on the edge of a
 	 * "stair" of target pixels
 	 */
+	@Deprecated
 	private void removeSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
 			final ImageProcessor ip, final HashSet<Integer> positions) {
 
@@ -2013,6 +2014,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the x,y pixel positions
 	 * @return the masked pixel arrays
 	 */
+	@Deprecated
 	public int[] getPixels(final ImageProcessor ip, final int[][] points) {
 
 		int value;
@@ -2047,6 +2049,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the circumference radius
 	 * @return the circumference points
 	 */
+	@Deprecated
 	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
 
 		// Initialize algorithm variables
@@ -2368,7 +2371,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					public void run() {
 						if (Recorder.record)
 							Recorder.setCommand(Options.COMMAND_LABEL);
-						//IJ.runPlugIn(Options.class.getName(), analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
+						// IJ.runPlugIn(Options.class.getName(), analyzingImage
+						// ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
 						options.run(analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
 						if (Recorder.record)
 							Recorder.saveCommand();
@@ -2404,7 +2408,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				gd.disposeWithouRecording();
-				IJ.runPlugIn("tracing.ShollAnalysisPlugin","");//FIXME will break if ShollAnalysisPlugin changes path
+				IJ.runPlugIn("tracing.ShollAnalysisPlugin", "");// FIXME will
+																// break if
+																// ShollAnalysisPlugin
+																// changes path
 			}
 		});
 		mi.setEnabled(!analyzingTraces);
@@ -2990,14 +2997,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	private int getThreadedCounter() {
-		return progressCounter;
-	}
-
-	private void setThreadedCounter(final int updatedCounter) {
-		progressCounter = updatedCounter;
-	}
-
 	/**
 	 * Instructs the plugin to parse the specified table expected to contain a
 	 * sampled profile. Does nothing if the specified table does not contain the
@@ -3062,8 +3061,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			runInTabularMode(false);
 			csvRT = null;
 		} else {
-			sError("Profile could not be parsed or it does not contain enough data points.\n"
-					+ "N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
+			sError("Profile could not be parsed or it does not contain enough data points.\n" + "N.B.: At least "
+					+ (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 		}
 		setIsTableRequired(true);
 	}
