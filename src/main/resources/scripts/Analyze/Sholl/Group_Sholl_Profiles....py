@@ -94,6 +94,7 @@ def main():
     reference_xheader, reference_yheader = "", ""
     xvalues, all_ydata = [], []
     first_valid_idx = 0
+    last_row = -1
 
     for f_idx, f in enumerate(files):
 
@@ -136,8 +137,9 @@ def main():
 
             for row_idx, row in enumerate(incsv):
                 all_ydata.append((filename, row_idx, tofloat(row[ycolumn_idx])))
-                if (f_idx == first_valid_idx):
+                if row_idx > last_row:
                     xvalues.append(tofloat(row[xcolumn_idx]))
+                    last_row = row_idx
 
     if not all_ydata:
         error("%s files were parsed but no valid data existed.\nPlease revise"\
@@ -182,5 +184,4 @@ def main():
 
 
 
-if __name__ == '__main__':
-    main()
+main()
