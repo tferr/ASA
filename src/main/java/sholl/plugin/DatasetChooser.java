@@ -2,9 +2,7 @@ package sholl.plugin;
 
 import net.imagej.ImageJ;
 
-import org.scijava.InstantiableException;
 import org.scijava.command.Command;
-import org.scijava.module.MethodCallException;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
@@ -33,7 +31,7 @@ public class DatasetChooser implements Command { // extends ModuleCommand
 		// resolveInput("imp2");
 	}
 
-	public static void main(final String... args) throws InstantiableException, MethodCallException {
+	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.ui().showUI();
 		ij.command().run(DatasetChooser.class, true);

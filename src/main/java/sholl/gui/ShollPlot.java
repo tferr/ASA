@@ -335,7 +335,6 @@ public class ShollPlot extends Plot {
 	 *            the point to be drawn (defined in calibrated coordinates)
 	 * @param color
 	 *            the drawing color. This will not affect consequent objects
-	 * @see {@link #markPoint(UPoint, int, int)}
 	 */
 	public void markPoint(final UPoint point, final Color color) {
 		setColor(color);
@@ -349,8 +348,6 @@ public class ShollPlot extends Plot {
 	 * Text is added to the first free position in this sequence: NE, NW, SE,
 	 * SW.
 	 *
-	 * @param plot
-	 *            Plot object
 	 * @param label
 	 *            Label contents
 	 * @param color

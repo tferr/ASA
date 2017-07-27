@@ -345,7 +345,7 @@ public class ShollOverlay implements ProfileProperties {
 	}
 
 	private void setLUT(final ArrayList<Roi> rois, final String property, final ColorTable ct, final int alpha)
-			throws IllegalArgumentException, IOException {
+			throws IllegalArgumentException {
 		String fProperty = COUNT;
 		if (property != null && property.toLowerCase().startsWith("radi")) // radi[i|us]
 			fProperty = RADIUS;
