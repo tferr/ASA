@@ -22,34 +22,23 @@
 package sholl;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Frame;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.IndexColorModel;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import org.scijava.util.VersionUtils;
 
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.HTMLDialog;
 import ij.gui.Plot;
-import ij.gui.PlotWindow;
-import ij.io.Opener;
-import ij.measure.Measurements;
 import ij.plugin.PlugIn;
-import ij.process.ImageProcessor;
-import ij.process.ImageStatistics;
 import ij.text.TextWindow;
-import ij.util.Tools;
+import sholl.gui.ShollPlot;
 
 /**
  * Utilities for {@link Sholl_Analysis}
@@ -58,6 +47,7 @@ import ij.util.Tools;
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  * @author Tiago Ferreira
  */
+
 public class Sholl_Utils implements PlugIn {
 
 	private static final String BUILD = buildDate();
@@ -85,20 +75,15 @@ public class Sholl_Utils implements PlugIn {
 	 * Returns the plugin's sample image (File&gt;Samples&gt;ddaC Neuron).
 	 *
 	 * @return ddaC image, or null if image cannot be retrieved
+	 * @deprecated Use {@link ShollUtils#sampleImage()} instead
 	 */
 	public static ImagePlus sampleImage() {
-		final InputStream is = Sholl_Utils.class.getResourceAsStream("/images/ddaC.tif");
-		ImagePlus imp = null;
-		if (is != null) {
-			final Opener opener = new Opener();
-			imp = opener.openTiff(is, "Drosophila_ddaC_Neuron.tif");
-		}
-		return imp;
+		return ShollUtils.sampleImage();
 	}
 
 	/** Displays the ddaC sample image and returns a reference to it */
 	protected static ImagePlus displaySample() {
-		final ImagePlus imp = sampleImage();
+		final ImagePlus imp = ShollUtils.sampleImage();
 		if (imp == null) {
 			IJ.showStatus("Error: Could not open ddaC.tif!");
 			IJ.beep();
@@ -246,108 +231,14 @@ public class Sholl_Utils implements PlugIn {
 
 	}
 
-	/**
-	 * Draws a label at the less crowded corner of an ImageJ plot. Height and
-	 * width of label is measured so that text remains within the plot's frame.
-	 * Text is added to the first free position in this sequence: NE, NW, SE,
-	 * SW.
-	 *
-	 * @param plot
-	 *            Plot object
-	 * @param label
-	 *            Label contents
-	 * @param color
-	 *            Foreground color of text. Note that this will also set the
-	 *            drawing color for the next objects to be be added to the plot
-	 */
+	@Deprecated
 	public static void makePlotLabel(final Plot plot, final String label, final Color color) {
-
-		final ImageProcessor ip = plot.getProcessor();
-
-		int maxLength = 0;
-		String maxLine = "";
-		final String[] lines = Tools.split(label, "\n");
-		for (int i = 0; i < lines.length; i++) {
-			final int length = lines[i].length();
-			if (length > maxLength) {
-				maxLength = length;
-				maxLine = lines[i];
-			}
-		}
-
-		final Font font = new Font("Helvetica", Font.PLAIN, PlotWindow.fontSize);
-		ip.setFont(font);
-		plot.setFont(font);
-		final FontMetrics metrics = ip.getFontMetrics();
-		final int textWidth = metrics.stringWidth(maxLine);
-		final int textHeight = metrics.getHeight() * lines.length;
-
-		final Rectangle r = plot.getDrawingFrame();
-		final int padding = 4; // space between label and axes
-		final int yTop = r.y + 1 + padding;
-		final int yBottom = r.y + r.height - textHeight - padding;
-		final int xLeft = r.x + 1 + padding;
-		final int xRight = r.x + r.width - textWidth - padding;
-
-		final double northEast = meanRoiValue(ip, xLeft, yTop, textWidth, textHeight);
-		final double northWest = meanRoiValue(ip, xRight, yTop, textWidth, textHeight);
-		final double southEast = meanRoiValue(ip, xLeft, yBottom, textWidth, textHeight);
-		final double southWest = meanRoiValue(ip, xRight, yBottom, textWidth, textHeight);
-		final double pos = Math.max(Math.max(northEast, northWest), Math.max(southEast, southWest));
-
-		ip.setColor(0);
-		plot.setColor(color);
-		// We'll draw the text so that multiple labels can be added without
-		// overlap
-		if (pos == northEast) {
-			ip.drawString(label, xLeft, yTop);
-			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yTop));
-		} else if (pos == northWest) {
-			ip.drawString(label, xRight, yTop);
-			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yTop));
-		} else if (pos == southEast) {
-			ip.drawString(label, xLeft, yBottom);
-			plot.addText(label, plot.descaleX(xLeft), plot.descaleY(yBottom));
-		} else {
-			ip.drawString(label, xRight, yBottom);
-			plot.addText(label, plot.descaleX(xRight), plot.descaleY(yBottom));
-		}
-
+		((ShollPlot) plot).drawLabel(label, color);
 	}
 
-	/** Returns the mean value of a rectangular ROI */
-	private static double meanRoiValue(final ImageProcessor ip, final int x, final int y, final int width,
-			final int height) {
-
-		ip.setRoi(x, y, width, height);
-		return ImageStatistics.getStatistics(ip, Measurements.MEAN, null).mean;
-
-	}
-
-	/**
-	 * Highlights a point on a plot without listing it on the Plot's table. Does
-	 * nothing if the point coordinates are <code>null</code>.
-	 *
-	 * @param plot
-	 *            Plot object
-	 * @param coordinates
-	 *            The coordinates of the point in calibrated (axes) coordinates
-	 * @param color
-	 *            Sets the drawing color. This will not affect the drawing color
-	 *            for the next objects to be be added to the plot
-	 */
+	@Deprecated
 	public static void markPlotPoint(final Plot plot, final double[] coordinates, final Color color) {
-
-		if (coordinates == null)
-			return;
-		plot.setLineWidth(6); // default markSize: 5;
-		plot.setColor(color);
-		plot.drawLine(coordinates[0], coordinates[1], coordinates[0], coordinates[1]);
-
-		// restore defaults
-		plot.setLineWidth(1);
-		plot.setColor(Color.BLACK);
-
+		((ShollPlot) plot).markPoint(new UPoint(coordinates[0], coordinates[1]), color);
 	}
 
 	/**
@@ -380,11 +271,11 @@ public class Sholl_Utils implements PlugIn {
 	 *
 	 * @return the version or a non-empty place holder string if version could
 	 *         not be retrieved.
+	 * @deprecated Use {@link ShollUtils#version()} instead
 	 *
 	 */
 	public static String version() {
-		final String VERSION = VersionUtils.getVersion(Sholl_Analysis.class);
-		return (VERSION == null) ? "X Dev" : VERSION;
+		return ShollUtils.version();
 	}
 
 	/**

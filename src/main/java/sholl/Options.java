@@ -54,7 +54,6 @@ import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
 import sholl.gui.EnhancedGenericDialog;
-import sholl.gui.Utils;
 
 /**
  * This class implements the "Sholl Options and Metrics" command.
@@ -145,12 +144,12 @@ public class Options implements PlugIn {
 	private final static int DEFAULT_PLOT_OUTPUT = ALL_PLOTS;
 
 	private final static int UNSET_PREFS = -1;
-	private static int currentMetrics = UNSET_PREFS;
-	private static int currentBooleanPrefs = UNSET_PREFS;
-	private static int maskBackground = UNSET_PREFS;
-	private static int maskType = UNSET_PREFS;
-	private static int plotOutputType = UNSET_PREFS;
-	private static String commentString = null;
+	private int currentMetrics = UNSET_PREFS;
+	private int currentBooleanPrefs = UNSET_PREFS;
+	private int maskBackground = UNSET_PREFS;
+	private int maskType = UNSET_PREFS;
+	private int plotOutputType = UNSET_PREFS;
+	private String commentString = null;
 
 	private boolean skipBitmapOptions;
 	protected boolean instanceAttatchedToPlugin;
@@ -552,7 +551,7 @@ public class Options implements PlugIn {
 		});
 		popup.add(mi);
 		popup.addSeparator();
-		mi = Utils.menuItemTrigerringURL("Help on Sholl Metrics", Sholl_Analysis.URL + "#Metrics");
+		mi = EnhancedGenericDialog.menuItemTrigerringURL("Help on Sholl Metrics", Sholl_Analysis.URL + "#Metrics");
 		popup.add(mi);
 		return popup;
 	}
@@ -580,7 +579,7 @@ public class Options implements PlugIn {
 	 *            default)
 	 */
 	@Deprecated
-	public static void setNoPlots(final boolean noPlots) {
+	public void setNoPlots(final boolean noPlots) {
 		currentMetrics = getSMetrics();
 		if (noPlots)
 			currentMetrics |= NO_PLOTS;
@@ -615,7 +614,7 @@ public class Options implements PlugIn {
 	 * @see #setNoPlots(boolean)
 	 */
 	@Deprecated
-	public static void setNoTable(final boolean noTable) {
+	public void setNoTable(final boolean noTable) {
 		currentMetrics = getSMetrics();
 		if (noTable)
 			currentMetrics |= NO_TABLE;

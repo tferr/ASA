@@ -19,12 +19,20 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-/**
- * Implements GUI customizations required by the Sholl Analysis plugin.
- *
- * @author Tiago Ferreira
- *
- * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
- * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
- */
-package sholl.gui;
+package sholl.parsers;
+
+import sholl.Profile;
+import sholl.ProfileProperties;
+
+public interface Parser extends ProfileProperties {
+
+	public boolean successful();
+
+	public void parse();
+
+	public void terminate();
+
+	public Profile getProfile();
+
+
+}

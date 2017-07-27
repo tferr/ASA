@@ -33,47 +33,36 @@ import java.awt.Rectangle;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Arc2D;
 import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import ij.IJ;
 import ij.ImagePlus;
-import ij.ImageStack;
 import ij.Prefs;
 import ij.WindowManager;
 import ij.gui.DialogListener;
 import ij.gui.GenericDialog;
 import ij.gui.HTMLDialog;
 import ij.gui.Line;
-import ij.gui.OvalRoi;
-import ij.gui.Overlay;
 import ij.gui.Plot;
-import ij.gui.PlotWindow;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
-import ij.gui.ShapeRoi;
 import ij.gui.Toolbar;
 import ij.io.OpenDialog;
 import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.measure.ResultsTable;
-import ij.plugin.ChannelSplitter;
 import ij.plugin.PlugIn;
 import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
@@ -83,12 +72,16 @@ import ij.process.LUT;
 import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
-import ij.util.ThreadUtil;
 import ij.util.Tools;
 import sholl.gui.EnhancedGenericDialog;
 import sholl.gui.EnhancedResultsTable;
 import sholl.gui.EnhancedWaitForUserDialog;
-import sholl.gui.Utils;
+import sholl.gui.ShollOverlay;
+import sholl.gui.ShollPlot;
+import sholl.math.LinearProfileStats;
+import sholl.parsers.ImageParser;
+import sholl.parsers.ImageParser2D;
+import sholl.parsers.ImageParser3D;
 
 /**
  * ImageJ 1 plugin that uses the Sholl technique to perform neuronal morphometry
@@ -102,7 +95,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */
 	/** The Plugin's version */
-	public static final String VERSION = Sholl_Utils.version();
+	public static final String VERSION = ShollUtils.version();
 	public static final String URL = "http://imagej.net/Sholl_Analysis";
 
 	/* Sholl Type Definitions */
@@ -192,11 +185,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/* Parameters for 2D analysis */
 	private static final String[] BIN_TYPES = { "Mean", "Median", "Mode" };
 	/** Flag for integration of repeated measures (2D analysis): average */
-	public static final int BIN_AVERAGE = 0;
+	public static final int BIN_AVERAGE = ImageParser2D.MEAN;
 	/** Flag for integration of repeated measures (2D analysis): median */
-	public static final int BIN_MEDIAN = 1;
+	public static final int BIN_MEDIAN = ImageParser2D.MEDIAN;
 	/** Flag for integration of repeated measures (2D analysis): mode */
-	public static final int BIN_MODE = 2;
+	public static final int BIN_MODE = ImageParser2D.MODE;
 	private int binChoice = BIN_AVERAGE;
 	private int nSpans = 1;
 	public static final int MAX_N_SPANS = 10;
@@ -232,9 +225,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private double[] counts;
 	private ImagePlus img;
 	private ImageProcessor ip;
-	private static int progressCounter;
-	private Map<Double, HashSet<ShollPoint>> intersPoints;
-	private boolean storeIntersPoints = true;
+	// private Map<Double, HashSet<UPoint>> intersPoints;
+	// private boolean storeIntersPoints = true;
+	private Profile profile;
 
 	/**
 	 * This method is called when the plugin is loaded. {@code arg} is specified
@@ -250,11 +243,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	public void run(final String arg) {
 
 		if (arg.equalsIgnoreCase("sample")) {
-			img = Sholl_Utils.displaySample();
+			img = ShollUtils.sampleImage();
 			if (img == null) {
 				sError("Could not retrieve sample image.\nPerhaps you should restart ImageJ?");
 				return;
-			}
+			} else
+				img.show();
 		} else if (arg.equalsIgnoreCase("image")) {
 			interactiveMode = true;
 			img = WindowManager.getCurrentImage();
@@ -470,9 +464,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (is3D) {
 				counts = analyze3D(x, y, z, radii, img);
 			} else {
-				counts = analyze2D(x, y, radii, vxSize, nSpans, binChoice, ip);
+				counts = analyze2D(x, y, radii, vxSize, nSpans, binChoice, img);
 			}
-
 		}
 
 		IJ.showStatus("Preparing Results...");
@@ -504,7 +497,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final boolean noPlots = options.getPlotOutput() == Options.NO_PLOTS;
 		final boolean onlyLinearPlot = options.getPlotOutput() == Options.ONLY_LINEAR_PLOT;
 		if (shollN) {
-			final Plot plotN;
+			final ShollPlot plotN;
 			if (noPlots) {
 				plotN = null;
 			} else {
@@ -515,7 +508,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (fitCurve)
 				fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
 			if (!noPlots) {
-				Sholl_Utils.markPlotPoint(plotN, centroid, Color.RED);
+				plotN.markPoint(new UPoint(centroid[0], centroid[1]), Color.RED);
 				savePlot(plotN, SHOLL_N);
 			}
 
@@ -538,7 +531,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		final String distanceString = is3D ? "3D distance" : "2D distance";
 
 		if (shollNS) {
-			final Plot plotNS;
+			final ShollPlot plotNS;
 			if (noPlots || onlyLinearPlot) {
 				plotNS = null;
 			} else {
@@ -552,7 +545,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 		if (shollSLOG) {
-			final Plot plotSLOG;
+			final ShollPlot plotSLOG;
 			if (noPlots || onlyLinearPlot) {
 				plotSLOG = null;
 			} else {
@@ -566,7 +559,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 		if (shollLOG) {
-			final Plot plotLOG;
+			final ShollPlot plotLOG;
 			if (noPlots || onlyLinearPlot) {
 				plotLOG = null;
 			} else {
@@ -709,7 +702,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		if (!is3D && overlayShells)
+		if (overlayShells)
 			overlayShells();
 
 		IJ.showProgress(0, 0);
@@ -845,7 +838,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * fitted values or null if values.length is less than SMALLEST_DATASET
 	 */
 	private double[] getFittedProfile(final double[][] values, final int method, final ResultsTable rt,
-			final Plot plot) {
+			final ShollPlot plot) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
@@ -917,9 +910,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// Plot fitted curve
 		if (plot != null) {
 			plot.setColor(Color.BLUE);
-			plot.setLineWidth(2);
-			plot.addPoints(x, fy, PlotWindow.LINE);
-			plot.setLineWidth(1);
+			plot.addPoints(x, fy, ShollPlot.THICK_LINE);
 		}
 
 		if (verbose) {
@@ -967,11 +958,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			mv = (1 / (xRange[1] - xRange[0])) * mv;
 
 			// Highlight mean value on the plot
-			if (plot != null) {
-				plot.setLineWidth(1);
-				plot.setColor(Color.LIGHT_GRAY);
-				plot.drawLine(xRange[0], mv, xRange[1], mv);
-			}
+			// if (plot != null) {
+			// // plot.drawHorizontalLine(mv, Color.LIGHT_GRAY);
+			// plot.setLineWidth(1);
+			// plot.setColor(Color.LIGHT_GRAY);
+			// plot.drawLine(xRange[0], mv, xRange[1], mv);
+			// }
 
 			// Calculate the "fitted" ramification index
 			if (inferPrimary)
@@ -999,8 +991,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 		}
 
-		if (plot != null && plotLabels)
-			Sholl_Utils.makePlotLabel(plot, plotLabel.toString(), Color.BLACK);
+		if (plot != null && plotLabels) {
+			plot.drawLabel(plotLabel.toString(), Color.BLACK);
+			// remove legend to mimic previous versions
+			plot.setLegend("Sampled Data\nPoyn. fit", 0);
+		}
 
 		return fy;
 
@@ -1178,7 +1173,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			try { // Access "units" label
 				final Panel p = (Panel) gd.getComponent(gd.getComponentCount() - 1);
 				final Label l = (Label) p.getComponent(1);
-				l.setForeground(Utils.getDisabledComponentColor());
+				l.setForeground(EnhancedGenericDialog.getDisabledComponentColor());
 			} catch (final Exception ignored) {
 			}
 		}
@@ -1239,7 +1234,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled()) {
 			return false;
 		} else if (gd.wasOKed()) {
-			Utils.improveRecording();
+			EnhancedGenericDialog.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else { // User pressed any other button
 			return false;
@@ -1373,8 +1368,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		// options common to bitmapPrompt() and csvPrompt()
 		final TextField ieprimaryBranches, ieimgPath;
 		final Choice iepolyChoice, ienormChoice;
-		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, ieoverlay, iesave,
-				iehideSaved;
+		final Checkbox ieinferPrimary, iechooseLog, ieshollNS, ieshollSLOG, ieshollLOG, iemask, iesave, iehideSaved;
 
 		// options specific to bitmapPrompt();
 		Choice iequadChoice = null, iebinChoice = null;
@@ -1464,7 +1458,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (orthoChord) {
 				trimBounds = gd.getNextBoolean();
 				quadChoice = gd.getNextChoiceIndex();
-				quadString = quads[quadChoice];
+				quadString = (trimBounds) ? quads[quadChoice] : "None";
 				checkboxCounter++;
 				// final Checkbox ietrimBounds =
 				// (Checkbox)checkboxes.elementAt(checkboxCounter++);
@@ -1527,9 +1521,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
 			overlayShells = gd.getNextBoolean();
-			storeIntersPoints = overlayShells;
-			ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
-			ieoverlay.setEnabled(!is3D);
+			// storeIntersPoints = overlayShells;
+			// ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
+			// ieoverlay.setEnabled(!is3D);
 
 		}
 
@@ -1547,7 +1541,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		iehideSaved.setEnabled(save);
 		Color pathFieldForeground = Color.BLACK;
 		if (!save)
-			pathFieldForeground = Utils.getDisabledComponentColor();
+			pathFieldForeground = EnhancedGenericDialog.getDisabledComponentColor();
 		if (!validPath)
 			pathFieldForeground = Color.RED;
 		ieimgPath.setForeground(pathFieldForeground);
@@ -1679,7 +1673,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if (gd.wasCanceled())
 			return false;
 		else if (gd.wasOKed()) {
-			Utils.improveRecording();
+			EnhancedGenericDialog.improveRecording();
 			return dialogItemChanged(gd, null);
 		} else {
 			return false;
@@ -1717,198 +1711,28 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return intersection counts (the linear profile of sampled data)
 	 * @see #setInteractiveMode(boolean)
 	 */
+	@Deprecated
 	public synchronized double[] analyze3D(final int xc, final int yc, final int zc, final double[] radii,
 			final ImagePlus img) {
-
-		int nspheres;
-
-		// Create an array to hold results
-		final double[] data = new double[nspheres = radii.length];
-
-		// Set max dimensions if we've been called outside the main run() method
-		if (maxX == 0 && maxY == 0 && minZ == 0) {
-			maxX = (int) Math.min(xc + radii[nspheres - 1], img.getWidth());
-			maxY = (int) Math.min(yc + radii[nspheres - 1], img.getHeight());
-			maxZ = (int) Math.min(zc + radii[nspheres - 1], img.getNSlices());
-		}
-
-		// Get Image Stack
-		final ImageStack stack = (img.isComposite()) ? ChannelSplitter.getChannel(img, channel) : img.getStack();
-
-		// Split processing across the number of available CPUs
-		final AtomicInteger ai = new AtomicInteger(0);
-		final int n_cpus = Prefs.getThreads();
-		final Thread[] threads = ThreadUtil.createThreadArray(n_cpus);
-		setThreadedCounter(0);
-
-		for (int ithread = 0; ithread < threads.length; ithread++) {
-
-			final int chunkSize = (nspheres + n_cpus - 1) / n_cpus; // divide by
-																	// threads
-																	// rounded
-																	// up.
-			final int start = ithread * chunkSize;
-			final int end = Math.min(start + chunkSize, nspheres);
-
-			threads[ithread] = new Thread() {
-
-				@Override
-				public void run() {
-					for (int k = ai.getAndIncrement(); k < n_cpus; k = ai.getAndIncrement()) {
-
-						for (int s = start; s < end; s++) {
-							final int counter = getThreadedCounter();
-							IJ.showProgress(counter, nspheres);
-							IJ.showStatus("Sampling sphere " + (counter + 1) + "/" + nspheres + " (" + n_cpus
-									+ " threads). Press 'Esc' to abort...");
-							setThreadedCounter(counter + 1);
-							if (IJ.escapePressed()) {
-								IJ.beep();
-								return;
-							}
-
-							// Initialize ArrayLists to hold surface points
-							final ArrayList<int[]> points = new ArrayList<>();
-
-							// Restrain analysis to the smallest volume for this
-							// sphere
-							final int xmin = Math.max(xc - (int) Math.round(radii[s] / vxWH), minX);
-							final int ymin = Math.max(yc - (int) Math.round(radii[s] / vxWH), minY);
-							final int zmin = Math.max(zc - (int) Math.round(radii[s] / vxD), minZ);
-							final int xmax = Math.min(xc + (int) Math.round(radii[s] / vxWH), maxX);
-							final int ymax = Math.min(yc + (int) Math.round(radii[s] / vxWH), maxY);
-							final int zmax = Math.min(zc + (int) Math.round(radii[s] / vxD), maxZ);
-
-							try {
-								for (int z = zmin; z < zmax; z++) {
-									for (int y = ymin; y < ymax; y++) {
-										for (int x = xmin; x < xmax; x++) {
-											final double dx = Math.sqrt((x - xc) * vxWH * (x - xc) * vxWH
-													+ (y - yc) * vxWH * (y - yc) * vxWH
-													+ (z - zc) * vxD * (z - zc) * vxD);
-											if (Math.abs(dx - radii[s]) < 0.5) {
-												final double value = stack.getVoxel(x, y, z);
-												if (value >= lowerT && value <= upperT && (!skipSingleVoxels
-														|| skipSingleVoxels && hasNeighbors(x, y, z, stack))) {
-													points.add(new int[] { x, y, z });
-												}
-											}
-										}
-									}
-								}
-
-								// We now have the the points intercepting the
-								// surface of this Sholl sphere. Lets check if
-								// their respective pixels are clustered
-								data[s] = count3Dgroups(points);
-
-							} catch (final Exception e) {
-
-								final StringWriter sw = new StringWriter();
-								final PrintWriter pw = new PrintWriter(sw);
-								e.printStackTrace(pw);
-								final String spacer = "*** *** ***";
-								IJ.log(" \n" + spacer);
-								IJ.log("An error occurred while sampling shell " + (s + 1) + ". We'll now do our\n"
-										+ "best to continue... Please include the following Exception\n"
-										+ "when reporting this bug (together with the info retrieved\n"
-										+ "from \"Plugins>Utilities>ImageJ Properties\"):\n \n" + sw.toString());
-								IJ.log(spacer);
-								return;
-
-							}
-
-						}
-
-					}
-				}
-			};
-		}
-		ThreadUtil.startAndJoin(threads);
-
-		return data;
-
+		IJ.showStatus(
+				"Analyzing image (" + radii.length + "shells/" + Prefs.THREADS + "threads). Press \"Esc\" to abort...");
+		assembleProfile(xc, yc, zc, radii, 0, 0, skipSingleVoxels, img);
+		return getProfile().countsAsArray();
 	}
 
-	/**
-	 * Returns true if at least one of the 6-neighboring voxels of this position
-	 * is thresholded and if position does not correspond to an edge voxel.
-	 */
-	private boolean hasNeighbors(final int x, final int y, final int z, final ImageStack stack) {
-
-		final int[][] neighboors = new int[6][3];
-
-		neighboors[0] = new int[] { x - 1, y, z };
-		neighboors[1] = new int[] { x + 1, y, z };
-		neighboors[2] = new int[] { x, y - 1, z };
-		neighboors[3] = new int[] { x, y + 1, z };
-		neighboors[4] = new int[] { x, y, z + 1 };
-		neighboors[5] = new int[] { x, y, z - 1 };
-
-		boolean clustered = false;
-		double value;
-		for (int i = 0; i < neighboors.length; i++) {
-			try {
-				value = stack.getVoxel(neighboors[i][0], neighboors[i][1], neighboors[i][2]);
-				if (value >= lowerT && value <= upperT) {
-					clustered = true;
-					break;
-				}
-			} catch (final IndexOutOfBoundsException ignored) { // Edge voxel:
-																// Neighborhood
-																// unknown.
-				clustered = false;
-				break;
-			}
-		}
-
-		return clustered;
-
-	}
-
-	/**
-	 * Counts clusters of 26-connected voxels from an ArrayList of 3D
-	 * coordinates, as per {@link #countGroups(int[][], ImageProcessor)}. Note
-	 * that 2D "spike supression" is not performed.
-	 *
-	 * @param points
-	 *            the the x,y,z voxel positions
-	 * @return the number of detected clusters
-	 */
-	public int count3Dgroups(final ArrayList<int[]> points) {
-
-		int target, source, groups, len;
-
-		final int[] grouping = new int[len = groups = points.size()];
-
-		for (int i = 0; i < groups; i++)
-			grouping[i] = i + 1;
-
-		for (int i = 0; i < len; i++) {
-			// IJ.showProgress(i, len+1);
-			for (int j = 0; j < len; j++) {
-				if (i == j)
-					continue;
-
-				// Compute the chessboard (Chebyshev) distance for this point. A
-				// chessboard distance of 1 in xy (lateral) underlies
-				// 8-connectivity within the plane. A distance of 1 in z (axial)
-				// underlies 26-connectivity in 3D
-				final int lDist = Math.max(Math.abs(points.get(i)[0] - points.get(j)[0]),
-						Math.abs(points.get(i)[1] - points.get(j)[1]));
-				final int aDist = Math.max(Math.abs(points.get(i)[2] - points.get(j)[2]), lDist);
-				if ((lDist * aDist <= 1) && (grouping[i] != grouping[j])) {
-					source = grouping[i];
-					target = grouping[j];
-					for (int k = 0; k < len; k++)
-						if (grouping[k] == target)
-							grouping[k] = source;
-					groups--;
-				}
-			}
-		}
-		return groups;
-
+	private synchronized void assembleProfile(final int xc, final int yc, final int zc, final double[] radii,
+			final int nSpans, final int binChoice, final boolean skipSingleVoxels, final ImagePlus img) {
+		final ImageParser parser = (is3D) ? new ImageParser3D(img) : new ImageParser2D(img);
+		parser.setCenterPx(xc, yc, zc);
+		parser.setRadii(radii);
+		if (is3D)
+			((ImageParser3D) parser).setSkipSingleVoxels(skipSingleVoxels);
+		else
+			((ImageParser2D) parser).setRadiiSpan(nSpans, binChoice);
+		parser.setThreshold(lowerT, upperT);
+		parser.setHemiShells(quadString);
+		final ParserRunner runner = new ParserRunner(parser);
+		runner.run();
 	}
 
 	/**
@@ -1934,110 +1758,46 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return intersection counts (the linear profile of sampled data)
 	 * @see #setInteractiveMode(boolean)
 	 */
+	@Deprecated
 	public double[] analyze2D(final int xc, final int yc, final double[] radii, final double pixelSize,
-			final int binsize, final int bintype, final ImageProcessor ip) {
-
-		int i, j, k, rbin, sum, size;
-		int[] binsamples, pixels;
-		int[][] points;
-		double[] data;
-
-		// Create an array to hold the results
-		data = new double[size = radii.length];
-
-		// Create array for bin samples. Passed value of binsize must be at
-		// least 1
-		binsamples = new int[binsize];
-
-		// Create Map to hold the intersection points
-		if (storeIntersPoints)
-			intersPoints = new HashMap<Double, HashSet<ShollPoint>>();
-
-		IJ.showStatus(
-				"Sampling " + size + " radii, " + binsize + " measurement(s) per radius. Press 'Esc' to abort...");
-
-		// Outer loop to control the analysis bins
-		for (i = 0; i < size; i++) {
-
-			// Retrieve the radius in pixel coordinates and set the largest
-			// radius of this bin span
-			rbin = (int) Math.round(radii[i] / pixelSize + binsize / 2);
-
-			// Inner loop to gather samples for each bin
-			for (j = 0; j < binsize; j++) {
-
-				// Get the circumference pixels for this radius
-				points = getCircumferencePoints(xc, yc, rbin--);
-				pixels = getPixels(ip, points);
-
-				// Count the number of intersections
-				final HashSet<ShollPoint> thisRadiusIntersPoints = targetGroupsPositions(pixels, points, ip);
-				binsamples[j] = thisRadiusIntersPoints.size();
-
-				// Store all intersection points
-				if (storeIntersPoints) {
-					intersPoints.put(radii[i], thisRadiusIntersPoints);
-				}
-
-			}
-
-			IJ.showProgress(i, size * binsize);
-			if (IJ.escapePressed()) {
-				IJ.beep();
-				return data;
-			}
-
-			// Statistically combine bin data
-			if (binsize > 1) {
-				if (bintype == BIN_MEDIAN) {
-
-					// Sort the bin data
-					Arrays.sort(binsamples);
-
-					// Pull out the median value: average the two middle values
-					// if no center exists otherwise pull out the center value
-					if (binsize % 2 == 0)
-						data[i] = (binsamples[binsize / 2] + binsamples[binsize / 2 - 1]) / 2.0;
-					else
-						data[i] = binsamples[binsize / 2];
-
-				} else if (bintype == BIN_AVERAGE) {
-
-					// Mean: Find the samples sum and divide by n. of samples
-					for (sum = 0, k = 0; k < binsize; k++)
-						sum += binsamples[k];
-					data[i] = ((double) sum) / ((double) binsize);
-
-				} else if (bintype == BIN_MODE) {
-
-					// Mode: Find the value that appears most often. The first
-					// sampled value is used if no mode exists
-					int mode = 0, maxCount = 0;
-					for (int ma = 0; ma < binsize; ma++) {
-						int tempCount = 0;
-						for (int mb = 0; mb < binsize; mb++)
-							if (binsamples[mb] == binsamples[ma])
-								tempCount++;
-						if (tempCount > maxCount) {
-							maxCount = tempCount;
-							mode = binsamples[ma];
-						}
-					}
-					data[i] = mode;
-
-				}
-
-			} else // There was only one sample
-				data[i] = binsamples[0];
-
-		}
-
-		return data;
+			final int binsize, final int bintype, final ImagePlus imp) {
+		IJ.showStatus("Analyzing image (" + radii.length + "shells). Press \"Esc\" to abort...");
+		assembleProfile(xc, yc, 1, radii, binsize, bintype, false, img);
+		return getProfile().countsAsArray();
 	}
 
-	/**
-	 * @deprecated use targetGroupsPositions(points, ip).size()
-	 */
+	private Profile getProfile() {
+		return profile;
+	}
+
+	private void setProfile(final Profile profile) {
+		this.profile = profile;
+	}
+
+	/** Private classes **/
+	class ParserRunner implements Runnable {
+
+		private final ImageParser parser;
+
+		public ParserRunner(final ImageParser parser) {
+			this.parser = parser;
+		}
+
+		@Override
+		public void run() {
+			parser.parse();
+			if (IJ.escapePressed()) {
+				IJ.showStatus("Canceling Parsing...");
+				parser.terminate();
+			}
+			if (!parser.successful()) {
+				IJ.showStatus("No valid profile retrieved.");
+				return;
+			}
+			setProfile(parser.getProfile());
+		}
+	}
+
 	@Deprecated
 	public int countTargetGroups(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 		return targetGroupsPositions(pixels, rawpoints, ip).size();
@@ -2061,8 +1821,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the positions of non-zero clusters (first coordinate of each
 	 *         cluster)
 	 */
-	public HashSet<ShollPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints,
-			final ImageProcessor ip) {
+	@Deprecated
+	public HashSet<UPoint> targetGroupsPositions(final int[] pixels, final int[][] rawpoints, final ImageProcessor ip) {
 
 		int i, j;
 		int[][] points;
@@ -2105,7 +1865,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @return the collection of points
 	 * @see #countGroups
 	 */
-	public HashSet<ShollPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
+	@Deprecated
+	public HashSet<UPoint> groupPositions(final int[][] points, final ImageProcessor ip) {
 
 		int i, j, k, target, source, len, dx;
 
@@ -2155,15 +1916,17 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 
 		// System.out.println("i=" + i);
-		// System.out.println("groups/positions before doSpikeSupression: " + groups + "/" + positions.size());
+		// System.out.println("groups/positions before doSpikeSupression: " +
+		// groups + "/" + positions.size());
 		if (doSpikeSupression) {
 			removeSinglePixels(points, len, grouping, ip, positions);
-			// System.out.println("groups/positions after doSpikeSupression: " + groups + "/" + positions.size());
+			// System.out.println("groups/positions after doSpikeSupression: " +
+			// groups + "/" + positions.size());
 		}
 
-		final HashSet<ShollPoint> sPoints = new HashSet<>();
+		final HashSet<UPoint> sPoints = new HashSet<>();
 		for (final Integer pos : positions)
-			sPoints.add(new ShollPoint(points[pos][0], points[pos][1]));
+			sPoints.add(new UPoint(points[pos][0], points[pos][1]));
 
 		return sPoints;
 	}
@@ -2172,6 +1935,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * Removes positions from 1-pixel groups that exist solely on the edge of a
 	 * "stair" of target pixels
 	 */
+	@Deprecated
 	private void removeSinglePixels(final int[][] points, final int pointsLength, final int[] grouping,
 			final ImageProcessor ip, final HashSet<Integer> positions) {
 
@@ -2243,6 +2007,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the x,y pixel positions
 	 * @return the masked pixel arrays
 	 */
+	@Deprecated
 	public int[] getPixels(final ImageProcessor ip, final int[][] points) {
 
 		int value;
@@ -2277,6 +2042,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 *            the circumference radius
 	 * @return the circumference points
 	 */
+	@Deprecated
 	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
 
 		// Initialize algorithm variables
@@ -2373,96 +2139,14 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	/**
-	 * Removes all ROIs stored the specified overlay that have been added by
-	 * {@link #overlayShells()}
-	 *
-	 * @param overlay
-	 *            the {@link ij.gui.Overlay Overlay} containing the sampling
-	 *            shells
-	 */
-	private void removeOverlayShells(final Overlay overlay) {
-		if (overlay != null && overlay.size() > 0) {
-			for (int i = overlay.size() - 1; i >= 0; i--) {
-				final String roiName = overlay.get(i).getName();
-				if (roiName != null && (roiName.equals("center") || roiName.contains("r=")))
-					overlay.remove(i);
-			}
-		}
-	}
-
-	/** Adds 2D sampling shells to the overlay of plugin's input image */
+	/** Adds Sholl ROIs to input image */
 	private void overlayShells() {
-
-		Overlay overlay = img.getOverlay();
-		boolean newOverlay = false;
-		if (overlay == null) {
-			overlay = new Overlay();
-			newOverlay = true;
-		} else
-			removeOverlayShells(overlay);
-
-		// Add center of analysis
-		overlay.add(new PointRoi(x, y), "center");
-
-		final Color rc = Roi.getColor();
-		final Color shellColor = new Color(rc.getRed(), rc.getGreen(), rc.getBlue(), 100);
-
-		for (final double r : radii) {
-
-			// Add Shells
-			final double rawR = r / vxSize;
-			final Roi shell;
-
-			// TODO: Some sort of meridian geodesics overlay for 3D shells?
-			// https://en.wikipedia.org/wiki/Geodesics_on_an_ellipsoid
-
-			if (orthoChord && trimBounds) { // 2D analysis using semicircle
-											// shells
-				final Arc2D.Double arc = new Arc2D.Double();
-				if (quadString.equals(QUAD_NORTH))
-					arc.setArcByCenter(x, y, rawR, 0, 180, Arc2D.OPEN);
-				else if (quadString.equals(QUAD_SOUTH))
-					arc.setArcByCenter(x, y, rawR, -180, 180, Arc2D.OPEN);
-				else if (quadString.equals(QUAD_WEST))
-					arc.setArcByCenter(x, y, rawR, 90, -180, Arc2D.OPEN);
-				else if (quadString.equals(QUAD_EAST))
-					arc.setArcByCenter(x, y, rawR, -90, -180, Arc2D.OPEN);
-				else
-					throw new IllegalArgumentException("Invalid restriction choice: " + quadString);
-				shell = new ShapeRoi(arc);
-			} else { // 2D analysis using circular shells
-				shell = new OvalRoi(x - rawR, y - rawR, 2 * rawR, 2 * rawR);
-			}
-			// shell.setStrokeColor(Color.CYAN);
-			if (nSpans > 1)
-				shell.setStrokeWidth(nSpans);
-			shell.setStrokeColor(shellColor);
-			overlay.add(shell, "Shell r=" + IJ.d2s(r, 2));
-
-			// Add intersection points
-			if (storeIntersPoints && intersPoints != null) {
-				final HashSet<ShollPoint> iPoints = intersPoints.get(r);
-				if (iPoints == null || iPoints.isEmpty())
-					continue;
-				PointRoi intersRois = null;
-				for (final ShollPoint point : iPoints) {
-					if (intersRois == null)
-						intersRois = new PointRoi(point.x, point.y);
-					intersRois.addPoint(point.x, point.y);
-				}
-				if (intersRois != null) {
-					intersRois.setPointType(2);
-					overlay.add(intersRois, "IntersPoints r=" + IJ.d2s(r, 2));
-				}
-			}
-
-		}
-
-		if (newOverlay)
-			img.setOverlay(overlay);
-		else
-			img.draw();
+		final ShollOverlay so = new ShollOverlay(getProfile(), img, true);
+		so.addCenter();
+		if (!is3D)
+			so.setShellsColor(Roi.getColor());
+		so.setPointsColor(Roi.getColor());
+		img.setOverlay(so.getOverlay());
 	}
 
 	/**
@@ -2680,7 +2364,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 					public void run() {
 						if (Recorder.record)
 							Recorder.setCommand(Options.COMMAND_LABEL);
-						//IJ.runPlugIn(Options.class.getName(), analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
+						// IJ.runPlugIn(Options.class.getName(), analyzingImage
+						// ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
 						options.run(analyzingImage ? "" : Options.SKIP_BITMAP_OPTIONS_LABEL);
 						if (Recorder.record)
 							Recorder.saveCommand();
@@ -2716,16 +2401,19 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				gd.disposeWithouRecording();
-				IJ.runPlugIn("tracing.ShollAnalysisPlugin","");//FIXME will break if ShollAnalysisPlugin changes path
+				IJ.runPlugIn("tracing.ShollAnalysisPlugin", "");// FIXME will
+																// break if
+																// ShollAnalysisPlugin
+																// changes path
 			}
 		});
 		mi.setEnabled(!analyzingTraces);
 		popup.add(mi);
 		popup.addSeparator();
 		mi = new JMenuItem();
-		mi = Utils.menuItemTrigerringURL("Online documentation", URL);
+		mi = EnhancedGenericDialog.menuItemTrigerringURL("Online documentation", URL);
 		popup.add(mi);
-		mi = Utils.menuItemTriggeringResources();
+		mi = EnhancedGenericDialog.menuItemTriggeringResources();
 		popup.add(mi);
 		return popup;
 	}
@@ -2904,48 +2592,15 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	}
 
 	/** Returns a plot with some axes customizations */
-	private Plot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
-
-		// Extract values
-		final int size = xy.length;
-		final double[] x0 = new double[size];
-		final double[] y0 = new double[size];
-		for (int i = 0; i < size; i++) {
-			x0[i] = xy[i][0];
-			y0[i] = xy[i][1];
-		}
-
-		// Create an empty plot
-		final double[] empty = null;
-		final int flags = Plot.X_FORCE2GRID + Plot.X_TICKS + Plot.X_NUMBERS + Plot.Y_FORCE2GRID + Plot.Y_TICKS
-				+ Plot.Y_NUMBERS;
-		final Plot plot = new Plot(title, xLabel, yLabel, empty, empty, flags);
-
-		// Set limits
-		final double[] xScale = Tools.getMinMax(x0);
-		final double[] yScale = Tools.getMinMax(y0);
-		setPlotLimits(plot, xScale, yScale);
-
-		// Add data (default color is black)
-		plot.setColor(Color.GRAY);
-		plot.addPoints(x0, y0, Plot.CROSS);
-
+	private ShollPlot plotValues(final String title, final String xLabel, final String yLabel, final double[][] xy) {
+		final LinearProfileStats stats = new LinearProfileStats(new Profile(xy));
+		final ShollPlot plot = new ShollPlot(title, xLabel, yLabel, stats, true);
 		return plot;
-
-	}
-
-	/** Sets plot limits imposing grid lines */
-	private void setPlotLimits(final Plot plot, final double[] xScale, final double[] yScale) {
-
-		final boolean gridState = PlotWindow.noGridLines;
-		PlotWindow.noGridLines = false;
-		plot.setLimits(xScale[0], xScale[1], yScale[0], yScale[1]);
-		PlotWindow.noGridLines = gridState;
-
 	}
 
 	/** Calls plotRegression for both regressions as specified in Options */
-	private void plotRegression(final double[][] values, final Plot plot, final ResultsTable rt, final String method) {
+	private void plotRegression(final double[][] values, final ShollPlot plot, final ResultsTable rt,
+			final String method) {
 
 		final int size = values.length;
 		final double[] x = new double[size];
@@ -2963,7 +2618,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	/**
 	 * Performs linear regression using the full range data or percentiles 10-90
 	 */
-	private void plotRegression(final double[] x, final double[] y, final boolean trim, final Plot plot,
+	private void plotRegression(final double[] x, final double[] y, final boolean trim, final ShollPlot plot,
 			final ResultsTable rt, final String method) {
 
 		final int size = x.length;
@@ -3021,13 +2676,13 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.drawLine(x1, y1, x2, y2);
 			plot.setLineWidth(1);
 
-			Sholl_Utils.markPlotPoint(plot, new double[] { 0, kIntercept }, color);
+			plot.markPoint(new UPoint(0, kIntercept), color);
 			if (plotLabels) {
 				final StringBuffer label = new StringBuffer();
 				label.append("R\u00B2= " + IJ.d2s(kRSquared, 3));
 				label.append("\nk= " + IJ.d2s(k, -2));
 				label.append("\nIntercept= " + IJ.d2s(kIntercept, 2));
-				Sholl_Utils.makePlotLabel(plot, label.toString(), color);
+				plot.drawLabel(label.toString(), color);
 			}
 
 		}
@@ -3335,14 +2990,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	}
 
-	private int getThreadedCounter() {
-		return progressCounter;
-	}
-
-	private void setThreadedCounter(final int updatedCounter) {
-		progressCounter = updatedCounter;
-	}
-
 	/**
 	 * Instructs the plugin to parse the specified table expected to contain a
 	 * sampled profile. Does nothing if the specified table does not contain the
@@ -3407,8 +3054,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			runInTabularMode(false);
 			csvRT = null;
 		} else {
-			sError("Profile could not be parsed or it does not contain enough data points.\n"
-					+ "N.B.: At least " + (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
+			sError("Profile could not be parsed or it does not contain enough data points.\n" + "N.B.: At least "
+					+ (SMALLEST_DATASET + 1) + " pairs of values are required for curve fitting.");
 		}
 		setIsTableRequired(true);
 	}
