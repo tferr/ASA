@@ -213,7 +213,7 @@ public class ShollOverlay implements ProfileProperties {
 							"ShollPoints r=" + formatter.format(entry.radius) + " z=" + formatter.format(point.z));
 					setROIposition(multipointRoi, channel, rawZ, frame, hyperStack);
 					points.add(multipointRoi);
-				} else if (currentRawZ == rawZ) { // same plane
+				} else if (currentRawZ == rawZ && multipointRoi != null) { // same plane
 					multipointRoi.addPoint(rawX, rawY);
 				}
 			}
