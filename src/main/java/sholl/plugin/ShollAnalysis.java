@@ -73,10 +73,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	@Parameter
 	private CommandService cmdService;
-
 	@Parameter
 	ModuleService moduleService;
-
 	@Parameter
 	private ConvertService convertService;
 	@Parameter
@@ -120,8 +118,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private static final int SCOPE_CHANGE_DATASET = 3;
 
 	/* Parameters */
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, //
-			label = HEADER_HTML + "Shells:")
+	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Shells:")
 	private String HEADER1;
 
 	@Parameter(label = "Starting radius", required = false, callback = "startRadiusStepSizeChanged", min = "0")
@@ -133,92 +130,58 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Ending radius", required = false, callback = "endRadiusChanged", min = "0")
 	private double endRadius;
 
-	@Parameter(label = "Hemishells", required = false, //
-			callback = "overlayShells", //
-			choices = { "None. Use full shells", "Above center", "Below center", "Left of center", "Right of center" })
+	@Parameter(label = "Hemishells", required = false, callback = "overlayShells", choices = { "None. Use full shells",
+			"Above center", "Below center", "Left of center", "Right of center" })
 	private String hemiShellChoice;
 
-	@Parameter(label = "Set Center from Active ROI", //
-			callback = "setCenterFromROI", //
-			persist = false)
+	@Parameter(label = "Set Center from Active ROI", callback = "setCenterFromROI", persist = false)
 	private Button centerButton;
 
-	@Parameter(label = "Preview", persist = false, //
-			callback = "overlayShells")
+	@Parameter(label = "Preview", persist = false, callback = "overlayShells")
 	private boolean previewShells;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, //
-			label = HEADER_HTML + "<br>Segmentation:")
+	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
+			+ "<br>Segmentation:")
 	private String HEADER2;
-	//
-	// @Parameter(label = "Lower threshold", //
-	// callback = "thresholdLevelsChanged", persist = false, //
-	// min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
-	// private double lowerT;
-	// @Parameter(label = "Upper threshold", //
-	// callback = "thresholdLevelsChanged", persist = false, //
-	// min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
-	// private double upperT;
-	//
-	// @Parameter(label = " Read Values from Image ", //
-	// callback = "thresholdButtonAction", //
-	// persist = false)
-	// private Button thresholdButton;
 
 	@Parameter(label = "Ignore isolated voxels")
 	private boolean ignoreIsolatedVoxels;
 
-	@Parameter(label = "# samples per radius", //
-			callback = "nSpansChanged", //
-			min = "1", max = "" + MAX_SPANS, //
-			style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = "# samples per radius", callback = "nSpansChanged", min = "1", max = ""
+			+ MAX_SPANS, style = NumberWidget.SCROLL_BAR_STYLE)
 	private int nSpans;
 
-	@Parameter(label = "Integration", //
-			callback = "nSpansIntChoiceChanged", //
-			choices = { "N/A", "Mean", "Median", "Mode" })
+	@Parameter(label = "Integration", callback = "nSpansIntChoiceChanged", choices = { "N/A", "Mean", "Median",
+			"Mode" })
 	private String nSpansIntChoice;
 
-	@Parameter(persist = false, required = false, //
-			visibility = ItemVisibility.MESSAGE, //
-			label = HEADER_HTML + "<br>Metrics:")
+	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
+			+ "<br>Metrics:")
 	private String HEADER3;
 
-	@Parameter(persist = false, required = false, //
-			visibility = ItemVisibility.MESSAGE, //
-			label = SUBHEADER_HTML + "Linear Profile:")
+	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = SUBHEADER_HTML
+			+ "Linear Profile:")
 	private String HEADER3A;
 
-	@Parameter(label = "Polynomial fit", //
-			callback = "polynomialChoiceChanged", //
-			required = false, //
-			choices = { "None. Skip curve fitting", "'Best fitting' degree (2nd-20th)", "Use degree specified below:" })
+	@Parameter(label = "Polynomial fit", callback = "polynomialChoiceChanged", required = false, choices = {
+			"None. Skip curve fitting", "'Best fitting' degree (2nd-20th)", "Use degree specified below:" })
 	private String polynomialChoice;
 
-	@Parameter(label = "<html>&nbsp;", //
-			callback = "polynomialDegreeChanged", //
-			min = "0", max = "20", //
-			style = NumberWidget.SLIDER_STYLE)
+	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", min = "0", max = "20", style = NumberWidget.SLIDER_STYLE)
 	private int polynomialDegree;
 
-	@Parameter(label = "Primary branches", //
-			callback = "primaryBranchesChoiceChanged", //
-			choices = { "Infer from starting radius", "Infer from multipoint ROI", "Use no. specified below:" })
+	@Parameter(label = "Primary branches", callback = "primaryBranchesChoiceChanged", choices = {
+			"Infer from starting radius", "Infer from multipoint ROI", "Use no. specified below:" })
 	private String primaryBranchesChoice;
 
-	@Parameter(label = EMPTY_LABEL, //
-			callback = "primaryBranchesChanged", //
-			min = "-1", max = "100", //
-			style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = EMPTY_LABEL, callback = "primaryBranchesChanged", min = "-1", max = "100", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double primaryBranches;
 
-	@Parameter(label = "Enclosing radius cuttoff", //
-			min = "1", max = "100", //
-			style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = "Enclosing radius cuttoff", min = "1", max = "100", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double enclosingCutoff;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, //
-			label = SUBHEADER_HTML + "<br>Normalized Profile:")
+	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = SUBHEADER_HTML
+			+ "<br>Normalized Profile:")
 	private String HEADER3B;
 
 	@Parameter(label = "Method", choices = { "Automatically choose", "Semi-Log", "Log-log" })
@@ -227,8 +190,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Normalizer", callback = "normalizerDescriptionChanged")
 	private String normalizerDescription;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, //
-			label = HEADER_HTML + "<br>Output:")
+	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
+			+ "<br>Output:")
 	private String HEADER4;
 
 	@Parameter(label = "Plots", choices = { "Linear plot", "Normalized plot", "Linear & normalized plots",
@@ -238,10 +201,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table", "Detailed & summary tables" })
 	private String tableOutputDescription;
 
-	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged", //
-			choices = { "ROIs (Sholl points only)", "ROIs (points and 2D shells)", "ROIs and Mask",
-					"None. Show no annotations" }) // TODO: implement "Sholl
-													// Mask"
+	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged", choices = {
+			"ROIs (Sholl points only)", "ROIs (points and 2D shells)", "ROIs and Mask", "None. Show no annotations" }) // TODO:
+																														// implement
+																														// "Sholl
+																														// Mask"
 	private String annotationsDescription;
 
 	@Parameter(label = "Annotations LUT", persist = false, callback = "lutChoiceChanged")
@@ -292,14 +256,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private Profile profile;
 	private int scope;
 
-	// /* Responds to Modules Updated events. */
-	// @EventHandler
-	// public void onEvent(final ModulesUpdatedEvent evt) {
-	// //helper.log(evt.toString()); buttons do not trigger ModulesUpdatedEvent
-	// updateAnalyzeButton(); // placing call here same as calling from
-	// preview()?
-	// }
-
 	@EventHandler
 	public void onEvent(final DataDeletedEvent evt) {
 		if (evt.getObject().equals(dataset)) {
@@ -310,7 +266,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	@Override
 	public void run() {
-		// Do nothing. Actually analysis is performed by analyze();
+		// Do nothing. Actually analysis is performed by runAnalysis();
 	}
 
 	/*
@@ -377,7 +333,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 					getNewDataset();
 				}
 			}).start();
-			// analysisAction = "Analyze image";
+			analysisAction = "Analyze image";
 			break;
 		default:
 			throw new IllegalArgumentException("Unrecognized option: " + scope);
@@ -470,7 +426,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		setLUTs();
 		loadDataset(imp);
 		adjustSamplingOptions();
-		// adjustSegmentationOptions();
 		setNormalizerChoices();
 	}
 
@@ -516,20 +471,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			}
 		}
 	}
-
-	// private void setThresholdLimits() {
-	// final List<String> names = Arrays.asList("lowerT", "upperT");
-	// final double min = dataset.getChannelMinimum(posC - 1); // TODO: in ij1
-	// // channel is
-	// // 1-based
-	// final double max = dataset.getChannelMaximum(posC - 1);
-	// for (final String name : names) {
-	// final MutableModuleItem<Double> input = getInfo().getMutableInput(name,
-	// Double.class);
-	// input.setMinimumValue(min);
-	// input.setMaximumValue(max);
-	// }
-	// }
 
 	private void adjustSamplingOptions() {
 		if (twoD) {
@@ -826,10 +767,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			nSpans = 1;
 		else if (nSpans == 1)
 			nSpans++;
-	}
-
-	protected void thresholdLevelsChanged() {
-		// TODO: implement callback
 	}
 
 	protected void polynomialChoiceChanged() {
