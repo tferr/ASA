@@ -47,7 +47,7 @@ public class ShollUtils {
 	public static ResultsTable csvSample() {
 		final URL url = getResource("csv/ddaCsample.csv");
 		if (url == null)
-			throw new NullPointerException("Could not retrieve ddaCsample.csv");
+			throw new IllegalArgumentException("Could not retrieve ddaCsample.csv");
 		final TableLoader loader = new TableLoader();
 		try {
 			// NB: this will fail for headings containing whitespace[

@@ -26,9 +26,6 @@ import org.scijava.util.VersionUtils;
 public class Helper {
 
 	@Parameter
-	private Context context;
-
-	@Parameter
 	private CommandService cmdService;
 
 	@Parameter
@@ -43,7 +40,7 @@ public class Helper {
 	@Parameter
 	private UIService uiService;
 
-	private static String VERSION;
+	private final String VERSION;
 
 	public Helper() {
 		this(new Context(LegacyService.class, PrefService.class, LogService.class, StatusService.class,

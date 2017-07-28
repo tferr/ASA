@@ -222,7 +222,7 @@ public class ShollOverlay implements ProfileProperties {
 
 	private void assembleShells() {
 		if (center == null)
-			throw new NullPointerException("Shell ROIs cannot be generated with undefined center");
+			throw new IllegalArgumentException("Shell ROIs cannot be generated with undefined center");
 		shells = new ArrayList<>();
 		final Color baseColor = alphaColor(this.baseColor, shellsAlpha);
 		final int shellThickness = Integer.valueOf(properties.getProperty(KEY_NSAMPLES, "1"));

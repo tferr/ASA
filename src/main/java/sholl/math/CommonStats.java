@@ -136,7 +136,7 @@ class CommonStats implements ShollStats {
 
 	protected void validateFit() {
 		if (!validFit())
-			throw new NullPointerException("Fitted data required but fit not yet performed");
+			throw new IllegalArgumentException("Fitted data required but fit not yet performed");
 	}
 
 	/**

@@ -62,7 +62,7 @@ public class Profile implements ProfileProperties {
 	 */
 	public Profile(final ArrayList<Number> radii, final ArrayList<Number> sampledInters) {
 		if (radii == null || sampledInters == null)
-			throw new NullPointerException("Lists cannot be null");
+			throw new IllegalArgumentException("Lists cannot be null");
 		final int n = radii.size();
 		if (n == 0 || n != sampledInters.size())
 			throw new IllegalArgumentException("Lists cannot be empty and must have the same size");
@@ -86,7 +86,7 @@ public class Profile implements ProfileProperties {
 	 */
 	public Profile(final double[][] sampledData) {
 		if (sampledData == null)
-			throw new NullPointerException("Matrix cannot be null");
+			throw new IllegalArgumentException("Matrix cannot be null");
 		initialize();
 		for (int i = 0; i < sampledData.length; i++) {
 			final double r = sampledData[i][0];
@@ -317,7 +317,7 @@ public class Profile implements ProfileProperties {
 			line = line.trim();
 			final int idx = line.indexOf(key);
 			if (idx == -1)
-				continue;
+				break;
 			return line.substring(idx + key.length());
 		}
 		return String.valueOf(Double.NaN);
