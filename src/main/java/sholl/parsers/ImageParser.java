@@ -178,6 +178,100 @@ public class ImageParser implements Parser {
 
 	}
 
+	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
+
+		// Initialize algorithm variables
+		int i = 0, x = 0, y = radius;
+		final int r = radius + 1;
+		int err = 0, errR, errD;
+
+		// Array to store first 1/8 of points relative to center
+		final int[][] data = new int[r][2];
+
+		do {
+			// Add this point as part of the circumference
+			data[i][0] = x;
+			data[i++][1] = y;
+
+			// Calculate the errors for going right and down
+			errR = err + 2 * x + 1;
+			errD = err - 2 * y + 1;
+
+			// Choose which direction to go
+			if (Math.abs(errD) < Math.abs(errR)) {
+				y--;
+				err = errD; // Go down
+			} else {
+				x++;
+				err = errR; // Go right
+			}
+		} while (x <= y);
+
+		// Create an array to hold the absolute coordinates
+		final int[][] points = new int[r * 8][2];
+
+		// Loop through the relative circumference points
+		for (i = 0; i < r; i++) {
+
+			// Pull out the point for quick access;
+			x = data[i][0];
+			y = data[i][1];
+
+			// Convert the relative point to an absolute point
+			points[i][0] = x + cx;
+			points[i][1] = y + cy;
+
+			// Use geometry to calculate remaining 7/8 of the circumference
+			// points
+			points[r * 4 - i - 1][0] = x + cx;
+			points[r * 4 - i - 1][1] = -y + cy;
+			points[r * 8 - i - 1][0] = -x + cx;
+			points[r * 8 - i - 1][1] = y + cy;
+			points[r * 4 + i][0] = -x + cx;
+			points[r * 4 + i][1] = -y + cy;
+			points[r * 2 - i - 1][0] = y + cx;
+			points[r * 2 - i - 1][1] = x + cy;
+			points[r * 2 + i][0] = y + cx;
+			points[r * 2 + i][1] = -x + cy;
+			points[r * 6 + i][0] = -y + cx;
+			points[r * 6 + i][1] = x + cy;
+			points[r * 6 - i - 1][0] = -y + cx;
+			points[r * 6 - i - 1][1] = -x + cy;
+
+		}
+
+		// Count how many points are out of bounds, while eliminating
+		// duplicates. Duplicates are always at multiples of r (8 points)
+		int pxX, pxY, count = 0, j = 0;
+		for (i = 0; i < points.length; i++) {
+
+			// Pull the coordinates out of the array
+			pxX = points[i][0];
+			pxY = points[i][1];
+
+			if ((i + 1) % r != 0 && withinXYbounds(pxX, pxY))
+				count++;
+		}
+
+		// Create the final array containing only unique points within bounds
+		final int[][] refined = new int[count][2];
+
+		for (i = 0; i < points.length; i++) {
+
+			pxX = points[i][0];
+			pxY = points[i][1];
+
+			if ((i + 1) % r != 0 && withinXYbounds(pxX, pxY)) {
+				refined[j][0] = pxX;
+				refined[j++][1] = pxY;
+			}
+
+		}
+
+		// Return the array
+		return refined;
+
+	}
 	protected void setPosition(final int channel, final int frame) {
 		if (channel < 1 || channel > imp.getNChannels() || frame < 1 || frame > imp.getNFrames())
 			throw new IllegalArgumentException("Specified (channel, slice, frame) position is out of range");
