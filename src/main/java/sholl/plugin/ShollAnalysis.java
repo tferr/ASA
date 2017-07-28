@@ -52,7 +52,6 @@ import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.measure.Calibration;
-import ij.process.ImageProcessor;
 import sholl.Helper;
 import sholl.Profile;
 import sholl.ProfileEntry;
@@ -685,7 +684,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		if (imp.getProcessor().isBinary()) {
 			lowerT = 1;
 			upperT = 255;
-		} else if (minT != ImageProcessor.NO_THRESHOLD && maxT != ImageProcessor.NO_THRESHOLD) {
+		} else if (imp.isThreshold()) {
 			lowerT = minT;
 			upperT = maxT;
 		} else {
