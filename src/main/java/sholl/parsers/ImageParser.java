@@ -51,7 +51,7 @@ public class ImageParser implements Parser {
 		if (imp.getProcessor().isBinary())
 			setThreshold(1, 255);
 		cal = imp.getCalibration(); // never null
-		if (imp.getNDimensions() > 2) {
+		if (imp.getNSlices() > 2) {
 			voxelSize = (cal.pixelWidth + cal.pixelHeight + cal.pixelDepth) / 3;
 		} else {
 			voxelSize = (cal.pixelWidth + cal.pixelHeight) / 2;
