@@ -9,7 +9,10 @@ import org.scijava.app.StatusService;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.measure.Calibration;
+import ij.plugin.ZProjector;
+import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 import sholl.Helper;
 import sholl.Profile;
 import sholl.ShollUtils;
@@ -272,6 +275,68 @@ public class ImageParser implements Parser {
 		return refined;
 
 	}
+
+	public ImagePlus getMask() {
+		final ImagePlus img = new ImagePlus(imp.getTitle() + "_ShollMask",
+				getMaskProcessor(false, profile.countsAsArray()));
+		img.setCalibration(cal);
+		return img;
+	}
+
+	public ImageProcessor getMaskProcessor(final boolean floatProcessor, final double[] maskValues) {
+
+		checkUnsetFields();
+
+		// Work on a stack projection when dealing with a volume
+		final ImageProcessor ip = imp.getNSlices() > 1 ? projImp() : imp.getProcessor();
+
+		// NB: 16-bit image: Negative values will be set to 0
+		final ImageProcessor mp = floatProcessor ? new FloatProcessor(ip.getWidth(), ip.getHeight())
+				: new ShortProcessor(ip.getWidth(), ip.getHeight());
+
+		final int drawSteps = maskValues.length;
+		final int sRadius = (int) Math.round(profile.startRadius() / voxelSize);
+		final int drawWidth = (int) Math.round((profile.endRadius() - profile.startRadius()) / drawSteps);
+
+		for (int i = 0; i < drawSteps; i++) {
+			int drawRadius = sRadius + i * drawWidth;
+			for (int j = 0; j < drawWidth; j++) {
+
+				// this will already exclude pixels out of bounds
+				final int[][] points = getCircumferencePoints(xc, yc, drawRadius++);
+				for (final int[] point : points) {
+					final double value = ip.getPixel(point[0], point[1]);
+					if (withinThreshold(value)) {
+						mp.putPixelValue(point[0], point[1], maskValues[i]);
+					}
+				}
+
+			}
+		}
+
+		mp.resetMinAndMax();
+		return mp;
+
+	}
+
+	private ImageProcessor projImp() {
+		ImageProcessor ip;
+		final ZProjector zp = new ZProjector(imp);
+		zp.setMethod(ZProjector.MAX_METHOD);
+		zp.setStartSlice(minZ);
+		zp.setStopSlice(maxZ);
+		if (imp.isComposite()) {
+			zp.doHyperStackProjection(false);
+			final ImagePlus projImp = zp.getProjection();
+			projImp.setC(channel);
+			ip = projImp.getChannelProcessor();
+		} else {
+			zp.doProjection();
+			ip = zp.getProjection().getProcessor();
+		}
+		return ip;
+	}
+
 	protected void setPosition(final int channel, final int frame) {
 		if (channel < 1 || channel > imp.getNChannels() || frame < 1 || frame > imp.getNFrames())
 			throw new IllegalArgumentException("Specified (channel, slice, frame) position is out of range");

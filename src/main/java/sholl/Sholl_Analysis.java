@@ -2180,41 +2180,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus makeMask(final String ttl, final double[] values, final int xc, final int yc,
 			final Calibration cal, final boolean floatProcessor) {
 
-		if (values == null)
+		if (values == null || parser == null)
 			return null;
 
-		// Work on a stack projection when dealing with a volume
-		if (is3D)
-			ip = projInputImg();
-
-		// NB: 16-bit image: Negative values will be set to 0
-		final ImageProcessor mp = (floatProcessor) ? new FloatProcessor(ip.getWidth(), ip.getHeight())
-				: new ShortProcessor(ip.getWidth(), ip.getHeight());
-
-		// Retrieve drawing steps as endRadius may have never been reached (eg,
-		// if user interrupted analysis by pressing Esc)
-		final int drawSteps = values.length;
-		final int firstRadius = (int) Math.round(startRadius / vxWH);
-		final int lastRadius = (int) Math.round((startRadius + (drawSteps - 1) * stepRadius) / vxWH);
-		final int drawWidth = (int) Math.round((lastRadius - startRadius) / drawSteps);
-
-		for (int i = 0; i < drawSteps; i++) {
-
-			IJ.showProgress(i, drawSteps);
-			int drawRadius = firstRadius + (i * drawWidth);
-
-			for (int j = 0; j < drawWidth; j++) {
-
-				// this will already exclude pixels out of bounds
-				final int[][] points = getCircumferencePoints(xc, yc, drawRadius++);
-				for (int k = 0; k < points.length; k++)
-					for (int l = 0; l < points[k].length; l++) {
-						final double value = ip.getPixel(points[k][0], points[k][1]);
-						if (value >= lowerT && value <= upperT)
-							mp.putPixelValue(points[k][0], points[k][1], values[i]);
-					}
-			}
-		}
+		final ImageProcessor mp = parser.getMaskProcessor(floatProcessor, values);
 
 		// Apply LUT
 		final double[] range = Tools.getMinMax(values);
@@ -2236,30 +2205,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		return img2;
 
-	}
-
-	/**
-	 * Returns the MIP of input image according to analysis parameters
-	 * ({@code minZ}, {@code maxZ} and selected {@code channel})
-	 *
-	 * @return {@link ImageProcessor} of max Z-Projection
-	 */
-	private ImageProcessor projInputImg() {
-		ImageProcessor ip;
-		final ZProjector zp = new ZProjector(img);
-		zp.setMethod(ZProjector.MAX_METHOD);
-		zp.setStartSlice(minZ);
-		zp.setStopSlice(maxZ);
-		if (img.isComposite()) {
-			zp.doHyperStackProjection(false);
-			final ImagePlus projImp = zp.getProjection();
-			projImp.setC(channel);
-			ip = projImp.getChannelProcessor();
-		} else {
-			zp.doProjection();
-			ip = zp.getProjection().getProcessor();
-		}
-		return ip;
 	}
 
 	/**
