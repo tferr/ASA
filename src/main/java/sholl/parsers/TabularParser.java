@@ -31,6 +31,7 @@ import ij.measure.Calibration;
 import ij.measure.ResultsTable;
 import sholl.Profile;
 import sholl.ProfileEntry;
+import sholl.ShollUtils;
 
 /**
  * @author Tiago Ferreira
@@ -97,20 +98,18 @@ public class TabularParser implements Parser {
 	@Override
 	public void parse() {
 		profile = new Profile();
-		while (running) {
-			if (ij1table == null)
-				buildProfileFromIJ2Table();
-			else
-				buildProfileFromIJ1Table();
-			final Properties properties = new Properties();
-			if (tableName != null)
-				properties.setProperty(KEY_ID, tableName);
-			properties.setProperty(KEY_SOURCE, SRC_TABLE);
-			profile.setProperties(properties);
-			final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
-			if (cal != null)
-				profile.setSpatialCalibration(cal);
-		}
+		if (ij1table == null)
+			buildProfileFromIJ2Table();
+		else
+			buildProfileFromIJ1Table();
+		final Properties properties = new Properties();
+		if (tableName != null)
+			properties.setProperty(KEY_ID, tableName);
+		properties.setProperty(KEY_SOURCE, SRC_TABLE);
+		profile.setProperties(properties);
+		final Calibration cal = guessCalibrationFromHeading(radiiColumnHeader);
+		if (cal != null)
+			profile.setSpatialCalibration(cal);
 
 	}
 
@@ -130,6 +129,8 @@ public class TabularParser implements Parser {
 		for (int i = rowRange[0]; i <= rowRange[1]; i++) {
 			final ProfileEntry entry = new ProfileEntry(radii[i], counts[i], null);
 			profile.add(entry);
+			if (!running)
+				break;
 		}
 	}
 
@@ -142,6 +143,8 @@ public class TabularParser implements Parser {
 		for (int i = rowRange[0]; i <= rowRange[1]; i++) {
 			final ProfileEntry entry = new ProfileEntry(radiiColumn.get(i), countsColumn.get(i), null);
 			profile.add(entry);
+			if (!running)
+				break;
 		}
 	}
 
@@ -182,6 +185,12 @@ public class TabularParser implements Parser {
 	@Override
 	public Profile getProfile() {
 		return profile;
+	}
+
+	public static void main(final String... args) {
+		final TabularParser parser = new TabularParser(ShollUtils.csvSample(), "radii_um", "counts");
+		parser.parse();
+		parser.getProfile().plot().show();
 	}
 
 }
