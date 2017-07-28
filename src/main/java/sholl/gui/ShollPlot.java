@@ -78,7 +78,7 @@ public class ShollPlot extends Plot {
 		super(title, xLabel, yLabel, DUMMY_VALUES, DUMMY_VALUES, DEF_FLAGS);
 		this.stats = stats;
 		if (stats == null)
-			throw new NullPointerException("Stats instance cannot be null");
+			throw new IllegalArgumentException("Stats instance cannot be null");
 
 		if (stats instanceof LinearProfileStats) {
 			linearStats = (LinearProfileStats) stats;

@@ -137,7 +137,7 @@ public class TabularParser implements Parser {
 		final DoubleColumn radiiColumn = ij2table.get(radiiCol);
 		final DoubleColumn countsColumn = ij2table.get(countsCol);
 		if (radiiColumn == null || countsColumn == null)
-			throw new NullPointerException("Specified headings do not match existing ones");
+			throw new IllegalArgumentException("Specified headings do not match existing ones");
 		final int[] rowRange = getFilteredRowRange(ij2table.getRowCount() - 1);
 		for (int i = rowRange[0]; i <= rowRange[1]; i++) {
 			final ProfileEntry entry = new ProfileEntry(radiiColumn.get(i), countsColumn.get(i), null);
@@ -164,7 +164,7 @@ public class TabularParser implements Parser {
 
 	public void restrictToSubset(final int firstRow, final int lastRow) {
 		if (successful())
-			throw new RuntimeException("restrictToSubset() must be called before parsing data");
+			throw new UnsupportedOperationException("restrictToSubset() must be called before parsing data");
 		this.startRow = firstRow;
 		this.endRow = lastRow;
 	}

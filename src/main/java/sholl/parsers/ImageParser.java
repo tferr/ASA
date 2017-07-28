@@ -98,7 +98,7 @@ public class ImageParser implements Parser {
 
 	public void setRadii(final double[] radiiArray) {
 		if (radiiArray == null) {
-			throw new NullPointerException("radii array cannot be null");
+			throw new IllegalArgumentException("radii array cannot be null");
 		}
 		if (radii == null)
 			radii = new ArrayList<>();
@@ -139,9 +139,9 @@ public class ImageParser implements Parser {
 
 	protected void checkUnsetFields(final boolean includeThreshold) {
 		if (center == null || radii == null)
-			throw new NullPointerException("Cannot proceed with undefined parameters");
+			throw new IllegalArgumentException("Cannot proceed with undefined parameters");
 		if (includeThreshold && (upperT == ImageProcessor.NO_THRESHOLD || lowerT == ImageProcessor.NO_THRESHOLD))
-			throw new NullPointerException("Cannot proceed with undefined threshold levels");
+			throw new IllegalArgumentException("Cannot proceed with undefined threshold levels");
 	}
 
 	protected void checkUnsetFields() {
@@ -283,6 +283,10 @@ public class ImageParser implements Parser {
 		return img;
 	}
 
+	/**
+	 * Creates a 2D Sholl heatmap by applying measured values to the foreground
+	 * pixels of a copy of the analyzed image
+	 */
 	public ImageProcessor getMaskProcessor(final boolean floatProcessor, final double[] maskValues) {
 
 		checkUnsetFields();
