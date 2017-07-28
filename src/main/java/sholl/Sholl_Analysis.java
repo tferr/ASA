@@ -64,12 +64,9 @@ import ij.measure.Calibration;
 import ij.measure.CurveFitter;
 import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
-import ij.plugin.ZProjector;
 import ij.plugin.frame.Recorder;
-import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.LUT;
-import ij.process.ShortProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 import ij.util.Tools;
@@ -171,9 +168,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private static final String QUAD_WEST = "Right of line";
 	private String quadString = "None";
 	private int quadChoice;
-	private int minX, maxX;
-	private int minY, maxY;
-	private int minZ, maxZ;
 	private int x;
 	private int y;
 	private int z;
@@ -228,16 +222,16 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	// private Map<Double, HashSet<UPoint>> intersPoints;
 	// private boolean storeIntersPoints = true;
 	private Profile profile;
+	private ImageParser parser;
 
 	/**
-	 * This method is called when the plugin is loaded. {@code arg} is specified
-	 * in {@code plugins.config}. See
-	 * {@link ij.plugin.PlugIn#run(java.lang.String)}
+	 * This method is called when the plugin is loaded. {@code arg} is specified in
+	 * {@code plugins.config}. See {@link ij.plugin.PlugIn#run(java.lang.String)}
 	 *
 	 * @param arg
-	 *            If {@code image}, the plugin runs in "bitmap mode" If
-	 *            {@code csv} the plugin is set for analysis of tabular data. If
-	 *            {@code sample}, the plugin runs on a 2D demo image.
+	 *            If {@code image}, the plugin runs in "bitmap mode" If {@code csv}
+	 *            the plugin is set for analysis of tabular data. If {@code sample},
+	 *            the plugin runs on a 2D demo image.
 	 */
 	@Override
 	public void run(final String arg) {
@@ -434,29 +428,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 			for (int i = 0; i < size; i++) {
 				radii[i] = startRadius + i * stepRadius;
-			}
-
-			// Define boundaries of analysis according to orthogonal chords (if
-			// any)
-			final int xymaxradius = (int) Math.round(radii[size - 1] / vxWH);
-			final int zmaxradius = (int) Math.round(radii[size - 1] / vxD);
-
-			minX = Math.max(x - xymaxradius, 0);
-			maxX = Math.min(x + xymaxradius, wdth);
-			minY = Math.max(y - xymaxradius, 0);
-			maxY = Math.min(y + xymaxradius, hght);
-			minZ = Math.max(z - zmaxradius, 1);
-			maxZ = Math.min(z + zmaxradius, depth);
-
-			if (orthoChord && trimBounds) {
-				if (quadString.equals(QUAD_NORTH))
-					maxY = Math.min(y + xymaxradius, y);
-				else if (quadString.equals(QUAD_SOUTH))
-					minY = Math.max(y - xymaxradius, y);
-				else if (quadString.equals(QUAD_WEST))
-					minX = x;
-				else if (quadString.equals(QUAD_EAST))
-					maxX = x;
 			}
 
 			// 2D: Analyze the data and return intersection counts with nSpans
@@ -2044,99 +2015,10 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 */
 	@Deprecated
 	public int[][] getCircumferencePoints(final int cx, final int cy, final int radius) {
-
-		// Initialize algorithm variables
-		int i = 0, x = 0, y = radius;
-		final int r = radius + 1;
-		int err = 0, errR, errD;
-
-		// Array to store first 1/8 of points relative to center
-		final int[][] data = new int[r][2];
-
-		do {
-			// Add this point as part of the circumference
-			data[i][0] = x;
-			data[i++][1] = y;
-
-			// Calculate the errors for going right and down
-			errR = err + 2 * x + 1;
-			errD = err - 2 * y + 1;
-
-			// Choose which direction to go
-			if (Math.abs(errD) < Math.abs(errR)) {
-				y--;
-				err = errD; // Go down
-			} else {
-				x++;
-				err = errR; // Go right
-			}
-		} while (x <= y);
-
-		// Create an array to hold the absolute coordinates
-		final int[][] points = new int[r * 8][2];
-
-		// Loop through the relative circumference points
-		for (i = 0; i < r; i++) {
-
-			// Pull out the point for quick access;
-			x = data[i][0];
-			y = data[i][1];
-
-			// Convert the relative point to an absolute point
-			points[i][0] = x + cx;
-			points[i][1] = y + cy;
-
-			// Use geometry to calculate remaining 7/8 of the circumference
-			// points
-			points[r * 4 - i - 1][0] = x + cx;
-			points[r * 4 - i - 1][1] = -y + cy;
-			points[r * 8 - i - 1][0] = -x + cx;
-			points[r * 8 - i - 1][1] = y + cy;
-			points[r * 4 + i][0] = -x + cx;
-			points[r * 4 + i][1] = -y + cy;
-			points[r * 2 - i - 1][0] = y + cx;
-			points[r * 2 - i - 1][1] = x + cy;
-			points[r * 2 + i][0] = y + cx;
-			points[r * 2 + i][1] = -x + cy;
-			points[r * 6 + i][0] = -y + cx;
-			points[r * 6 + i][1] = x + cy;
-			points[r * 6 - i - 1][0] = -y + cx;
-			points[r * 6 - i - 1][1] = -x + cy;
-
+		if (parser != null) {
+			return parser.getCircumferencePoints(cx, cy, radius);
 		}
-
-		// Count how many points are out of bounds, while eliminating
-		// duplicates. Duplicates are always at multiples of r (8 points)
-		int pxX, pxY, count = 0, j = 0;
-		for (i = 0; i < points.length; i++) {
-
-			// Pull the coordinates out of the array
-			pxX = points[i][0];
-			pxY = points[i][1];
-
-			if ((i + 1) % r != 0 && pxX >= minX && pxX <= maxX && pxY >= minY && pxY <= maxY)
-				count++;
-		}
-
-		// Create the final array containing only unique points within bounds
-		final int[][] refined = new int[count][2];
-
-		for (i = 0; i < points.length; i++) {
-
-			pxX = points[i][0];
-			pxY = points[i][1];
-
-			if ((i + 1) % r != 0 && pxX >= minX && pxX <= maxX && pxY >= minY && pxY <= maxY) {
-				refined[j][0] = pxX;
-				refined[j++][1] = pxY;
-
-			}
-
-		}
-
-		// Return the array
-		return refined;
-
+		return new ImageParser2D(img).getCircumferencePoints(cx, cy, radius);
 	}
 
 	/** Adds Sholl ROIs to input image */
