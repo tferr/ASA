@@ -10,16 +10,16 @@ import sholl.math.ShollStats
 import sholl.parsers.TabularParser
 
 // We'll start by loading sampled data. In this case, a CSV
-// ctable ontaining demo data from the ddaC1 image.
+// table containing demo data from the ddaC1 image.
 table = ShollUtils.csvSample()
 parser = new TabularParser(table, "radii_um", "counts")
-profile = parser.parse()
+parser.parse()
 if (!parser.successful())
     ui.showDialog("Could not parse\n"+ csvFile)
-ui.show("ddaCsample.csv", table)
 
 // We will now analyze the data
 println "*** Analyzing CSV Demo ***"
+profile = parser.getProfile()
 lStats = new LinearProfileStats(profile)
 plot = new ShollPlot(lStats)
 plot.show()
@@ -93,3 +93,5 @@ println "Determination ratio: " + nStats.getDeterminationRatio()
     plot.rebuild()
     nStats.resetRegression()
 }
+
+ui.show("ddaCsample.csv", table)
