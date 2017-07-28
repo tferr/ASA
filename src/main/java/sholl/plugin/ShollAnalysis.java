@@ -191,14 +191,13 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			"None. Show no plots" })
 	private String plotOutputDescription;
 
-	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table", "Detailed & summary tables" })
+	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
+		"Detailed & summary tables", "None. Show no tables" })
 	private String tableOutputDescription;
 
-	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged", choices = {
-			"ROIs (Sholl points only)", "ROIs (points and 2D shells)", "ROIs and Mask", "None. Show no annotations" }) // TODO:
-																														// implement
-																														// "Sholl
-																														// Mask"
+	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged",
+		choices = { "ROIs (Sholl points only)", "ROIs (points and 2D shells)",
+			"ROIs and mask", "None. Show no annotations" })
 	private String annotationsDescription;
 
 	@Parameter(label = "Annotations LUT", persist = false, callback = "lutChoiceChanged")
@@ -883,6 +882,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 		@Override
 		public void run() {
+			if (!validOutput()) return;
 
 			if (!skipParsing) {
 				parser.parse();
@@ -916,6 +916,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 				sOverlay.setPointsLUT(lutChoice);
 				sOverlay.updateDisplay();
 				overlaySnapshot = imp.getOverlay();
+				if (annotationsDescription.contains("mask")) showMask();
 			}
 
 			// Set Plots
@@ -933,6 +934,23 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			setProfile(profile);
 
 		}
+
+		private void showMask() {
+			// TODO Apply LUT choice to mask
+			parser.getMask().show();
+		}
+
+		private boolean validOutput() {
+			boolean noOutput = plotOutputDescription.contains("None");
+			noOutput = noOutput && tableOutputDescription.contains("None");
+			noOutput = noOutput && annotationsDescription.contains("None");
+			if (noOutput) {
+				helper.error("Analysis can only proceed if at least one type\n" +
+					"of output (plot, table, annotation) is chosen.", "No Valid Output");
+			}
+			return !noOutput;
+		}
+
 	}
 
 	private class PreviewOverlay implements Runnable {
