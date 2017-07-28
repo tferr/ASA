@@ -43,10 +43,7 @@ public class ImageParser3D extends ImageParser {
 
 	@Override
 	public void parse() {
-		checkUnsetFields();
-		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
-			setHemiShells(HEMI_NONE);
-		start = System.currentTimeMillis();
+		super.parse();
 		nSamples = radii.size();
 		stack = (imp.isComposite()) ? ChannelSplitter.getChannel(imp, channel) : imp.getStack();
 		vxW = cal.pixelWidth;

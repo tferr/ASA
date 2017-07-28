@@ -369,6 +369,11 @@ public class ImageParser implements Parser {
 
 	@Override
 	public void parse() {
+		checkUnsetFields();
+		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
+			setHemiShells(HEMI_NONE);
+		start = System.currentTimeMillis();
+		// remainder implemented by parsers extending this class
 	}
 
 	@Override

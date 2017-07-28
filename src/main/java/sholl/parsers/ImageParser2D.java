@@ -92,9 +92,7 @@ public class ImageParser2D extends ImageParser {
 
 	@Override
 	public void parse() {
-		if (UNSET.equals(properties.getProperty(KEY_HEMISHELLS, UNSET)))
-			setHemiShells(HEMI_NONE);
-		start = System.currentTimeMillis();
+		super.parse();
 		ip = getProcessor();
 
 		double[] binsamples;
