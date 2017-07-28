@@ -32,8 +32,6 @@ import org.scijava.command.Interactive;
 import org.scijava.convert.ConvertService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
-import org.scijava.log.LogService;
-import org.scijava.module.ModuleService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.options.OptionsService;
 import org.scijava.plugin.Menu;
@@ -73,8 +71,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter
 	private CommandService cmdService;
 	@Parameter
-	ModuleService moduleService;
-	@Parameter
 	private ConvertService convertService;
 	@Parameter
 	private EventService eventService;
@@ -82,8 +78,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private ImageDisplayService imageDisplayService;
 	@Parameter
 	private LegacyService legacyService;
-	@Parameter
-	private LogService logService;
 	@Parameter
 	private LUTService lutService;
 	@Parameter
@@ -559,9 +553,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		if (roi.getType() == Roi.LINE) {
 			final Line line = (Line) roi;
 			return new UPoint(line.x1, line.y1, imp.getZ(), cal);
-		} else {
-			return new UPoint(roi.getBounds().x, roi.getBounds().y, imp.getZ(), cal);
 		}
+		return new UPoint(roi.getBounds().x, roi.getBounds().y, imp.getZ(), cal);
 	}
 
 	protected boolean updateHyperStackPosition() {
