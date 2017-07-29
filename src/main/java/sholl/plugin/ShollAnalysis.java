@@ -960,8 +960,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		@Override
 		public void run() {
 			if (!previewShells) {
-				// final Overlay overlay = imp.getOverlay();
-				// ShollOverlay.removeShells(overlay);
+				ShollOverlay.remove(overlaySnapshot, "temp");
 				imp.setOverlay(overlaySnapshot);
 				return;
 			}
@@ -976,13 +975,14 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 				profile.getProperties().setProperty(ProfileProperties.KEY_HEMISHELLS,
 						ShollUtils.extractHemiShellFlag(hemiShellChoice));
 				final ShollOverlay so = new ShollOverlay(profile);
-				// so.removeShells();
+				so.setShellsThickness(nSpans);
 				so.setShellsColor(Roi.getColor());
 				// OptionsOverlay optOv =
 				// optionsService.getOptions(OptionsOverlay.class);
 				// Color color = AWTColors.getColor(optOv.getFillColor());
 				// so.setShellsColor(color);
 				so.addCenter();
+				so.assignProperty("temp");
 				imp.setOverlay(so.getOverlay());
 			} catch (final IllegalArgumentException ignored) {
 				return; // invalid parameters: do nothing

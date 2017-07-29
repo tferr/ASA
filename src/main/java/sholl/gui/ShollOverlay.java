@@ -79,6 +79,7 @@ public class ShollOverlay implements ProfileProperties {
 	private static final String TYPE = "sholl-type";
 	public static final String COUNT = "sholl-count";
 	public static final String RADIUS = "sholl-radius";
+	public static final String PROP = "sholl-prop";
 	public static final String SHELL = "shell";
 	public static final String POINTS = "points";
 	private static final String BOTH = "s";
@@ -126,19 +127,28 @@ public class ShollOverlay implements ProfileProperties {
 			imp.setOverlay(overlay);
 	}
 
+	public void assignProperty(String property) {
+		for (int i =0; i < overlay.size(); i++)
+			overlay.get(i).setProperty(PROP, property);
+	}
+
 	public synchronized static void removeShells(final Overlay overlay) {
-		removeShollROIs(overlay, SHELL);
+		removeShollROIs(overlay, TYPE, SHELL);
 	}
 
 	public synchronized static void removeShollROIs(final Overlay overlay) {
-		removeShollROIs(overlay, BOTH);
+		removeShollROIs(overlay, TYPE, BOTH);
 	}
 
-	private synchronized static void removeShollROIs(final Overlay overlay, final String property) {
+	public synchronized static void remove(final Overlay overlay, String property) {
+		removeShollROIs(overlay, PROP, property);
+	}
+
+	private synchronized static void removeShollROIs(final Overlay overlay, final String key, final String property) {
 		if (overlay == null || overlay.size() == 0)
 			return;
 		for (int i = overlay.size() - 1; i >= 0; i--) {
-			final String prpty = overlay.get(i).getProperty(TYPE);
+			final String prpty = overlay.get(i).getProperty(key);
 			if (prpty != null && prpty.contains(property))
 				overlay.remove(i);
 		}
