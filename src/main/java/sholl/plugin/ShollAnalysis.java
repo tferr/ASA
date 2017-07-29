@@ -114,13 +114,13 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Shells:")
 	private String HEADER1;
 
-	@Parameter(label = "Starting radius", required = false, callback = "startRadiusStepSizeChanged", min = "0")
+	@Parameter(label = "Starting radius", required = false, callback = "startRadiusStepSizeChanged", min = "0",style = NumberWidget.SCROLL_BAR_STYLE)
 	private double startRadius;
 
-	@Parameter(label = "Radius step size", required = false, callback = "startRadiusStepSizeChanged", min = "0")
+	@Parameter(label = "Radius step size", required = false, callback = "startRadiusStepSizeChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double stepSize;
 
-	@Parameter(label = "Ending radius", required = false, callback = "endRadiusChanged", min = "0")
+	@Parameter(label = "Ending radius", required = false, callback = "endRadiusChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double endRadius;
 
 	@Parameter(label = "Hemishells", required = false, callback = "overlayShells", choices = { "None. Use full shells",
@@ -541,8 +541,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	private boolean validRadiiOptions() {
-		return (!Double.isNaN(startRadius) && !Double.isNaN(stepSize) && !Double.isNaN(endRadius) && stepSize > 0
-				&& endRadius > startRadius);
+		return (!Double.isNaN(startRadius) && !Double.isNaN(stepSize) && !Double
+			.isNaN(endRadius) && endRadius > startRadius);
 	}
 
 	private UPoint getCenterFromROI() {
@@ -740,17 +740,21 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	protected void startRadiusStepSizeChanged() {
 		if (startRadius > endRadius || stepSize > endRadius)
 			endRadius = Math.min(endRadius + adjustedStepSize(), maxPossibleRadius);
+		previewShells = previewShells && validRadiiOptions();
 		overlayShells();
 	}
 
 	protected void endRadiusChanged() {
 		if (endRadius < startRadius + stepSize)
 			startRadius = Math.max(endRadius - adjustedStepSize(), 0);
+		previewShells = previewShells && validRadiiOptions();
 		overlayShells();
 	}
 
 	protected void nSpansChanged() {
 		nSpansIntChoice = (nSpans == 1) ? "N/A" : "Mean";
+		if (previewShells)
+			overlayShells();
 	}
 
 	protected void nSpansIntChoiceChanged() {
@@ -827,8 +831,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	protected void overlayShells() {
 		if (imp == null)
 			return;
-		if (!validRadii())
-			return;
+		previewShells = previewShells && validRadii();
 		threadService.newThread(previewOverlay).start();
 	}
 
