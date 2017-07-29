@@ -15,6 +15,7 @@ import javax.swing.Timer;
 
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
+import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
 import net.imagej.event.DataDeletedEvent;
 import net.imagej.legacy.LegacyService;
@@ -939,8 +940,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		}
 
 		private void showMask() {
-			// TODO Apply LUT choice to mask
-			parser.getMask().show();
+			final ImageDisplay imgDisplay = convertService.convert(parser.getMask(),
+				ImageDisplay.class);
+			lutService.applyLUT(lutTable, imgDisplay);
+			uiService.show(imgDisplay);
 		}
 
 		private boolean validOutput() {
