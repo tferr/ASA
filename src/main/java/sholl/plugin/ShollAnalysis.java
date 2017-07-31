@@ -922,8 +922,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 				final ShollOverlay sOverlay = new ShollOverlay(profile, imp, true);
 				sOverlay.addCenter();
 				if (annotationsDescription.contains("shells"))
-					sOverlay.setShellsLUT(lutChoice);
-				sOverlay.setPointsLUT(lutChoice);
+					sOverlay.setShellsLUT(lutTable, ShollOverlay.COUNT);
+				sOverlay.setPointsLUT(lutTable, ShollOverlay.COUNT);
 				sOverlay.updateDisplay();
 				overlaySnapshot = imp.getOverlay();
 				if (annotationsDescription.contains("mask")) showMask();

@@ -354,6 +354,24 @@ public class ShollOverlay implements ProfileProperties {
 		setLUT(rois, property, getColorTable(lutName), alpha);
 	}
 
+	public void setPointsLUT(final ColorTable colorTable, final String property) {
+		try {
+			validatePoints();
+			setLUT(points, property, colorTable, pointsAlpha);
+		} catch (final IllegalArgumentException ignored) {
+			// do nothing
+		}
+	}
+
+	public void setShellsLUT(final ColorTable colorTable, final String property) {
+		try {
+			validateShells();
+			setLUT(shells, property, colorTable, shellsAlpha);
+		} catch (final IllegalArgumentException ignored) {
+			// do nothing
+		}
+	}
+
 	private void setLUT(final ArrayList<Roi> rois, final String property, final ColorTable ct, final int alpha)
 			throws IllegalArgumentException {
 		String fProperty = COUNT;
