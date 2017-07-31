@@ -765,10 +765,13 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	protected void nSpansIntChoiceChanged() {
+		int nSpansBefore = nSpans;
 		if (nSpansIntChoice.contains("N/A"))
 			nSpans = 1;
 		else if (nSpans == 1)
 			nSpans++;
+		if (previewShells && nSpansBefore != nSpans)
+			overlayShells();
 	}
 
 	protected void polynomialChoiceChanged() {
