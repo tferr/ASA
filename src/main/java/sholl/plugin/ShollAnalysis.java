@@ -121,7 +121,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Radius step size", required = false, callback = "startRadiusStepSizeChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double stepSize;
 
-	@Parameter(label = "Ending radius", required = false, callback = "endRadiusChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = "Ending radius", persist = false, required = false, callback = "endRadiusChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double endRadius;
 
 	@Parameter(label = "Hemishells", required = false, callback = "overlayShells", choices = { "None. Use full shells",
@@ -443,7 +443,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		initializeParser();
 		voxelSize = parser.getIsotropicVoxelSize();
 		adjustRadiiInputs(true);
-		center = getCenterFromROI();
+		center = getCenterFromROI(true);
 	}
 
 	private void initializeParser() {
@@ -546,15 +546,21 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			.isNaN(endRadius) && endRadius > startRadius);
 	}
 
-	private UPoint getCenterFromROI() {
+	private UPoint getCenterFromROI(final boolean setEndRadius) {
 		final Roi roi = imp.getRoi();
 		if (roi == null)
 			return null;
 		if (roi.getType() == Roi.LINE) {
 			final Line line = (Line) roi;
+			if (setEndRadius)
+				endRadius = line.getLength();
 			return new UPoint(line.x1, line.y1, imp.getZ(), cal);
 		}
-		return new UPoint(roi.getBounds().x, roi.getBounds().y, imp.getZ(), cal);
+		if (setEndRadius && roi.getType() != Roi.POINT)
+				endRadius = roi.getFeretsDiameter() / 2;
+		final double[] ctd = roi.getContourCentroid();
+		return new UPoint((int) Math.round(ctd[0]), (int) Math.round(ctd[1]), imp
+			.getZ(), cal);
 	}
 
 	protected boolean updateHyperStackPosition() {
@@ -583,7 +589,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			cancelAndFreezeUI(NO_IMAGE);
 			return;
 		}
-		final UPoint newCenter = getCenterFromROI();
+		final UPoint newCenter = getCenterFromROI(false);
 		if (newCenter == null) {
 			cancelAndFreezeUI(NO_ROI);
 			return;
@@ -626,7 +632,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		switch (cancelReason) {
 		case NO_CENTER:
 			uiMsg = "Please set an ROI, then press \"" + "Set New Center from Active ROI\".\n"
-					+ "Center coordinates will be defined by the ROI's starting point.";
+					+ "Center coordinates will be defined by the ROI's centroid.";
 			break;
 		case NO_RADII:
 			uiMsg = "Ending radius and Radius step size must be within range.";
