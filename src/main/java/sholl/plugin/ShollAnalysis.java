@@ -273,8 +273,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		} else if (dataset != imageDisplayService.getActiveDataset()) {
 			imp.getWindow().requestFocus();
 		}
-		if (!validProfileExists())
-			updateHyperStackPosition();
 	}
 
 	private boolean validRequirements() {
