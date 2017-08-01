@@ -326,7 +326,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 					getNewDataset();
 				}
 			}).start();
-			analysisAction = "Analyze image";
 			break;
 		default:
 			throw new IllegalArgumentException("Unrecognized option: " + scope);
@@ -422,11 +421,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	private void headsupWarning() {
-		helper.error("<HTML><div WIDTH=480><p>" + "This is an experimental version of the new "
-				+ "version of the Sholl plugin. Apart from many improvements, this release is "
-				+ "focused on sampling accuracy and scriptability (see templates menu in the "
-				+ "Script Editor). Several other refinements should also be noticeblable. E.g., 3D "
-				+ "stacks are now parsed at ~2x speed.</p>"
+		helper.infoMsg("<HTML><div WIDTH=480><p>"
+				+ "This is an experimental version of the new version of the Sholl plugin for ImageJ2 "
+				+ "(Development of IJ1 version is now stopped). This version is focused on sampling "
+				+ "accuracy, extended metrics and scriptability. Several other refinements should "
+				+ "also be noticeblable (e.g., parsing of 3D stacks is now much faster).</p>"
 				+ "<p>Please report any bugs you find (in the ImageJ Forum or through GitHub) "
 				+ "and keeep in mind this is still a work in progress.</p></div></HTML>", "Warning");
 	}
