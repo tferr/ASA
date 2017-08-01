@@ -554,7 +554,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 				endRadius = line.getLength();
 			return new UPoint(line.x1, line.y1, imp.getZ(), cal);
 		}
-		if (setEndRadius && roi.getType() != Roi.POINT)
+		if (roi.getType() == Roi.POINT) {
+			final Rectangle rect = roi.getBounds();
+			return new UPoint(rect.x, rect.y, imp.getZ(), cal);
+		}
+		if (setEndRadius)
 				endRadius = roi.getFeretsDiameter() / 2;
 		final double[] ctd = roi.getContourCentroid();
 		return new UPoint((int) Math.round(ctd[0]), (int) Math.round(ctd[1]), imp
