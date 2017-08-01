@@ -87,6 +87,7 @@ import sholl.parsers.ImageParser3D;
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  */
+@Deprecated
 public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	/* Plugin Information */

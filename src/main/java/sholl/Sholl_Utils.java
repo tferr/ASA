@@ -27,9 +27,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.image.IndexColorModel;
-import java.net.URL;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -76,6 +73,7 @@ public class Sholl_Utils implements PlugIn {
 	 * @return ddaC image, or null if image cannot be retrieved
 	 * @deprecated Use {@link ShollUtils#sampleImage()} instead
 	 */
+	@Deprecated
 	public static ImagePlus sampleImage() {
 		return ShollUtils.sampleImage();
 	}
@@ -273,6 +271,7 @@ public class Sholl_Utils implements PlugIn {
 	 * @deprecated Use {@link ShollUtils#version()} instead
 	 *
 	 */
+	@Deprecated
 	public static String version() {
 		return ShollUtils.version();
 	}
