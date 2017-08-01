@@ -317,7 +317,7 @@ public class Profile implements ProfileProperties {
 			line = line.trim();
 			final int idx = line.indexOf(key);
 			if (idx == -1)
-				break;
+				continue;
 			return line.substring(idx + key.length());
 		}
 		return String.valueOf(Double.NaN);
