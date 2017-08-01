@@ -551,7 +551,7 @@ public class Options implements PlugIn {
 		});
 		popup.add(mi);
 		popup.addSeparator();
-		mi = EnhancedGenericDialog.menuItemTrigerringURL("Help on Sholl Metrics", Sholl_Analysis.URL + "#Metrics");
+		mi = EnhancedGenericDialog.menuItemTrigerringURL("Help on Sholl Metrics", ShollUtils.URL + "#Metrics");
 		popup.add(mi);
 		return popup;
 	}
@@ -627,6 +627,7 @@ public class Options implements PlugIn {
 		this.skipBitmapOptions = skipBitmapOptions;
 	}
 
+	@Deprecated
 	private void loadStringPreferences() {
 		stringPrefs = new HashMap<>();
 		hashMapString = Prefs.get(HASHMAP_KEY, "");

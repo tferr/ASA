@@ -7,6 +7,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.PrimitiveIterator.OfInt;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.stream.IntStream;
 
 import net.imagej.table.ResultsTable;
@@ -19,6 +21,9 @@ import ij.ImagePlus;
 import ij.io.Opener;
 
 public class ShollUtils {
+
+	/* Plugin Information */
+	public static final String URL = "https://imagej.net/Sholl_Analysis";
 
 	private ShollUtils() {
 	}
@@ -127,8 +132,32 @@ public class ShollUtils {
 	 *
 	 */
 	public static String version() {
-		final String VERSION = VersionUtils.getVersion(Sholl_Analysis.class);
+		final String VERSION = VersionUtils.getVersion(ShollUtils.class);
 		return (VERSION == null) ? "X Dev" : VERSION;
+	}
+
+
+	/**
+	 * Retrieves Sholl Analysis implementation date
+	 *
+	 * @return the implementation date or an empty strong if date could not be
+	 *         retrieved.
+	 */
+	public static String buildDate() {
+		String BUILD_DATE = "";
+		final Class<ShollUtils> clazz = ShollUtils.class;
+		final String className = clazz.getSimpleName() + ".class";
+		final String classPath = clazz.getResource(className).toString();
+		final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+		try {
+			final Manifest manifest = new Manifest(new URL(manifestPath).openStream());
+			final Attributes attr = manifest.getMainAttributes();
+			BUILD_DATE = attr.getValue("Implementation-Date");
+			BUILD_DATE = BUILD_DATE.substring(0, BUILD_DATE.lastIndexOf("T"));
+		} catch (final Exception ignored) {
+			BUILD_DATE = "";
+		}
+		return BUILD_DATE;
 	}
 
 }

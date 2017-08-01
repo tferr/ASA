@@ -47,10 +47,9 @@ import sholl.gui.ShollPlot;
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  * @author Tiago Ferreira
  */
-
+@Deprecated
 public class Sholl_Utils implements PlugIn {
 
-	private static final String BUILD = buildDate();
 	private static final String SRC_URL = "https://github.com/tferr/ASA";
 
 	/**
@@ -146,7 +145,7 @@ public class Sholl_Utils implements PlugIn {
 	/** Displays the Sholl's plugin "about" info box */
 	private void showAbout() {
 
-		final String version = Sholl_Analysis.VERSION + " " + BUILD;
+		final String version = ShollUtils.version() + " " + ShollUtils.buildDate();
 		final String header1 = "Sholl Analysis " + version;
 		final String header2 = "Quantitative Sholl-based morphometry of untraced images";
 		final String author = "Tiago Ferreira";
@@ -276,29 +275,6 @@ public class Sholl_Utils implements PlugIn {
 	 */
 	public static String version() {
 		return ShollUtils.version();
-	}
-
-	/**
-	 * Retrieves Sholl Analysis implementation date
-	 *
-	 * @return the implementation date or an empty strong if date could not be
-	 *         retrieved.
-	 */
-	private static String buildDate() {
-		String BUILD_DATE = "";
-		final Class<Sholl_Analysis> clazz = Sholl_Analysis.class;
-		final String className = clazz.getSimpleName() + ".class";
-		final String classPath = clazz.getResource(className).toString();
-		final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
-		try {
-			final Manifest manifest = new Manifest(new URL(manifestPath).openStream());
-			final Attributes attr = manifest.getMainAttributes();
-			BUILD_DATE = attr.getValue("Implementation-Date");
-			BUILD_DATE = BUILD_DATE.substring(0, BUILD_DATE.lastIndexOf("T"));
-		} catch (final Exception ignored) {
-			BUILD_DATE = "";
-		}
-		return BUILD_DATE;
 	}
 
 }

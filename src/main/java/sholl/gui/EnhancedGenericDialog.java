@@ -48,7 +48,7 @@ import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
 import ij.plugin.BrowserLauncher;
 import ij.plugin.frame.Recorder;
-import sholl.Sholl_Analysis;
+import sholl.ShollUtils;
 
 /**
  * Enhances GenericDialog with a few additional features, including scrollbars
@@ -339,8 +339,8 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 	/** Customizes macro recordings */
 	public static final void improveRecording() {
 		if (Recorder.record) {
-			String recordString = "// Recording Sholl Analysis version " + Sholl_Analysis.VERSION + "\n" + "// Visit "
-					+ Sholl_Analysis.URL + "#Batch_Processing for scripting tips\n";
+			String recordString = "// Recording Sholl Analysis version " + ShollUtils.version() + "\n" + "// Visit "
+					+ ShollUtils.URL + "#Batch_Processing for scripting tips\n";
 			final String cmd = Recorder.getCommand();
 			final String cmdOptions = Recorder.getCommandOptions();
 			if (cmd == null || cmdOptions == null) {
@@ -375,6 +375,7 @@ public class EnhancedGenericDialog extends GenericDialogPlus {
 		return mi;
 	}
 
+	@Deprecated
 	public static JMenuItem menuItemTriggeringResources() {
 		final JMenuItem mi = new JMenuItem("About & Resources...");
 		mi.addActionListener(new ActionListener() {
