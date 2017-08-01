@@ -275,7 +275,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		if (imp == null) {
 			cancelAndFreezeUI(NO_IMAGE);
 		} else if (dataset != imageDisplayService.getActiveDataset()) {
-			imp.getWindow().requestFocus();
+			imp.getWindow().requestFocus(); //FIXME: Only works on legacy mode
 		}
 	}
 
