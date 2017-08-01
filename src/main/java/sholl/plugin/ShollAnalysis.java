@@ -84,6 +84,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter
 	private OptionsService optionsService;
 	@Parameter
+	PrefService prefService;
+	@Parameter(visibility = ItemVisibility.INVISIBLE)
 	private StatusService statusService;
 	@Parameter
 	private ThreadService threadService;
@@ -332,44 +334,43 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	private void getNewDataset() {
+
 		try {
-			// final Map<String, Object> map = new HashMap<>();
-			// map.put("imp1", imp);
-			// final Module executeCommand =
-			// helper.executeCommand(DatasetChooser.class, map);
-			// final Map<String, Object> mapIn = executeCommand.getInputs();
-			// helper.log(mapIn.toString());
-			// final Map<String, Object> mapOut = executeCommand.getOutputs();
-			// helper.log(mapOut.toString());
-			// final ImagePlus newImp = (ImagePlus)
-			// executeCommand.getInput("imp2");
-			helper.log("Prompting for new dataset...");
-			final Future<CommandModule> future = cmdService.run(DatasetChooser.class, true);
-			final CommandModule module = future.get();
-			if (future.isCancelled() || module == null) {
-				helper.error("Task did not complete. See console for details", "Error");
-				return;
-			}
-			final ImagePlus newImp = (ImagePlus) module.getInput("imp1");
-			if (newImp == null) {
-				helper.error("Could not retrieve chosen image. See console for details", "Error");
-				return;
-			}
-			if (newImp.equals(imp)) {
-				helper.error("Same dataset chosen. No changes were made.", null);
-				return;
-			}
-			if (newImp.getNSlices() != imp.getNSlices()) {
-				helper.error("Z-dimension of new dataset differs.\n" + "Please restart the command to analyze\n"
-						+ newImp.getTitle(), "Not a Suitable Choice");
-				return;
-			}
-			loadDataset(newImp);
-			helper.log("Changed scope of analysis to: " + dataset.getName());
-		} catch (final InterruptedException | ExecutionException exc) {
-			helper.log("Scope of analysis could not be changed");
+			Future<CommandModule> cmdModule = cmdService.run(ChooseImgDisplay.class, true);
+			cmdModule.get();
+			// FIXME: this throws a ClassCastException. not sure why
+			//ImageDisplay imgDisplay = (ImageDisplay) cmdModule.get().getOutput("chosen");
+		} catch (InterruptedException | ExecutionException | ClassCastException exc) {
 			exc.printStackTrace();
 		}
+
+		final String result = prefService.get(ChooseImgDisplay.class, "choice");
+		if (result.isEmpty()) {
+			return; // ChooseImgDisplay canceled / not initialized
+		}
+		ImageDisplay newImgDisplay = null;
+		for (final ImageDisplay imgDisplay : imageDisplayService .getImageDisplays()) {
+			if (result.equals(imgDisplay.getName())) {
+				newImgDisplay = imgDisplay;
+				break;
+			}
+		}
+		if (newImgDisplay == null) {
+			helper.error("Could not retrieve new dataset", null);
+			helper.log("Failed to change dataset");
+			return;
+		}
+		final ImagePlus newImp = convertService.convert(newImgDisplay, ImagePlus.class);
+		if (twoD != (newImp.getNSlices() == 1)) {
+			helper.error("Z-dimension of new dataset differs which requires a reset.\n" +
+				"Please restart the command to analyze " + newImp.getTitle(),
+				"Not a Suitable Choice");
+			return;
+		}
+		loadDataset(newImp);
+		preview(); // activate new image
+		helper.infoMsg("Target image is now " + newImp.getTitle(), null);
+		helper.log("Changed scope of analysis to: " + newImp.getTitle());
 	}
 
 	private void startAnalysisThread(final boolean skipImageParsing) {
