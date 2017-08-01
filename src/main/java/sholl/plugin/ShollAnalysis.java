@@ -86,7 +86,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 //	@Parameter(visibility = ItemVisibility.INVISIBLE)
 //	private OptionsService optionsService;
 	@Parameter
-	PrefService prefService;
+	private PrefService prefService;
 	@Parameter(visibility = ItemVisibility.INVISIBLE)
 	private StatusService statusService;
 	@Parameter

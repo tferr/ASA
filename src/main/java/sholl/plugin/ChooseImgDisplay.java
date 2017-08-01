@@ -9,7 +9,6 @@ import net.imagej.ImageJ;
 import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
 
-import org.scijava.ItemIO;
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
@@ -31,10 +30,9 @@ public class ChooseImgDisplay extends DynamicCommand implements Command {
 	@Parameter(label = "New image", persist= false, visibility = ItemVisibility.TRANSIENT)
 	private String choice;
 
-	@Parameter(type = ItemIO.OUTPUT)
-	private ImageDisplay chosen;
+//	@Parameter(type = ItemIO.OUTPUT)
+//	private ImageDisplay chosen;
 
-	private List<String> choices;
 //	private HashMap<String, ImageDisplay> map;
 
 	@Override
@@ -52,13 +50,13 @@ public class ChooseImgDisplay extends DynamicCommand implements Command {
 //		for (final ImageDisplay imgDisplay : list) {
 //			map.put(imgDisplay.getName(), imgDisplay);
 //		}
-		choices = new ArrayList<>();
-		prefService.put(ChooseImgDisplay.class, "choice", "");
+		final List<String> choices = new ArrayList<>();
+		prefService.put(ChooseImgDisplay.class, "choice", ""); // reset pref
 		final List<ImageDisplay> list = imgDisplayService.getImageDisplays();
 		if (list == null || list.size() < 2) {
 			cancel("No other images are open.");
 		}
-		ImageDisplay activteImgDisplay = imgDisplayService.getActiveImageDisplay(); 
+		final ImageDisplay activteImgDisplay = imgDisplayService.getActiveImageDisplay();
 		for (final ImageDisplay imgDisplay : list) {
 			if (imgDisplay.equals(activteImgDisplay))
 				continue;
