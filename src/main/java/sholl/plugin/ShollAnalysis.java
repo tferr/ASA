@@ -1,5 +1,6 @@
 package sholl.plugin;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -34,10 +35,11 @@ import org.scijava.convert.ConvertService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
 import org.scijava.module.MutableModuleItem;
-import org.scijava.options.OptionsService;
+//import org.scijava.options.OptionsService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.prefs.PrefService;
 import org.scijava.thread.ThreadService;
 import org.scijava.ui.DialogPrompt.Result;
 import org.scijava.ui.UIService;
@@ -81,8 +83,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private LegacyService legacyService;
 	@Parameter
 	private LUTService lutService;
-	@Parameter
-	private OptionsService optionsService;
+//	@Parameter(visibility = ItemVisibility.INVISIBLE)
+//	private OptionsService optionsService;
 	@Parameter
 	PrefService prefService;
 	@Parameter(visibility = ItemVisibility.INVISIBLE)
