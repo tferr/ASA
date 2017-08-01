@@ -130,7 +130,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	@Parameter(label = "Hemishells", required = false, callback = "overlayShells", choices = { "None. Use full shells",
 			"Above center", "Below center", "Left of center", "Right of center" })
-	private String hemiShellChoice;
+	private String hemiShellChoice = "None. Use full shells";
 
 	@Parameter(label = "Set Center from Active ROI", callback = "setCenterFromROI", persist = false)
 	private Button centerButton;
@@ -163,14 +163,14 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	@Parameter(label = "Polynomial fit", callback = "polynomialChoiceChanged", required = false, choices = {
 			"None. Skip curve fitting", "'Best fitting' degree (2nd-20th)", "Use degree specified below:" })
-	private String polynomialChoice;
+	private String polynomialChoice = "'Best fitting' degree (2nd-20th)";
 
 	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", min = "0", max = "20", style = NumberWidget.SLIDER_STYLE)
 	private int polynomialDegree;
 
 	@Parameter(label = "Primary branches", callback = "primaryBranchesChoiceChanged", choices = {
 			"Infer from starting radius", "Infer from multipoint ROI", "Use no. specified below:" })
-	private String primaryBranchesChoice;
+	private String primaryBranchesChoice = "Infer from starting radius";
 
 	@Parameter(label = EMPTY_LABEL, callback = "primaryBranchesChanged", min = "-1", max = "100", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double primaryBranches;
@@ -183,7 +183,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private String HEADER3B;
 
 	@Parameter(label = "Method", choices = { "Automatically choose", "Semi-Log", "Log-log" })
-	private String normalizationMethodDescription;
+	private String normalizationMethodDescription = "Automatically choose";
 
 	@Parameter(label = "Normalizer", callback = "normalizerDescriptionChanged")
 	private String normalizerDescription;
@@ -194,19 +194,19 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	@Parameter(label = "Plots", choices = { "Linear plot", "Normalized plot", "Linear & normalized plots",
 			"None. Show no plots" })
-	private String plotOutputDescription;
+	private String plotOutputDescription = "Linear plot";
 
 	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
 		"Detailed & summary tables", "None. Show no tables" })
-	private String tableOutputDescription;
+	private String tableOutputDescription = "None. Show no tables";
 
 	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged",
 		choices = { "ROIs (Sholl points only)", "ROIs (points and 2D shells)",
 			"ROIs and mask", "None. Show no annotations" })
-	private String annotationsDescription;
+	private String annotationsDescription = "ROIs (Sholl points only)";
 
-	@Parameter(label = "Annotations LUT", persist = false, callback = "lutChoiceChanged")
-	private String lutChoice;
+	@Parameter(label = "Annotations LUT", callback = "lutChoiceChanged")
+	private String lutChoice = "mpl-viridis.lut";
 
 	@Parameter(required = false, label = EMPTY_LABEL, persist = false)
 	private ColorTable lutTable;
