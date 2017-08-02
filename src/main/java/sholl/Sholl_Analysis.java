@@ -1685,7 +1685,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 
 	private synchronized void assembleProfile(final int xc, final int yc, final int zc, final double[] radii,
 			final int nSpans, final int binChoice, final boolean skipSingleVoxels, final ImagePlus img) {
-		final ImageParser parser = (is3D) ? new ImageParser3D(img) : new ImageParser2D(img);
+		parser = (is3D) ? new ImageParser3D(img) : new ImageParser2D(img);
 		parser.setCenterPx(xc, yc, zc);
 		parser.setRadii(radii);
 		if (is3D)
@@ -1822,8 +1822,9 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	private ImagePlus makeMask(final String ttl, final double[] values, final int xc, final int yc,
 			final Calibration cal, final boolean floatProcessor) {
 
-		if (values == null || parser == null)
-			return null;
+		if (values == null || parser == null) {
+			throw new IllegalArgumentException("Mask cannot be generate before parsing image");
+		}
 
 		final ImageProcessor mp = parser.getMaskProcessor(floatProcessor, values);
 
