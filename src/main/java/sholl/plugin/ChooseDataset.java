@@ -19,7 +19,7 @@ import org.scijava.prefs.PrefService;
 
 /** ChooseImgDisplay */
 @Plugin(initializer = "init", type = Command.class, visible = false, label = "Choose New Dataset")
-public class ChooseImgDisplay extends DynamicCommand implements Command {
+public class ChooseDataset extends DynamicCommand implements Command {
 
 	@Parameter
 	private DatasetService datasetService;
@@ -40,7 +40,7 @@ public class ChooseImgDisplay extends DynamicCommand implements Command {
 
 	@Override
 	public void run() {
-		prefService.put(ChooseImgDisplay.class, "choice", choice);
+		prefService.put(ChooseDataset.class, "choice", choice);
 //		chosen = map.get(choice);
 	}
 
@@ -54,7 +54,7 @@ public class ChooseImgDisplay extends DynamicCommand implements Command {
 //			map.put(imgDisplay.getName(), imgDisplay);
 //		}
 		final List<String> choices = new ArrayList<>();
-		prefService.put(ChooseImgDisplay.class, "choice", ""); // reset pref
+		prefService.put(ChooseDataset.class, "choice", ""); // reset pref
 		final List<Dataset> list = datasetService.getDatasets();
 		if (list == null || list.size() < 2) {
 			cancel("No other images are open.");
@@ -74,7 +74,7 @@ public class ChooseImgDisplay extends DynamicCommand implements Command {
 	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.ui().showUI();
-		ij.command().run(ChooseImgDisplay.class, true);
+		ij.command().run(ChooseDataset.class, true);
 	}
 
 }
