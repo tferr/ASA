@@ -844,23 +844,23 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	protected void primaryBranchesChoiceChanged() {
 		if (primaryBranchesChoice.contains("starting radius")) {
-			primaryBranches = -1;
+			primaryBranches = 0;
 		} else if (primaryBranchesChoice.contains("multipoint") && imp != null) {
 			final Roi roi = imp.getRoi();
 			if (roi == null || roi.getType() != Roi.POINT) {
 				helper.error("Please activate a multipoint ROI marking primary branches.", "No Multipoint ROI Exists");
 				primaryBranchesChoice = "Infer from starting radius";
-				primaryBranches = -1;
+				primaryBranches = 0;
 				return;
 			}
 			final PointRoi point = (PointRoi) roi;
 			primaryBranches = point.getCount(point.getCounter());
-		} else if (primaryBranches == -1)
+		} else if (primaryBranches == 0)
 			primaryBranches = 1;
 	}
 
 	protected void primaryBranchesChanged() {
-		if (primaryBranches == -1)
+		if (primaryBranches == 0)
 			primaryBranchesChoice = "Infer from starting radius";
 		else
 			primaryBranchesChoice = "Use no. specified below:";
