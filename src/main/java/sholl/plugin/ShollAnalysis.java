@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -15,6 +16,7 @@ import java.util.concurrent.Future;
 import javax.swing.Timer;
 
 import net.imagej.Dataset;
+import net.imagej.DatasetService;
 import net.imagej.ImageJ;
 import net.imagej.display.ImageDisplay;
 import net.imagej.display.ImageDisplayService;
@@ -75,6 +77,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private CommandService cmdService;
 	@Parameter
 	private ConvertService convertService;
+	@Parameter
+	private DatasetService datasetService;
 	@Parameter
 	private EventService eventService;
 	@Parameter
@@ -337,7 +341,9 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private void getNewDataset() {
 
 		try {
-			Future<CommandModule> cmdModule = cmdService.run(ChooseImgDisplay.class, true);
+			final Map<String, Object> input= new HashMap<>();
+			input.put("datasetToIgnore", dataset);
+			final Future<CommandModule> cmdModule = cmdService.run(ChooseDataset.class, true, input);
 			cmdModule.get();
 			// FIXME: this throws a ClassCastException. not sure why
 			//ImageDisplay imgDisplay = (ImageDisplay) cmdModule.get().getOutput("chosen");
@@ -345,25 +351,25 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			exc.printStackTrace();
 		}
 
-		final String result = prefService.get(ChooseImgDisplay.class, "choice");
+		final String result = prefService.get(ChooseDataset.class, "choice");
 		if (result.isEmpty()) {
 			return; // ChooseImgDisplay canceled / not initialized
 		}
-		ImageDisplay newImgDisplay = null;
-		for (final ImageDisplay imgDisplay : imageDisplayService .getImageDisplays()) {
-			if (result.equals(imgDisplay.getName())) {
-				newImgDisplay = imgDisplay;
+		Dataset newDataset = null;
+		for (final Dataset dataset : datasetService.getDatasets()) {
+			if (result.equals(dataset.getName())) {
+				newDataset = dataset;
 				break;
 			}
 		}
-		if (newImgDisplay == null) {
+		if (newDataset == null) {
 			helper.error("Could not retrieve new dataset", null);
 			helper.log("Failed to change dataset");
 			return;
 		}
-		final ImagePlus newImp = convertService.convert(newImgDisplay, ImagePlus.class);
+		final ImagePlus newImp = convertService.convert(newDataset, ImagePlus.class);
 		if (twoD != (newImp.getNSlices() == 1)) {
-			helper.error("Z-dimension of new dataset differs which requires a reset.\n" +
+			helper.error("Z-dimension of new dataset differs which will require a rebuild of the main dialog.\n" +
 				"Please restart the command to analyze " + newImp.getTitle(),
 				"Not a Suitable Choice");
 			return;
