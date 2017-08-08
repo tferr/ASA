@@ -1,8 +1,11 @@
 package sholl.plugin;
 
+import java.awt.AWTException;
 import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +40,6 @@ import org.scijava.convert.ConvertService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
 import org.scijava.module.MutableModuleItem;
-//import org.scijava.options.OptionsService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
