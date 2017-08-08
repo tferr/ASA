@@ -23,6 +23,8 @@ import org.scijava.ui.DialogPrompt.Result;
 import org.scijava.ui.UIService;
 import org.scijava.util.VersionUtils;
 
+import sholl.plugin.Prefs;
+
 public class Helper {
 
 	@Parameter
@@ -35,13 +37,18 @@ public class Helper {
 	private LogService logService;
 
 	@Parameter
+	private PrefService prefService;
+
+	@Parameter
 	private StatusService statusService;
 
 	@Parameter
 	private UIService uiService;
 
 	private final String VERSION;
+	private final boolean debug;
 
+	@Deprecated
 	public Helper() {
 		this(new Context(LegacyService.class, PrefService.class, LogService.class, StatusService.class,
 				UIService.class));
@@ -50,6 +57,7 @@ public class Helper {
 	public Helper(final Context context) {
 		context.inject(this);
 		VERSION = VersionUtils.getVersion(sholl.Helper.class);
+		debug = prefService.getBoolean(Prefs.class, "debugMode", Prefs.DEF_DEBUG_MODE);
 	}
 
 	public Result errorPrompt(final String message, final String title) {
@@ -63,7 +71,7 @@ public class Helper {
 	}
 
 	public void infoMsg(final String message, final String title) {
-		uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION + " Error" : title,
+		uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION : title,
 				MessageType.INFORMATION_MESSAGE);
 	}
 
@@ -77,8 +85,12 @@ public class Helper {
 				MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
 	}
 
-	public void log(final String string) {
-		logService.info("[Sholl] " + string);
+	public void log(Object msg) {
+		logService.info("[Sholl] " + msg);
+	}
+
+	public void debug(Object msg) {
+		if (debug) logService.debug("[Sholl] " + msg);
 	}
 
 	public void warn(final String string) {
@@ -101,7 +113,7 @@ public class Helper {
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
 	}
 
-	protected <C extends Command> Module executeCommand(final Class<C> cmdClass, final Map<String, Object> inputs) {
+	public <C extends Command> Module executeCommand(final Class<C> cmdClass, final Map<String, Object> inputs) {
 		final Module module = moduleService.createModule(cmdService.getCommand(cmdClass));
 		try {
 			module.initialize();
@@ -125,14 +137,6 @@ public class Helper {
 			ex.printStackTrace();
 		}
 		return module;
-	}
-
-	public StatusService getStatusService() {
-		return statusService;
-	}
-
-	public LogService getLogService() {
-		return logService;
 	}
 
 }
