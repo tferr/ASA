@@ -19,15 +19,20 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
+
 package sholl.math;
 
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.scijava.NullContextException;
+import org.scijava.command.ContextCommand;
+import org.scijava.plugin.Plugin;
 
 import sholl.Helper;
 import sholl.Profile;
 
-class ProfileComparator {
+@Plugin(type = ContextCommand.class, visible = false)
+public class Comparator extends ContextCommand {
 
 	private final Profile profile1;
 	private final Profile profile2;
@@ -36,7 +41,7 @@ class ProfileComparator {
 	private final int nPoints;
 	private final SimpleRegression regression;
 
-	public ProfileComparator(final Profile profile1, final Profile profile2) {
+	public Comparator(final Profile profile1, final Profile profile2) {
 		validateProfile(profile1, profile2);
 		this.profile1 = profile1;
 		this.profile2 = profile2;
@@ -48,9 +53,11 @@ class ProfileComparator {
 			regression.addData(p1Counts[i], p2Counts[i]);
 	}
 
-	public void run() {
-		final Helper helper = new Helper();
-		helper.log("\n*** Comparing", profile1.identifier(), "vs", profile2.identifier(), "***");
+	@Override
+	public void run() throws NullContextException {
+		final Helper helper = new Helper(context());
+		helper.log("\n*** Comparing", profile1.identifier(), "vs", profile2
+			.identifier(), "***");
 		helper.log("KS-test: " + getKStest());
 		helper.log("Reg R: " + regression.getR());
 		helper.log("Reg R^2: " + regression.getRSquare());
@@ -68,8 +75,8 @@ class ProfileComparator {
 
 	private void validateProfile(final Profile... profiles) {
 		for (final Profile p : profiles)
-			if (p == null || p.size() == 0)
-				throw new IllegalArgumentException("Cannot compare null or empty profiles");
+			if (p == null || p.size() == 0) throw new IllegalArgumentException(
+				"Cannot compare null or empty profiles");
 	}
 
 }

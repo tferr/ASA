@@ -253,11 +253,18 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private Profile profile;
 	private int scope;
 
+	/* Preferences */
+	private boolean autoClose;
+	private int minDegree;
+	private int maxDegree;
+
+
 	@EventHandler
 	public void onEvent(final DataDeletedEvent evt) {
 		if (evt.getObject().equals(dataset)) {
 			imp = null;
 			cancel(NO_IMAGE);
+			helper.debug(evt);
 		}
 	}
 
