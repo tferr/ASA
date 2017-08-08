@@ -150,15 +150,16 @@ public class ShollPlot extends Plot {
 		pw.drawPlot(newPlot);
 	}
 
-	private static String defaultTitle(final Profile profile) {
-		String plotTitle = profile.identifier();
-		if (plotTitle == null || plotTitle.isEmpty())
-			plotTitle = "Sholl Profile";
-		return plotTitle;
-	}
-
 	private static String defaultTitle(final ShollStats stats) {
-		return defaultTitle(stats.getProfile());
+		String plotTitle = "Sholl Profile";
+		if (stats instanceof LinearProfileStats)
+			plotTitle += " (Linear)";
+		else if (stats instanceof NormalizedProfileStats)
+			plotTitle += " ("+ ((NormalizedProfileStats) stats).getMethodDescription() +")";
+		final String identifier = stats.getProfile().identifier();
+		if (identifier != null && !identifier.isEmpty())
+			plotTitle += " for "+ identifier;
+		return plotTitle;
 	}
 
 	private static String defaultXtitle(final Profile profile) {
