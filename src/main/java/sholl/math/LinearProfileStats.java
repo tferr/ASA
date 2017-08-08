@@ -597,7 +597,8 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	public double getMeanValueOfPolynomialFit(final double lowerBound, final double upperBound) {
 		try {
 			return getMeanValueOfPolynomialFit(null, lowerBound, upperBound);
-		} catch (MathIllegalArgumentException | MaxCountExceededException ignored) {
+		} catch (MathIllegalArgumentException | MaxCountExceededException exc) {
+			debug(exc);
 			return Double.NaN;
 		}
 	}

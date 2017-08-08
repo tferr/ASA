@@ -326,7 +326,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 				return;
 			statusService.showStatus("Aborting analysis...");
 			analysisRunner.terminate();
-			helper.log("Analysis aborted...");
+			helper.debug("Analysis aborted...");
 			break;
 		case SCOPE_CHANGE_DATASET:
 			threadService.newThread(new Runnable() {
@@ -367,7 +367,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		}
 		if (newDataset == null) {
 			helper.error("Could not retrieve new dataset", null);
-			helper.log("Failed to change dataset");
+			helper.debug("Failed to change dataset");
 			return;
 		}
 		final ImagePlus newImp = convertService.convert(newDataset, ImagePlus.class);
@@ -380,16 +380,24 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		loadDataset(newImp);
 		preview(); // activate new image
 		helper.infoMsg("Target image is now " + newImp.getTitle(), null);
-		helper.log("Changed scope of analysis to: " + newImp.getTitle());
+		helper.debug("Changed scope of analysis to: " + newImp.getTitle());
 	}
 
 	private void startAnalysisThread(final boolean skipImageParsing) {
 		analysisRunner = new AnalysisRunner(parser);
 		analysisRunner.setSkipParsing(skipImageParsing);
 		statusService.showStatus("Analysis started");
-		helper.log("Analysis started...");
+		helper.debug("Analysis started...");
 		analysisThread = threadService.newThread(analysisRunner);
 		analysisThread.start();
+		if (autoClose) {
+			try {
+				final Robot r = new Robot();
+				r.keyPress(KeyEvent.VK_ESCAPE);
+			} catch (AWTException exc) {
+				helper.debug(exc);
+			}
+		}
 	}
 
 	private boolean validProfileExists() {
@@ -938,7 +946,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 			/// Normalized profile stats
 			final NormalizedProfileStats nStats = getNormalizedProfileStats(profile);
-			helper.log("Sholl decay: " + nStats.getShollDecay());
+			helper.debug("Sholl decay: " + nStats.getShollDecay());
 
 			// Set ROIs
 			if (!annotationsDescription.contains("None")) {
@@ -963,7 +971,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			}
 
 			// TODO: implement tables
-			helper.log("Tables are not yet implemented");
+			helper.debug("Tables are not yet implemented");
 			setProfile(profile);
 
 		}
