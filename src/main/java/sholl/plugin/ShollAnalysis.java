@@ -421,6 +421,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	/* initializer method running before displaying prompt */
 	protected void init() {
 		helper = new Helper(context());
+		readPreferences();
 		headsupWarning();
 		imp = legacyService.getImageMap().lookupImagePlus(imageDisplayService.getActiveImageDisplay());
 		if (imp == null)
@@ -436,7 +437,15 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		setLUTs();
 		loadDataset(imp);
 		adjustSamplingOptions();
+		adjustFittingOptions();
 		setNormalizerChoices();
+	}
+
+	private void readPreferences() {
+		helper.debug("Reading preferences");
+		autoClose = prefService.getBoolean(Prefs.class, "autoClose", Prefs.DEF_AUTO_CLOSE);
+		minDegree = prefService.getInt(Prefs.class, "minDegree", Prefs.DEF_MIN_DEGREE);
+		maxDegree = prefService.getInt(Prefs.class, "maxDegree", Prefs.DEF_MAX_DEGREE);
 	}
 
 	private void headsupWarning() {
@@ -495,6 +504,13 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			removeInput(nSpansIntChoiceInput);
 		}
 
+	}
+
+	private void adjustFittingOptions() {
+			final MutableModuleItem<Integer> polynomialDegreeInput = getInfo()
+					.getMutableInput("polynomialDegree", Integer.class);
+			polynomialDegreeInput.setMinimumValue(minDegree);
+			polynomialDegreeInput.setMaximumValue(maxDegree);
 	}
 
 	protected void setAnalysisScope() {
@@ -799,7 +815,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		if (!polynomialChoice.contains("specified")) {
 			polynomialDegree = 0;
 		} else if (polynomialDegree == 0) {
-			polynomialDegree = 10;
+			polynomialDegree = (minDegree + maxDegree ) / 2;
 		}
 	}
 
@@ -821,7 +837,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	protected void polynomialDegreeChanged() {
 		if (polynomialDegree == 0)
-			polynomialChoice = "'Best fitting' degree (2nd-20th)";
+			polynomialChoice = "'Best fitting' degree";
 		else
 			polynomialChoice = "Use degree specified below:";
 	}
@@ -936,13 +952,14 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 			// Linear profile stats
 			final LinearProfileStats lStats = new LinearProfileStats(profile);
-			if (plotOutputDescription.contains("Linear")) {
-				if (polynomialChoice.contains("Best"))
-					lStats.findBestFit(2, 20, 0.8, 0.05);
-				else if (polynomialChoice.contains("degree") && polynomialDegree > 1)
-					lStats.fitPolynomial(polynomialDegree);
+			if (polynomialChoice.contains("Best")) {
+				final double rSq = prefService.getDouble(Prefs.class, "rSquared", Prefs.DEF_RSQUARED);
+				final double pValue = prefService.getDouble(Prefs.class, "pValue", Prefs.DEF_PVALUE);
+				lStats.findBestFit(minDegree, maxDegree, rSq, pValue);
+			} else if (polynomialChoice.contains("degree") && polynomialDegree > 1) {
+				lStats.fitPolynomial(polynomialDegree);
 			}
-			helper.log("Enclosing radius: " + lStats.getEnclosingRadius(enclosingCutoff));
+			//TODO: Complete stats
 
 			/// Normalized profile stats
 			final NormalizedProfileStats nStats = getNormalizedProfileStats(profile);
