@@ -27,21 +27,25 @@ import java.util.TreeSet;
 import org.apache.commons.math3.exception.InsufficientDataException;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
+import org.scijava.Context;
+import org.scijava.command.ContextCommand;
 
+import sholl.Helper;
 import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.gui.ShollPlot;
 
-class CommonStats implements ShollStats {
+class CommonStats extends ContextCommand implements ShollStats {
 
 	protected final static double UNASSIGNED_VALUE = Double.MIN_VALUE;
 
 	protected final double[] inputRadii;
 	protected final double[] inputCounts;
+	protected final Profile profile;
 	protected int nPoints;
 	protected double[] fCounts;
 	protected ShollPlot plot;
-	protected final Profile profile;
+	protected Helper helper;
 
 	protected CommonStats(final Profile profile) {
 		this(profile, false);
@@ -139,6 +143,23 @@ class CommonStats implements ShollStats {
 			throw new IllegalArgumentException("Fitted data required but fit not yet performed");
 	}
 
+	protected void debug(Object msg) {
+		if (helper != null)
+			helper.debug(msg);
+	}
+
+	protected void setHelper(final Helper helper) {
+		if (helper == null)
+			this.helper = helper;
+	}
+
+	@Override
+	public void setContext(Context context) {
+		super.setContext(context);
+		if (helper == null)
+			helper = new Helper(context);
+	}
+
 	/**
 	 * Returns X-values of a Sholl plot.
 	 *
@@ -177,6 +198,11 @@ class CommonStats implements ShollStats {
 	@Override
 	public Profile getProfile() {
 		return profile;
+	}
+
+	@Override
+	public void run() {
+		// implemented by extending classes
 	}
 
 }
