@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.imagej.Dataset;
+import net.imagej.DatasetService;
 import net.imagej.ImageJ;
-import net.imagej.display.ImageDisplay;
-import net.imagej.display.ImageDisplayService;
 
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -22,13 +22,16 @@ import org.scijava.prefs.PrefService;
 public class ChooseImgDisplay extends DynamicCommand implements Command {
 
 	@Parameter
-	private ImageDisplayService imgDisplayService;
+	private DatasetService datasetService;
 
 	@Parameter
 	private PrefService prefService;
 
-	@Parameter(label = "New image", persist= false, visibility = ItemVisibility.TRANSIENT)
+	@Parameter(label = "New dataset", persist= false, visibility = ItemVisibility.TRANSIENT)
 	private String choice;
+
+	@Parameter(required=false, persist= false, visibility = ItemVisibility.TRANSIENT)
+	private Dataset datasetToIgnore;
 
 //	@Parameter(type = ItemIO.OUTPUT)
 //	private ImageDisplay chosen;
@@ -52,15 +55,14 @@ public class ChooseImgDisplay extends DynamicCommand implements Command {
 //		}
 		final List<String> choices = new ArrayList<>();
 		prefService.put(ChooseImgDisplay.class, "choice", ""); // reset pref
-		final List<ImageDisplay> list = imgDisplayService.getImageDisplays();
+		final List<Dataset> list = datasetService.getDatasets();
 		if (list == null || list.size() < 2) {
 			cancel("No other images are open.");
 		}
-		final ImageDisplay activteImgDisplay = imgDisplayService.getActiveImageDisplay();
-		for (final ImageDisplay imgDisplay : list) {
-			if (imgDisplay.equals(activteImgDisplay))
+		for (final Dataset dataset : list) {
+			if (dataset.equals(datasetToIgnore))
 				continue;
-			choices.add(imgDisplay.getName());
+			choices.add(dataset.getName());
 		}
 		Collections.sort(choices);
 		final MutableModuleItem<String> mItem = getInfo().getMutableInput("choice",
