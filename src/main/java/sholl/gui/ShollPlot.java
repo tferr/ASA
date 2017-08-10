@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
+import ij.WindowManager;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
 import ij.measure.Measurements;
@@ -159,7 +160,7 @@ public class ShollPlot extends Plot {
 		final String identifier = stats.getProfile().identifier();
 		if (identifier != null && !identifier.isEmpty())
 			plotTitle += " for "+ identifier;
-		return plotTitle;
+		return WindowManager.getUniqueName(plotTitle); //displayService.isUniqueName(plotTitle);
 	}
 
 	private static String defaultXtitle(final Profile profile) {
