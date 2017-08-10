@@ -19,6 +19,7 @@ import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 
 import sholl.Helper;
+import sholl.Logger;
 import sholl.ShollUtils;
 
 /**
@@ -127,7 +128,8 @@ public class Prefs extends OptionsPlugin implements Command {
 	@SuppressWarnings("unused")
 	private void init() {
 		helper = new Helper(context());
-		helper.debug("Prefs successfully initialized");
+		logger = new Logger(context());
+		logger.debug("Prefs successfully initialized");
 	}
 
 	@SuppressWarnings("unused")
@@ -142,7 +144,7 @@ public class Prefs extends OptionsPlugin implements Command {
 			platformService.open(new URL(url));
 		}
 		catch (final IOException e) {
-			helper.debug(e);
+			logger.debug(e);
 			helper.error("<HTML><div WIDTH=400>Web page could not be open. " +
 				"Please visit " + url + " using your web browser.", null);
 		}

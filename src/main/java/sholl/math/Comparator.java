@@ -28,7 +28,7 @@ import org.scijava.NullContextException;
 import org.scijava.command.ContextCommand;
 import org.scijava.plugin.Plugin;
 
-import sholl.Helper;
+import sholl.Logger;
 import sholl.Profile;
 
 @Plugin(type = ContextCommand.class, visible = false)
@@ -55,12 +55,12 @@ public class Comparator extends ContextCommand {
 
 	@Override
 	public void run() throws NullContextException {
-		final Helper helper = new Helper(context());
-		helper.log("\n*** Comparing", profile1.identifier(), "vs", profile2
+		final Logger logger = new Logger(context());
+		logger.log("\n*** Comparing", profile1.identifier(), "vs", profile2
 			.identifier(), "***");
-		helper.log("KS-test: " + getKStest());
-		helper.log("Reg R: " + regression.getR());
-		helper.log("Reg R^2: " + regression.getRSquare());
+		logger.log("KS-test: " + getKStest());
+		logger.log("Reg R: " + regression.getR());
+		logger.log("Reg R^2: " + regression.getRSquare());
 	}
 
 	public SimpleRegression getRegression() {

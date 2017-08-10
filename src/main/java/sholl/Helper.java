@@ -23,7 +23,6 @@ import org.scijava.ui.DialogPrompt.Result;
 import org.scijava.ui.UIService;
 import org.scijava.util.VersionUtils;
 
-import sholl.plugin.Prefs;
 
 public class Helper {
 
@@ -32,9 +31,6 @@ public class Helper {
 
 	@Parameter
 	private ModuleService moduleService;
-
-	@Parameter
-	private LogService logService;
 
 	@Parameter
 	private PrefService prefService;
@@ -46,7 +42,6 @@ public class Helper {
 	private UIService uiService;
 
 	private final String VERSION;
-	private final boolean debug;
 
 	@Deprecated
 	public Helper() {
@@ -57,7 +52,6 @@ public class Helper {
 	public Helper(final Context context) {
 		context.inject(this);
 		VERSION = VersionUtils.getVersion(sholl.Helper.class);
-		debug = prefService.getBoolean(Prefs.class, "debugMode", Prefs.DEF_DEBUG_MODE);
 	}
 
 	public Result errorPrompt(final String message, final String title) {
@@ -83,23 +77,6 @@ public class Helper {
 	public Result yesNoCancelPrompt(final String message, final String title) {
 		return uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION : title,
 				MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
-	}
-
-	public void log(Object msg) {
-		logService.info("[Sholl] " + msg);
-	}
-
-	public void debug(Object msg) {
-		if (debug) logService.debug("[Sholl] " + msg);
-	}
-
-	public void warn(final String string) {
-		logService.warn("[Sholl] " + string);
-	}
-
-	public void log(final String... strings) {
-		if (strings != null)
-			log(String.join(" ", strings));
 	}
 
 	public static String getElapsedTime(final long fromStart) {

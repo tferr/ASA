@@ -30,7 +30,7 @@ import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.scijava.Context;
 import org.scijava.command.ContextCommand;
 
-import sholl.Helper;
+import sholl.Logger;
 import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.gui.ShollPlot;
@@ -45,7 +45,7 @@ class CommonStats extends ContextCommand implements ShollStats {
 	protected int nPoints;
 	protected double[] fCounts;
 	protected ShollPlot plot;
-	protected Helper helper;
+	protected Logger logger;
 
 	protected CommonStats(final Profile profile) {
 		this(profile, false);
@@ -144,20 +144,24 @@ class CommonStats extends ContextCommand implements ShollStats {
 	}
 
 	protected void debug(Object msg) {
-		if (helper != null)
-			helper.debug(msg);
+		if (logger != null)
+			logger.debug(msg);
 	}
 
-	protected void setHelper(final Helper helper) {
-		if (helper == null)
-			this.helper = helper;
+	public void setLogger(final Logger logger) {
+			this.logger = logger;
+	}
+
+	public void setLogger(final Logger logger, final boolean debug) {
+		this.logger = logger;
+		logger.setDebug(debug);
 	}
 
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
-		if (helper == null)
-			helper = new Helper(context);
+		if (logger == null)
+			logger = new Logger(context);
 	}
 
 	/**
