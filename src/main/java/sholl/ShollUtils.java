@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.PrimitiveIterator.OfInt;
+import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.IntStream;
@@ -158,6 +159,17 @@ public class ShollUtils {
 			BUILD_DATE = "";
 		}
 		return BUILD_DATE;
+	}
+
+	public static String getElapsedTime(final long fromStart) {
+		final long time = System.currentTimeMillis() - fromStart;
+		if (time < 1000)
+			return String.format("%02d msec", time);
+		else if (time < 90000)
+			return String.format("%02d sec", TimeUnit.MILLISECONDS.toSeconds(time));
+		return String.format("%02d min, %02d sec", TimeUnit.MILLISECONDS.toMinutes(time),
+				TimeUnit.MILLISECONDS.toSeconds(time)
+						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
 	}
 
 }

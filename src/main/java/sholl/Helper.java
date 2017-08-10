@@ -3,7 +3,6 @@ package sholl;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import net.imagej.legacy.LegacyService;
 
@@ -77,17 +76,6 @@ public class Helper {
 	public Result yesNoCancelPrompt(final String message, final String title) {
 		return uiService.showDialog(message, (title == null) ? "Sholl v" + VERSION : title,
 				MessageType.QUESTION_MESSAGE, OptionType.YES_NO_CANCEL_OPTION);
-	}
-
-	public static String getElapsedTime(final long fromStart) {
-		final long time = System.currentTimeMillis() - fromStart;
-		if (time < 1000)
-			return String.format("%02d msec", time);
-		else if (time < 90000)
-			return String.format("%02d sec", TimeUnit.MILLISECONDS.toSeconds(time));
-		return String.format("%02d min, %02d sec", TimeUnit.MILLISECONDS.toMinutes(time),
-				TimeUnit.MILLISECONDS.toSeconds(time)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
 	}
 
 	public <C extends Command> Module executeCommand(final Class<C> cmdClass, final Map<String, Object> inputs) {

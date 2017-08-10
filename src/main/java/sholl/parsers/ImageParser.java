@@ -16,7 +16,6 @@ import ij.plugin.ZProjector;
 import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import ij.process.ShortProcessor;
-import sholl.Helper;
 import sholl.Profile;
 import sholl.ShollUtils;
 import sholl.UPoint;
@@ -371,8 +370,7 @@ public class ImageParser extends ContextCommand implements Parser {
 	}
 
 	protected void clearStatus() {
-		final String a = Helper.getElapsedTime(start);
-		statusService.showStatus(0, 0, "Finished. " + a);
+		statusService.showStatus(0, 0, "Finished. " + ShollUtils.getElapsedTime(start));
 	}
 
 	@Override
