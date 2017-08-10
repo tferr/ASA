@@ -261,6 +261,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 */
 	public UPoint getCenteredMaximum(final boolean fittedData) {
 		final ArrayList<UPoint> maxima = getMaxima(fittedData);
+		debug("Found " + maxima.size() + " maxima");
 		double sumX = 0;
 		double sumY = 0;
 		for (final UPoint p : maxima) {
@@ -359,14 +360,26 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 
 	/** Experimental **/
 	public int findBestFit(final int fromDegree, final int toDegree, final double minRSquared, final double minPvalue) {
+		debug("Determining 'best fit' polynomial...");
 		double rSqHighest = 0d;
 		int bestDegree = -1;
+		final int firstDegree = Math.min(fromDegree, nPoints - 1);
+		final int lastDegree = Math.min(toDegree, nPoints - 1);
+		if (lastDegree != toDegree) {
+			debug("Degrees > "+ lastDegree + " ignored: Not enough data points");
+		}
 		final double[] coefficients = (pFunction == null) ? null : pFunction.getCoefficients();
-		for (int deg = fromDegree; deg <= toDegree; deg++) {
+		for (int deg = firstDegree; deg <= lastDegree; deg++) {
 			fitPolynomial(deg);
-			if (getKStestOfFit() < minPvalue)
+			if (getKStestOfFit() < minPvalue) {
+				debug("Discarding degree "+ deg +": Fitted data significantly different");
 				continue;
+			}
 			final double rSq = getRSquaredOfFit(true);
+			if (rSq < minRSquared) {
+					debug("Discarding degree "+ deg +": R-squared below cutoff");
+					continue;
+			}
 			if (rSq > minRSquared && rSq > rSqHighest) {
 				rSqHighest = rSq;
 				bestDegree = deg;
@@ -482,6 +495,11 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 			final double initialGuess) {
 		validateFit();
 		final PolynomialFunction derivative = pFunction.polynomialDerivative();
+
+		debug("Solving derivative for " + pFunction.toString());
+		debug("LaguerreSolver: Evaluation limit: " + getMaxEvaluations() +
+			", derivative is " + derivative.toString());
+
 		final LaguerreSolver solver = new LaguerreSolver();
 		final Complex[] roots = solver.solveAllComplex(derivative.getCoefficients(), initialGuess, getMaxEvaluations());
 		if (roots == null)
