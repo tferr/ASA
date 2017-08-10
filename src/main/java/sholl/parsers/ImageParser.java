@@ -5,6 +5,9 @@ import java.util.Properties;
 
 import org.scijava.Context;
 import org.scijava.app.StatusService;
+import org.scijava.command.ContextCommand;
+import org.scijava.plugin.Parameter;
+import org.scijava.plugin.Plugin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -18,15 +21,16 @@ import sholl.Profile;
 import sholl.ShollUtils;
 import sholl.UPoint;
 
-public class ImageParser implements Parser {
+@Plugin(type=ContextCommand.class, visible = false)
+public class ImageParser extends ContextCommand implements Parser {
+
+	@Parameter
+	protected StatusService statusService;
 
 	protected Profile profile;
 	protected Properties properties;
 	protected UPoint center;
 	protected ArrayList<Double> radii;
-
-	protected Context context;
-	protected StatusService statusService;
 	protected final ImagePlus imp;
 	protected final Calibration cal;
 	protected final double voxelSize;
@@ -44,13 +48,14 @@ public class ImageParser implements Parser {
 
 	protected volatile boolean running = true;
 
+	@Deprecated
 	protected ImageParser(final ImagePlus imp) {
 		this(imp, (Context) IJ.runPlugIn("org.scijava.Context", ""));
 	}
 
 	protected ImageParser(final ImagePlus imp, final Context context) {
+		setContext(context);
 		this.imp = imp;
-		this.context = context;
 		if (imp.getProcessor().isBinary())
 			setThreshold(1, 255);
 		cal = imp.getCalibration(); // never null
@@ -59,7 +64,6 @@ public class ImageParser implements Parser {
 		} else {
 			voxelSize = (cal.pixelWidth + cal.pixelHeight) / 2;
 		}
-		statusService = context.getService(StatusService.class);
 		initProfile();
 	}
 
@@ -397,6 +401,11 @@ public class ImageParser implements Parser {
 
 	public void reset() {
 		initProfile();
+	}
+
+	@Override
+	public void run() {
+		// implemented by extending classes
 	}
 
 }
