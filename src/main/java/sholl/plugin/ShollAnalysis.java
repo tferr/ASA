@@ -949,6 +949,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			parser.setRadii(startRadius, adjustedStepSize(), endRadius);
 			parser.setHemiShells(hemiShellChoice);
 			parser.setThreshold(lowerT, upperT);
+			if (parser instanceof ImageParser3D) {
+				((ImageParser3D) parser).setSkipSingleVoxels(prefService.getBoolean(
+					Prefs.class, "skipSingleVoxels", Prefs.DEF_SKIP_SINGLE_VOXELS));
+			}
 		}
 
 		public void setSkipParsing(final boolean skipParsing) {
