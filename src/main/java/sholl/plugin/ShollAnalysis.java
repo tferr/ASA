@@ -24,8 +24,6 @@ package sholl.plugin;
 import java.awt.AWTException;
 import java.awt.Rectangle;
 import java.awt.Robot;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import javax.swing.Timer;
 
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
@@ -78,7 +74,6 @@ import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.measure.Calibration;
-import sholl.Helper;
 import sholl.Logger;
 import sholl.Profile;
 import sholl.ProfileEntry;
@@ -133,7 +128,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	private static final String HEADER_HTML = "<html><body><div style='width:120;font-weight:bold;'>";
 	private static final String EMPTY_LABEL = "<html>&nbsp;";
-	private static final String REFRESH_BUTTON_COLOR = "#000080";
 	private static final int MAX_SPANS = 10;
 
 	private static final String NO_IMAGE = "Image no longer available";
@@ -575,22 +569,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 				String.format("<html><font color='%s'><b>%s</b></font></html>", disable ? "#555555" : "#000", label));
 	}
 
-	// private void adjustSegmentationOptions() {
-	// if (imp.getProcessor().isBinary()) {
-	// for (final String name : Arrays.asList("lowerT", "upperT")) {
-	// final MutableModuleItem<Double> mItem = getInfo().getMutableInput(name,
-	// Double.class);
-	// removeInput(mItem);
-	// }
-	// final MutableModuleItem<Button> mItem =
-	// getInfo().getMutableInput("thresholdButton", Button.class);
-	// removeInput(mItem);
-	// } else {
-	// readThresholdFromImp();
-	// setThresholdLimits();
-	// }
-	// }
-
 	private void setNormalizerChoices() {
 		final List<String> choices = (twoD) ? NORM2D_CHOICES : NORM3D_CHOICES;
 		final MutableModuleItem<String> mItem = getInfo().getMutableInput("normalizerDescription", String.class);
@@ -718,25 +696,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		helper.errorPrompt(uiMsg + ".", null);
 	}
 
-	protected void thresholdButtonAction() {
-		final double prevLowerT = lowerT;
-		final double prevupperT = upperT;
-		if (!readThresholdFromImp()) {
-			final Result result = helper.yesNoPrompt("Image is not thresholded. Open threshold widget?", null);
-			if (result == Result.YES_OPTION)
-				legacyService.runLegacyCommand(ij.plugin.frame.ThresholdAdjuster.class.getName(), "");
-			return;
-		}
-		String label = "Threshold values updated...";
-		if (prevLowerT == lowerT && prevupperT == upperT)
-			label = "Values are the same. No changes.";
-		else if (prevLowerT == lowerT && prevupperT != upperT)
-			label = "Upper threshold updated...";
-		else if (prevLowerT != lowerT && prevupperT == upperT)
-			label = "Lower threshold updated...";
-		toggleButtonLabel("thresholdButton", label, REFRESH_BUTTON_COLOR, true);
-	}
-
 	private boolean readThresholdFromImp() {
 		boolean successfulRead = true;
 		final double minT = imp.getProcessor().getMinThreshold();
@@ -765,24 +724,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			}
 		}
 		return imp;
-	}
-
-	private void toggleButtonLabel(final String buttonName, final String newLabel, final String color,
-			final boolean temporarily) {
-		final MutableModuleItem<Button> input = getInfo().getMutableInput(buttonName, Button.class);
-		final String oldLabel = input.getLabel();
-		input.setLabel(String.format("<html><font color='%s'>%s</font></html>", color, newLabel));
-		if (temporarily) {
-			final Timer timer = new Timer(5000, new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					toggleButtonLabel(buttonName, oldLabel, color, false);
-				}
-			});
-			timer.setRepeats(false);
-			timer.start();
-		}
-		input.getInfo().update(eventService); // force UI update (?)
 	}
 
 	private void setLUTs() {
