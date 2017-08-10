@@ -46,8 +46,8 @@ import sholl.ShollUtils;
 /**
  * @author Tiago Ferreira
  */
-
-@Plugin(type = Command.class, label = "Sholl Options", visible = false, initializer = "init")
+@Plugin(type = Command.class, label = "Sholl Options", visible = false,
+	initializer = "init")
 public class Prefs extends OptionsPlugin implements Command {
 
 	@Parameter
@@ -62,6 +62,7 @@ public class Prefs extends OptionsPlugin implements Command {
 	private UIService uiService;
 
 	/* DEFAULTS */
+	public final static boolean DEF_SKIP_SINGLE_VOXELS = true;
 	public final static int DEF_ENCLOSING_RADIUS_CUTOFF = 1;
 	public final static int DEF_MIN_DEGREE = 2;
 	public final static int DEF_MAX_DEGREE = 20;
@@ -84,6 +85,9 @@ public class Prefs extends OptionsPlugin implements Command {
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "Sampling:")
 	private String HEADER1;
+
+	@Parameter(label = "Ignore isolated voxels")
+	private boolean skipSingleVoxels;
 
 	@Parameter(label = "Enclosing radius cuttoff", min = "1")
 	private int enclosingRadiusCutoff = DEF_ENCLOSING_RADIUS_CUTOFF;
@@ -162,7 +166,6 @@ public class Prefs extends OptionsPlugin implements Command {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	private void about() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("You are running Sholl Analysis v").append(ShollUtils.version());
@@ -180,13 +183,13 @@ public class Prefs extends OptionsPlugin implements Command {
 
 	@Override
 	public void run() {
-	super.run();
+		super.run();
 		if (restartRequired) helper.infoMsg(
 			"Please restart the plugin for changes to take effect.",
 			"New Preferences Set");
 	}
 
-	//@Override
+	@Override
 	public void reset() {
 
 		final Result result = helper.yesNoPrompt(
@@ -199,6 +202,7 @@ public class Prefs extends OptionsPlugin implements Command {
 		pService.clear(ChooseDataset.class);
 
 		// Reset inputs in prompt
+		skipSingleVoxels = DEF_SKIP_SINGLE_VOXELS;
 		enclosingRadiusCutoff = DEF_ENCLOSING_RADIUS_CUTOFF;
 		minDegree = DEF_MIN_DEGREE;
 		maxDegree = DEF_MAX_DEGREE;
