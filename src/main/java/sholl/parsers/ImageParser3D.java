@@ -84,7 +84,8 @@ public class ImageParser3D extends ImageParser {
 				for (int s = start; s < end; s++) {
 
 					final int counter = getThreadedCounter();
-					statusService.showProgress(counter, nSamples);
+					statusService.showStatus(counter, nSamples, "Sampling shell " +
+						counter + "/" + nSamples + " (" + nCPUs + " threads)");
 					setThreadedCounter(counter + 1);
 
 					// Initialize ArrayLists to hold surface points

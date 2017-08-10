@@ -130,7 +130,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private static final List<String> NORM2D_CHOICES = Arrays.asList("Area", "Perimeter", "Annulus");
 	private static final List<String> NORM3D_CHOICES = Arrays.asList("Volume", "Surface area", "Spherical shell");
 
-	private static final String HEADER_HTML = "<html><body><div style='width:130;font-weight:bold;padding-left:0;padding-right:0'>";
+	private static final String HEADER_HTML = "<html><body><div style='width:120;font-weight:bold;'>";
 	private static final String EMPTY_LABEL = "<html>&nbsp;";
 	private static final String REFRESH_BUTTON_COLOR = "#000080";
 	private static final int MAX_SPANS = 10;
@@ -147,7 +147,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private static final int SCOPE_CHANGE_DATASET = 3;
 
 	/* Parameters */
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Shells:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Shells:")
 	private String HEADER1;
 
 	@Parameter(label = "Starting radius", required = false, callback = "startRadiusStepSizeChanged", min = "0",style = NumberWidget.SCROLL_BAR_STYLE)
@@ -169,14 +169,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Set Center from Active ROI", callback = "setCenterFromROI", persist = false)
 	private Button centerButton;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
-			+ "Segmentation:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Segmentation:")
 	private String HEADER2;
 
-	@Parameter(label = "Ignore isolated voxels")
-	private boolean ignoreIsolatedVoxels;
-
-	@Parameter(label = "# samples per radius", callback = "nSpansChanged", min = "1", max = ""
+	@Parameter(label = "Samples per radius", callback = "nSpansChanged", min = "1", max = ""
 			+ MAX_SPANS, style = NumberWidget.SCROLL_BAR_STYLE)
 	private int nSpans;
 
@@ -184,20 +180,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			"Mode" })
 	private String nSpansIntChoice;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
-			+ "<br>Metrics:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "<br>Metrics:")
 	private String HEADER3;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
-			+ "Linear Profile:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Branching Indices:") //Schoenen
 	private String HEADER3A;
-
-	@Parameter(label = "Polynomial fit", callback = "polynomialChoiceChanged", required = false, choices = {
-			"None. Skip curve fitting", "'Best fitting' degree", "Use degree specified below:" })
-	private String polynomialChoice = "'Best fitting' degree";
-
-	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", style = NumberWidget.SLIDER_STYLE)
-	private int polynomialDegree;
 
 	@Parameter(label = "Primary branches", callback = "primaryBranchesChoiceChanged", choices = {
 			"Infer from starting radius", "Infer from multipoint ROI", "Use no. specified below:" })
@@ -206,9 +193,18 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = EMPTY_LABEL, callback = "primaryBranchesChanged", min = "0", max = "100", style = NumberWidget.SCROLL_BAR_STYLE)
 	private double primaryBranches;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
-			+ "Normalized Profile:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Polynomial Fit:")
 	private String HEADER3B;
+
+	@Parameter(label = "Degree", callback = "polynomialChoiceChanged", required = false, choices = {
+			"None. Skip curve fitting", "'Best fitting' degree", "Use degree specified below:" })
+	private String polynomialChoice = "'Best fitting' degree";
+
+	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", style = NumberWidget.SLIDER_STYLE)
+	private int polynomialDegree;
+
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Sholl Decay:")
+	private String HEADER3C;
 
 	@Parameter(label = "Method", choices = { "Automatically choose", "Semi-Log", "Log-log" })
 	private String normalizationMethodDescription = "Automatically choose";
@@ -216,8 +212,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Normalizer", callback = "normalizerDescriptionChanged")
 	private String normalizerDescription;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML
-			+ "<br>Output:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "<br>Output:")
 	private String HEADER4;
 
 	@Parameter(label = "Plots", choices = { "Linear plot", "Normalized plot", "Linear & normalized plots",
@@ -236,11 +231,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Annotations LUT", callback = "lutChoiceChanged")
 	private String lutChoice = "mpl-viridis.lut";
 
-	@Parameter(required = false, label = EMPTY_LABEL, persist = false)
+	@Parameter(required = false, label = EMPTY_LABEL)
 	private ColorTable lutTable;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, //
-			label = HEADER_HTML + "Run:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Run:")
 	private String HEADER5;
 
 	@Parameter(label = "Action", required = false, style = ChoiceWidget.RADIO_BUTTON_VERTICAL_STYLE, //
@@ -353,7 +347,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		case SCOPE_ABORT:
 			if (analysisRunner == null || !ongoingAnalysis())
 				return;
-			statusService.showStatus("Aborting analysis...");
+			statusService.showStatus(0, 0, "Analysis aborted...");
 			analysisRunner.terminate();
 			logger.debug("Analysis aborted...");
 			break;
@@ -522,11 +516,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	private void adjustSamplingOptions() {
-		if (twoD) {
-			final MutableModuleItem<Boolean> ignoreIsolatedVoxelsInput = getInfo()
-					.getMutableInput("ignoreIsolatedVoxels", Boolean.class);
+		if (!twoD) {
+			final MutableModuleItem<String> ignoreIsolatedVoxelsInput = getInfo()
+					.getMutableInput("HEADER2", String.class);
 			removeInput(ignoreIsolatedVoxelsInput);
-		} else {
 			final MutableModuleItem<Integer> nSpansInput = getInfo().getMutableInput("nSpans", Integer.class);
 			removeInput(nSpansInput);
 			final MutableModuleItem<String> nSpansIntChoiceInput = getInfo().getMutableInput("nSpansIntChoice",
@@ -964,7 +957,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 		public void terminate() {
 			parser.terminate();
-			statusService.showProgress(0, 0);
+			statusService.showStatus(0, 0, "");
 		}
 
 		@Override
