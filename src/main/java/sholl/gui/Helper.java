@@ -1,4 +1,4 @@
-package sholl;
+package sholl.gui;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +50,7 @@ public class Helper {
 
 	public Helper(final Context context) {
 		context.inject(this);
-		VERSION = VersionUtils.getVersion(sholl.Helper.class);
+		VERSION = VersionUtils.getVersion(sholl.gui.Helper.class);
 	}
 
 	public Result errorPrompt(final String message, final String title) {

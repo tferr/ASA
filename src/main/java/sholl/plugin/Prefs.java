@@ -39,9 +39,9 @@ import org.scijava.ui.DialogPrompt.Result;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 
-import sholl.Helper;
 import sholl.Logger;
 import sholl.ShollUtils;
+import sholl.gui.Helper;
 
 /**
  * @author Tiago Ferreira

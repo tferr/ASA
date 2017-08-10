@@ -85,6 +85,7 @@ import sholl.ProfileEntry;
 import sholl.ProfileProperties;
 import sholl.ShollUtils;
 import sholl.UPoint;
+import sholl.gui.Helper;
 import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
 import sholl.math.LinearProfileStats;
