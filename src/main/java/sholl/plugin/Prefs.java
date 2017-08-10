@@ -71,58 +71,47 @@ public class Prefs extends OptionsPlugin implements Command {
 	public final static boolean DEF_AUTO_CLOSE = false;
 
 	/* Fields */
-	private final static String PLACEHOLDER_CHOICE = "Choose resource...";
+	private final static String PLACEHOLDER_CHOICE = "Choose...";
 	private final static String HELP_URL = "https://imagej.net/Sholl_Analysis";
 	private Helper helper;
+	private Logger logger;
 	private boolean restartRequired;
 
 	/* Prompt */
-	protected static final String HEADER_HTML = "<html><body><div style='width:170;font-weight:bold;padding-left:0;padding-right:0'>";
+	protected static final String HEADER_HTML =
+		"<html><body><div style='width:160;font-weight:bold;padding-left:0;padding-right:0'>";
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE,//
-			label = HEADER_HTML + "Sampling:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+		label = HEADER_HTML + "Sampling:")
 	private String HEADER1;
 
-	@Parameter(label = "Enclosing radius cuttoff", min = "1", callback = "flagRestart")
+	@Parameter(label = "Enclosing radius cuttoff", min = "1")
 	private int enclosingRadiusCutoff = DEF_ENCLOSING_RADIUS_CUTOFF;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE,//
-			label = HEADER_HTML +"Polynomial Regression:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+		label = HEADER_HTML + "Polynomial Regression:")
 	private String HEADER1B;
-	@Parameter(label = "Min. degree", min = "2", max = "100", callback = "flagRestart")
+	@Parameter(label = "Min. degree", min = "2", max = "100",
+		callback = "flagRestart")
 	private int minDegree = DEF_MIN_DEGREE;
 
-	@Parameter(label = "Max. degree", min = "2", max = "100", callback = "flagRestart")
+	@Parameter(label = "Max. degree", min = "2", max = "100",
+		callback = "flagRestart")
 	private int maxDegree = DEF_MAX_DEGREE;
-	
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE,//
-			label = HEADER_HTML + "Goodness-of-Fit Criteria:")
+
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+		label = HEADER_HTML + "Goodness of Fit Criteria:")
 	private String HEADER1C;
 
 	@Parameter(label = "R-squared >", min = "0.5", stepSize = "0.01", max = "1")
 	private double rSquared = DEF_RSQUARED;
 
-	@Parameter(label = "P-value <", min = "0.0001", stepSize = "0.01", max = "0.05")
+	@Parameter(label = "P-value <", min = "0.0001", stepSize = "0.01",
+		max = "0.05")
 	private double pValue = DEF_PVALUE;
 
-//	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE, label = ShollAnalysis.HEADER_HTML
-//			+ "<br>Saving:")
-//private String HEADER2;
-//
-//	@Parameter(label = "Auto-save", required = false, callback = "saveChoiceChanged", //
-//			choices = { "Do not auto-save files",
-//		"Save to image directory (if available)",
-//		"Use a common directory, specified below"})
-//private String saveChoice = "Do not auto-save files";
-//
-//	@Parameter(label = "Path", required = false, style=FileWidget.DIRECTORY_STYLE)
-//	private File savePath;
-//
-//	@Parameter(label = "Do not display saved files", required = false, callback = "saveChoiceChanged")
-//	private boolean hideSaved = false;
-
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE,//
-			label = HEADER_HTML + "<br>Plugin Settings:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+		label = HEADER_HTML + "Plugin Settings:")
 	private String HEADER3;
 
 	@Parameter(label = "Debug mode", callback = "flagRestart")
@@ -134,17 +123,14 @@ public class Prefs extends OptionsPlugin implements Command {
 	@Parameter(label = "Reset All Preferences...", callback = "reset")
 	private Button resetPrefs;
 
-	@Parameter(persist = false, required = false, visibility = ItemVisibility.MESSAGE,//
-			label = HEADER_HTML +"<br>Help and Resources:")
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+		label = HEADER_HTML + "<br>Help and Resources:")
 	private String HEADER4;
 
-	@Parameter(label = "Online resources", required = false, persist = false, callback = "help", //
-		choices = { PLACEHOLDER_CHOICE, "ImageJ forum", "Documentation", "Source code (GitHub page)" })
+	@Parameter(label = "Resource", required = false, persist = false,
+		callback = "help", choices = { PLACEHOLDER_CHOICE, "About...",
+			"ImageJ forum", "Documentation", "Source code" })
 	private String helpChoice = " ";
-
-	@Parameter(label = "About Sholl Analysis...", persist = false, callback = "about")
-	private Button about;
-
 
 	@SuppressWarnings("unused")
 	private void init() {
@@ -156,11 +142,16 @@ public class Prefs extends OptionsPlugin implements Command {
 	@SuppressWarnings("unused")
 	private void help() {
 		if (PLACEHOLDER_CHOICE.equals(helpChoice)) return; // do nothing
-		String url = "";
-		if (helpChoice.contains("forum")) url = "https://forum.imagej.net";
-		else if (helpChoice.contains("code")) url = "https://github.com/tferr/ASA";
-		else url = HELP_URL;
+		final String choice = helpChoice;
 		helpChoice = PLACEHOLDER_CHOICE;
+		if (choice.contains("About")) {
+			about();
+			return;
+		}
+		String url = "";
+		if (choice.contains("forum")) url = "https://forum.imagej.net";
+		else if (choice.contains("code")) url = "https://github.com/tferr/ASA";
+		else url = HELP_URL;
 		try {
 			platformService.open(new URL(url));
 		}
