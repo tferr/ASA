@@ -54,6 +54,7 @@ import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.Interactive;
 import org.scijava.convert.ConvertService;
+import org.scijava.display.DisplayService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
 import org.scijava.module.MutableModuleItem;
@@ -105,6 +106,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private DatasetService datasetService;
 	@Parameter
 	private EventService eventService;
+	@Parameter
+	private DisplayService displayService;
 	@Parameter
 	private ImageDisplayService imageDisplayService;
 	@Parameter
@@ -444,7 +447,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		headsupWarning();
 		imp = legacyService.getImageMap().lookupImagePlus(imageDisplayService.getActiveImageDisplay());
 		if (imp == null)
-			imp = getDemoImp();
+			displayDemoImage();
 		if (imp == null) {
 			helper.error("A dataset is required but none was found", null);
 			cancel(null);
@@ -712,18 +715,16 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		return successfulRead;
 	}
 
-	private ImagePlus getDemoImp() {
-		ImagePlus imp = null;
+	private void displayDemoImage() {
 		final Result result = helper.yesNoPrompt("No images are currently open. Run plugin on demo image?", null);
-		if (result == Result.YES_OPTION) {
-			imp = ShollUtils.sampleImage();
-			if (imp == null)
-				helper.error("Demo image could not be loaded.", null);
-			else {
-				imp.show(); // uiService.show(imp);
-			}
+		if (result != Result.YES_OPTION)
+			return;
+		imp = ShollUtils.sampleImage();
+		if (imp == null) {
+			helper.error("Demo image could not be loaded.", null);
+			return;
 		}
-		return imp;
+		displayService.createDisplay(imp.getTitle(), imp);
 	}
 
 	private void setLUTs() {
