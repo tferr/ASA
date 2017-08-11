@@ -217,9 +217,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			"None. Show no plots" })
 	private String plotOutputDescription = "Linear plot";
 
-	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
-		"Detailed & summary tables", "None. Show no tables" })
-	private String tableOutputDescription = "None. Show no tables";
+	//TODO: Implement tables
+//	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
+//		"Detailed & summary tables", "None. Show no tables" })
+//	private String tableOutputDescription = "None. Show no tables";
 
 	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged",
 		choices = { "ROIs (Sholl points only)", "ROIs (points and 2D shells)",
@@ -959,7 +960,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			}
 
 			// TODO: implement tables
-			logger.info("Tables are not yet implemented");
 			setProfile(profile);
 
 		}
@@ -973,7 +973,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 		private boolean validOutput() {
 			boolean noOutput = plotOutputDescription.contains("None");
-			noOutput = noOutput && tableOutputDescription.contains("None");
+//			noOutput = noOutput && tableOutputDescription.contains("None");
 			noOutput = noOutput && annotationsDescription.contains("None");
 			if (noOutput) {
 				helper.error("Analysis can only proceed if at least one type\n" +
