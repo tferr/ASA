@@ -412,11 +412,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		logger.debug("Analysis started...");
 		analysisThread = threadService.newThread(analysisRunner);
 		analysisThread.start();
-		if (autoClose) {
-			try {
+		if (autoClose && !isCanceled()) {
+			try {  //FIXME: this kludge will only work if prompt has focus
 				final Robot r = new Robot();
 				r.keyPress(KeyEvent.VK_ESCAPE);
-			} catch (AWTException exc) {
+			} catch (final AWTException exc) {
 				logger.debug(exc);
 			}
 		}
@@ -976,6 +976,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 //			noOutput = noOutput && tableOutputDescription.contains("None");
 			noOutput = noOutput && annotationsDescription.contains("None");
 			if (noOutput) {
+				cancel("Invalid output");
 				helper.error("Analysis can only proceed if at least one type\n" +
 					"of output (plot, table, annotation) is chosen.", "No Valid Output");
 			}
