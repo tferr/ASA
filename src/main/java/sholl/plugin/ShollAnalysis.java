@@ -994,6 +994,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		@Override
 		public void run() {
 			if (!previewShells) {
+				if (imp.getOverlay().equals(overlaySnapshot))
+					return;
 				ShollOverlay.remove(overlaySnapshot, "temp");
 				imp.setOverlay(overlaySnapshot);
 				return;
