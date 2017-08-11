@@ -205,7 +205,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private String HEADER3C;
 
 	@Parameter(label = "Method", choices = { "Automatically choose", "Semi-Log", "Log-log" })
-	private String normalizationMethodDescription = "Automatically choose";
+	private String normalizationMethodDescription;
 
 	@Parameter(label = "Normalizer", callback = "normalizerDescriptionChanged")
 	private String normalizerDescription;
@@ -215,7 +215,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	@Parameter(label = "Plots", choices = { "Linear plot", "Normalized plot", "Linear & normalized plots",
 			"None. Show no plots" })
-	private String plotOutputDescription = "Linear plot";
+	private String plotOutputDescription;
 
 	//TODO: Implement tables
 //	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
@@ -225,10 +225,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged",
 		choices = { "ROIs (Sholl points only)", "ROIs (points and 2D shells)",
 			"ROIs and mask", "None. Show no annotations" })
-	private String annotationsDescription = "ROIs (Sholl points only)";
+	private String annotationsDescription;
 
 	@Parameter(label = "Annotations LUT", callback = "lutChoiceChanged")
-	private String lutChoice = "mpl-viridis.lut";
+	private String lutChoice;
 
 	@Parameter(required = false, label = EMPTY_LABEL)
 	private ColorTable lutTable;
@@ -304,7 +304,8 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		if (imp == null) {
 			cancelAndFreezeUI(NO_IMAGE);
 		} else if (dataset != imageDisplayService.getActiveDataset()) {
-			imp.getWindow().requestFocus(); //FIXME: Only works on legacy mode
+			// uiService.getDisplayViewer(impDisplay).getWindow().requestFocus();
+			imp.getWindow().requestFocus(); // Only works on legacy mode
 		}
 	}
 
@@ -469,6 +470,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		autoClose = prefService.getBoolean(Prefs.class, "autoClose", Prefs.DEF_AUTO_CLOSE);
 		minDegree = prefService.getInt(Prefs.class, "minDegree", Prefs.DEF_MIN_DEGREE);
 		maxDegree = prefService.getInt(Prefs.class, "maxDegree", Prefs.DEF_MAX_DEGREE);
+		normalizationMethodDescription = prefService.get(getClass(), "normalizationMethodDescription", "Automatically choose");
+		annotationsDescription = prefService.get(getClass(), "annotationsDescription", "ROIs (points and 2D shells)");
+		plotOutputDescription = prefService.get(getClass(), "plotOutputDescription", "Linear plot");
+		lutChoice = prefService.get(getClass(), "lutChoice", "mpl-viridis.lut");
 	}
 
 	private void headsupWarning() {
@@ -739,7 +744,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		choices.add(0, "No LUT. Use active ROI color");
 		final MutableModuleItem<String> input = getInfo().getMutableInput("lutChoice", String.class);
 		input.setChoices(choices);
-		input.setValue(this, choices.get(0));
+		input.setValue(this, lutChoice);
 		lutChoiceChanged();
 	}
 
