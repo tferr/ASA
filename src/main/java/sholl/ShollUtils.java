@@ -14,12 +14,14 @@ import java.util.stream.IntStream;
 
 import net.imagej.table.ResultsTable;
 import net.imagej.table.TableLoader;
+import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable8;
 
 import org.scijava.util.VersionUtils;
 
 import ij.ImagePlus;
 import ij.io.Opener;
+import ij.process.LUT;
 
 public class ShollUtils {
 
@@ -172,4 +174,16 @@ public class ShollUtils {
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time)));
 	}
 
+	/* see net.imagej.legacy.translate.ColorTableHarmonizer */
+	public static LUT getLut(final ColorTable cTable) {
+		final byte[] reds = new byte[256];
+		final byte[] greens = new byte[256];
+		final byte[] blues = new byte[256];
+		for (int i = 0; i < 256; i++) {
+			reds[i] = (byte) cTable.getResampled(ColorTable.RED, 256, i);
+			greens[i] = (byte) cTable.getResampled(ColorTable.GREEN, 256, i);
+			blues[i] = (byte) cTable.getResampled(ColorTable.BLUE, 256, i);
+		}
+		return new LUT(reds, greens, blues);
+	}
 }
