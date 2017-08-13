@@ -157,6 +157,11 @@ class CommonStats extends ContextCommand implements ShollStats {
 		logger.setDebug(debug);
 	}
 
+	public void setDebug(boolean debug) {
+		if (logger != null)
+			logger.setDebug(debug);
+	}
+
 	@Override
 	public void setContext(Context context) {
 		super.setContext(context);
