@@ -8,11 +8,21 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 
 ## Development Builds
-* No major changes to report
+* To be documented
 
 ## Release Builds
 
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
+
+#### Version 3.7.0
+* Fixes for _Analyze>Sholl>Group Sholl Profiles..._ ([#23](https://github.com/tferr/ASA/issues/23))
+* Development is now focused on implementing an IJ2 command. An Experimental version
+  can be accessed through _Analyze>Sholl>Sholl Analysis (Experimental Version)..._
+  Some Scripting examples are also available in the Script Editor's Template menu.
+  Please submit bug reports on any issues you may find
+* As a preparation for full IJ2 compatibility, most of the parsing heavy leaving
+  was rewritten. This brought immediate benefits to the current IJ1 implementation,
+  e.g., ROIs of intersection points can also be retrieved with 3D stacks
 
 #### Version 3.6.13 (May 2017)
 * All options can now be accessed programmatically ([example](./scripting-examples/))

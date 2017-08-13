@@ -14,10 +14,10 @@
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>3.6.14-SNAPSHOT</version>
+	<version>3.7.0</version>
 
 	<name>Sholl Analysis</name>
-	<description>An ImageJ 1.x plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images and traces from Simple Neurite Tracer</description>
+	<description>ImageJ plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images and traces from Simple Neurite Tracer</description>
 	<url>http://imagej.net/Sholl</url>
 	<inceptionYear>2005</inceptionYear>
 	<organization>
