@@ -2203,7 +2203,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		if ((metrics & Options.P1090_REGRESSION) != 0)
 			plotRegression(x, y, true, plot, rt, method);
 		// remove legend to mimic previous versions
-		plot.setLegend("Sampled Data\n", 0);
+		if (plot != null) plot.setLegend("Sampled Data\n", 0);
 
 	}
 
