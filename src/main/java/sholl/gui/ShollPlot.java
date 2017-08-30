@@ -352,17 +352,18 @@ public class ShollPlot extends Plot {
 	}
 
 	/**
-	 * Highlights a point on a plot using the default marker.
+	 * Highlights a point on a plot using the default marker. Does nothing if
+	 * point is null.
 	 *
-	 * @param point
-	 *            the point to be drawn (defined in calibrated coordinates)
-	 * @param color
-	 *            the drawing color. This will not affect consequent objects
+	 * @param point the point to be drawn (defined in calibrated coordinates).
+	 * @param color the drawing color. This will not affect consequent objects
 	 */
 	public void markPoint(final UPoint point, final Color color) {
-		setColor(color);
-		markPoint(point, CROSS, 8);
-		resetDrawing();
+		if (point != null) {
+			setColor(color);
+			markPoint(point, CROSS, 8);
+			resetDrawing();
+		}
 	}
 
 	/**
