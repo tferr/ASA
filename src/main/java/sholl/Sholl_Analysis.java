@@ -1177,7 +1177,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		gd.setInsets(0, xIndent, 0);
 		gd.addCheckbox("Create intersections mask", mask);
 		gd.setInsets(0, xIndent, 0);
-		gd.addCheckbox("Overlay sampling shells and intersection points", overlayShells);
+		gd.addCheckbox((is3D) ? "Overlay intersection points"
+			: "Overlay sampling shells and intersection points", overlayShells);
 
 		// Offer to save results
 		gd.setInsets(0, xIndent, 0);
@@ -1485,10 +1486,6 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
 			overlayShells = gd.getNextBoolean();
-			// storeIntersPoints = overlayShells;
-			// ieoverlay = (Checkbox) checkboxes.elementAt(checkboxCounter++);
-			// ieoverlay.setEnabled(!is3D);
-
 		}
 
 		// Retrieve fields common to both prompts
@@ -2748,8 +2745,12 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		}
 		if (!exportDir.isEmpty() && !exportDir.endsWith(File.separator))
 			exportDir += File.separator;
-		final File dir = new File(exportDir);
-		validPath = dir.exists() && dir.isDirectory();
+		try {
+			final File dir = new File(exportDir);
+			validPath = dir.exists() && dir.isDirectory() && dir.canWrite();
+		} catch (final SecurityException ignored) {
+			validPath = false;
+		}
 		if (!validPath)
 			save = false;
 		imgPath = exportDir;
