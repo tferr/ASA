@@ -471,7 +471,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			if (fitCurve)
 				fvaluesN = getFittedProfile(valuesN, SHOLL_N, statsTable, plotN);
 			if (!noPlots) {
-				plotN.markPoint(new UPoint(centroid[0], centroid[1]), Color.RED);
+				if (centroid != null) plotN.markPoint(new UPoint(centroid[0],
+					centroid[1]), Color.RED);
 				savePlot(plotN, SHOLL_N);
 			}
 
