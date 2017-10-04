@@ -2285,8 +2285,8 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			plot.show();
 		if (validPath && save) {
 			Recorder.disablePathRecording();
-			final String path = imgPath + getDescription() + "_ShollPlot" + SHOLL_TYPES[shollChoice] + ".png";
-			IJ.saveAs(plot.getImagePlus(), "png", path);
+			final String path = imgPath + getDescription() + "_ShollPlot" + SHOLL_TYPES[shollChoice] + ".tif";
+			IJ.saveAs(plot.getImagePlus(), "tiff", path);
 		}
 
 	}
