@@ -1715,7 +1715,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 	 * @param bintype
 	 *            flag for integration of multiple samples:
 	 *            {@link #BIN_AVERAGE}, {@link #BIN_MEDIAN} or {@link #BIN_MODE}
-	 * @param ip
+	 * @param imp
 	 *            ImageProcessor of analyzed image
 	 * @return intersection counts (the linear profile of sampled data)
 	 * @see #setInteractiveMode(boolean)
