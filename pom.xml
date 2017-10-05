@@ -96,6 +96,9 @@
 		<license.licenseName>gpl_v3</license.licenseName>
 		<license.copyrightOwners>Tiago Ferreira.</license.copyrightOwners>
 		<license.projectName>Sholl Analysis plugin for ImageJ.</license.projectName>
+
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
 	</properties>
 
 	<repositories>
