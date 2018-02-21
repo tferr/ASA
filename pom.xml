@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0   http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -14,7 +11,7 @@
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>3.7.2-SNAPSHOT</version>
+	<version>3.7.2</version>
 
 	<name>Sholl Analysis</name>
 	<description>ImageJ plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images and traces from Simple Neurite Tracer</description>
@@ -79,7 +76,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/tferr/ASA</connection>
 		<developerConnection>scm:git:git@github.com:tferr/ASA</developerConnection>
-		<tag>HEAD</tag>
+		<tag>Sholl_Analysis-3.7.2</tag>
 		<url>https://github.com/tferr/ASA</url>
 	</scm>
 	<issueManagement>
