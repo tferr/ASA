@@ -14,14 +14,16 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 
-#### Version 3.7.1 (February 2018)
-* IJ1 plugin: UI bugfix: In some cases, the Save checkbox was permanently disabled in
-  the prompt (reported by Philippe Mailly)
-* IJ1 plugin: Plotting bugfix: In some cases, an exception would be thrown when trying
-  to highlight the plot's centroid (reported by Philippe Mailly)
-* IJ1 plugin: Adopted the IJ1 1.51q (and later) plotting enhancements. Importantly:
-  once saved, plots include the data and can be modified after being opened.
-* Minor improvements to IJ2 plugin
+#### Version 3.7.2 (February 2018)
+* IJ1 plugin:
+  * Improvement: Adopted the IJ1 1.51q (and later) plotting enhancements. Importantly:
+    once saved, plots include the data and can be modified after being opened.
+  * Bugfix: In some cases, the Save checkbox was permanently disabled in
+    the prompt (reported by Philippe Mailly)
+  * Bugfix: In some cases, an exception would be thrown when trying to
+    highlight the plot's centroid (reported by Philippe Mailly)
+* IJ2 plugin:
+  * Bugfix: Exception in interactive prompt
 
 #### Version 3.7.0 (August 2017)
 * Fixes for _Analyze>Sholl>Group Sholl Profiles..._ ([#23](https://github.com/tferr/ASA/issues/23))
