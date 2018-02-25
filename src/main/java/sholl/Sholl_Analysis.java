@@ -1486,11 +1486,11 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 			iemask = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 			iemask.setEnabled(shollN || shollNS || shollSLOG || chooseLog);
 			overlayShells = gd.getNextBoolean();
+			checkboxCounter++;
 		}
 
 		// Retrieve fields common to both prompts
 		save = gd.getNextBoolean();
-		checkboxCounter++;
 		iesave = (Checkbox) checkboxes.elementAt(checkboxCounter++);
 		setExportPath(gd.getNextString());
 		ieimgPath = (TextField) stringfields.elementAt(strFieldCounter++);
