@@ -1501,6 +1501,7 @@ public class Sholl_Analysis implements PlugIn, DialogListener {
 		iesave.setEnabled(validPath);
 		// ieimgPath.setEnabled(save);
 		iehideSaved.setEnabled(save);
+		iehideSaved.setState(hideSaved && save);
 		Color pathFieldForeground = Color.BLACK;
 		if (!save)
 			pathFieldForeground = EnhancedGenericDialog.getDisabledComponentColor();
