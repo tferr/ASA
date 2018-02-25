@@ -14,6 +14,10 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 
+
+#### Version 3.7.3 (February 2018)
+* Bugfix for IJ1 plugin: Exception in tabular prompt
+
 #### Version 3.7.2 (February 2018)
 * IJ1 plugin:
   * Improvement: Adopted the IJ1 1.51q (and later) plotting enhancements. Importantly:
