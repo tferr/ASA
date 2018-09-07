@@ -79,8 +79,7 @@ public class Prefs extends OptionsPlugin implements Command {
 	private boolean restartRequired;
 
 	/* Prompt */
-	protected static final String HEADER_HTML =
-		"<html><body><div style='width:160;font-weight:bold;padding-left:0;padding-right:0'>";
+	private static final String HEADER_HTML = "<html><body><div style='font-weight:bold;'>";
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "Sampling:")
@@ -99,7 +98,7 @@ public class Prefs extends OptionsPlugin implements Command {
 		callback = "flagRestart")
 	private int minDegree = DEF_MIN_DEGREE;
 
-	@Parameter(label = "Max. degree", min = "2", max = "100",
+	@Parameter(label = "Max. degree", min = "2", max = "60",
 		callback = "flagRestart")
 	private int maxDegree = DEF_MAX_DEGREE;
 
@@ -136,11 +135,17 @@ public class Prefs extends OptionsPlugin implements Command {
 			"ImageJ forum", "Documentation", "Source code" })
 	private String helpChoice = " ";
 
+	@Parameter(required = false, visibility = ItemVisibility.INVISIBLE)
+	private boolean ignoreBitmapOptions;
+
 	@SuppressWarnings("unused")
 	private void init() {
 		helper = new Helper(context());
 		logger = new Logger(context());
 		logger.debug("Prefs successfully initialized");
+		if (ignoreBitmapOptions) {
+			resolveInput("skipSingleVoxels");
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -153,7 +158,7 @@ public class Prefs extends OptionsPlugin implements Command {
 			return;
 		}
 		String url = "";
-		if (choice.contains("forum")) url = "https://forum.imagej.net";
+		if (choice.contains("forum")) url = "https://forum.image.sc/";
 		else if (choice.contains("code")) url = "https://github.com/tferr/ASA";
 		else url = HELP_URL;
 		try {
@@ -185,7 +190,7 @@ public class Prefs extends OptionsPlugin implements Command {
 	public void run() {
 		super.run();
 		if (restartRequired) helper.infoMsg(
-			"Please restart the plugin for changes to take effect.",
+			"Please restart the Sholl Analysis plugin for changes to take effect.",
 			"New Preferences Set");
 	}
 
