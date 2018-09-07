@@ -138,9 +138,11 @@ public class Profile implements ProfileProperties {
 	}
 
 	public void trimZeroCounts() {
+	public void trimZeroEntries() {
 		final Iterator<ProfileEntry> iter = profile.iterator();
 		while (iter.hasNext()) {
-			if (iter.next().count == 0)
+			final ProfileEntry entry = iter.next();
+			if (entry.radius == 0 || entry.count == 0)
 				iter.remove();
 		}
 	}
