@@ -22,14 +22,15 @@
 package sholl;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import ij.measure.Calibration;
 
 /**
- * Class to access Cartesian coordinates of 2D and 3D points. Designed to
- * accommodate points from several Universes such SWC points, pixels, voxels,
- * and point ROIs.
+ * 'Universal Point' Class to access Cartesian coordinates of 2D and 3D points. 
+ * Designed to accommodate points from several sources such SWC nodes, pixels,
+ * voxels, and ROIs.
  *
  * @author Tiago Ferreira
  */
@@ -137,11 +138,11 @@ public class UPoint {
 		return Math.max(chebyshevXYdxTo(point), chebyshevZdxTo(point));
 	}
 
-	public UPoint average(final UPoint... points) {
-		UPoint result = new UPoint();
-		for (final UPoint point : points)
-			result = result.plus(point);
-		return result.times(1.0 / points.length);
+	public static UPoint average(final List<UPoint> points) {
+		UPoint result = points.get(0);
+		for(int i = 1; i < points.size(); i++)
+			result = result.plus(points.get(i));
+		return result.times(1.0 / points.size());
 	}
 
 	public static void scale(final Set<UPoint> set, final Calibration cal) {

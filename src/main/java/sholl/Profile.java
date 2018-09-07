@@ -37,7 +37,7 @@ import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
 
 /**
- * Class defining a sholl profile
+ * Class defining a Sholl profile
  *
  * @author Tiago Ferreira
  */
@@ -45,9 +45,11 @@ public class Profile implements ProfileProperties {
 
 	private SortedSet<ProfileEntry> profile;
 	private UPoint center;
-	private Calibration cal;
+	private Calibration cal = new Calibration();
 	private Properties properties;
+	private double stepRadius = -1;
 
+	/** Instantiates a new empty profile. */
 	public Profile() {
 		initialize();
 	}
@@ -73,6 +75,14 @@ public class Profile implements ProfileProperties {
 
 	}
 
+	/**
+	 * Legacy constructor accepting arrays.
+	 *
+	 * @param radii
+	 *            sampled radii
+	 * @param sampledInters
+	 *            sampled intersection counts
+	 */
 	public Profile(final Number[] radii, final Number[] sampledInters) {
 		this(arrayToList(radii), arrayToList(sampledInters));
 	}
@@ -115,6 +125,13 @@ public class Profile implements ProfileProperties {
 		return radii;
 	}
 
+	public ArrayList<Double> radiiSquared() {
+		final ArrayList<Double> radii = new ArrayList<>();
+		for (final ProfileEntry e : profile)
+			radii.add(e.radius * e.radius);
+		return radii;
+	}
+
 	public double[] radiiAsArray() {
 		return radii().stream().mapToDouble(d -> d).toArray();
 	}
@@ -137,7 +154,16 @@ public class Profile implements ProfileProperties {
 		return allPoints;
 	}
 
-	public void trimZeroCounts() {
+	public double getCountAtRadius(final double radius) {
+		if (stepRadius == -1) stepRadius = calculateStepRadius();
+		for (final ProfileEntry entry : profile) {
+			if (entry.radius < radius + stepRadius && entry.radius >= radius - stepRadius) {
+				return entry.count;
+			}
+		}
+		return Double.NaN;
+	}
+
 	public void trimZeroEntries() {
 		final Iterator<ProfileEntry> iter = profile.iterator();
 		while (iter.hasNext()) {
@@ -252,6 +278,11 @@ public class Profile implements ProfileProperties {
 	}
 
 	public double stepSize() {
+		if (stepRadius == -1) stepRadius = calculateStepRadius();
+		return stepRadius;
+	}
+
+	private double calculateStepRadius() {
 		double stepSize = 0;
 		ProfileEntry previousEntry = null;
 		for (final Iterator<ProfileEntry> it = profile.iterator(); it.hasNext();) {
@@ -339,7 +370,9 @@ public class Profile implements ProfileProperties {
 	}
 
 	public boolean add(final ProfileEntry entry) {
-		return profile.add(entry);
+		final boolean result = profile.add(entry);
+		if (result) stepRadius = -1;
+		return result;
 	}
 
 	public int zeroCounts() {
@@ -356,4 +389,27 @@ public class Profile implements ProfileProperties {
 		return profile == null || profile.size() == zeroCounts();
 	}
 
+	@Override
+	public boolean equals(final Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		if (getClass() != o.getClass()) {
+			return false;
+		}
+		final Profile other = (Profile) o;
+		if (size() != other.size()) {
+			return false;
+		}
+		if (startRadius() != other.startRadius()) {
+			return false;
+		}
+		if (endRadius() != other.endRadius()) {
+			return false;
+		}
+		return counts().equals(other.counts());
+	}
 }
