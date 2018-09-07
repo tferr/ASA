@@ -124,6 +124,11 @@ public class ShollPlot extends Plot {
 		yMax = StatUtils.max(yValues);
 		final boolean gridState = PlotWindow.noGridLines;
 		PlotWindow.noGridLines = false;
+		// Axis Limits cannot be the same: if there are no
+		// differences between axes' min & max, the constructor
+		// will hang for several minutes trying to optimize boundaries
+		if (xMin == xMax) {xMin--; xMax++;}
+		if (yMin == yMax) {yMin--; yMax++;}
 		setLimits(xMin, xMax, yMin, yMax);
 		PlotWindow.noGridLines = gridState;
 
