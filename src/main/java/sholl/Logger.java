@@ -53,17 +53,12 @@ public class Logger {
 		logService.info("Sholl: " + msg );
 	}
 
-	
 	public void debug(final Object msg) {
 		if (debug) logService.debug("Sholl: " + msg);
 	}
 
 	public void warn(final String string) {
 		logService.warn("Sholl: " + string);
-	}
-
-	public void log(final String... strings) {
-		if (strings != null) log(String.join(" ", strings));
 	}
 
 	public boolean isDebug() {

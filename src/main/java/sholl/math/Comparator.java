@@ -56,11 +56,10 @@ public class Comparator extends ContextCommand {
 	@Override
 	public void run() throws NullContextException {
 		final Logger logger = new Logger(context());
-		logger.log("\n*** Comparing", profile1.identifier(), "vs", profile2
-			.identifier(), "***");
-		logger.log("KS-test: " + getKStest());
-		logger.log("Reg R: " + regression.getR());
-		logger.log("Reg R^2: " + regression.getRSquare());
+		logger.info("\n*** Comparing " + profile1.identifier() + "vs" + profile2.identifier() + "***");
+		logger.info("KS-test: " + getKStest());
+		logger.info("Reg R: " + regression.getR());
+		logger.info("Reg R^2: " + regression.getRSquare());
 	}
 
 	public SimpleRegression getRegression() {
