@@ -167,6 +167,10 @@ public class ShollPlot extends Plot {
 	}
 
 	public void rebuild() {
+		rebuild(stats);
+	}
+
+	public void rebuild(final ShollStats stats) {
 		final PlotWindow pw = (PlotWindow) getImagePlus().getWindow();
 		if (pw == null || !pw.isVisible())
 			return;
@@ -442,6 +446,15 @@ public class ShollPlot extends Plot {
 			addText(label, descaleX(xRight), descaleY(yBottom));
 		}
 		resetDrawing();
+	}
+
+	public boolean isVisible() {
+		final PlotWindow pw = (PlotWindow) getImagePlus().getWindow();
+		return (pw != null && pw.isVisible());
+	}
+
+	public ShollStats getStats() {
+		return stats;
 	}
 
 	/** Returns the mean value of a rectangular ROI */
