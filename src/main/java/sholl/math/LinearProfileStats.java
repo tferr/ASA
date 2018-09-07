@@ -22,6 +22,7 @@
 package sholl.math;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -346,13 +347,20 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *             if the computed polynomial coefficients were empty
 	 */
 	public void fitPolynomial(final int degree) {
+		fCounts = new double[nPoints];
+		if (degree == 0) {
+			final double constantTerm = getMean();
+			pFunction = new PolynomialFunction(new double[] {constantTerm});
+			Arrays.fill(fCounts, constantTerm);
+			return;
+		}
 		final PolynomialCurveFitter fitter = PolynomialCurveFitter.create(degree);
 		final ArrayList<WeightedObservedPoint> points = new ArrayList<>();
 		for (int i = 0; i < nPoints; i++) {
 			points.add(new WeightedObservedPoint(1, inputRadii[i], inputCounts[i]));
 		}
 		pFunction = new PolynomialFunction(fitter.fit(points));
-		fCounts = new double[nPoints];
+		
 		for (int i = 0; i < nPoints; i++) {
 			fCounts[i] = pFunction.value(inputRadii[i]);
 		}
@@ -363,6 +371,11 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		debug("Determining 'best fit' polynomial...");
 		double rSqHighest = 0d;
 		int bestDegree = -1;
+		if (Arrays.stream(inputCounts).allMatch(c -> c == inputCounts[0])) {
+			debug("Unsuitable data: falling back to linear polynomial fit");
+			fitPolynomial(0);
+			return 0;
+		}
 		final int firstDegree = Math.min(fromDegree, nPoints - 1);
 		final int lastDegree = Math.min(toDegree, nPoints - 1);
 		if (lastDegree != toDegree) {
@@ -589,6 +602,9 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	public double getMeanValueOfPolynomialFit(final String integrator, final double lowerBound,
 			final double upperBound) {
 		validateFit();
+		if (pFunction.degree() == 0) return pFunction.getCoefficients()[0];
+		if (pFunction.degree() == 1) return pFunction.value((lowerBound+upperBound)/2);
+
 		final UnivariateIntegrator uniIntegrator;
 		if (integrator != null && integrator.toLowerCase().contains("romberg"))
 			uniIntegrator = new RombergIntegrator();
