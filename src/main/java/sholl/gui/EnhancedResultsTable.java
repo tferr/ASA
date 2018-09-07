@@ -35,6 +35,7 @@ import ij.plugin.MeasurementsWriter;
 import ij.text.TextWindow;
 
 /** Slight improvements to {@link ij.measure.ResultsTable} */
+@Deprecated
 public class EnhancedResultsTable extends ResultsTable {
 
 	private boolean unsavedMeasurements;

@@ -56,6 +56,7 @@ import sholl.ShollUtils;
  * button to display a drop-down menu, and labels featuring clickable
  * hyperlinks. Customizations are ignored if running headless.
  */
+@Deprecated
 public class EnhancedGenericDialog extends GenericDialogPlus {
 	private static final long serialVersionUID = 1L;
 

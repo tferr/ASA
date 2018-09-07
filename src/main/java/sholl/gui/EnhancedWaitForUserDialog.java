@@ -27,6 +27,7 @@ import ij.gui.WaitForUserDialog;
  * Enhances WaitForUserDialog with a few additional features. Customizations are
  * ignored if running headless.
  */
+@Deprecated
 public class EnhancedWaitForUserDialog extends WaitForUserDialog {
 	private static final long serialVersionUID = 1L;
 
