@@ -176,8 +176,19 @@ public class ShollPlot extends Plot {
 			return;
 		if (isFrozen())
 			return;
-		final ShollPlot newPlot = new ShollPlot(getTitle(), defaultXtitle(stats), defaultYtitle(stats), stats,
+		final ShollPlot newPlot = new ShollPlot(defaultTitle(stats), defaultXtitle(stats), defaultYtitle(stats), stats,
 				annotate);
+		String title = pw.getTitle();
+		if (title != null && title.indexOf(" (") != -1) {
+			String statsLabel = "";
+			if (stats instanceof LinearProfileStats) {
+				statsLabel = "(Linear)";
+			} else if (stats instanceof NormalizedProfileStats) {
+				statsLabel = "("+ ((NormalizedProfileStats) stats).getMethodDescription() +")";
+			}
+			title = title.replaceAll("\\(.*\\)", statsLabel);
+			pw.setTitle(title);
+		}
 		pw.drawPlot(newPlot);
 	}
 

@@ -70,6 +70,10 @@ public class ProfileEntry implements Comparable<ProfileEntry> {
 		points.remove(point);
 	}
 
+	public double radiusSquared() {
+		return radius * radius;
+	}
+
 	@Override
 	public int compareTo(final ProfileEntry other) {
 		return Double.compare(this.radius, other.radius);
