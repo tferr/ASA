@@ -314,6 +314,10 @@ public class ShollTable extends DefaultGenericTable {
 	 */
 	public void setContext(final Context context) throws IllegalStateException, IllegalArgumentException {
 		context.inject(this);
+		if (prefService != null) {
+			final boolean detailedMetrics = prefService.getBoolean(Prefs.class, "detailedMetrics", Prefs.DEF_DETAILED_METRICS);
+			setDetailedSummary(detailedMetrics);
+		}
 	}
 
 	/**

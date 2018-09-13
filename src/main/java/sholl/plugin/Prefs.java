@@ -69,7 +69,9 @@ public class Prefs extends OptionsPlugin implements Command {
 	public final static double DEF_RSQUARED = 0.80;
 	public final static double DEF_PVALUE = 0.05;
 	public final static boolean DEF_DEBUG_MODE = false;
-	public final static boolean DEF_AUTO_CLOSE = false;
+	public final static boolean DEF_DETAILED_METRICS = false;
+
+	//public final static boolean DEF_AUTO_CLOSE = false;
 
 	/* Fields */
 	private final static String PLACEHOLDER_CHOICE = "Choose...";
@@ -94,7 +96,7 @@ public class Prefs extends OptionsPlugin implements Command {
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "Polynomial Regression:")
 	private String HEADER1B;
-	@Parameter(label = "Min. degree", min = "2", max = "100",
+	@Parameter(label = "Min. degree", min = "2", max = "60",
 		callback = "flagRestart")
 	private int minDegree = DEF_MIN_DEGREE;
 
@@ -114,28 +116,35 @@ public class Prefs extends OptionsPlugin implements Command {
 	private double pValue = DEF_PVALUE;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
-		label = HEADER_HTML + "Plugin Settings:")
+		label = HEADER_HTML + "Summary Table:")
 	private String HEADER3;
 
-	@Parameter(label = "Debug mode", callback = "flagRestart")
+	@Parameter(label = "Detailed Metrics", callback = "flagRestart", description = "Whether the Summary table should log detailed metrics or just the default set")
+	private boolean detailedMetrics = DEF_DETAILED_METRICS;
+
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+			label = HEADER_HTML + "Debugging Options:")
+	private String HEADER4;
+
+	@Parameter(label = "Debug mode", callback = "flagRestart", description = "Whether the Sholl suite of plugins should log debugging information to the Console")
 	private boolean debugMode = DEF_DEBUG_MODE;
 
-	@Parameter(label = "Auto-close dialog", callback = "flagRestart")
-	private boolean autoClose = DEF_AUTO_CLOSE;
+//	@Parameter(label = "Auto-close dialog", callback = "flagRestart")
+//	private boolean autoClose = DEF_AUTO_CLOSE;
 
 	@Parameter(label = "Reset All Preferences...", callback = "reset")
 	private Button resetPrefs;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "<br>Help and Resources:")
-	private String HEADER4;
+	private String HEADER5;
 
 	@Parameter(label = "Resource", required = false, persist = false,
 		callback = "help", choices = { PLACEHOLDER_CHOICE, "About...",
-			"ImageJ forum", "Documentation", "Source code" })
+			"Scientific Community Image Forum", "Documentation", "Source code" })
 	private String helpChoice = " ";
 
-	@Parameter(required = false, visibility = ItemVisibility.INVISIBLE)
+	@Parameter(required = false, persist = false, visibility = ItemVisibility.INVISIBLE)
 	private boolean ignoreBitmapOptions;
 
 	@SuppressWarnings("unused")
@@ -151,9 +160,9 @@ public class Prefs extends OptionsPlugin implements Command {
 	@SuppressWarnings("unused")
 	private void help() {
 		if (PLACEHOLDER_CHOICE.equals(helpChoice)) return; // do nothing
-		final String choice = helpChoice;
+		final String choice = helpChoice.toLowerCase();
 		helpChoice = PLACEHOLDER_CHOICE;
-		if (choice.contains("About")) {
+		if (choice.contains("about")) {
 			about();
 			return;
 		}
@@ -189,9 +198,9 @@ public class Prefs extends OptionsPlugin implements Command {
 	@Override
 	public void run() {
 		super.run();
-		if (restartRequired) helper.infoMsg(
-			"Please restart the Sholl Analysis plugin for changes to take effect.",
-			"New Preferences Set");
+		if (restartRequired)
+			helper.infoMsg("You may need to restart the Sholl Analysis plugin for changes to take effect.",
+					"New Preferences Set");
 	}
 
 	@Override
@@ -214,7 +223,8 @@ public class Prefs extends OptionsPlugin implements Command {
 		rSquared = DEF_RSQUARED;
 		pValue = DEF_PVALUE;
 		debugMode = DEF_DEBUG_MODE;
-		autoClose = DEF_AUTO_CLOSE;
+		detailedMetrics = DEF_DETAILED_METRICS;
+//		autoClose = DEF_AUTO_CLOSE;
 
 		helper.infoMsg("Preferences were successfully reset.", null);
 		restartRequired = true;
