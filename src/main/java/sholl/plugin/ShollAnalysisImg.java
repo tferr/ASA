@@ -21,10 +21,7 @@
  */
 package sholl.plugin;
 
-import java.awt.AWTException;
 import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,15 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
-import net.imagej.Dataset;
-import net.imagej.DatasetService;
-import net.imagej.ImageJ;
-import net.imagej.display.ImageDisplayService;
-import net.imagej.event.DataDeletedEvent;
-import net.imagej.legacy.LegacyService;
-import net.imagej.lut.LUTService;
-import net.imglib2.display.ColorTable;
 
 import org.scijava.Cancelable;
 import org.scijava.ItemVisibility;
@@ -74,6 +62,14 @@ import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.measure.Calibration;
+import net.imagej.Dataset;
+import net.imagej.DatasetService;
+import net.imagej.ImageJ;
+import net.imagej.display.ImageDisplayService;
+import net.imagej.event.DataDeletedEvent;
+import net.imagej.legacy.LegacyService;
+import net.imagej.lut.LUTService;
+import net.imglib2.display.ColorTable;
 import sholl.Logger;
 import sholl.Profile;
 import sholl.ProfileEntry;
@@ -95,7 +91,7 @@ import sholl.parsers.ImageParser3D;
  */
 @Plugin(type = Command.class, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),
 		@Menu(label = "Sholl Analysis (Experimental Version)...") }, initializer = "init")
-public class ShollAnalysis extends DynamicCommand implements Interactive, Cancelable {
+public class ShollAnalysisImg extends DynamicCommand implements Interactive, Cancelable {
 
 	@Parameter
 	private CommandService cmdService;
@@ -125,10 +121,10 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private UIService uiService;
 
 	/* constants */
-	private static final List<String> NORM2D_CHOICES = Arrays.asList("Area", "Perimeter", "Annulus");
-	private static final List<String> NORM3D_CHOICES = Arrays.asList("Volume", "Surface area", "Spherical shell");
+	private static final List<String> NORM2D_CHOICES = Arrays.asList("Default", "Area", "Perimeter", "Annulus");
+	private static final List<String> NORM3D_CHOICES = Arrays.asList("Default", "Volume", "Surface area", "Spherical shell");
 
-	private static final String HEADER_HTML = "<html><body><div style='width:120;font-weight:bold;'>";
+	private static final String HEADER_HTML = "<html><body><div style='font-weight:bold;'>";
 	private static final String EMPTY_LABEL = "<html>&nbsp;";
 	private static final int MAX_SPANS = 10;
 
@@ -197,7 +193,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			"None. Skip curve fitting", "'Best fitting' degree", "Use degree specified below:" })
 	private String polynomialChoice = "'Best fitting' degree";
 
-	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", style = NumberWidget.SLIDER_STYLE)
+	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", style = NumberWidget.SCROLL_BAR_STYLE)
 	private int polynomialDegree;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Sholl Decay:")
@@ -275,7 +271,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	private int scope;
 
 	/* Preferences */
-	private boolean autoClose;
+//	private boolean autoClose;
 	private int minDegree;
 	private int maxDegree;
 
@@ -364,7 +360,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	private void getNewDataset() {
-
+		final List<Dataset> list = datasetService.getDatasets();
+		if (list == null || list.size() < 2) {
+			helper.error("No other images are open.", "No Other Images");
+			return;
+		}
 		try {
 			final Map<String, Object> input= new HashMap<>();
 			input.put("datasetToIgnore", dataset);
@@ -412,14 +412,14 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 		logger.debug("Analysis started...");
 		analysisThread = threadService.newThread(analysisRunner);
 		analysisThread.start();
-		if (autoClose && !isCanceled()) {
-			try {  //FIXME: this kludge will only work if prompt has focus
-				final Robot r = new Robot();
-				r.keyPress(KeyEvent.VK_ESCAPE);
-			} catch (final AWTException exc) {
-				logger.debug(exc);
-			}
-		}
+//		if (autoClose && !isCanceled()) {
+//			try {  //FIXME: this kludge will only work if prompt has focus
+//				final Robot r = new Robot();
+//				r.keyPress(KeyEvent.VK_ESCAPE);
+//			} catch (final AWTException exc) {
+//				logger.debug(exc);
+//			}
+//		}
 	}
 
 	private boolean validProfileExists() {
@@ -427,7 +427,11 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	}
 
 	private NormalizedProfileStats getNormalizedProfileStats(final Profile profile) {
-		final int normFlag = NormalizedProfileStats.getNormalizerFlag(normalizerDescription);
+		String normalizerString = normalizerDescription.toLowerCase();
+		if (normalizerString.startsWith("default")) {
+			normalizerString = (twoD) ? NORM2D_CHOICES.get(1) : NORM3D_CHOICES.get(1);
+		}
+		final int normFlag = NormalizedProfileStats.getNormalizerFlag(normalizerString);
 		final int methodFlag = NormalizedProfileStats.getMethodFlag(normalizationMethodDescription);
 		return new NormalizedProfileStats(profile, normFlag, methodFlag);
 	}
@@ -466,7 +470,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 
 	private void readPreferences() {
 		logger.debug("Reading preferences");
-		autoClose = prefService.getBoolean(Prefs.class, "autoClose", Prefs.DEF_AUTO_CLOSE);
+//		autoClose = prefService.getBoolean(Prefs.class, "autoClose", Prefs.DEF_AUTO_CLOSE);
 		minDegree = prefService.getInt(Prefs.class, "minDegree", Prefs.DEF_MIN_DEGREE);
 		maxDegree = prefService.getInt(Prefs.class, "maxDegree", Prefs.DEF_MAX_DEGREE);
 		normalizationMethodDescription = prefService.get(getClass(), "normalizationMethodDescription", "Automatically choose");
@@ -982,7 +986,7 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 			if (noOutput) {
 				cancel("Invalid output");
 				helper.error("Analysis can only proceed if at least one type\n" +
-					"of output (plot, table, annotation) is chosen.", "No Valid Output");
+					"of output (plot, table, annotation) is chosen.", "Invalid Output");
 			}
 			return !noOutput;
 		}
@@ -1028,6 +1032,6 @@ public class ShollAnalysis extends DynamicCommand implements Interactive, Cancel
 	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.ui().showUI();
-		ij.command().run(ShollAnalysis.class, true);
+		ij.command().run(ShollAnalysisImg.class, true);
 	}
 }

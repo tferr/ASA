@@ -203,7 +203,7 @@ public class Prefs extends OptionsPlugin implements Command {
 
 		// Reset preferences
 		super.reset();
-		pService.clear(ShollAnalysis.class);
+		pService.clear(ShollAnalysisImg.class);
 		pService.clear(ChooseDataset.class);
 
 		// Reset inputs in prompt
