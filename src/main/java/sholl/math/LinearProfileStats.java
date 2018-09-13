@@ -50,9 +50,9 @@ import sholl.UPoint;
 
 /**
  * Retrieves descriptive statistics and calculates Sholl Metrics from sampled
- * Sholl profiles, including those relying on polynomial fitting. (Fitting to
+ * Sholl profiles, including those relying on polynomial fitting. Fitting to
  * polynomials of arbitrary degree is supported. Relies heavily on the
- * {@code org.apache.commons.math} package.
+ * {@code org.apache.commons.math3} package.
  *
  * @author Tiago Ferreira
  */
@@ -852,4 +852,5 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	public boolean validFit() {
 		return (pFunction != null && super.validFit());
 	}
+
 }

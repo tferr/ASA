@@ -119,7 +119,7 @@ class CommonStats extends ContextCommand implements ShollStats {
 		return plot;
 	}
 
-	public double getAdjustedRSquaredOfFit(final int p) {
+	protected double getAdjustedRSquaredOfFit(final int p) {
 		double rSquared = getRSquaredOfFit();
 		rSquared = rSquared - (1 - rSquared) * (p / (nPoints - p - 1));
 		return rSquared;

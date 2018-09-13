@@ -24,7 +24,7 @@ package sholl;
 import java.util.Set;
 
 /**
- * Utility class defining a sholl profile entry
+ * Utility class defining a Sholl profile entry
  *
  * @author Tiago Ferreira
  */

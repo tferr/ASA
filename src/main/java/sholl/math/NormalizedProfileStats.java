@@ -178,10 +178,21 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 		return regressionChosen.getRSquare();
 	}
 
+	/**
+	 * Returns <a href="http://mathworld.wolfram.com/CorrelationCoefficient.html">
+	 * Pearson's product moment correlation coefficient</a>, usually denoted r.
+	 *
+	 * @return Pearson's r
+	 */
 	public double getR() {
 		return regressionChosen.getR();
 	}
 
+	/**
+	 * Returns the intercept of the estimated regression line,
+	 *
+	 * @return the intercept of the regression line
+	 */
 	public double getIntercept() {
 		return regressionChosen.getIntercept();
 	}
@@ -323,8 +334,9 @@ public class NormalizedProfileStats extends CommonStats implements ShollStats {
 
 	public static int getMethodFlag(final String string) {
 		switch (string.toLowerCase().replace(" ", "").trim()) {
-		case "guess":
 		case "automaticallychoose":
+		case "default":
+		case "guess":
 		case "determine":
 		case "calculate":
 			return GUESS_SLOG;
