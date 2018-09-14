@@ -38,12 +38,11 @@ public interface ProfileProperties {
 	final String KEY_CHANNEL_POS = "channel";
 	final String KEY_SLICE_POS = "slice";
 	final String KEY_FRAME_POS = "frame";
+	final String KEY_THRESHOLD_RANGE = "threshold-range";
 
 	final String SRC_TABLE = "table";
 	final String SRC_TRACES = "tracings";
 	final String SRC_IMG = "image";
-	final String SRC_IMG_BINARY = "image:binary";
-	final String SRC_IMG_THRESH = "image:thresholded";
 
 	final String HEMI_NONE = "none";
 	final String HEMI_NORTH = "north";

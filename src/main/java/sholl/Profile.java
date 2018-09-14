@@ -308,12 +308,17 @@ public class Profile implements ProfileProperties {
 		setSpatialCalibration(imp.getCalibration());
 		setIdentifier(imp.getTitle());
 		setNDimensions(imp.getNDimensions());
-		if (imp.getProcessor().isBinary())
-			properties.setProperty(KEY_SOURCE, SRC_IMG_BINARY);
-		else if (imp.getProcessor().getMinThreshold() != ImageProcessor.NO_THRESHOLD)
-			properties.setProperty(KEY_SOURCE, SRC_IMG_THRESH);
-		else
-			properties.setProperty(KEY_SOURCE, SRC_IMG);
+		properties.setProperty(KEY_SOURCE, SRC_IMG);
+		if (imp.getProcessor().isBinary()) {
+			properties.setProperty(KEY_THRESHOLD_RANGE, "255:255");
+		}
+		else {
+			double lowerT =  imp.getProcessor().getMinThreshold();
+			if (lowerT == ImageProcessor.NO_THRESHOLD) lowerT = -1;
+			double upperT =  imp.getProcessor().getMaxThreshold();
+			if (upperT == ImageProcessor.NO_THRESHOLD) upperT = -1;
+			properties.setProperty(KEY_THRESHOLD_RANGE, ""+lowerT+":"+upperT);
+		}
 	}
 
 	public void setSpatialCalibration(final Calibration cal) {
