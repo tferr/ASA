@@ -216,6 +216,10 @@ public class ShollTable extends DefaultGenericTable {
 
 			if (stat instanceof LinearProfileStats) {
 				final LinearProfileStats lStats = (LinearProfileStats) stat;
+				if (detailedSummary) {
+					final String pLabel = (lStats.isPrimaryBranchesInferred()) ? "(inferred)" : "(specified)";
+					set(getCol("I branches " + pLabel), row, lStats.getPrimaryBranches());
+				}
 				addLinearStats(row, lStats, false);
 				if (lStats.validFit())
 					addLinearStats(row, lStats, true);

@@ -41,6 +41,7 @@ import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.Interactive;
 import org.scijava.convert.ConvertService;
+import org.scijava.display.Display;
 import org.scijava.display.DisplayService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
@@ -69,6 +70,7 @@ import net.imagej.display.ImageDisplayService;
 import net.imagej.event.DataDeletedEvent;
 import net.imagej.legacy.LegacyService;
 import net.imagej.lut.LUTService;
+import net.imagej.table.DefaultGenericTable;
 import net.imglib2.display.ColorTable;
 import sholl.Logger;
 import sholl.Profile;
@@ -79,6 +81,7 @@ import sholl.UPoint;
 import sholl.gui.Helper;
 import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
+import sholl.gui.ShollTable;
 import sholl.math.LinearProfileStats;
 import sholl.math.NormalizedProfileStats;
 import sholl.parsers.ImageParser;
@@ -184,7 +187,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 	private String primaryBranchesChoice = "Infer from starting radius";
 
 	@Parameter(label = EMPTY_LABEL, callback = "primaryBranchesChanged", min = "0", max = "100", style = NumberWidget.SCROLL_BAR_STYLE)
-	private double primaryBranches;
+	private int primaryBranches;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Polynomial Fit:")
 	private String HEADER3B;
@@ -212,10 +215,9 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 			"None. Show no plots" })
 	private String plotOutputDescription;
 
-	//TODO: Implement tables
-//	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
-//		"Detailed & summary tables", "None. Show no tables" })
-//	private String tableOutputDescription = "None. Show no tables";
+	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
+		"Detailed & Summary tables", "None. Show no tables" })
+	private String tableOutputDescription;
 
 	@Parameter(label = "Annotations", callback = "annotationsDescriptionChanged",
 		choices = { "ROIs (Sholl points only)", "ROIs (points and 2D shells)",
@@ -269,6 +271,8 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 	private AnalysisRunner analysisRunner;
 	private Profile profile;
 	private int scope;
+	private DefaultGenericTable commonSummaryTable;
+	private Display<?> detailedTableDisplay;
 
 	/* Preferences */
 //	private boolean autoClose;
@@ -932,6 +936,10 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 			// Linear profile stats
 			final LinearProfileStats lStats = new LinearProfileStats(profile);
 			lStats.setLogger(logger);
+			if (primaryBranches > 0 ) {
+				lStats.setPrimaryBranches(primaryBranches);
+			}
+
 			if (polynomialChoice.contains("Best")) {
 				final double rSq = prefService.getDouble(Prefs.class, "rSquared", Prefs.DEF_RSQUARED);
 				final double pValue = prefService.getDouble(Prefs.class, "pValue", Prefs.DEF_PVALUE);
@@ -939,7 +947,6 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 			} else if (polynomialChoice.contains("degree") && polynomialDegree > 1) {
 				lStats.fitPolynomial(polynomialDegree);
 			}
-			//TODO: Complete stats
 
 			/// Normalized profile stats
 			final NormalizedProfileStats nStats = getNormalizedProfileStats(profile);
@@ -967,7 +974,30 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 				nPlot.show();
 			}
 
-			// TODO: implement tables
+			// Set tables
+			if (tableOutputDescription.contains("Detailed")) {
+				final ShollTable dTable = new ShollTable(lStats, nStats);
+				dTable.listProfileEntries();
+				if (detailedTableDisplay != null) {
+					detailedTableDisplay.close();
+				}
+				detailedTableDisplay = displayService.createDisplay(imp.getTitle()+"_Sholl-Profiles", dTable);
+			}
+
+			if (tableOutputDescription.contains("Summary")) {
+
+				final ShollTable sTable = new ShollTable(lStats, nStats);
+				if (commonSummaryTable == null)
+					commonSummaryTable = new DefaultGenericTable();
+				sTable.summarize(commonSummaryTable, imp.getTitle());
+				final Display<?> display = displayService.getDisplay("Sholl Results");
+				if (display != null && display.isDisplaying(commonSummaryTable)) {
+					display.update();
+				} else {
+					displayService.createDisplay("Sholl Results", commonSummaryTable);
+				}
+			}
+
 			setProfile(profile);
 
 		}

@@ -68,6 +68,14 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	private PolynomialFunction pFunction;
 	private int maxEval = 1000; // number of function evaluations
 
+	private int primaryBranches = -1;
+
+
+	/**
+	 * Instantiates the Linear Profile Statistics.
+	 *
+	 * @param profile the profile to be analyzed
+	 */
 	public LinearProfileStats(final Profile profile) {
 		super(profile);
 	}
@@ -660,46 +668,78 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	}
 
 	/**
-	 * Returns intersection counts at the smallest radius.
+	 * Sets the number of primary branches associated with this profile, used to
+	 * calculate ramification indices. When the number is set to -1 (the default),
+	 * the number of primary branches is inferred from the number of intersections
+	 * at starting radius.
+	 * 
+	 * @param nBranches the new primary branches
+	 * @see #getPrimaryBranches(boolean)
+	 * @see #getRamificationIndex(boolean)
+	 */
+	public void setPrimaryBranches(final int nBranches) {
+		if (nBranches < 1) {
+			primaryBranches = -1;
+		} else {
+			primaryBranches = nBranches;
+		}
+	}
+
+	/**
+	 * Checks whether the number of primary branches is being inferred from the
+	 * number of intersections at starting radius or if it has been set explicitly.
+	 * 
+	 * @return true, if number of primary branches is being inferred
+	 * @see #setPrimaryBranches(int)
+	 */
+	public boolean isPrimaryBranchesInferred() {
+		return primaryBranches == -1;
+	}
+
+	/**
+	 * Returns intersection counts at the smallest radius (inferred no. of primary
+	 * branches), or the number of the actual number of primary branches specified
+	 * by {@link #setPrimaryBranches(int)}.
 	 *
-	 * @param fittedData
-	 *            If {@code true}, calculation is performed on polynomial fitted
-	 *            values, otherwise from sampled data
-	 * @return the count for inferred no. of primary branches
+	 * @param fittedData If {@code true}, and {@link #setPrimaryBranches(int)} has
+	 *                   not been called, calculation is performed on polynomial
+	 *                   fitted values, otherwise from sampled data. It is ignored
+	 *                   if the number of primary branches has been successfully
+	 *                   specified by calling {@link #setPrimaryBranches(int)}
+	 * @return the number of primary branches
+	 * @see #getRamificationIndex(boolean)
 	 */
 	public double getPrimaryBranches(final boolean fittedData) {
 		if (fittedData) {
 			validateFit();
 		}
-		return startRadiusCount(fittedData);
-	}
-
-	private double startRadiusCount(final boolean fittedData) {
+		if (primaryBranches != -1) return primaryBranches;
 		return (fittedData) ? fCounts[0] : inputCounts[0];
 	}
 
 	/**
 	 * @return {@link #getPrimaryBranches(boolean) getPrimaryBranches(false)}
+	 * @see #getRamificationIndex()
 	 */
 	public double getPrimaryBranches() {
 		return getPrimaryBranches(false);
 	}
 
 	/**
-	 * Calculates the ramification index (the highest intersections count
-	 * divided by the n. of primary branches, assumed to be the n. intersections
-	 * at starting radius.
+	 * Calculates the ramification index (the highest intersections count divided by
+	 * the n. of primary branches). If the number of primary branches has not been
+	 * specified, it is assumed to be the n. intersections at starting radius.
 	 *
-	 * @param fittedData
-	 *            If {@code true}, calculation is performed on polynomial fitted
-	 *            values, otherwise from sampled data
+	 * @param fittedData If {@code true}, calculation is performed on polynomial
+	 *                   fitted values, otherwise from sampled data
 	 *
 	 * @return the ramification index
+	 * @see #setPrimaryBranches(int)
 	 */
 	public double getRamificationIndex(final boolean fittedData) {
 		if (fittedData)
 			validateFit();
-		return getMaxCount(fittedData) / startRadiusCount(fittedData);
+		return getMaxCount(fittedData) / getPrimaryBranches(fittedData);
 	}
 
 	private double getMaxCount(final boolean fittedData) {
