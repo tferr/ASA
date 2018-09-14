@@ -93,7 +93,7 @@ import sholl.parsers.ImageParser3D;
  * @author Tiago Ferreira
  */
 @Plugin(type = Command.class, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),
-		@Menu(label = "Sholl Analysis (Experimental Version)...") }, initializer = "init")
+		@Menu(label = "Sholl Analysis (From Image)...") }, initializer = "init")
 public class ShollAnalysisImg extends DynamicCommand implements Interactive, Cancelable {
 
 	@Parameter
@@ -453,7 +453,6 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 		helper = new Helper(context());
 		logger = new Logger(context());
 		readPreferences();
-		headsupWarning();
 		imp = legacyService.getImageMap().lookupImagePlus(imageDisplayService.getActiveImageDisplay());
 		if (imp == null)
 			displayDemoImage();
@@ -481,16 +480,6 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 		annotationsDescription = prefService.get(getClass(), "annotationsDescription", "ROIs (points and 2D shells)");
 		plotOutputDescription = prefService.get(getClass(), "plotOutputDescription", "Linear plot");
 		lutChoice = prefService.get(getClass(), "lutChoice", "mpl-viridis.lut");
-	}
-
-	private void headsupWarning() {
-		helper.infoMsg("<HTML><div WIDTH=480><p>"
-				+ "This is an experimental version of the new version of the Sholl plugin for ImageJ2 "
-				+ "(Development of IJ1 version is now stopped). This version is focused on sampling "
-				+ "accuracy, extended metrics and scriptability. Several other refinements should "
-				+ "also be noticeblable (e.g., parsing of 3D stacks is now much faster).</p>"
-				+ "<p>Please report any bugs you find (in the ImageJ Forum or through GitHub) "
-				+ "and keeep in mind this is still a work in progress.</p></div></HTML>", "Warning");
 	}
 
 	private void loadDataset(final ImagePlus imp) {
@@ -887,8 +876,9 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 		threadService.newThread(new Runnable() {
 			@Override
 			public void run() {
-				//legacyService.runLegacyCommand(sholl.Options.class.getName(), "");
-				cmdService.run(Prefs.class, true);
+				final Map<String, Object> input = new HashMap<>();
+				input.put("ignoreBitmapOptions", false);
+				cmdService.run(Prefs.class, true, input);
 			}
 		}).start();
 	}
