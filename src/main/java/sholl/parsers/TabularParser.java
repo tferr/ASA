@@ -79,9 +79,6 @@ public class TabularParser implements Parser {
 		this.endRow = endRow;
 	}
 
-	/**
-	 *
-	 */
 	public TabularParser(final net.imagej.table.ResultsTable table, final String radiiColumnHeader,
 			final String countsColumnHeader) {
 		if (table == null || table.isEmpty())

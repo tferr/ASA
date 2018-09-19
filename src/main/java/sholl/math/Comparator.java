@@ -31,6 +31,11 @@ import org.scijava.plugin.Plugin;
 import sholl.Logger;
 import sholl.Profile;
 
+/**
+ * Compares two profiles statistically.
+ * 
+ * @author Tiago Ferreira
+ */
 @Plugin(type = ContextCommand.class, visible = false)
 public class Comparator extends ContextCommand {
 

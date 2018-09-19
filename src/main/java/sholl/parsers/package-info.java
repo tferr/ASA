@@ -20,7 +20,7 @@
  * #L%
  */
 /**
- * Statistical analysis of Sholl data
+ * Parsers to retrieve Profiles from multiple sources
  *
  * @author Tiago Ferreira
  *

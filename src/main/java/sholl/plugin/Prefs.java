@@ -44,6 +44,8 @@ import sholl.ShollUtils;
 import sholl.gui.Helper;
 
 /**
+ * Implements the "Sholl Options" command
+ * 
  * @author Tiago Ferreira
  */
 @Plugin(type = Command.class, label = "Sholl Options", visible = false,

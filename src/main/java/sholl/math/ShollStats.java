@@ -24,6 +24,8 @@ package sholl.math;
 import sholl.Profile;
 
 /**
+ * Methods and constants common to Profile analyzers.
+ * 
  * @author Tiago Ferreira
  *
  */

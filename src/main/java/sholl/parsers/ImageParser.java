@@ -311,8 +311,13 @@ public class ImageParser extends ContextCommand implements Parser {
 	}
 
 	/**
-	 * Creates a 2D Sholl heatmap by applying measured values to the foreground
-	 * pixels of a copy of the analyzed image
+	 * Creates a 2D 'Sholl heatmap' by applying measured values to the foreground
+	 * pixels of a copy of the analyzed image.
+	 *
+	 * @param floatProcessor if true, a FloatProcessor is returned, if false, a
+	 *                       ShortProcessor is returned
+	 * @param maskValues     the mask values
+	 * @return the processor containing the heatmap
 	 */
 	public ImageProcessor getMaskProcessor(final boolean floatProcessor, final double[] maskValues) {
 

@@ -374,7 +374,25 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		}
 	}
 
-	/** Experimental **/
+	/**
+	 * Computes the 'best fit' polynomial between a specified range of degrees and
+	 * keeps the fit in memory.
+	 *
+	 * @param fromDegree  the lowest degree to be considered. Will be set to
+	 *                    ({@link #getN()}-1) if higher than ({@link #getN()}-1)
+	 * @param toDegree    the highest degree to be considered. Will be set to
+	 *                    ({@link #getN()}-1) if higher than ({@link #getN()}-1)
+	 * @param minRSquared the lowest value for adjusted RSquared. Only fits
+	 *                    associated with an equal or higher value will be
+	 *                    considered
+	 * @param minPvalue   the lowest p-value for the K-S test between sampled and
+	 *                    fitted data evaluating the null hypothesis that both
+	 *                    curves represent samples from the same underlying
+	 *                    distribution. Only fits associated with an equal or higher
+	 *                    value will be considered
+	 * @return the degree of the 'best fit' polynomial or -1 if no suitable fit
+	 *         could be performed.
+	 */
 	public int findBestFit(final int fromDegree, final int toDegree, final double minRSquared, final double minPvalue) {
 		debug("Determining 'best fit' polynomial...");
 		double rSqHighest = 0d;

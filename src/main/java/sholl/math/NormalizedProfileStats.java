@@ -29,8 +29,11 @@ import org.apache.commons.math3.stat.regression.SimpleRegression;
 import sholl.Profile;
 
 /**
- * @author Tiago Ferreira
+ * Calculates Sholl Metrics from normalized profiles, including Sholl decay and
+ * methods for determination of 'optimal' normalization. Relies heavily on the
+ * {@code org.apache.commons.math3} package.
  *
+ * @author Tiago Ferreira
  */
 public class NormalizedProfileStats extends CommonStats implements ShollStats {
 

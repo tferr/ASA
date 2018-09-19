@@ -88,8 +88,9 @@ import sholl.parsers.ImageParser;
 import sholl.parsers.ImageParser2D;
 import sholl.parsers.ImageParser3D;
 
-
 /**
+ * Implements the Analyze:Sholl:Sholl Analysis (From Image)...
+ * 
  * @author Tiago Ferreira
  */
 @Plugin(type = Command.class, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),

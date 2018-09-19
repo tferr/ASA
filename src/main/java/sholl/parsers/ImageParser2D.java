@@ -66,7 +66,7 @@ public class ImageParser2D extends ImageParser {
 		doSpikeSupression = true;
 	}
 
-	/** Debug method **/
+	/* Debug method **/
 	public static void main(final String... args) throws Exception {
 		// final ImageJ ij = net.imagej.Main.launch(args);
 		// final ImageParser2D parser = new

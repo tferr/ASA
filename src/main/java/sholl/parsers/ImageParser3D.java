@@ -39,6 +39,8 @@ import sholl.ProfileEntry;
 import sholl.UPoint;
 
 /**
+ * Parser for 3D images
+ * 
  * @author Tiago Ferreira
  */
 public class ImageParser3D extends ImageParser {
@@ -52,6 +54,7 @@ public class ImageParser3D extends ImageParser {
 	private final AtomicInteger ai;
 	private int nSamples;
 
+	@Deprecated
 	public ImageParser3D(final ImagePlus imp) {
 		this(imp, (Context) IJ.runPlugIn("org.scijava.Context", ""));
 	}
