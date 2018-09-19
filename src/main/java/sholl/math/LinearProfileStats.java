@@ -397,9 +397,16 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		debug("Determining 'best fit' polynomial...");
 		double rSqHighest = 0d;
 		int bestDegree = -1;
+		// edge case: constant values
 		if (Arrays.stream(inputCounts).allMatch(c -> c == inputCounts[0])) {
-			debug("Unsuitable data: falling back to linear polynomial fit");
+			debug("Unsuitable data: falling back to constant function");
 			fitPolynomial(0);
+			return 0;
+		}
+		// edge case: linear function
+		if (getN() == 2) {
+			debug("Unsuitable data: falling back to linear polynomial fit");
+			fitPolynomial(1);
 			return 0;
 		}
 		final int firstDegree = Math.min(fromDegree, nPoints - 1);
@@ -409,7 +416,12 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		}
 		final double[] coefficients = (pFunction == null) ? null : pFunction.getCoefficients();
 		for (int deg = firstDegree; deg <= lastDegree; deg++) {
-			fitPolynomial(deg);
+			try {
+				fitPolynomial(deg);
+			} catch (final NullArgumentException | NoDataException exc) {
+				debug("Fit to degree "+ deg + " failed: "+ exc.getMessage());
+				continue;
+			}
 			if (getKStestOfFit() < minPvalue) {
 				debug("Discarding degree "+ deg +": Fitted data significantly different");
 				continue;
