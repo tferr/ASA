@@ -24,6 +24,8 @@ package sholl.plugin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.imagej.ImageJ;
 
@@ -77,73 +79,89 @@ public class Prefs extends OptionsPlugin implements Command {
 
 	/* Fields */
 	private final static String PLACEHOLDER_CHOICE = "Choose...";
-	private final static String HELP_URL = "https://imagej.net/Sholl_Analysis";
+	private final static String HELP_URL = ShollUtils.URL;
 	private Helper helper;
 	private Logger logger;
 	private boolean restartRequired;
 
 	/* Prompt */
 	private static final String HEADER_HTML = "<html><body><div style='font-weight:bold;'>";
+	private static final String DESCRIPTION_HTML = "<html><body><div style='width:450px'>";
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "Sampling:")
-	private String HEADER1;
+	private String HEADER_SAMPLING;
 
-	@Parameter(label = "Ignore isolated voxels")
+	@Parameter(label = "Ignore isolated voxels",
+			description = DESCRIPTION_HTML + "Mitigates over-estimation "
+					+ "of intersections. Only applicabale to 3D image stacks")
 	private boolean skipSingleVoxels;
 
-	@Parameter(label = "Enclosing radius cuttoff", min = "1")
-	private int enclosingRadiusCutoff = DEF_ENCLOSING_RADIUS_CUTOFF;
-
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
-		label = HEADER_HTML + "Polynomial Regression:")
-	private String HEADER1B;
+		label = HEADER_HTML + "<br>'Best Fit' Polynomial:")
+	private String HEADER2;
+
 	@Parameter(label = "Min. degree", min = "2", max = "60",
-		callback = "flagRestart")
+		callback = "flagRestart", description = "The lowest order to be considered")
 	private int minDegree = DEF_MIN_DEGREE;
 
 	@Parameter(label = "Max. degree", min = "2", max = "60",
-		callback = "flagRestart")
+		callback = "flagRestart", description = "The highest order to be considered")
 	private int maxDegree = DEF_MAX_DEGREE;
 
-	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
-		label = HEADER_HTML + "Goodness of Fit Criteria:")
-	private String HEADER1C;
+//	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
+//		label = HEADER_HTML + "Goodness of Fit Criteria:")
+//	private String HEADER1C;
 
-	@Parameter(label = "R-squared >", min = "0.5", stepSize = "0.01", max = "1")
+	@Parameter(label = "R-squared cutoff", min = "0.5", stepSize = "0.01", max = "1",
+			description = DESCRIPTION_HTML + "1<sup>st</sup> Goodness of Fit Criterion: The "
+					+ "Coefficient of determination (R<sup>2</sup>) cutoff used to discard "
+					+ "'innapropriate fits'. Fits associated with a lower R^2 than "
+					+ "this value are discarded")
 	private double rSquared = DEF_RSQUARED;
 
-	@Parameter(label = "P-value <", min = "0.0001", stepSize = "0.01",
-		max = "0.05")
+	@Parameter(label = "P-value cutoff", min = "0.0001", stepSize = "0.01", max = "0.05",
+			description = DESCRIPTION_HTML + "2<sup>nd</sup> Goodness of Fit Criterion: The "
+					+ "p-value used to discard 'innapropriate fits'. It is used to test "
+					+ "the null hypothesis that fitted and original values represent "
+					+ "samples from the same distribution")
 	private double pValue = DEF_PVALUE;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
-		label = HEADER_HTML + "Summary Table:")
+		label = HEADER_HTML + "<br>Metrics:")
 	private String HEADER3;
 
-	@Parameter(label = "Detailed Metrics", callback = "flagRestart", description = "Whether the Summary table should log detailed metrics or just the default set")
+	@Parameter(label = "Detailed list", callback = "flagRestart", 
+			description = "Whether the 'Summary Table' should list "
+					+ "detailed metrics or just the default set")
 	private boolean detailedMetrics = DEF_DETAILED_METRICS;
 
+	@Parameter(label = "Enclosing radius cuttoff", min = "1",
+			description = "The number of intersections defining enclosing radius")
+	private int enclosingRadiusCutoff = DEF_ENCLOSING_RADIUS_CUTOFF;
+
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
-			label = HEADER_HTML + "Debugging Options:")
+			label = HEADER_HTML + "<br>Advanced Options:")
 	private String HEADER4;
 
-	@Parameter(label = "Debug mode", callback = "flagRestart", description = "Whether the Sholl suite of plugins should log debugging information to the Console")
+	@Parameter(label = "Debug mode", callback = "flagRestart",
+			description = "Whether computations should log "
+					+ "detailed information to the Console")
 	private boolean debugMode = DEF_DEBUG_MODE;
 
 //	@Parameter(label = "Auto-close dialog", callback = "flagRestart")
 //	private boolean autoClose = DEF_AUTO_CLOSE;
 
-	@Parameter(label = "Reset All Preferences...", callback = "reset")
+	@Parameter(label = "Reset Options & Preferences...", callback = "reset")
 	private Button resetPrefs;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
-		label = HEADER_HTML + "<br>Help and Resources:")
+		label = HEADER_HTML + "<br>Help &amp; Resources:")
 	private String HEADER5;
 
 	@Parameter(label = "Resource", required = false, persist = false,
 		callback = "help", choices = { PLACEHOLDER_CHOICE, "About...",
-			"Scientific Community Image Forum", "Documentation", "Source code" })
+			"Image.sc Forum", "Documentation", "Source code" })
 	private String helpChoice = " ";
 
 	@Parameter(required = false, persist = false, visibility = ItemVisibility.INVISIBLE)
@@ -155,6 +173,7 @@ public class Prefs extends OptionsPlugin implements Command {
 		logger = new Logger(context());
 		logger.debug("Prefs successfully initialized");
 		if (ignoreBitmapOptions) {
+			resolveInput("HEADER_SAMPLING");
 			resolveInput("skipSingleVoxels");
 		}
 	}
@@ -236,7 +255,9 @@ public class Prefs extends OptionsPlugin implements Command {
 	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.ui().showUI();
-		ij.command().run(Prefs.class, true);
+		final Map<String, Object> inputs = new HashMap<>();
+		inputs.put("ignoreBitmapOptions", true);
+		ij.command().run(Prefs.class, true, inputs);
 	}
 
 }
