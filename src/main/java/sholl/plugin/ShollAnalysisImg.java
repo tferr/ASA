@@ -45,6 +45,7 @@ import org.scijava.display.Display;
 import org.scijava.display.DisplayService;
 import org.scijava.event.EventHandler;
 import org.scijava.event.EventService;
+import org.scijava.module.ModuleItem;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
@@ -352,12 +353,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 			logger.debug("Analysis aborted...");
 			break;
 		case SCOPE_CHANGE_DATASET:
-			threadService.newThread(new Runnable() {
-				@Override
-				public void run() {
-					getNewDataset();
-				}
-			}).start();
+			threadService.newThread(() -> getNewDataset()).start();
 			break;
 		default:
 			throw new IllegalArgumentException("Unrecognized option: " + scope);
@@ -517,17 +513,19 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 	}
 
 	private void adjustSamplingOptions() {
-		if (!twoD) {
-			final MutableModuleItem<String> ignoreIsolatedVoxelsInput = getInfo()
-					.getMutableInput("HEADER2", String.class);
-			removeInput(ignoreIsolatedVoxelsInput);
-			final MutableModuleItem<Integer> nSpansInput = getInfo().getMutableInput("nSpans", Integer.class);
-			removeInput(nSpansInput);
-			final MutableModuleItem<String> nSpansIntChoiceInput = getInfo().getMutableInput("nSpansIntChoice",
-					String.class);
-			removeInput(nSpansIntChoiceInput);
+		try {
+			if (!twoD) {
+				final ModuleItem<String> ignoreIsolatedVoxelsInput = getInfo().getInput("HEADER2", String.class);
+				removeInput(ignoreIsolatedVoxelsInput);
+				final MutableModuleItem<Integer> nSpansInput = getInfo().getMutableInput("nSpans", Integer.class);
+				removeInput(nSpansInput);
+				final MutableModuleItem<String> nSpansIntChoiceInput = getInfo().getMutableInput("nSpansIntChoice",
+						String.class);
+				removeInput(nSpansIntChoiceInput);
+			}
+		} catch (NullPointerException npe) {
+			logger.debug(npe);
 		}
-
 	}
 
 	private void adjustFittingOptions() {
@@ -874,13 +872,10 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 
 	@SuppressWarnings("unused")
 	private void runOptions() {
-		threadService.newThread(new Runnable() {
-			@Override
-			public void run() {
-				final Map<String, Object> input = new HashMap<>();
-				input.put("ignoreBitmapOptions", false);
-				cmdService.run(Prefs.class, true, input);
-			}
+		threadService.newThread(() -> {
+			final Map<String, Object> input = new HashMap<>();
+			input.put("ignoreBitmapOptions", false);
+			cmdService.run(Prefs.class, true, input);
 		}).start();
 	}
 
