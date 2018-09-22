@@ -71,7 +71,7 @@ public class Prefs extends OptionsPlugin implements Command {
 	public final static int DEF_MIN_DEGREE = 2;
 	public final static int DEF_MAX_DEGREE = 20;
 	public final static double DEF_RSQUARED = 0.80;
-	public final static double DEF_PVALUE = 0.05;
+	public final static boolean DEF_KS_TESTING = false;
 	public final static boolean DEF_DEBUG_MODE = false;
 	public final static boolean DEF_DETAILED_METRICS = false;
 
@@ -86,7 +86,7 @@ public class Prefs extends OptionsPlugin implements Command {
 
 	/* Prompt */
 	private static final String HEADER_HTML = "<html><body><div style='font-weight:bold;'>";
-	private static final String DESCRIPTION_HTML = "<html><body><div style='width:450px'>";
+	private static final String DESCRIPTION_HTML = "<html><body><div style='width:400px'>";
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "Sampling:")
@@ -103,29 +103,29 @@ public class Prefs extends OptionsPlugin implements Command {
 
 	@Parameter(label = "Min. degree", min = "2", max = "60",
 		callback = "flagRestart", description = "The lowest order to be considered")
-	private int minDegree = DEF_MIN_DEGREE;
+	private int minDegree;
 
 	@Parameter(label = "Max. degree", min = "2", max = "60",
 		callback = "flagRestart", description = "The highest order to be considered")
-	private int maxDegree = DEF_MAX_DEGREE;
+	private int maxDegree;
 
 //	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 //		label = HEADER_HTML + "Goodness of Fit Criteria:")
 //	private String HEADER1C;
 
 	@Parameter(label = "R-squared cutoff", min = "0.5", stepSize = "0.01", max = "1",
-			description = DESCRIPTION_HTML + "1<sup>st</sup> Goodness of Fit Criterion: The "
-					+ "Coefficient of determination (R<sup>2</sup>) cutoff used to discard "
-					+ "'innapropriate fits'. Fits associated with a lower R^2 than "
-					+ "this value are discarded")
-	private double rSquared = DEF_RSQUARED;
+			description = DESCRIPTION_HTML + "The Coefficient of determination "
+					+ "(R<sup>2</sup>) cutoff used to discard 'innapropriate fits'. "
+					+ "Only fits associated with a R^2 greater than this value will "
+					+ "be considered")
+	private double rSquared;
 
-	@Parameter(label = "P-value cutoff", min = "0.0001", stepSize = "0.01", max = "0.05",
-			description = DESCRIPTION_HTML + "2<sup>nd</sup> Goodness of Fit Criterion: The "
-					+ "p-value used to discard 'innapropriate fits'. It is used to test "
-					+ "the null hypothesis that fitted and original values represent "
-					+ "samples from the same distribution")
-	private double pValue = DEF_PVALUE;
+	@Parameter(label = "K-S validation", required = false,
+			description = DESCRIPTION_HTML + "Whether a fit should be discarded if " 
+					+ "two-sample Kolmogorov-Smirnov testing rejects the null hypothesis "
+					+ "that fitted and profiled values are samples drawn from the "
+					+ " same probability distribution (p&lt;0.05)")
+	private boolean ksTesting;
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE,
 		label = HEADER_HTML + "<br>Metrics:")
@@ -242,7 +242,7 @@ public class Prefs extends OptionsPlugin implements Command {
 		minDegree = DEF_MIN_DEGREE;
 		maxDegree = DEF_MAX_DEGREE;
 		rSquared = DEF_RSQUARED;
-		pValue = DEF_PVALUE;
+		ksTesting = DEF_KS_TESTING;
 		debugMode = DEF_DEBUG_MODE;
 		detailedMetrics = DEF_DETAILED_METRICS;
 //		autoClose = DEF_AUTO_CLOSE;

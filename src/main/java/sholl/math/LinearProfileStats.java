@@ -442,6 +442,25 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	}
 
 	/**
+	 * Runs {@link #findBestFit(int, int, double, double)} using the preferences
+	 * specified by the user using the {@link Prefs} command.
+	 *
+	 * @param fromDegree  the lowest degree to be considered. See
+	 *                    {@link #findBestFit(int, int, double, double)}
+	 * @param toDegree    the highest degree to be considered. See
+	 *                    {@link #findBestFit(int, int, double, double)}
+	 * @param prefService the {@link PrefService}
+	 * @return the degree of the 'best fit' polynomial. See
+	 *         {@link #findBestFit(int, int, double, double)}
+	 */
+	public int findBestFit(final int fromDegree, final int toDegree, final PrefService prefService) {
+		final double rSq = prefService.getDouble(Prefs.class, "rSquared", Prefs.DEF_RSQUARED);
+		final boolean ksTesting = prefService.getBoolean(Prefs.class, "ksTesting", Prefs.DEF_KS_TESTING);
+		logger.debug("Determining 'Best fit' polynomial [degrees " + fromDegree + "-" + toDegree + "]...");
+		return findBestFit(fromDegree, toDegree, rSq, (ksTesting) ? 0.05 : -1);
+	}
+
+	/**
 	 * Returns the abscissae of the sampled linear plot for sampled data.
 	 *
 	 * @return the sampled distances.
