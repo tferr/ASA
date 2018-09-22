@@ -927,9 +927,10 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 			}
 
 			if (polynomialChoice.contains("Best")) {
-				final double rSq = prefService.getDouble(Prefs.class, "rSquared", Prefs.DEF_RSQUARED);
-				final double pValue = prefService.getDouble(Prefs.class, "pValue", Prefs.DEF_PVALUE);
-				lStats.findBestFit(minDegree, maxDegree, rSq, pValue);
+				final int deg = lStats.findBestFit(minDegree, maxDegree, prefService);
+				if (deg == -1) {
+					helper.error("Polynomial regression failed. You may need to adjust Options for 'Best Fit' Polynomial", null);
+				}
 			} else if (polynomialChoice.contains("degree") && polynomialDegree > 1) {
 				lStats.fitPolynomial(polynomialDegree);
 			}

@@ -44,9 +44,11 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.Kurtosis;
 import org.apache.commons.math3.stat.descriptive.moment.Skewness;
+import org.scijava.prefs.PrefService;
 
 import sholl.Profile;
 import sholl.UPoint;
+import sholl.plugin.Prefs;
 
 /**
  * Retrieves descriptive statistics and calculates Sholl Metrics from sampled
@@ -375,37 +377,43 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	}
 
 	/**
-	 * Computes the 'best fit' polynomial between a specified range of degrees and
-	 * keeps the fit in memory.
+	 * Computes the 'best fit' polynomial between a specified range of degrees for
+	 * this profile and keeps the fit in memory.
+	 * <p>
+	 * Note that in some edge cases specified constrains may be bypassed: E.g., If
+	 * the profile is constant, a constant function is fitted. If the profile
+	 * contains only two data points, a linear function is fitted
+	 * </p>
 	 *
 	 * @param fromDegree  the lowest degree to be considered. Will be set to
-	 *                    ({@link #getN()}-1) if higher than ({@link #getN()}-1)
+	 *                    ({@link #getN()}-1) if higher than ({@link #getN()}-1).
 	 * @param toDegree    the highest degree to be considered. Will be set to
 	 *                    ({@link #getN()}-1) if higher than ({@link #getN()}-1)
 	 * @param minRSquared the lowest value for adjusted RSquared. Only fits
 	 *                    associated with an equal or higher value will be
 	 *                    considered
-	 * @param minPvalue   the lowest p-value for the K-S test between sampled and
-	 *                    fitted data evaluating the null hypothesis that both
-	 *                    curves represent samples from the same underlying
-	 *                    distribution. Only fits associated with an equal or higher
-	 *                    value will be considered
+	 * @param pvalue      the two-sample Kolmogorov-Smirnov (K-S) test statistic
+	 *                    (p-value) used to discard 'unsuitable fits'. It is used to
+	 *                    evaluate the null hypothesis that profiled data and
+	 *                    polynomial fit represent samples drawn from the same
+	 *                    probability distribution. Set it to -1, to skip K-S
+	 *                    testing.
 	 * @return the degree of the 'best fit' polynomial or -1 if no suitable fit
 	 *         could be performed.
 	 */
 	public int findBestFit(final int fromDegree, final int toDegree, final double minRSquared, final double minPvalue) {
-		debug("Determining 'best fit' polynomial...");
 		double rSqHighest = 0d;
+		super.getContext();
 		int bestDegree = -1;
 		// edge case: constant values
 		if (Arrays.stream(inputCounts).allMatch(c -> c == inputCounts[0])) {
-			debug("Unsuitable data: falling back to constant function");
+			debug("constant distribution: falling back to constant function");
 			fitPolynomial(0);
 			return 0;
 		}
 		// edge case: linear function
 		if (getN() == 2) {
-			debug("Unsuitable data: falling back to linear polynomial fit");
+			debug("N=2: falling back to linear polynomial fit");
 			fitPolynomial(1);
 			return 0;
 		}
@@ -414,30 +422,35 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		if (lastDegree != toDegree) {
 			debug("Degrees > "+ lastDegree + " ignored: Not enough data points");
 		}
-		final double[] coefficients = (pFunction == null) ? null : pFunction.getCoefficients();
+
+		PolynomialFunction bestFit = null;
 		for (int deg = firstDegree; deg <= lastDegree; deg++) {
+			debug("Fitting to degree "+ deg );
 			try {
 				fitPolynomial(deg);
 			} catch (final NullArgumentException | NoDataException exc) {
-				debug("Fit to degree "+ deg + " failed: "+ exc.getMessage());
-				continue;
-			}
-			if (getKStestOfFit() < minPvalue) {
-				debug("Discarding degree "+ deg +": Fitted data significantly different");
+				debug("   ...failure: "+ exc.getMessage());
 				continue;
 			}
 			final double rSq = getRSquaredOfFit(true);
 			if (rSq < minRSquared) {
-					debug("Discarding degree "+ deg +": R-squared below cutoff");
-					continue;
+				debug("   fit discarded: R^2=" + String.format("%.4f", rSq) + " (≥" + minRSquared + " allowed)");
+				invalidateFit();
+				continue;
+			}
+			if (minPvalue > 0 && getKStestOfFit() < minPvalue) {
+				invalidateFit();
+				debug("   fit discarded after two-sample K-S test assessment: p<"+ minPvalue );
+				continue;
 			}
 			if (rSq > minRSquared && rSq > rSqHighest) {
 				rSqHighest = rSq;
 				bestDegree = deg;
+				bestFit = pFunction;
 			}
 		}
-		if (coefficients != null)
-			pFunction = new PolynomialFunction(coefficients);
+		pFunction = bestFit;
+		debug("'Best fit' function: " + ((pFunction == null) ? "undetermined" : pFunction));
 		return bestDegree;
 	}
 
@@ -458,6 +471,11 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 		final boolean ksTesting = prefService.getBoolean(Prefs.class, "ksTesting", Prefs.DEF_KS_TESTING);
 		logger.debug("Determining 'Best fit' polynomial [degrees " + fromDegree + "-" + toDegree + "]...");
 		return findBestFit(fromDegree, toDegree, rSq, (ksTesting) ? 0.05 : -1);
+	}
+
+	private void invalidateFit() {
+		pFunction = null;
+		fCounts = null;
 	}
 
 	/**

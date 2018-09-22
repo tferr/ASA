@@ -54,7 +54,7 @@ public class Logger {
 	}
 
 	public void debug(final Object msg) {
-		if (debug) logService.debug("Sholl: " + msg);
+		if (debug) logService.info("Sholl: " + msg);
 	}
 
 	public void warn(final String string) {
