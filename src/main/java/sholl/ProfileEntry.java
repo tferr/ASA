@@ -33,7 +33,7 @@ public class ProfileEntry implements Comparable<ProfileEntry> {
 	/** The entry's radius length (in physical units) */
 	public double radius;
 
-	/** The number of intersection counts associated with the entry */
+	/** The number of intersection counts associated at this entry's radius */
 	public double count;
 
 	/**

@@ -8,7 +8,11 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 
 ## Development Builds
-* To be documented
+* IJ2 rewrite complete. IJ1 plugins are now deprecated but remain available under the _Analyze> Sholl> Deprecated_ menu
+* Improvement of 'best fit' polynomial regression
+* UI improvements (look for tooltips documentation)
+* API improvements (look for scripting examples in _Templates>Neuroanatomy>_ in the Script Editor)
+* Several bug fixes
 
 ## Release Builds
 

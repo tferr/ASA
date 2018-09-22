@@ -35,6 +35,7 @@ import sholl.Profile;
 import sholl.ProfileEntry;
 import sholl.gui.ShollPlot;
 
+
 class CommonStats extends ContextCommand implements ShollStats {
 
 	protected final static double UNASSIGNED_VALUE = Double.MIN_VALUE;
@@ -74,17 +75,15 @@ class CommonStats extends ContextCommand implements ShollStats {
 	}
 
 	/**
-	 * Returns the Kolmogorov-Smirnov (K-S) test of the polynomial fit as a
-	 * measurement of goodness of fit.
+	 * Returns the two-sample Kolmogorov-Smirnov (K-S) test between the polynomial
+	 * fit and sampled intersections as a measurement of goodness of fit.
 	 *
 	 * @return the test statistic (p-value) used to evaluate the null hypothesis
-	 *         that sampled data and polynomial fitted represent samples from
-	 *         the same underlying distribution
-	 *
-	 * @throws NullPointerException
-	 *             if curve fitting has not been performed
-	 * @throws InsufficientDataException
-	 *             if sampled data contains fewer than two data points
+	 *         that sampled data and polynomial fit represent samples drawn from the
+	 *         same probability distribution
+	 * @throws NullPointerException      if curve fitting has not been performed
+	 * @throws InsufficientDataException if sampled data contains fewer than two
+	 *                                   data points
 	 */
 	public double getKStestOfFit() {
 		validateFit();
