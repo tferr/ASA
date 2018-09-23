@@ -396,14 +396,13 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *                    (p-value) used to discard 'unsuitable fits'. It is used to
 	 *                    evaluate the null hypothesis that profiled data and
 	 *                    polynomial fit represent samples drawn from the same
-	 *                    probability distribution. Set it to -1, to skip K-S
+	 *                    probability distribution. Set it to -1 to skip K-S
 	 *                    testing.
 	 * @return the degree of the 'best fit' polynomial or -1 if no suitable fit
 	 *         could be performed.
 	 */
-	public int findBestFit(final int fromDegree, final int toDegree, final double minRSquared, final double minPvalue) {
+	public int findBestFit(final int fromDegree, final int toDegree, final double minRSquared, final double pvalue) {
 		double rSqHighest = 0d;
-		super.getContext();
 		int bestDegree = -1;
 		// edge case: constant values
 		if (Arrays.stream(inputCounts).allMatch(c -> c == inputCounts[0])) {
@@ -438,9 +437,9 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 				invalidateFit();
 				continue;
 			}
-			if (minPvalue > 0 && getKStestOfFit() < minPvalue) {
+			if (pvalue > 0 && getKStestOfFit() < pvalue) {
 				invalidateFit();
-				debug("   fit discarded after two-sample K-S test assessment: p<"+ minPvalue );
+				debug("   fit discarded after two-sample K-S test assessment: p<"+ pvalue );
 				continue;
 			}
 			if (rSq > minRSquared && rSq > rSqHighest) {
@@ -462,7 +461,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	 *                    {@link #findBestFit(int, int, double, double)}
 	 * @param toDegree    the highest degree to be considered. See
 	 *                    {@link #findBestFit(int, int, double, double)}
-	 * @param prefService the {@link PrefService}
+	 * @param prefService the {@link PrefService} used to read preferences
 	 * @return the degree of the 'best fit' polynomial. See
 	 *         {@link #findBestFit(int, int, double, double)}
 	 */

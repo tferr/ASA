@@ -78,7 +78,11 @@ public class Sholl_Utils implements PlugIn {
 		return ShollUtils.sampleImage();
 	}
 
-	/** Displays the ddaC sample image and returns a reference to it */
+	/**
+	 *  Displays the ddaC sample image and returns a reference to it.
+	 *
+	 * @return the ddaC sample image
+	 */
 	protected static ImagePlus displaySample() {
 		final ImagePlus imp = ShollUtils.sampleImage();
 		if (imp == null) {
@@ -186,7 +190,7 @@ public class Sholl_Utils implements PlugIn {
 		new HTMLDialog("About Sholl Analysis...", sb.toString());
 	}
 
-	/**
+	/*
 	 * Converts an integer to its ordinal (http://stackoverflow.com/a/6810409)
 	 */
 	protected static String ordinal(final int i) {
