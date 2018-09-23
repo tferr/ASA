@@ -107,7 +107,7 @@ public class ShollTable extends DefaultGenericTable {
 
 		for (final ShollStats stat : stats) {
 
-			if (stat == null)
+			if (stat == null || !stat.validFit())
 				continue;
 
 			if (stat instanceof LinearProfileStats) {
