@@ -34,7 +34,9 @@ import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math3.analysis.solvers.LaguerreSolver;
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.exception.NoDataException;
 import org.apache.commons.math3.exception.NullArgumentException;
@@ -349,12 +351,12 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 	/**
 	 * Fits sampled data to a polynomial function and keeps the fit in memory.
 	 *
-	 * @param degree
-	 *            Degree of the polynomial to be fitted
-	 * @throws NullArgumentException
-	 *             if the computed polynomial coefficients were null
-	 * @throws NoDataException
-	 *             if the computed polynomial coefficients were empty
+	 * @param degree Degree of the polynomial to be fitted
+	 * @throws NullArgumentException if the computed polynomial coefficients were
+	 *                               null
+	 * @throws NoDataException       if the computed polynomial coefficients were
+	 *                               empty
+	 * @throws ConvergenceException  if optimization failed
 	 */
 	public void fitPolynomial(final int degree) {
 		fCounts = new double[nPoints];
@@ -370,7 +372,6 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 			points.add(new WeightedObservedPoint(1, inputRadii[i], inputCounts[i]));
 		}
 		pFunction = new PolynomialFunction(fitter.fit(points));
-		
 		for (int i = 0; i < nPoints; i++) {
 			fCounts[i] = pFunction.value(inputRadii[i]);
 		}
@@ -427,7 +428,7 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 			debug("Fitting to degree "+ deg );
 			try {
 				fitPolynomial(deg);
-			} catch (final NullArgumentException | NoDataException exc) {
+			} catch (final NullArgumentException | NoDataException | MathIllegalStateException exc) {
 				debug("   ...failure: "+ exc.getMessage());
 				continue;
 			}
@@ -449,7 +450,11 @@ public class LinearProfileStats extends CommonStats implements ShollStats {
 			}
 		}
 		pFunction = bestFit;
-		debug("'Best fit' function: " + ((pFunction == null) ? "undetermined" : pFunction));
+		if (pFunction != null && Arrays.stream(fCounts).allMatch(c -> c == 0d)) {
+			// this can happen if a convergenceException occurred on last fit.
+			fitPolynomial(bestDegree);
+		}
+		debug("'Best fit' degree: " + bestDegree);
 		return bestDegree;
 	}
 

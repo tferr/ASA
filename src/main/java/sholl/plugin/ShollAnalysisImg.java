@@ -932,7 +932,11 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 					helper.error("Polynomial regression failed. You may need to adjust Options for 'Best Fit' Polynomial", null);
 				}
 			} else if (polynomialChoice.contains("degree") && polynomialDegree > 1) {
-				lStats.fitPolynomial(polynomialDegree);
+				try {
+					lStats.fitPolynomial(polynomialDegree);
+				} catch (final Exception ignored){
+					helper.error("Polynomial regression failed. Unsuitable degree?", null);
+				}
 			}
 
 			/// Normalized profile stats
