@@ -840,6 +840,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 			// presumably "No Lut" was chosen by user
 			lutTable = ShollUtils.constantLUT(Roi.getColor());
 		}
+		if (previewShells) overlayShells();
 	}
 
 	protected void overlayShells() {
@@ -1036,11 +1037,11 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 						ShollUtils.extractHemiShellFlag(hemiShellChoice));
 				final ShollOverlay so = new ShollOverlay(profile);
 				so.setShellsThickness(nSpans);
-				so.setShellsColor(Roi.getColor());
-				// OptionsOverlay optOv =
-				// optionsService.getOptions(OptionsOverlay.class);
-				// Color color = AWTColors.getColor(optOv.getFillColor());
-				// so.setShellsColor(color);
+				if (lutTable == null) {
+					so.setShellsColor(Roi.getColor());
+				} else {
+					so.setShellsLUT(lutTable, ShollOverlay.RADIUS);
+				}
 				so.addCenter();
 				so.assignProperty("temp");
 				imp.setOverlay(so.getOverlay());
