@@ -33,7 +33,7 @@
 		<developer>
 			<id>tferr</id>
 			<name>Tiago Ferreira</name>
-			<url>http://imagej.net/User:Tiago</url>
+			<url>https://imagej.net/User:Tiago</url>
 			<roles>
 				<role>lead</role>
 				<role>developer</role>
@@ -51,17 +51,17 @@
 		</contributor>
 		<contributor>
 			<name>Mark Hiner</name>
-			<url>http://imagej.net/User:Hinerm</url>
+			<url>https://imagej.net/User:Hinerm</url>
 			<properties><id>hinerm</id></properties>
 		</contributor>
 		<contributor>
 			<name>Curtis Rueden</name>
-			<url>http://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/User:Rueden</url>
 			<properties><id>ctrueden</id></properties>
 		</contributor>
 		<contributor>
 			<name>Johannes Schindelin</name>
-			<url>http://imagej.net/User:Schindelin</url>
+			<url>https://imagej.net/User:Schindelin</url>
 			<properties><id>dscho</id></properties>
 		</contributor>
 	</contributors>
@@ -69,7 +69,7 @@
 	<mailingLists>
 		<mailingList>
 			<name>ImageJ Forum</name>
-			<archive>http://forum.imagej.net/</archive>
+			<archive>https://forum.imagej.net/</archive>
 		</mailingList>
 	</mailingLists>
 
@@ -101,7 +101,7 @@
 	<repositories>
 		<repository>
 			<id>imagej.public</id>
-			<url>http://maven.imagej.net/content/groups/public</url>
+			<url>https://maven.imagej.net/content/groups/public</url>
 		</repository>
 	</repositories>
 
