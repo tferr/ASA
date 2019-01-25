@@ -12,11 +12,11 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.stream.IntStream;
 
-import net.imagej.table.ResultsTable;
-import net.imagej.table.TableLoader;
 import net.imglib2.display.ColorTable;
 import net.imglib2.display.ColorTable8;
 
+import org.scijava.table.DoubleTable;
+import org.scijava.table.TableLoader;
 import org.scijava.util.VersionUtils;
 
 import ij.ImagePlus;
@@ -52,7 +52,7 @@ public class ShollUtils {
 		return resource;
 	}
 
-	public static ResultsTable csvSample() {
+	public static DoubleTable csvSample() {
 		final URL url = getResource("csv/ddaCsample.csv");
 		if (url == null)
 			throw new IllegalArgumentException("Could not retrieve ddaCsample.csv");

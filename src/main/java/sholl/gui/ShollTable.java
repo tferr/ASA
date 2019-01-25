@@ -30,10 +30,10 @@ import org.scijava.Context;
 import org.scijava.NullContextException;
 import org.scijava.plugin.Parameter;
 import org.scijava.prefs.PrefService;
+import org.scijava.table.DefaultGenericTable;
+import org.scijava.table.DoubleColumn;
+import org.scijava.table.GenericTable;
 
-import net.imagej.table.DefaultGenericTable;
-import net.imagej.table.DoubleColumn;
-import net.imagej.table.GenericTable;
 import sholl.Profile;
 import sholl.UPoint;
 import sholl.math.LinearProfileStats;

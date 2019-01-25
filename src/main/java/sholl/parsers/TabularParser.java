@@ -25,7 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import net.imagej.table.DoubleColumn;
+import org.scijava.table.DoubleColumn;
 
 import ij.measure.Calibration;
 import ij.measure.ResultsTable;
@@ -41,7 +41,7 @@ public class TabularParser implements Parser {
 
 	private Profile profile;
 	private final ij.measure.ResultsTable ij1table;
-	private final net.imagej.table.ResultsTable ij2table;
+	private final org.scijava.table.DoubleTable ij2table;
 	private final int radiiCol;
 	private final int countsCol;
 	private int startRow = -1;
@@ -79,7 +79,7 @@ public class TabularParser implements Parser {
 		this.endRow = endRow;
 	}
 
-	public TabularParser(final net.imagej.table.ResultsTable table, final String radiiColumnHeader,
+	public TabularParser(final org.scijava.table.DoubleTable table, final String radiiColumnHeader,
 			final String countsColumnHeader) {
 		if (table == null || table.isEmpty())
 			throw new IllegalArgumentException("Table does not contain valid data");
