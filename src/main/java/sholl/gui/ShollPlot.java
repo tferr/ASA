@@ -92,6 +92,7 @@ public class ShollPlot extends Plot {
 		resetDrawing();
 	}
 
+	@SuppressWarnings("deprecation")
 	public ShollPlot(final String title, final String xLabel, final String yLabel, final ShollStats stats,
 			final boolean annotate) {
 
