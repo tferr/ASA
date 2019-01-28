@@ -25,7 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import net.imagej.table.DoubleColumn;
+import org.scijava.table.DoubleColumn;
+import org.scijava.table.DoubleTable;
 
 import ij.measure.Calibration;
 import ij.measure.ResultsTable;
@@ -41,7 +42,7 @@ public class TabularParser implements Parser {
 
 	private Profile profile;
 	private final ij.measure.ResultsTable ij1table;
-	private final net.imagej.table.ResultsTable ij2table;
+	private final DoubleTable ij2table;
 	private final int radiiCol;
 	private final int countsCol;
 	private int startRow = -1;
@@ -81,16 +82,21 @@ public class TabularParser implements Parser {
 
 	public TabularParser(final net.imagej.table.ResultsTable table, final String radiiColumnHeader,
 			final String countsColumnHeader) {
-		if (table == null || table.isEmpty())
-			throw new IllegalArgumentException("Table does not contain valid data");
-		ij1table = null;
-		ij2table = table;
-		radiiCol = table.getColumnIndex(radiiColumnHeader);
-		countsCol = table.getColumnIndex(countsColumnHeader);
-		if (radiiCol == -1 || countsCol == -1)
-			throw new IllegalArgumentException("Specified headings do not match existing ones");
-		this.radiiColumnHeader = radiiColumnHeader;
+		this((DoubleTable)table, radiiColumnHeader, countsColumnHeader);
 	}
+
+	public TabularParser(final DoubleTable table, final String radiiColumnHeader,
+		final String countsColumnHeader) {
+	if (table == null || table.isEmpty())
+		throw new IllegalArgumentException("Table does not contain valid data");
+	radiiCol = table.getColumnIndex(radiiColumnHeader);
+	countsCol  = table.getColumnIndex(countsColumnHeader);
+	if (radiiCol == -1 || countsCol == -1)
+		throw new IllegalArgumentException("Specified headings do not match existing ones");
+	ij1table = null;
+	ij2table = table;
+	this.radiiColumnHeader = radiiColumnHeader;
+}
 
 	@Override
 	public void parse() {
