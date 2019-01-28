@@ -80,7 +80,7 @@ public class TabularParser implements Parser {
 		this.endRow = endRow;
 	}
 
-	public TabularParser(final org.scijava.table.DoubleTable table, final String radiiColumnHeader,
+	public TabularParser(final net.imagej.table.ResultsTable table, final String radiiColumnHeader,
 			final String countsColumnHeader) {
 		this((DoubleTable)table, radiiColumnHeader, countsColumnHeader);
 	}
