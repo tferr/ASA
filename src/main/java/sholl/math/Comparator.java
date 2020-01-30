@@ -36,7 +36,6 @@ import sholl.Profile;
  * 
  * @author Tiago Ferreira
  */
-@Plugin(type = ContextCommand.class, visible = false)
 public class Comparator extends ContextCommand {
 
 	private final Profile profile1;

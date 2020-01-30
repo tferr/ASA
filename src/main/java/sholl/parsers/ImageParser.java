@@ -44,7 +44,6 @@ import sholl.UPoint;
 /**
  * @author Tiago Ferreira
  */
-@Plugin(type=ContextCommand.class, visible = false)
 public class ImageParser extends ContextCommand implements Parser {
 
 	@Parameter
