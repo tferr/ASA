@@ -81,6 +81,7 @@ public class ChooseDataset extends DynamicCommand {
 		final List<Dataset> list = datasetService.getDatasets();
 		if (list == null || list.size() < 2) {
 			cancel("No other images are open.");
+			return;
 		}
 		for (final Dataset dataset : list) {
 			if (dataset.equals(datasetToIgnore))
