@@ -31,7 +31,6 @@ import java.util.Map.Entry;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import fiji.Debug;
 import ij.IJ;
 import ij.Prefs;
 import ij.measure.Measurements;
@@ -151,16 +150,6 @@ public class Options implements PlugIn {
 
 	public Options() {
 		this(false);
-	}
-
-	/**
-	 * Debug helper
-	 *
-	 * @param args
-	 *            See {@link fiji.Debug#run(java.lang.String, java.lang.String)}
-	 */
-	public static void main(final String[] args) {
-		Debug.run(COMMAND_LABEL, "");
 	}
 
 	/**
