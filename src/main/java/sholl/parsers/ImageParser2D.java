@@ -66,14 +66,6 @@ public class ImageParser2D extends ImageParser {
 		doSpikeSupression = true;
 	}
 
-	/* Debug method **/
-	public static void main(final String... args) throws Exception {
-		// final ImageJ ij = net.imagej.Main.launch(args);
-		// final ImageParser2D parser = new
-		// ImageParser2D(Sholl_Utils.sampleImage());
-		// parser.parse();
-	}
-
 	public void setCenterPx(final int x, final int y) {
 		super.setCenterPx(x, y, 1);
 	}
