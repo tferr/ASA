@@ -27,7 +27,6 @@ import java.util.List;
 
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -93,12 +92,6 @@ public class ChooseDataset extends DynamicCommand {
 			String.class);
 		mItem.setChoices(choices);
 		// mItem.setValue(this, choices.get(0));
-	}
-
-	public static void main(final String... args) {
-		final ImageJ ij = new ImageJ();
-		ij.ui().showUI();
-		ij.command().run(ChooseDataset.class, true);
 	}
 
 }

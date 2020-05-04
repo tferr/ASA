@@ -66,7 +66,6 @@ import ij.gui.Roi;
 import ij.measure.Calibration;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 import net.imagej.display.ImageDisplayService;
 import net.imagej.event.DataDeletedEvent;
 import net.imagej.legacy.LegacyService;
@@ -1048,11 +1047,5 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 				return; // invalid parameters: do nothing
 			}
 		}
-	}
-
-	public static void main(final String... args) {
-		final ImageJ ij = new ImageJ();
-		ij.ui().showUI();
-		ij.command().run(ShollAnalysisImg.class, true);
 	}
 }
