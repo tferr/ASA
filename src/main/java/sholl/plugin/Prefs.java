@@ -52,7 +52,7 @@ import sholl.gui.Helper;
  */
 @Plugin(type = Command.class, label = "Sholl Options", visible = false,
 	initializer = "init")
-public class Prefs extends OptionsPlugin implements Command {
+public class Prefs extends OptionsPlugin {
 
 	@Parameter
 	private AppService appService;

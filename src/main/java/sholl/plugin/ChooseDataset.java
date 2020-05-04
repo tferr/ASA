@@ -42,7 +42,7 @@ import org.scijava.prefs.PrefService;
  * @author Tiago Ferreira
  */
 @Plugin(initializer = "init", type = Command.class, visible = false, label = "Choose New Dataset")
-public class ChooseDataset extends DynamicCommand implements Command {
+public class ChooseDataset extends DynamicCommand {
 
 	@Parameter
 	private DatasetService datasetService;
