@@ -27,7 +27,6 @@ import java.util.List;
 
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 
 import org.scijava.ItemVisibility;
 import org.scijava.command.Command;
@@ -42,7 +41,7 @@ import org.scijava.prefs.PrefService;
  * @author Tiago Ferreira
  */
 @Plugin(initializer = "init", type = Command.class, visible = false, label = "Choose New Dataset")
-public class ChooseDataset extends DynamicCommand implements Command {
+public class ChooseDataset extends DynamicCommand {
 
 	@Parameter
 	private DatasetService datasetService;
@@ -81,6 +80,7 @@ public class ChooseDataset extends DynamicCommand implements Command {
 		final List<Dataset> list = datasetService.getDatasets();
 		if (list == null || list.size() < 2) {
 			cancel("No other images are open.");
+			return;
 		}
 		for (final Dataset dataset : list) {
 			if (dataset.equals(datasetToIgnore))
@@ -92,12 +92,6 @@ public class ChooseDataset extends DynamicCommand implements Command {
 			String.class);
 		mItem.setChoices(choices);
 		// mItem.setValue(this, choices.get(0));
-	}
-
-	public static void main(final String... args) {
-		final ImageJ ij = new ImageJ();
-		ij.ui().showUI();
-		ij.command().run(ChooseDataset.class, true);
 	}
 
 }

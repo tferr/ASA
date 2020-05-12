@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.scijava.Cancelable;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -67,7 +66,6 @@ import ij.gui.Roi;
 import ij.measure.Calibration;
 import net.imagej.Dataset;
 import net.imagej.DatasetService;
-import net.imagej.ImageJ;
 import net.imagej.display.ImageDisplayService;
 import net.imagej.event.DataDeletedEvent;
 import net.imagej.legacy.LegacyService;
@@ -96,7 +94,7 @@ import sholl.parsers.ImageParser3D;
  */
 @Plugin(type = Command.class, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),
 		@Menu(label = "Sholl Analysis (From Image)...") }, initializer = "init")
-public class ShollAnalysisImg extends DynamicCommand implements Interactive, Cancelable {
+public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 
 	@Parameter
 	private CommandService cmdService;
@@ -1049,11 +1047,5 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive, Can
 				return; // invalid parameters: do nothing
 			}
 		}
-	}
-
-	public static void main(final String... args) {
-		final ImageJ ij = new ImageJ();
-		ij.ui().showUI();
-		ij.command().run(ShollAnalysisImg.class, true);
 	}
 }

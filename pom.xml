@@ -106,15 +106,33 @@
 	</repositories>
 
 	<dependencies>
+		<!-- Fiji dependencies -->
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>fiji-lib</artifactId>
+		</dependency>
+
 		<!-- ImageJ dependencies -->
 		<dependency>
 			<groupId>net.imagej</groupId>
 			<artifactId>ij</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>sc.fiji</groupId>
-			<artifactId>fiji-lib</artifactId>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-common</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-legacy</artifactId>
+		</dependency>
+
+		<!-- ImgLib2 dependencies -->
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2</artifactId>
+		</dependency>
+
+		<!-- SciJava dependencies -->
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-common</artifactId>
@@ -123,21 +141,11 @@
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-table</artifactId>
 		</dependency>
+
+		<!-- Other dependencies -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>imagej</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>ij1-patcher</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.imagej</groupId>
-			<artifactId>imagej-legacy</artifactId>
 		</dependency>
 	</dependencies>
 </project>

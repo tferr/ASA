@@ -323,15 +323,4 @@ public class ShollTable extends DefaultGenericTable {
 			setDetailedSummary(detailedMetrics);
 		}
 	}
-
-	/**
-	 * The main method.
-	 *
-	 * @param args the arguments
-	 */
-	public static void main(final String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

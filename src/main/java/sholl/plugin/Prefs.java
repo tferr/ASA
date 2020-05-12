@@ -24,10 +24,6 @@ package sholl.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import net.imagej.ImageJ;
 
 import org.scijava.ItemVisibility;
 import org.scijava.app.AppService;
@@ -52,12 +48,10 @@ import sholl.gui.Helper;
  */
 @Plugin(type = Command.class, label = "Sholl Options", visible = false,
 	initializer = "init")
-public class Prefs extends OptionsPlugin implements Command {
+public class Prefs extends OptionsPlugin {
 
 	@Parameter
 	private AppService appService;
-	@Parameter
-	private ImageJ ij;
 	@Parameter
 	private PrefService pService;
 	@Parameter
@@ -205,7 +199,7 @@ public class Prefs extends OptionsPlugin implements Command {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("You are running Sholl Analysis v").append(ShollUtils.version());
 		sb.append(" ").append(ShollUtils.buildDate()).append("\n");
-		sb.append("on ImageJ ").append(ij.getVersion());
+		sb.append("on ImageJ ").append(appService.getApp().getVersion());
 		helper.infoMsg(sb.toString(), null);
 	}
 
@@ -250,14 +244,6 @@ public class Prefs extends OptionsPlugin implements Command {
 		helper.infoMsg("Preferences were successfully reset.", null);
 		restartRequired = true;
 
-	}
-
-	public static void main(final String... args) {
-		final ImageJ ij = new ImageJ();
-		ij.ui().showUI();
-		final Map<String, Object> inputs = new HashMap<>();
-		inputs.put("ignoreBitmapOptions", true);
-		ij.command().run(Prefs.class, true, inputs);
 	}
 
 }
