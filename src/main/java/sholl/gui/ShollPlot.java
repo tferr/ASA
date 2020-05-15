@@ -25,10 +25,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
+import java.io.File;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
+import ij.IJ;
 import ij.WindowManager;
 import ij.gui.Plot;
 import ij.gui.PlotWindow;
@@ -463,6 +465,16 @@ public class ShollPlot extends Plot {
 	public boolean isVisible() {
 		final PlotWindow pw = (PlotWindow) getImagePlus().getWindow();
 		return (pw != null && pw.isVisible());
+	}
+
+	public boolean save(String filepath) {
+		return save(new File(filepath));
+	}
+
+	public boolean save(final File file) {
+		if (file == null) return false;
+		final File outFile = (file.isDirectory()) ? new File(file, getImagePlus().getTitle()) : file;
+		return IJ.saveAsTiff(getImagePlus(), outFile.getAbsolutePath());
 	}
 
 	public ShollStats getStats() {

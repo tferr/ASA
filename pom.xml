@@ -141,6 +141,10 @@
 			<groupId>org.scijava</groupId>
 			<artifactId>scijava-table</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-plugins-io-table</artifactId>
+		</dependency>
 
 		<!-- Other dependencies -->
 		<dependency>

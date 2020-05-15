@@ -22,6 +22,7 @@
 package sholl.plugin;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.scijava.ItemIO;
 import org.scijava.ItemVisibility;
 import org.scijava.app.StatusService;
 import org.scijava.command.Command;
@@ -56,8 +58,10 @@ import org.scijava.ui.DialogPrompt.Result;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 import org.scijava.widget.ChoiceWidget;
+import org.scijava.widget.FileWidget;
 import org.scijava.widget.NumberWidget;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Line;
 import ij.gui.Overlay;
@@ -94,7 +98,7 @@ import sholl.parsers.ImageParser3D;
  */
 @Plugin(type = Command.class, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),
 		@Menu(label = "Sholl Analysis (From Image)...") }, initializer = "init")
-public class ShollAnalysisImg extends DynamicCommand implements Interactive {
+public class ShollAnalysisImg extends DynamicCommand {
 
 	@Parameter
 	private CommandService cmdService;
@@ -112,8 +116,6 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	private LegacyService legacyService;
 	@Parameter
 	private LUTService lutService;
-//	@Parameter(visibility = ItemVisibility.INVISIBLE)
-//	private OptionsService optionsService;
 	@Parameter
 	private PrefService prefService;
 	@Parameter(visibility = ItemVisibility.INVISIBLE)
@@ -128,6 +130,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	private static final List<String> NORM3D_CHOICES = Arrays.asList("Default", "Volume", "Surface area", "Spherical shell");
 
 	private static final String HEADER_HTML = "<html><body><div style='font-weight:bold;'>";
+	private static final String HEADER_TOOLTIP = "<HTML><div WIDTH=650>";
 	private static final String EMPTY_LABEL = "<html>&nbsp;";
 	private static final int MAX_SPANS = 10;
 
@@ -146,13 +149,16 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Shells:")
 	private String HEADER1;
 
-	@Parameter(label = "Starting radius", required = false, callback = "startRadiusStepSizeChanged", min = "0",style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = "Starting radius", required = false, callback = "startRadiusStepSizeChanged", min = "0",
+			style = NumberWidget.SCROLL_BAR_STYLE)
 	private double startRadius;
 
-	@Parameter(label = "Radius step size", required = false, callback = "startRadiusStepSizeChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = "Radius step size", required = false, callback = "startRadiusStepSizeChanged", min = "0",
+			style = NumberWidget.SCROLL_BAR_STYLE)
 	private double stepSize;
 
-	@Parameter(label = "Ending radius", persist = false, required = false, callback = "endRadiusChanged", min = "0", style = NumberWidget.SCROLL_BAR_STYLE)
+	@Parameter(label = "Ending radius", persist = false, required = false, callback = "endRadiusChanged", min = "0",
+			style = NumberWidget.SCROLL_BAR_STYLE)
 	private double endRadius;
 
 	@Parameter(label = "Hemishells", required = false, callback = "overlayShells", choices = { "None. Use full shells",
@@ -168,9 +174,9 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Segmentation:")
 	private String HEADER2;
 
-	@Parameter(label = "Samples per radius", callback = "nSpansChanged", min = "1", max = ""
-			+ MAX_SPANS, style = NumberWidget.SCROLL_BAR_STYLE)
-	private int nSpans;
+	@Parameter(label = "Samples per radius", callback = "nSpansChanged", min = "1", max = "" + MAX_SPANS,
+			style = NumberWidget.SCROLL_BAR_STYLE)
+	private double nSpans;
 
 	@Parameter(label = "Integration", callback = "nSpansIntChoiceChanged", choices = { "N/A", "Mean", "Median",
 			"Mode" })
@@ -186,8 +192,9 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			"Infer from starting radius", "Infer from multipoint ROI", "Use no. specified below:" })
 	private String primaryBranchesChoice = "Infer from starting radius";
 
-	@Parameter(label = EMPTY_LABEL, callback = "primaryBranchesChanged", min = "0", max = "100", style = NumberWidget.SCROLL_BAR_STYLE)
-	private int primaryBranches;
+	@Parameter(label = EMPTY_LABEL, callback = "primaryBranchesChanged", min = "0", max = "100",
+			stepSize = "1", style = NumberWidget.SCROLL_BAR_STYLE)
+	private double primaryBranches; // FIXME: ClassCastException triggered if int??
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Polynomial Fit:")
 	private String HEADER3B;
@@ -196,8 +203,9 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			"None. Skip curve fitting", "'Best fitting' degree", "Use degree specified below:" })
 	private String polynomialChoice = "'Best fitting' degree";
 
-	@Parameter(label = "<html>&nbsp;", callback = "polynomialDegreeChanged", style = NumberWidget.SCROLL_BAR_STYLE)
-	private int polynomialDegree;
+	@Parameter(label = EMPTY_LABEL, callback = "polynomialDegreeChanged", stepSize="1",
+			style = NumberWidget.SCROLL_BAR_STYLE)
+	private double polynomialDegree; // FIXME: ClassCastException triggered if int??
 
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = "<html><i>Sholl Decay:")
 	private String HEADER3C;
@@ -211,11 +219,11 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "<br>Output:")
 	private String HEADER4;
 
-	@Parameter(label = "Plots", choices = { "Linear plot", "Normalized plot", "Linear & normalized plots",
+	@Parameter(label = "Plots", callback="saveOptionsChanged", choices = { "Linear plot", "Normalized plot", "Linear & normalized plots",
 			"None. Show no plots" })
 	private String plotOutputDescription;
 
-	@Parameter(label = "Tables", choices = { "Detailed table", "Summary table",
+	@Parameter(label = "Tables", callback="saveOptionsChanged", choices = { "Detailed table", "Summary table",
 		"Detailed & Summary tables", "None. Show no tables" })
 	private String tableOutputDescription;
 
@@ -224,13 +232,24 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			"ROIs and mask", "None. Show no annotations" })
 	private String annotationsDescription;
 
-	@Parameter(label = "Annotations LUT", callback = "lutChoiceChanged")
+	@Parameter(label = "Annotations LUT", callback = "lutChoiceChanged",
+			description = HEADER_TOOLTIP + "The mapping LUT used to render ROIs and mask.")
 	private String lutChoice;
 
 	@Parameter(required = false, label = EMPTY_LABEL)
 	private ColorTable lutTable;
 
-	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "Run:")
+	@Parameter(required = false, callback = "saveChoiceChanged", label = "Save files", //
+			description = HEADER_TOOLTIP + "Wheter output files (tables, plots, mask) should be saved once displayed."
+					+ "Note that the analyzed image itself is not saved.")
+	private boolean save;
+
+	@Parameter(required = false, label = "Destination", type = ItemIO.INPUT, style = FileWidget.DIRECTORY_STYLE, //
+			description = HEADER_TOOLTIP + "Destination directory. Ignored if \"Save files\" is deselected, "
+					+ "or outputs are not savable.")
+	private File saveDir;
+
+	@Parameter(required = false, visibility = ItemVisibility.MESSAGE, label = HEADER_HTML + "<br>Run:")
 	private String HEADER5;
 
 	@Parameter(label = "Action", required = false, style = ChoiceWidget.RADIO_BUTTON_VERTICAL_STYLE, //
@@ -515,7 +534,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			if (!twoD) {
 				final ModuleItem<String> ignoreIsolatedVoxelsInput = getInfo().getInput("HEADER2", String.class);
 				removeInput(ignoreIsolatedVoxelsInput);
-				final MutableModuleItem<Integer> nSpansInput = getInfo().getMutableInput("nSpans", Integer.class);
+				final MutableModuleItem<Double> nSpansInput = getInfo().getMutableInput("nSpans", Double.class);
 				removeInput(nSpansInput);
 				final MutableModuleItem<String> nSpansIntChoiceInput = getInfo().getMutableInput("nSpansIntChoice",
 						String.class);
@@ -527,10 +546,10 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	}
 
 	private void adjustFittingOptions() {
-			final MutableModuleItem<Integer> polynomialDegreeInput = getInfo()
-					.getMutableInput("polynomialDegree", Integer.class);
-			polynomialDegreeInput.setMinimumValue(minDegree);
-			polynomialDegreeInput.setMaximumValue(maxDegree);
+			final MutableModuleItem<Double> polynomialDegreeInput = getInfo()
+					.getMutableInput("polynomialDegree", Double.class);
+			polynomialDegreeInput.setMinimumValue((double) minDegree);
+			polynomialDegreeInput.setMaximumValue((double) maxDegree);
 	}
 
 	protected void setAnalysisScope() {
@@ -767,7 +786,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 	}
 
 	protected void nSpansIntChoiceChanged() {
-		int nSpansBefore = nSpans;
+		int nSpansBefore = (int)nSpans;
 		if (nSpansIntChoice.contains("N/A"))
 			nSpans = 1;
 		else if (nSpans == 1)
@@ -798,6 +817,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			lutChoice = "No LUT. Use active ROI color";
 			lutChoiceChanged();
 		}
+		saveOptionsChanged();
 	}
 
 	protected void polynomialDegreeChanged() {
@@ -839,6 +859,25 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			lutTable = ShollUtils.constantLUT(Roi.getColor());
 		}
 		if (previewShells) overlayShells();
+	}
+
+	@SuppressWarnings("unused")
+	private void saveChoiceChanged() {
+		if (save && saveDir == null)
+			saveDir = new File(IJ.getDirectory("current"));
+	}
+
+	private void saveOptionsChanged() {
+		if (plotOutputDescription.startsWith("None") && tableOutputDescription.startsWith("None")
+				&& !annotationsDescription.contains("mask"))
+			save = false;
+	}
+
+	private void errorIfSaveDirInvalid() {
+		if (save && (saveDir == null || !saveDir.exists() || !saveDir.canWrite())) {
+			save = false;
+			helper.error("No files saved: Output directory is not valid or writable.", "Please Change Output Directory");
+		}
 	}
 
 	protected void overlayShells() {
@@ -883,6 +922,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 
 		private final ImageParser parser;
 		private boolean skipParsing;
+		private final ArrayList<Object> outputs = new ArrayList<>();
 
 		public AnalysisRunner(final ImageParser parser) {
 			this.parser = parser;
@@ -922,7 +962,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			final LinearProfileStats lStats = new LinearProfileStats(profile);
 			lStats.setLogger(logger);
 			if (primaryBranches > 0 ) {
-				lStats.setPrimaryBranches(primaryBranches);
+				lStats.setPrimaryBranches((int)primaryBranches);
 			}
 
 			if (polynomialChoice.contains("Best")) {
@@ -932,7 +972,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 				}
 			} else if (polynomialChoice.contains("degree") && polynomialDegree > 1) {
 				try {
-					lStats.fitPolynomial(polynomialDegree);
+					lStats.fitPolynomial((int)polynomialDegree);
 				} catch (final Exception ignored){
 					helper.error("Polynomial regression failed. Unsuitable degree?", null);
 				}
@@ -957,10 +997,12 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			// Set Plots
 			if (plotOutputDescription.toLowerCase().contains("linear")) {
 				final ShollPlot lPlot = lStats.getPlot();
+				outputs.add(lPlot);
 				lPlot.show();
 			}
 			if (plotOutputDescription.toLowerCase().contains("normalized")) {
 				final ShollPlot nPlot = nStats.getPlot();
+				outputs.add(nPlot);
 				nPlot.show();
 			}
 
@@ -968,10 +1010,12 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 			if (tableOutputDescription.contains("Detailed")) {
 				final ShollTable dTable = new ShollTable(lStats, nStats);
 				dTable.listProfileEntries();
+				dTable.setTitle(imp.getTitle()+"_Sholl-Profiles");
 				if (detailedTableDisplay != null) {
 					detailedTableDisplay.close();
 				}
-				detailedTableDisplay = displayService.createDisplay(imp.getTitle()+"_Sholl-Profiles", dTable);
+				outputs.add(dTable);
+				detailedTableDisplay = displayService.createDisplay(dTable.getTitle(), dTable);
 			}
 
 			if (tableOutputDescription.contains("Summary")) {
@@ -980,22 +1024,48 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 				if (commonSummaryTable == null)
 					commonSummaryTable = new DefaultGenericTable();
 				sTable.summarize(commonSummaryTable, imp.getTitle());
+				sTable.setTitle("Sholl Results");
+				outputs.add(sTable);
 				final Display<?> display = displayService.getDisplay("Sholl Results");
 				if (display != null && display.isDisplaying(commonSummaryTable)) {
 					display.update();
 				} else {
-					displayService.createDisplay("Sholl Results", commonSummaryTable);
+					displayService.createDisplay(sTable.getTitle(), commonSummaryTable);
 				}
 			}
 
 			setProfile(profile);
 
+			// Now save everything
+			errorIfSaveDirInvalid();
+			if (save) {
+				int failures = 0;
+				for (final Object output : outputs) {
+					if (output instanceof ShollPlot) {
+						if (!((ShollPlot)output).save(saveDir)) ++failures;
+					}
+					else if (output instanceof ShollTable) {
+						final ShollTable table = (ShollTable)output;
+						if (!table.hasContext()) table.setContext(getContext());
+						if (!table.save(saveDir)) ++failures;
+					}
+					else if (output instanceof ImagePlus) {
+						final ImagePlus imp = (ImagePlus)output;
+						final File outFile = new File(saveDir, imp.getTitle());
+						if (!IJ.saveAsTiff(imp, outFile.getAbsolutePath())) ++failures;
+					}
+				}
+				if (failures > 0)
+					helper.error("Some file(s) (" + failures + "/"+ outputs.size() +") could not be saved. \n"
+							+ "Please ensure \"Destination\" directory is valid.", "IO Failure");
+			}
 		}
 
 		private void showMask() {
 			final ImagePlus mask = parser.getMask();
 			if (!lutChoice.contains("No LUT.")) mask.getProcessor().setLut(ShollUtils
 				.getLut(lutTable));
+			outputs.add(mask);
 			displayService.createDisplay(mask);
 		}
 
@@ -1034,7 +1104,7 @@ public class ShollAnalysisImg extends DynamicCommand implements Interactive {
 				profile.getProperties().setProperty(ProfileProperties.KEY_HEMISHELLS,
 						ShollUtils.extractHemiShellFlag(hemiShellChoice));
 				final ShollOverlay so = new ShollOverlay(profile);
-				so.setShellsThickness(nSpans);
+				so.setShellsThickness((int)nSpans);
 				if (lutTable == null) {
 					so.setShellsColor(Roi.getColor());
 				} else {

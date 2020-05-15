@@ -21,6 +21,8 @@
  */
 package sholl.gui;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ import org.scijava.NullContextException;
 import org.scijava.plugin.Parameter;
 import org.scijava.prefs.PrefService;
 import org.scijava.table.DefaultGenericTable;
+import org.scijava.table.DefaultTableIOPlugin;
 import org.scijava.table.DoubleColumn;
 import org.scijava.table.GenericTable;
 
@@ -52,9 +55,12 @@ public class ShollTable extends DefaultGenericTable {
 	private final Profile profile;
 	private ShollStats[] stats;
 	private boolean detailedSummary = false;
+	private String title;
+	private DefaultTableIOPlugin tableIO;
 
 	@Parameter
 	private PrefService prefService;
+
 
 	/**
 	 * Instantiates a new table from a {@link Profile}
@@ -81,15 +87,13 @@ public class ShollTable extends DefaultGenericTable {
 	}
 
 	private void addCol(final String header, final List<Double> list) {
-		final DoubleColumn col = new DoubleColumn(header);
-		for (final double row : list) {
-			col.add(row);
-		}
-		this.add(col);
+		addCol(header, list.stream().mapToDouble(Double::doubleValue).toArray());
 	}
 
 	private void addCol(final String header, final double[] array) {
-		addCol(header, DoubleStream.of(array).boxed().collect(Collectors.toList()));
+		final DoubleColumn col = new DoubleColumn(header);
+		col.fill(array);
+		add(col);
 	}
 
 	/**
@@ -322,5 +326,57 @@ public class ShollTable extends DefaultGenericTable {
 			final boolean detailedMetrics = prefService.getBoolean(Prefs.class, "detailedMetrics", Prefs.DEF_DETAILED_METRICS);
 			setDetailedSummary(detailedMetrics);
 		}
+		if (tableIO == null) {
+			tableIO = new DefaultTableIOPlugin();
+			tableIO.setContext(context);
+		}
+	}
+
+	public boolean hasContext() {
+		return prefService != null || tableIO != null;
+	}
+
+	public boolean save(final File file) {
+		if (file == null) return false;
+		if (file.isDirectory()) {
+			String fName = getTitle();
+			if (fName == null || fName.trim().isEmpty())
+				fName = "Sholl_Table.csv";
+			if (!fName.toLowerCase().endsWith(".csv"))
+				fName+= ".csv";
+			return save(new File(file, fName));
+		}
+		String filePath = file.getAbsolutePath();
+		if (!filePath.toLowerCase().endsWith(".csv"))
+			filePath+= ".csv";
+		return save(filePath);
+	}
+
+	public boolean save(final String filePath) {
+		if (tableIO == null) {
+			throw new IllegalArgumentException("Context has not been set");
+		}
+		if (filePath == null || filePath.trim().isEmpty()) {
+			throw new IllegalArgumentException("filePath is not valid");
+		}
+		try {
+			final String fPath = (filePath.toLowerCase().endsWith(".csv")) ? filePath : filePath + ".csv";
+			for (int i = 0; i < getColumnCount(); i++) {
+				setRowCount(Math.max(getRowCount(), get(i).size()));
+			}
+			tableIO.save(this, fPath);
+			return true;
+		} catch (final IOException ex) {
+			System.out.println(ex);
+			return false;
+		}
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 }
