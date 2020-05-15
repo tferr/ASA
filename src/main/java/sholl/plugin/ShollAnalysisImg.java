@@ -956,6 +956,21 @@ public class ShollAnalysisImg extends DynamicCommand {
 					return;
 				}
 			}
+			if (!parser.successful()) {
+				final Result result = helper.yesNoPrompt("Previous run did not yield a valid profile. Re-parse image?", null);
+				if (result != Result.YES_OPTION)
+					return;
+				if (!updateHyperStackPosition()) {
+					initializeParser();
+					readThresholdFromImp();
+				}
+				if (!validRequirements()) return;
+				parser.parse();
+				if (!parser.successful()) {
+					helper.error("No valid profile retrieved.", "Re-run Failed");
+					return;
+				}
+			}
 			final Profile profile = parser.getProfile();
 
 			// Linear profile stats
