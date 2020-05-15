@@ -40,7 +40,6 @@ import org.scijava.command.Command;
 import org.scijava.command.CommandModule;
 import org.scijava.command.CommandService;
 import org.scijava.command.DynamicCommand;
-import org.scijava.command.Interactive;
 import org.scijava.convert.ConvertService;
 import org.scijava.display.Display;
 import org.scijava.display.DisplayService;
@@ -430,6 +429,7 @@ public class ShollAnalysisImg extends DynamicCommand {
 		logger.debug("Analysis started...");
 		analysisThread = threadService.newThread(analysisRunner);
 		analysisThread.start();
+		savePreferences();
 //		if (autoClose && !isCanceled()) {
 //			try {  //FIXME: this kludge will only work if prompt has focus
 //				final Robot r = new Robot();
@@ -490,11 +490,41 @@ public class ShollAnalysisImg extends DynamicCommand {
 //		autoClose = prefService.getBoolean(Prefs.class, "autoClose", Prefs.DEF_AUTO_CLOSE);
 		minDegree = prefService.getInt(Prefs.class, "minDegree", Prefs.DEF_MIN_DEGREE);
 		maxDegree = prefService.getInt(Prefs.class, "maxDegree", Prefs.DEF_MAX_DEGREE);
+		startRadius = prefService.getDouble(getClass(), "startRadius", startRadius);
+		endRadius = prefService.getDouble(getClass(), "endRadius", endRadius);
+		stepSize = prefService.getDouble(getClass(), "stepSize", stepSize);
+		nSpans = prefService.getDouble(getClass(), "nSpans", nSpans);
+		nSpansIntChoice = prefService.get(getClass(), "nSpansIntChoice", nSpansIntChoice);
+		primaryBranchesChoice = prefService.get(getClass(), "primaryBranchesChoice", primaryBranchesChoice);
+		primaryBranches = prefService.getDouble(getClass(), "primaryBranches", primaryBranches);
+		polynomialChoice = prefService.get(getClass(), "polynomialChoice", polynomialChoice);
+		polynomialDegree = prefService.getDouble(getClass(), "polynomialDegree", polynomialDegree);
 		normalizationMethodDescription = prefService.get(getClass(), "normalizationMethodDescription", "Automatically choose");
 		annotationsDescription = prefService.get(getClass(), "annotationsDescription", "ROIs (points and 2D shells)");
 		plotOutputDescription = prefService.get(getClass(), "plotOutputDescription", "Linear plot");
 		lutChoice = prefService.get(getClass(), "lutChoice", "mpl-viridis.lut");
 	}
+
+	private void savePreferences() {
+		logger.debug("Saving preferences");
+//		autoClose = prefService.getBoolean(Prefs.class, "autoClose", Prefs.DEF_AUTO_CLOSE);
+		prefService.put(Prefs.class,  "minDegree", minDegree);
+		prefService.put(Prefs.class, "maxDegree", maxDegree);
+		prefService.put(getClass(), "startRadius", startRadius);
+		prefService.put(getClass(), "endRadius", endRadius);
+		prefService.put(getClass(), "stepSize", stepSize);
+		prefService.put(getClass(), "nSpans", nSpans);
+		prefService.put(getClass(), "nSpansIntChoice", nSpansIntChoice);
+		prefService.put(getClass(), "primaryBranchesChoice", primaryBranchesChoice);
+		prefService.put(getClass(), "primaryBranches", primaryBranches);
+		prefService.put(getClass(), "polynomialChoice", polynomialChoice);
+		prefService.put(getClass(), "polynomialDegree", polynomialDegree);
+		prefService.put(getClass(), "normalizationMethodDescription", normalizationMethodDescription);
+		prefService.put(getClass(), "annotationsDescription", annotationsDescription);
+		prefService.put(getClass(), "plotOutputDescription", plotOutputDescription);
+		prefService.put(getClass(), "lutChoice", lutChoice);
+	}
+
 
 	private void loadDataset(final ImagePlus imp) {
 		this.imp = imp;
