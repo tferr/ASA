@@ -25,7 +25,8 @@ import ij.gui.WaitForUserDialog;
 
 /**
  * Enhances WaitForUserDialog with a few additional features. Customizations are
- * ignored if running headless.
+ * ignored if running headless. This class is only used by IJ1 plugins and is
+ * thus deprecated.
  */
 @Deprecated
 public class EnhancedWaitForUserDialog extends WaitForUserDialog {

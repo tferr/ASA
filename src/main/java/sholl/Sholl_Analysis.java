@@ -86,6 +86,8 @@ import sholl.parsers.ImageParser3D;
  * @author Tiago Ferreira (based on an earlier implementation by Tom Maddock)
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
+ * @deprecated This IJ1 plugin has now been replaced by its IJ2 counterpart.
+ *             Kept here for backwards compatibility
  */
 @Deprecated
 public class Sholl_Analysis implements PlugIn, DialogListener {

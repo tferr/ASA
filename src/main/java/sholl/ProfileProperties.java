@@ -22,7 +22,8 @@
 package sholl;
 
 /**
- *
+ * Associates metadata to a Sholl Profile
+ * 
  * @author Tiago Ferreira
  */
 public interface ProfileProperties {

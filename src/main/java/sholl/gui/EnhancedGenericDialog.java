@@ -54,7 +54,8 @@ import sholl.ShollUtils;
  * Enhances GenericDialog with a few additional features, including scrollbars
  * as soon as the Dialog is too large to be displayed, ability to use the "help"
  * button to display a drop-down menu, and labels featuring clickable
- * hyperlinks. Customizations are ignored if running headless.
+ * hyperlinks. Customizations are ignored if running headless. This class is
+ * only used by IJ1 plugins and is thus deprecated.
  */
 @Deprecated
 public class EnhancedGenericDialog extends GenericDialogPlus {

@@ -43,6 +43,8 @@ import sholl.gui.ShollPlot;
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  * @author Tiago Ferreira
+ * @deprecated This IJ1 plugin is no longer needed when using IJ2 commands.
+ *             Kept here for backwards compatibility
  */
 @Deprecated
 public class Sholl_Utils implements PlugIn {

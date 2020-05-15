@@ -40,7 +40,7 @@ import ij.plugin.frame.Recorder;
 import sholl.gui.EnhancedGenericDialog;
 
 /**
- * This class implements the "Sholl Options and Metrics" command.
+ * Implements the "Sholl Options and Metrics" command.
  *
  * @author Tiago Ferreira
  */

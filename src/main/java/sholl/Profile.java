@@ -37,7 +37,7 @@ import sholl.gui.ShollOverlay;
 import sholl.gui.ShollPlot;
 
 /**
- * Class defining a Sholl profile
+ * Defines a Sholl profile
  *
  * @author Tiago Ferreira
  */

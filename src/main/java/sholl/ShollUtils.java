@@ -44,6 +44,12 @@ import ij.ImagePlus;
 import ij.io.Opener;
 import ij.process.LUT;
 
+/**
+ * Static utilities.
+ * 
+ * @author Tiago Ferreira
+ * 
+ */
 public class ShollUtils {
 
 	/* Plugin Information */

@@ -34,7 +34,11 @@ import ij.measure.ResultsTable;
 import ij.plugin.MeasurementsWriter;
 import ij.text.TextWindow;
 
-/** Slight improvements to {@link ij.measure.ResultsTable} */
+/**
+ * Slight improvements to {@link ij.measure.ResultsTable}. This class is only
+ * used by IJ1 plugins and is thus deprecated.
+ * @deprecated Use {@linkplain ShollTable} instead
+ */
 @Deprecated
 public class EnhancedResultsTable extends ResultsTable {
 
