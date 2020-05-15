@@ -26,7 +26,6 @@ import org.apache.commons.math3.stat.inference.KolmogorovSmirnovTest;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.scijava.NullContextException;
 import org.scijava.command.ContextCommand;
-import org.scijava.plugin.Plugin;
 
 import sholl.Logger;
 import sholl.Profile;

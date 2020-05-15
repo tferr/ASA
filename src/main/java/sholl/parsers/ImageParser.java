@@ -28,7 +28,6 @@ import org.scijava.Context;
 import org.scijava.app.StatusService;
 import org.scijava.command.ContextCommand;
 import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import ij.IJ;
 import ij.ImagePlus;
