@@ -11,7 +11,7 @@
 
 	<groupId>ca.mcgill</groupId>
 	<artifactId>Sholl_Analysis</artifactId>
-	<version>4.0.1-SNAPSHOT</version>
+	<version>4.0.1</version>
 
 	<name>Sholl Analysis</name>
 	<description>ImageJ plugin that uses automated Sholl to perform neuronal morphometry directly from segmented images and traces from Simple Neurite Tracer</description>
@@ -76,7 +76,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/tferr/ASA</connection>
 		<developerConnection>scm:git:git@github.com:tferr/ASA</developerConnection>
-		<tag>HEAD</tag>
+		<tag>Sholl_Analysis-4.0.1</tag>
 		<url>https://github.com/tferr/ASA</url>
 	</scm>
 	<issueManagement>
