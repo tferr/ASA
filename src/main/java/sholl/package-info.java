@@ -24,7 +24,9 @@
  *
  * @author Tiago Ferreira
  *
+ * @deprecated As of release 4.0.2 replaced by {@link sc.fiji.snt.analysis.sholl}
  * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
  * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  */
+@Deprecated
 package sholl;
