@@ -20,12 +20,10 @@
  * #L%
  */
 /**
- * Statistical analysis of Sholl data
- *
+ * This package is now deprecated. As of release 4.0.2 it has been replaced by
+ * {@link sc.fiji.snt.analysis.sholl}
+ * 
  * @author Tiago Ferreira
- *
- * @see <a href="https://github.com/tferr/ASA">https://github.com/tferr/ASA</a>
- * @see <a href="http://imagej.net/Sholl">http://imagej.net/Sholl</a>
  */
-
+@Deprecated
 package sholl.math;

@@ -26,4 +26,4 @@
  * @author Tiago Ferreira
  */
 @Deprecated
-package sholl.gui;
+package sholl.plugin;
