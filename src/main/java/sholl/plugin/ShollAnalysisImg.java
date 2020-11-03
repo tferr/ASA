@@ -95,7 +95,7 @@ import sholl.parsers.ImageParser3D;
  * 
  * @author Tiago Ferreira
  */
-@Plugin(type = Command.class, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),
+@Plugin(type = Command.class, visible = false, menu = { @Menu(label = "Analyze"), @Menu(label = "Sholl", weight = 0.01d),
 		@Menu(label = "Sholl Analysis (From Image)...") }, initializer = "init")
 public class ShollAnalysisImg extends DynamicCommand {
 

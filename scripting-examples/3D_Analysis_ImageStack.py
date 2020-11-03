@@ -1,6 +1,10 @@
 #@ImagePlus imp
 #@LogService log
 
+''' 
+    This script uses an outdated API. For a modern replacement, have a look at
+    https://github.com/morphonets/SNT/tree/master/src/main/resources/script_templates/Neuroanatomy
+'''
 from sholl import Sholl_Analysis
 from sholl import Options
 from os.path import expanduser
