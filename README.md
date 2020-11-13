@@ -6,14 +6,13 @@
 [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e032f437a8ba44a6b4ff7cc9bdf8d978)](https://www.codacy.com/app/tferr/ASA?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tferr/ASA&amp;utm_campaign=Badge_Grade)
 
-A plugin for [ImageJ](http://imagej.net/), the _de facto_ standard in scientific image
-processing, that uses automated  Sholl to perform neuronal morphometry directly from
-bitmap images. It is part of [Fiji](http://fiji.sc/).
 
-Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1244622/)
-is a method used by neuroanatomists to describe neuronal arbors. The plugin takes the
-original technique beyond conventional approaches, offering major advantages over other
-implementations:
+
+:warning: :warning:**This project is now part of [SNT](https://github.com/morphonets/SNT). The most up-to-date code for this plugin can now be found at [morphonets/SNT](morphonets/SNT)** :warning: :warning:
+
+A plugin for [ImageJ](http://imagej.net/), the _de facto_ standard in scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from bitmap images. It is part of [Fiji](http://fiji.sc/).
+
+Sholl analysis [(Sholl, D.A., 1953)](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1244622/) is a method used by neuroanatomists to describe neuronal arbors. The plugin takes the original technique beyond conventional approaches, offering major advantages over other implementations:
 
 * It can perform the analysis in either 2D or 3D from three distinct sources:
   1. Segmented images, allowing continuous or repeated sampling. In this mode analysis
@@ -37,18 +36,10 @@ Please cite it if you use it in your own research:
   [Neuronal morphometry directly from bitmap images](http://www.nature.com/nmeth/journal/v11/n10/full/nmeth.3125.html),
   Nature Methods 11(10): 982–984, 2014
 
-The manuscript uses _Sholl Analysis_ to describe and classify morphologically challenging
-cells and is accompanied by a [Supplementary Note](http://www.nature.com/nmeth/journal/v11/n10/extref/nmeth.3125-S1.pdf)
-that presents the software in greater detail.
-
-
-## Resources
- - [Documentation page](http://imagej.net/Sholl)
- - [Release Notes](./Notes.md)
- - [API (Javadocs)](http://tferr.github.io/ASA/apidocs/)
-
+The manuscript uses _Sholl Analysis_ to describe and classify morphologically challenging cells and is accompanied by a [Supplementary Note](http://www.nature.com/nmeth/journal/v11/n10/extref/nmeth.3125-S1.pdf) that presents the software in greater detail.
 
 ## Installation
+
 If you use Fiji, you already have _Sholl Analysis_ installed and can start [using it](http://imagej.net/Sholl_Analysis#Usage)
 right away. Binaries are available from the [documentation page](http://imagej.net/Sholl_Analysis)
 or from the [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~ca.mcgill~Sholl_Analysis~~~).
@@ -56,20 +47,16 @@ or from the [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~
 
 ## Help?
  * Want to contribute?
-    * Thanks! Please, please do! See [here](https://guides.github.com/activities/contributing-to-open-source/)
-      and [here](https://help.github.com/articles/fork-a-repo) for details on how to
-      [fork ASA](https://github.com/tferr/ASA/fork) or [here](https://help.github.com/articles/using-pull-requests)
-      on how to initiate a [pull request](https://github.com/tferr/ASA/pulls)
+    * Thanks! Please, please do! Head over to  [morphonets/SNT](https://github.com/morphonets/SNT)
     * Documentation updates are also welcome, so go ahead and improve the _Sholl Analysis_
       [documentation page](http://imagej.net/Sholl)
  * Having problems? Found a bug? Need to ask a question?
-    * See the plugin's [FAQs](http://imagej.net/Sholl_Analysis#FAQ), ImageJ's [FAQs](http://imagej.net/Frequently_Asked_Questions)
-      and [Bug reporting best practices](http://imagej.net/Bug_reporting_best_practices). Then, you can either:
-      * [Open an issue](https://github.com/tferr/ASA/issues) on this repository
+    * See the plugin's [FAQs](http://imagej.net/Sholl_Analysis#FAQ), ImageJ's [FAQs](http://imagej.net/Frequently_Asked_Questions) and [Bug reporting best practices](http://imagej.net/Bug_reporting_best_practices). Then, you can either:
+      * [Open an issue](https://github.com/morphonets/SNT/issues)
       * Report it on the [ImageJ forum](http://forum.imagej.net)
 
-
 ## License
+
 This program is free software: you can redistribute them and/or modify them under the terms of the
 [GNU General Public License](http://www.gnu.org/licenses/gpl.txt) as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later version.

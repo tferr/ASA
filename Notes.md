@@ -1,4 +1,12 @@
-# Release Notes for [Sholl Analysis](http://imagej.net/Sholl)
+# Notes
+
+**These release notes are no longer updated. For an up-to-date log of changes have a look at SNT's git history at [morphonets.org](https://github.com/morphonets/SNT)**.
+
+
+
+
+
+## Release Notes for [Sholl Analysis](http://imagej.net/Sholl)
 
 The latest [release build](#release-builds) is available through the Fiji Updater. [Development builds](#development-builds) may have new
 features (see [Wish List](#wish-list)) but are bug-prone and probably undocumented. A release is
@@ -6,8 +14,8 @@ pushed to the Fiji Updater once new features mature and no major issues are foun
 binaries (and respective sources) of the versions listed here can be downloaded from the
 [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~ca.mcgill~Sholl_Analysis~~~).
 
-
 ## Development Builds
+
 * IJ2 rewrite complete. IJ1 plugins are now deprecated but remain available under the _Analyze> Sholl> Deprecated_ menu
 * Improvement of 'best fit' polynomial regression
 * UI improvements (look for tooltips documentation)
@@ -18,8 +26,8 @@ binaries (and respective sources) of the versions listed here can be downloaded 
 
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 
-
 #### Version 3.7.3 (February 2018)
+
 * Bugfix for IJ1 plugin: Exception in tabular prompt
 
 #### Version 3.7.2 (February 2018)
