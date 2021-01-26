@@ -1,14 +1,14 @@
 # [Sholl Analysis](http://imagej.net/Sholl)
+[![Maintenance](https://img.shields.io/maintenance/no/2020)](https://github.com/morphonets/SNT)
+[![Maintenance](https://img.shields.io/badge/Legacy-Replaced%20by%20SNT-orange)](https://github.com/morphonets/SNT)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 [![Travis](https://travis-ci.org/tferr/ASA.svg?branch-master)](https://travis-ci.org/tferr/ASA)
-[![Latest Release](https://img.shields.io/github/release/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/releases)
-[![Issues](https://img.shields.io/github/issues/tferr/ASA.svg?style=flat-square)](https://github.com/tferr/ASA/issues)
 [![GPL License](http://img.shields.io/badge/license-GPL-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-3.0)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e032f437a8ba44a6b4ff7cc9bdf8d978)](https://www.codacy.com/app/tferr/ASA?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tferr/ASA&amp;utm_campaign=Badge_Grade)
 
 
 
-:warning: :warning:**This project is now part of [SNT](https://github.com/morphonets/SNT). The most up-to-date code for this plugin can now be found at [morphonets/SNT](morphonets/SNT)** :warning: :warning:
+:warning: :warning:**This project is now part of [SNT](https://github.com/morphonets/SNT). The most up-to-date code for this plugin can now be found at [morphonets/SNT](https://github.com/morphonets/SNT)** :warning: :warning:
 
 A plugin for [ImageJ](http://imagej.net/), the _de facto_ standard in scientific image processing, that uses automated  Sholl to perform neuronal morphometry directly from bitmap images. It is part of [Fiji](http://fiji.sc/).
 
@@ -39,15 +39,19 @@ Please cite it if you use it in your own research:
 The manuscript uses _Sholl Analysis_ to describe and classify morphologically challenging cells and is accompanied by a [Supplementary Note](http://www.nature.com/nmeth/journal/v11/n10/extref/nmeth.3125-S1.pdf) that presents the software in greater detail.
 
 ## Installation
+In  [Fiji](https://imagej.net/Fiji), subscribe to the *NeuroAnatomy* [update site](https://imagej.net/Update_Sites):
 
-If you use Fiji, you already have _Sholl Analysis_ installed and can start [using it](http://imagej.net/Sholl_Analysis#Usage)
-right away. Binaries are available from the [documentation page](http://imagej.net/Sholl_Analysis)
-or from the [ImageJ Maven repository](http://maven.imagej.net/#nexus-search;gav~ca.mcgill~Sholl_Analysis~~~).
+1.  Run the Fiji Updater (*Help › Update...*, the penultimate entry in the  *Help ›*  menu)
+2.  Click *Manage update sites*
+3.  Select the *Neuroanatomy* checkbox
+4.  Click *Apply changes* and Restart Fiji. Sholl-related commands will be registered under _Plugins>Neuroanatomy>_ in the main menu and SNT scripts under _Templates>Neuroanatomy>_ in Fiji's Script Editor. The plugin can also be accessed from [SNT](https://github.com/morphonets/SNT) itself.
+
+The [documentation page](http://imagej.net/Sholl_Analysis) contains usage details.
 
 
 ## Help?
  * Want to contribute?
-    * Thanks! Please, please do! Head over to  [morphonets/SNT](https://github.com/morphonets/SNT)
+    * Thanks! Please, please do! Head over to [morphonets/SNT](https://github.com/morphonets/SNT)
     * Documentation updates are also welcome, so go ahead and improve the _Sholl Analysis_
       [documentation page](http://imagej.net/Sholl)
  * Having problems? Found a bug? Need to ask a question?
