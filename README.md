@@ -1,5 +1,4 @@
 # [Sholl Analysis](http://imagej.net/Sholl)
-[![Maintenance](https://img.shields.io/maintenance/no/2020)](https://github.com/morphonets/SNT)
 [![Maintenance](https://img.shields.io/badge/Legacy-Replaced%20by%20SNT-orange)](https://github.com/morphonets/SNT)
 [![DOI](https://zenodo.org/badge/4622/tferr/ASA.svg)](https://zenodo.org/badge/latestdoi/4622/tferr/ASA)
 [![Travis](https://travis-ci.org/tferr/ASA.svg?branch-master)](https://travis-ci.org/tferr/ASA)
